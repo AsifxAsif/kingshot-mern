@@ -1,0 +1,587 @@
+{
+	"Troops": {
+		"Training": {
+			"Infantry": [
+				{
+					"lvl": 1,
+					"bread": 36,
+					"wood": 27,
+					"stone": 7,
+					"iron": 2,
+					"time": "12s",
+					"point": 1
+				},
+				{
+					"lvl": 2,
+					"bread": 58,
+					"wood": 44,
+					"stone": 10,
+					"iron": 3,
+					"time": "17s",
+					"point": 2
+				},
+				{
+					"lvl": 3,
+					"bread": 92,
+					"wood": 69,
+					"stone": 17,
+					"iron": 4,
+					"time": "24s",
+					"point": 3
+				},
+				{
+					"lvl": 4,
+					"bread": 120,
+					"wood": 90,
+					"stone": 21,
+					"iron": 5,
+					"time": "32s",
+					"point": 5
+				},
+				{
+					"lvl": 5,
+					"bread": 156,
+					"wood": 117,
+					"stone": 27,
+					"iron": 6,
+					"time": "44s",
+					"point": 7
+				},
+				{
+					"lvl": 6,
+					"bread": 186,
+					"wood": 140,
+					"stone": 33,
+					"iron": 7,
+					"time": "1m",
+					"point": 11
+				},
+				{
+					"lvl": 7,
+					"bread": 279,
+					"wood": 210,
+					"stone": 49,
+					"iron": 11,
+					"time": "1m 23s",
+					"point": 16
+				},
+				{
+					"lvl": 8,
+					"bread": 558,
+					"wood": 419,
+					"stone": 98,
+					"iron": 21,
+					"time": "1m 53s",
+					"point": 23
+				},
+				{
+					"lvl": 9,
+					"bread": 1394,
+					"wood": 1046,
+					"stone": 244,
+					"iron": 51,
+					"time": "2m 11s",
+					"point": 30
+				},
+				{
+					"lvl": 10,
+					"bread": 2788,
+					"wood": 2091,
+					"stone": 488,
+					"iron": 102,
+					"time": "2m 32s",
+					"point": 39
+				},
+				{
+					"lvl": 11,
+					"bread": 6970,
+					"wood": 5228,
+					"stone": 1220,
+					"iron": 253,
+					"time": "3m",
+					"point": 49
+				}
+			],
+			"Cavalry": [
+				{
+					"lvl": 1,
+					"bread": 32,
+					"wood": 30,
+					"stone": 7,
+					"iron": 2,
+					"time": "12s",
+					"point": 1
+				},
+				{
+					"lvl": 2,
+					"bread": 51,
+					"wood": 48,
+					"stone": 10,
+					"iron": 3,
+					"time": "17s",
+					"point": 2
+				},
+				{
+					"lvl": 3,
+					"bread": 81,
+					"wood": 76,
+					"stone": 16,
+					"iron": 4,
+					"time": "24s",
+					"point": 3
+				},
+				{
+					"lvl": 4,
+					"bread": 105,
+					"wood": 99,
+					"stone": 21,
+					"iron": 5,
+					"time": "32s",
+					"point": 5
+				},
+				{
+					"lvl": 5,
+					"bread": 136,
+					"wood": 129,
+					"stone": 27,
+					"iron": 7,
+					"time": "44s",
+					"point": 7
+				},
+				{
+					"lvl": 6,
+					"bread": 163,
+					"wood": 154,
+					"stone": 32,
+					"iron": 8,
+					"time": "1m",
+					"point": 11
+				},
+				{
+					"lvl": 7,
+					"bread": 244,
+					"wood": 231,
+					"stone": 48,
+					"iron": 11,
+					"time": "1m 23s",
+					"point": 16
+				},
+				{
+					"lvl": 8,
+					"bread": 488,
+					"wood": 461,
+					"stone": 95,
+					"iron": 22,
+					"time": "1m 53s",
+					"point": 23
+				},
+				{
+					"lvl": 9,
+					"bread": 1220,
+					"wood": 1151,
+					"stone": 237,
+					"iron": 55,
+					"time": "2m 11s",
+					"point": 30
+				},
+				{
+					"lvl": 10,
+					"bread": 2440,
+					"wood": 2301,
+					"stone": 474,
+					"iron": 109,
+					"time": "2m 32s",
+					"point": 39
+				},
+				{
+					"lvl": 11,
+					"bread": 6099,
+					"wood": 5751,
+					"stone": 1185,
+					"iron": 271,
+					"time": "3m",
+					"point": 49
+				}
+			],
+			"Archer": [
+				{
+					"lvl": 1,
+					"bread": 23,
+					"wood": 34,
+					"stone": 6,
+					"iron": 2,
+					"time": "12s",
+					"point": 1
+				},
+				{
+					"lvl": 2,
+					"bread": 36,
+					"wood": 54,
+					"stone": 9,
+					"iron": 4,
+					"time": "17s",
+					"point": 2
+				},
+				{
+					"lvl": 3,
+					"bread": 58,
+					"wood": 86,
+					"stone": 15,
+					"iron": 5,
+					"time": "24s",
+					"point": 3
+				},
+				{
+					"lvl": 4,
+					"bread": 75,
+					"wood": 111,
+					"stone": 19,
+					"iron": 6,
+					"time": "32s",
+					"point": 5
+				},
+				{
+					"lvl": 5,
+					"bread": 97,
+					"wood": 144,
+					"stone": 24,
+					"iron": 8,
+					"time": "44s",
+					"point": 7
+				},
+				{
+					"lvl": 6,
+					"bread": 117,
+					"wood": 173,
+					"stone": 29,
+					"iron": 10,
+					"time": "1m",
+					"point": 11
+				},
+				{
+					"lvl": 7,
+					"bread": 175,
+					"wood": 258,
+					"stone": 44,
+					"iron": 14,
+					"time": "1m 23s",
+					"point": 16
+				},
+				{
+					"lvl": 8,
+					"bread": 349,
+					"wood": 516,
+					"stone": 87,
+					"iron": 28,
+					"time": "1m 53s",
+					"point": 23
+				},
+				{
+					"lvl": 9,
+					"bread": 872,
+					"wood": 1290,
+					"stone": 217,
+					"iron": 70,
+					"time": "2m 11s",
+					"point": 30
+				},
+				{
+					"lvl": 10,
+					"bread": 1740,
+					"wood": 2579,
+					"stone": 433,
+					"iron": 140,
+					"time": "2m 32s",
+					"point": 39
+				},
+				{
+					"lvl": 11,
+					"bread": 4357,
+					"wood": 6448,
+					"stone": 1081,
+					"iron": 349,
+					"time": "3m",
+					"point": 49
+				}
+			]
+		},
+		"Promoting": {
+			"Infantry": [
+				{
+					"current_lvl": 1,
+					"target_lvl": 2,
+					"bread": 22,
+					"wood": 17,
+					"stone": 3,
+					"iron": 1,
+					"time": "5s"
+				},
+				{
+					"current_lvl": 2,
+					"target_lvl": 3,
+					"bread": 34,
+					"wood": 25,
+					"stone": 7,
+					"iron": 1,
+					"time": "7s"
+				},
+				{
+					"current_lvl": 3,
+					"target_lvl": 4,
+					"bread": 28,
+					"wood": 21,
+					"stone": 4,
+					"iron": 1,
+					"time": "8s"
+				},
+				{
+					"current_lvl": 4,
+					"target_lvl": 5,
+					"bread": 36,
+					"wood": 27,
+					"stone": 6,
+					"iron": 1,
+					"time": "12s"
+				},
+				{
+					"current_lvl": 5,
+					"target_lvl": 6,
+					"bread": 30,
+					"wood": 23,
+					"stone": 6,
+					"iron": 1,
+					"time": "16s"
+				},
+				{
+					"current_lvl": 6,
+					"target_lvl": 7,
+					"bread": 93,
+					"wood": 70,
+					"stone": 16,
+					"iron": 4,
+					"time": "23s"
+				},
+				{
+					"current_lvl": 7,
+					"target_lvl": 8,
+					"bread": 279,
+					"wood": 209,
+					"stone": 49,
+					"iron": 10,
+					"time": "30s"
+				},
+				{
+					"current_lvl": 8,
+					"target_lvl": 9,
+					"bread": 836,
+					"wood": 627,
+					"stone": 146,
+					"iron": 30,
+					"time": "18s"
+				},
+				{
+					"current_lvl": 9,
+					"target_lvl": 10,
+					"bread": 1394,
+					"wood": 1045,
+					"stone": 244,
+					"iron": 51,
+					"time": "21s"
+				},
+				{
+					"current_lvl": 10,
+					"target_lvl": 11,
+					"bread": 4182,
+					"wood": 3137,
+					"stone": 732,
+					"iron": 151,
+					"time": "28s"
+				}
+			],
+			"Cavalry": [
+				{
+					"current_lvl": 1,
+					"target_lvl": 2,
+					"bread": 19,
+					"wood": 18,
+					"stone": 3,
+					"iron": 1,
+					"time": "5s"
+				},
+				{
+					"current_lvl": 2,
+					"target_lvl": 3,
+					"bread": 30,
+					"wood": 28,
+					"stone": 6,
+					"iron": 1,
+					"time": "7s"
+				},
+				{
+					"current_lvl": 3,
+					"target_lvl": 4,
+					"bread": 24,
+					"wood": 23,
+					"stone": 5,
+					"iron": 1,
+					"time": "8s"
+				},
+				{
+					"current_lvl": 4,
+					"target_lvl": 5,
+					"bread": 31,
+					"wood": 30,
+					"stone": 6,
+					"iron": 2,
+					"time": "12s"
+				},
+				{
+					"current_lvl": 5,
+					"target_lvl": 6,
+					"bread": 27,
+					"wood": 25,
+					"stone": 5,
+					"iron": 1,
+					"time": "16s"
+				},
+				{
+					"current_lvl": 6,
+					"target_lvl": 7,
+					"bread": 81,
+					"wood": 77,
+					"stone": 16,
+					"iron": 3,
+					"time": "23s"
+				},
+				{
+					"current_lvl": 7,
+					"target_lvl": 8,
+					"bread": 244,
+					"wood": 230,
+					"stone": 47,
+					"iron": 11,
+					"time": "30s"
+				},
+				{
+					"current_lvl": 8,
+					"target_lvl": 9,
+					"bread": 732,
+					"wood": 690,
+					"stone": 142,
+					"iron": 33,
+					"time": "18s"
+				},
+				{
+					"current_lvl": 9,
+					"target_lvl": 10,
+					"bread": 1220,
+					"wood": 1150,
+					"stone": 237,
+					"iron": 54,
+					"time": "21s"
+				},
+				{
+					"current_lvl": 10,
+					"target_lvl": 11,
+					"bread": 3659,
+					"wood": 3450,
+					"stone": 711,
+					"iron": 162,
+					"time": "28s"
+				}
+			],
+			"Archer": [
+				{
+					"current_lvl": 1,
+					"target_lvl": 2,
+					"bread": 13,
+					"wood": 20,
+					"stone": 3,
+					"iron": 2,
+					"time": "5s"
+				},
+				{
+					"current_lvl": 2,
+					"target_lvl": 3,
+					"bread": 22,
+					"wood": 32,
+					"stone": 6,
+					"iron": 1,
+					"time": "7s"
+				},
+				{
+					"current_lvl": 3,
+					"target_lvl": 4,
+					"bread": 17,
+					"wood": 25,
+					"stone": 4,
+					"iron": 1,
+					"time": "8s"
+				},
+				{
+					"current_lvl": 4,
+					"target_lvl": 5,
+					"bread": 22,
+					"wood": 33,
+					"stone": 5,
+					"iron": 2,
+					"time": "12s"
+				},
+				{
+					"current_lvl": 5,
+					"target_lvl": 6,
+					"bread": 20,
+					"wood": 29,
+					"stone": 5,
+					"iron": 2,
+					"time": "16s"
+				},
+				{
+					"current_lvl": 6,
+					"target_lvl": 7,
+					"bread": 58,
+					"wood": 85,
+					"stone": 15,
+					"iron": 4,
+					"time": "23s"
+				},
+				{
+					"current_lvl": 7,
+					"target_lvl": 8,
+					"bread": 174,
+					"wood": 258,
+					"stone": 43,
+					"iron": 14,
+					"time": "30s"
+				},
+				{
+					"current_lvl": 8,
+					"target_lvl": 9,
+					"bread": 523,
+					"wood": 774,
+					"stone": 130,
+					"iron": 42,
+					"time": "18s"
+				},
+				{
+					"current_lvl": 9,
+					"target_lvl": 10,
+					"bread": 868,
+					"wood": 1289,
+					"stone": 216,
+					"iron": 70,
+					"time": "21s"
+				},
+				{
+					"current_lvl": 10,
+					"target_lvl": 11,
+					"bread": 2617,
+					"wood": 3869,
+					"stone": 648,
+					"iron": 209,
+					"time": "28s"
+				}
+			]
+		}
+	}
+}

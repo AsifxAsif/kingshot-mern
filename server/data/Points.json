@@ -1,0 +1,286 @@
+{
+	"Points": [
+		{
+			"mission": "Use 1 Truegold to upgrade a building",
+			"ab": 1250,
+			"kvk": 2000,
+			"sg": 2000
+		},
+		{
+			"mission": "Use 1 Truegold Dust for Tech Research",
+			"ab": 625,
+			"kvk": 1000,
+			"sg": 1000
+		},
+		{
+			"mission": "Use 1 Tempered Truegold to upgrade a building",
+			"ab": null,
+			"kvk": 30000,
+			"sg": 30000
+		},
+		{
+			"mission": "Use 1 Rare Hero Shard to ascend Heroes",
+			"ab": 210,
+			"kvk": 350,
+			"sg": 350
+		},
+		{
+			"mission": "Use 1 Epic Hero Shard to ascend Heroes",
+			"ab": 750,
+			"kvk": 1220,
+			"sg": 1220
+		},
+		{
+			"mission": "Use 1 Mythic Hero Shard to ascend Heroes",
+			"ab": 1875,
+			"kvk": 3040,
+			"sg": 3040
+		},
+		{
+			"mission": "Use 1 Hero Gear Forgehammer(s)",
+			"ab": 1875,
+			"kvk": 4000,
+			"sg": 4000
+		},
+		{
+			"mission": "Use 1 Widget for Hero Exclusive Gear",
+			"ab": 3750,
+			"kvk": 8000,
+			"sg": 8000
+		},
+		{
+			"mission": "Use 1 Mithril",
+			"ab": 18750,
+			"kvk": 40000,
+			"sg": 40000
+		},
+		{
+			"mission": "Use 1 Advanced Taming Mark(s) to refine Pets",
+			"ab": 9370,
+			"kvk": 15000,
+			"sg": 15000
+		},
+		{
+			"mission": "Use 1 Common Taming Mark(s) to refine Pets",
+			"ab": 680,
+			"kvk": 1150,
+			"sg": 1150
+		},
+		{
+			"mission": "Use 1 Master Emblem",
+			"ab": 3600,
+			"kvk": 6000,
+			"sg": 6000
+		},
+		{
+			"mission": "Use 1 Masters Manuscript",
+			"ab": 36,
+			"kvk": 60,
+			"sg": 60
+		},
+		{
+			"mission": "Use 1m of Speedups for Construction",
+			"ab": 18,
+			"kvk": 30,
+			"sg": 30
+		},
+		{
+			"mission": "Use 1m of Speedups for Research",
+			"ab": 18,
+			"kvk": 30,
+			"sg": 30
+		},
+		{
+			"mission": "Use 1m of Speedups for Troop Training/Promotion",
+			"ab": 18,
+			"kvk": 30,
+			"sg": 30
+		},
+		{
+			"mission": "Use 1m of Speedups to Learn Master Skills",
+			"ab": 18,
+			"kvk": 30,
+			"sg": 30
+		},
+		{
+			"mission": "Play Hero Roulette",
+			"ab": null,
+			"kvk": 8000,
+			"sg": 8000
+		},
+		{
+			"mission": "Raise Governor Gear max score by 1",
+			"ab": 22,
+			"kvk": 36,
+			"sg": 36
+		},
+		{
+			"mission": "Raise Governor Gear Charm max score by 1",
+			"ab": 45,
+			"kvk": 70,
+			"sg": 70
+		},
+		{
+			"mission": "Raise Pet Advancement Score by 1",
+			"ab": 30,
+			"kvk": 50,
+			"sg": 50
+		},
+		{
+			"mission": "Train 1 Level 1 Troop(s)",
+			"ab": 1,
+			"kvk": 3,
+			"sg": 1
+		},
+		{
+			"mission": "Train 1 Level 2 Troop(s)",
+			"ab": 1,
+			"kvk": 4,
+			"sg": 2
+		},
+		{
+			"mission": "Train 1 Level 3 Troop(s)",
+			"ab": 2,
+			"kvk": 5,
+			"sg": 3
+		},
+		{
+			"mission": "Train 1 Level 4 Troop(s)",
+			"ab": 3,
+			"kvk": 8,
+			"sg": 5
+		},
+		{
+			"mission": "Train 1 Level 5 Troop(s)",
+			"ab": 4,
+			"kvk": 12,
+			"sg": 7
+		},
+		{
+			"mission": "Train 1 Level 6 Troop(s)",
+			"ab": 7,
+			"kvk": 18,
+			"sg": 11
+		},
+		{
+			"mission": "Train 1 Level 7 Troop(s)",
+			"ab": 10,
+			"kvk": 25,
+			"sg": 16
+		},
+		{
+			"mission": "Train 1 Level 8 Troop(s)",
+			"ab": 14,
+			"kvk": 35,
+			"sg": 23
+		},
+		{
+			"mission": "Train 1 Level 9 Troop(s)",
+			"ab": 18,
+			"kvk": 45,
+			"sg": 30
+		},
+		{
+			"mission": "Train 1 Level 10 Troop(s)",
+			"ab": 24,
+			"kvk": 60,
+			"sg": 39
+		},
+		{
+			"mission": "Train 1 Level 11 Troop(s)",
+			"ab": 30,
+			"kvk": 75,
+			"sg": 49
+		},
+		{
+			"mission": "Gather Bread in the Wilderness",
+			"ab": "2 per 2000",
+			"kvk": "2 per 1000",
+			"sg": "3 per 2500"
+		},
+		{
+			"mission": "Gather Wood in the Wilderness",
+			"ab": "2 per 2000",
+			"kvk": "2 per 1000",
+			"sg": "3 per 2500"
+		},
+		{
+			"mission": "Gather Stone in the Wilderness",
+			"ab": "2 per 400",
+			"kvk": "2 per 200",
+			"sg": "3 per 500"
+		},
+		{
+			"mission": "Gather Iron in the Wilderness",
+			"ab": "2 per 100",
+			"kvk": "2 per 50",
+			"sg": "3 per 100"
+		},
+		{
+			"mission": "Escort Truck",
+			"ab": 10000,
+			"kvk": null,
+			"sg": null
+		},
+		{
+			"mission": "Raid Truck",
+			"ab": 10000,
+			"kvk": null,
+			"sg": null
+		},
+		{
+			"mission": "Use 1 Gem",
+			"ab": 1,
+			"kvk": null,
+			"sg": null
+		},
+		{
+			"mission": "Every 1 Top-up point obtained",
+			"ab": 6,
+			"kvk": null,
+			"sg": null
+		},
+		{
+			"mission": "Intel Missions",
+			"ab": 3000,
+			"kvk": 6000,
+			"sg": null
+		},
+		{
+			"mission": "Defeat level 1 to level 10 beast",
+			"ab": 4000,
+			"kvk": null,
+			"sg": null
+		},
+		{
+			"mission": "Defeat level 11 to level 15 beast",
+			"ab": 4500,
+			"kvk": null,
+			"sg": null
+		},
+		{
+			"mission": "Defeat level 16 to level 20 beast",
+			"ab": 5000,
+			"kvk": null,
+			"sg": null
+		},
+		{
+			"mission": "Defeat level 21 to level 25 beast",
+			"ab": 5500,
+			"kvk": null,
+			"sg": null
+		},
+		{
+			"mission": "Defeat level 26 to level 30 beast",
+			"ab": 6000,
+			"kvk": null,
+			"sg": null
+		},
+		{
+			"mission": "Rally and hunt down Terror",
+			"ab": 15000,
+			"kvk": null,
+			"sg": null
+		}
+	]
+}

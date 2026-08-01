@@ -1,0 +1,468 @@
+{
+	"GOV Gear": [
+		{
+			"current": null,
+			"target": "Green",
+			"satin": 1500,
+			"threads": 15,
+			"artisans": 0,
+			"point": 1125
+		},
+		{
+			"current": "Green",
+			"target": "Green⭐",
+			"satin": 3800,
+			"threads": 40,
+			"artisans": 0,
+			"point": 1875
+		},
+		{
+			"current": "Green⭐",
+			"target": "Blue",
+			"satin": 7000,
+			"threads": 70,
+			"artisans": 0,
+			"point": 3000
+		},
+		{
+			"current": "Blue",
+			"target": "Blue⭐",
+			"satin": 9700,
+			"threads": 95,
+			"artisans": 0,
+			"point": 4500
+		},
+		{
+			"current": "Blue⭐",
+			"target": "Blue⭐⭐",
+			"satin": 1000,
+			"threads": 10,
+			"artisans": 45,
+			"point": 5100
+		},
+		{
+			"current": "Blue⭐⭐",
+			"target": "Blue⭐⭐⭐",
+			"satin": 1000,
+			"threads": 10,
+			"artisans": 50,
+			"point": 5440
+		},
+		{
+			"current": "Blue⭐⭐⭐",
+			"target": "Purple",
+			"satin": 1500,
+			"threads": 15,
+			"artisans": 60,
+			"point": 3230
+		},
+		{
+			"current": "Purple",
+			"target": "Purple⭐",
+			"satin": 1500,
+			"threads": 15,
+			"artisans": 70,
+			"point": 3230
+		},
+		{
+			"current": "Purple⭐",
+			"target": "Purple⭐⭐",
+			"satin": 6500,
+			"threads": 65,
+			"artisans": 40,
+			"point": 3225
+		},
+		{
+			"current": "Purple⭐⭐",
+			"target": "Purple⭐⭐⭐",
+			"satin": 8000,
+			"threads": 80,
+			"artisans": 50,
+			"point": 3225
+		},
+		{
+			"current": "Purple⭐⭐⭐",
+			"target": "Purple T1",
+			"satin": 10000,
+			"threads": 95,
+			"artisans": 60,
+			"point": 3440
+		},
+		{
+			"current": "Purple T1",
+			"target": "Purple T1⭐",
+			"satin": 11000,
+			"threads": 110,
+			"artisans": 70,
+			"point": 3440
+		},
+		{
+			"current": "Purple T1⭐",
+			"target": "Purple T1⭐⭐",
+			"satin": 13000,
+			"threads": 130,
+			"artisans": 85,
+			"point": 4085
+		},
+		{
+			"current": "Purple T1⭐⭐",
+			"target": "Purple T1⭐⭐⭐",
+			"satin": 15000,
+			"threads": 160,
+			"artisans": 100,
+			"point": 4085
+		},
+		{
+			"current": "Purple T1⭐⭐⭐",
+			"target": "Gold",
+			"satin": 22000,
+			"threads": 220,
+			"artisans": 40,
+			"point": 6250
+		},
+		{
+			"current": "Gold",
+			"target": "Gold⭐",
+			"satin": 23000,
+			"threads": 230,
+			"artisans": 40,
+			"point": 6250
+		},
+		{
+			"current": "Gold⭐",
+			"target": "Gold⭐⭐",
+			"satin": 25000,
+			"threads": 250,
+			"artisans": 45,
+			"point": 6250
+		},
+		{
+			"current": "Gold⭐⭐",
+			"target": "Gold⭐⭐⭐",
+			"satin": 26000,
+			"threads": 260,
+			"artisans": 45,
+			"point": 6250
+		},
+		{
+			"current": "Gold⭐⭐⭐",
+			"target": "Gold T1",
+			"satin": 28000,
+			"threads": 280,
+			"artisans": 45,
+			"point": 6250
+		},
+		{
+			"current": "Gold T1",
+			"target": "Gold T1⭐",
+			"satin": 30000,
+			"threads": 300,
+			"artisans": 55,
+			"point": 6250
+		},
+		{
+			"current": "Gold T1⭐",
+			"target": "Gold T1⭐⭐",
+			"satin": 32000,
+			"threads": 320,
+			"artisans": 55,
+			"point": 6250
+		},
+		{
+			"current": "Gold T1⭐⭐",
+			"target": "Gold T1⭐⭐⭐",
+			"satin": 35000,
+			"threads": 340,
+			"artisans": 55,
+			"point": 6250
+		},
+		{
+			"current": "Gold T1⭐⭐⭐",
+			"target": "Gold T2",
+			"satin": 38000,
+			"threads": 390,
+			"artisans": 55,
+			"point": 6250
+		},
+		{
+			"current": "Gold T2",
+			"target": "Gold T2⭐",
+			"satin": 43000,
+			"threads": 430,
+			"artisans": 75,
+			"point": 6250
+		},
+		{
+			"current": "Gold T2⭐",
+			"target": "Gold T2⭐⭐",
+			"satin": 45000,
+			"threads": 460,
+			"artisans": 80,
+			"point": 6250
+		},
+		{
+			"current": "Gold T2⭐⭐",
+			"target": "Gold T2⭐⭐⭐",
+			"satin": 48000,
+			"threads": 500,
+			"artisans": 85,
+			"point": 6250
+		},
+		{
+			"current": "Gold T2⭐⭐⭐",
+			"target": "Gold T3",
+			"satin": 60000,
+			"threads": 600,
+			"artisans": 120,
+			"point": 6250
+		},
+		{
+			"current": "Gold T3",
+			"target": "Gold T3⭐",
+			"satin": 70000,
+			"threads": 700,
+			"artisans": 140,
+			"point": 6250
+		},
+		{
+			"current": "Gold T3⭐",
+			"target": "Gold T3⭐⭐",
+			"satin": 80000,
+			"threads": 800,
+			"artisans": 160,
+			"point": 6250
+		},
+		{
+			"current": "Gold T3⭐⭐",
+			"target": "Gold T3⭐⭐⭐",
+			"satin": 90000,
+			"threads": 900,
+			"artisans": 180,
+			"point": 6250
+		},
+		{
+			"current": "Gold T3⭐⭐⭐",
+			"target": "Red",
+			"satin": 108000,
+			"threads": 1080,
+			"artisans": 220,
+			"point": 6250
+		},
+		{
+			"current": "Red",
+			"target": "Red⭐",
+			"satin": 114000,
+			"threads": 1140,
+			"artisans": 230,
+			"point": 6250
+		},
+		{
+			"current": "Red⭐",
+			"target": "Red⭐⭐",
+			"satin": 121000,
+			"threads": 1210,
+			"artisans": 240,
+			"point": 6250
+		},
+		{
+			"current": "Red⭐⭐",
+			"target": "Red⭐⭐⭐",
+			"satin": 128000,
+			"threads": 1280,
+			"artisans": 250,
+			"point": 6250
+		},
+		{
+			"current": "Red⭐⭐⭐",
+			"target": "Red T1",
+			"satin": 154000,
+			"threads": 1540,
+			"artisans": 300,
+			"point": 6250
+		},
+		{
+			"current": "Red T1",
+			"target": "Red T1⭐",
+			"satin": 163000,
+			"threads": 1630,
+			"artisans": 320,
+			"point": 6250
+		},
+		{
+			"current": "Red T1⭐",
+			"target": "Red T1⭐⭐",
+			"satin": 173000,
+			"threads": 1730,
+			"artisans": 340,
+			"point": 6250
+		},
+		{
+			"current": "Red T1⭐⭐",
+			"target": "Red T1⭐⭐⭐",
+			"satin": 183000,
+			"threads": 1830,
+			"artisans": 360,
+			"point": 6250
+		},
+		{
+			"current": "Red T1⭐⭐⭐",
+			"target": "Red T2",
+			"satin": 220000,
+			"threads": 2200,
+			"artisans": 430,
+			"point": 6250
+		},
+		{
+			"current": "Red T2",
+			"target": "Red T2⭐",
+			"satin": 233000,
+			"threads": 2330,
+			"artisans": 460,
+			"point": 6250
+		},
+		{
+			"current": "Red T2⭐",
+			"target": "Red T2⭐⭐",
+			"satin": 247000,
+			"threads": 2470,
+			"artisans": 490,
+			"point": 6250
+		},
+		{
+			"current": "Red T2⭐⭐",
+			"target": "Red T2⭐⭐⭐",
+			"satin": 264000,
+			"threads": 2640,
+			"artisans": 520,
+			"point": 6250
+		},
+		{
+			"current": "Red T2⭐⭐⭐",
+			"target": "Red T3",
+			"satin": 288000,
+			"threads": 2880,
+			"artisans": 570,
+			"point": 6250
+		},
+		{
+			"current": "Red T3",
+			"target": "Red T3⭐",
+			"satin": 302000,
+			"threads": 3020,
+			"artisans": 600,
+			"point": 6250
+		},
+		{
+			"current": "Red T3⭐",
+			"target": "Red T3⭐⭐",
+			"satin": 317000,
+			"threads": 3170,
+			"artisans": 630,
+			"point": 6250
+		},
+		{
+			"current": "Red T3⭐⭐",
+			"target": "Red T3⭐⭐⭐",
+			"satin": 333000,
+			"threads": 3330,
+			"artisans": 660,
+			"point": 6250
+		},
+		{
+			"current": "Red T3⭐⭐⭐",
+			"target": "Red T4",
+			"satin": 358000,
+			"threads": 3580,
+			"artisans": 720,
+			"point": 6250
+		},
+		{
+			"current": "Red T4",
+			"target": "Red T4⭐",
+			"satin": 384000,
+			"threads": 3840,
+			"artisans": 770,
+			"point": 6250
+		},
+		{
+			"current": "Red T4⭐",
+			"target": "Red T4⭐⭐",
+			"satin": 403000,
+			"threads": 4030,
+			"artisans": 810,
+			"point": 6250
+		},
+		{
+			"current": "Red T4⭐⭐",
+			"target": "Red T4⭐⭐⭐",
+			"satin": 423000,
+			"threads": 4230,
+			"artisans": 850,
+			"point": 6250
+		},
+		{
+			"current": "Red T4⭐⭐⭐",
+			"target": "Red T5",
+			"satin": 451000,
+			"threads": 4510,
+			"artisans": 910,
+			"point": 6250
+		},
+		{
+			"current": "Red T5",
+			"target": "Red T5⭐",
+			"satin": 479000,
+			"threads": 4790,
+			"artisans": 970,
+			"point": 6250
+		},
+		{
+			"current": "Red T5⭐",
+			"target": "Red T5⭐⭐",
+			"satin": 507000,
+			"threads": 5070,
+			"artisans": 1030,
+			"point": 6250
+		},
+		{
+			"current": "Red T5⭐⭐",
+			"target": "Red T5⭐⭐⭐",
+			"satin": 535000,
+			"threads": 5350,
+			"artisans": 1090,
+			"point": 6250
+		},
+		{
+			"current": "Red T5⭐⭐⭐",
+			"target": "Red T6",
+			"satin": 548000,
+			"threads": 5480,
+			"artisans": 1110,
+			"point": 6250
+		},
+		{
+			"current": "Red T6",
+			"target": "Red T6⭐",
+			"satin": 565000,
+			"threads": 5650,
+			"artisans": 1140,
+			"point": 6250
+		},
+		{
+			"current": "Red T6⭐",
+			"target": "Red T6⭐⭐",
+			"satin": 582000,
+			"threads": 5820,
+			"artisans": 1170,
+			"point": 6250
+		},
+		{
+			"current": "Red T6⭐⭐",
+			"target": "Red T6⭐⭐⭐",
+			"satin": 599000,
+			"threads": 5990,
+			"artisans": 1210,
+			"point": 6250
+		}
+	]
+}

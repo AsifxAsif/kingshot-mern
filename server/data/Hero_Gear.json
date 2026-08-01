@@ -1,0 +1,1404 @@
+{
+	"Hero Gear": [
+		{
+			"current_lvl": 0,
+			"target_lvl": 1,
+			"xp": 10,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 1,
+			"target_lvl": 2,
+			"xp": 15,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 2,
+			"target_lvl": 3,
+			"xp": 20,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 3,
+			"target_lvl": 4,
+			"xp": 25,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 4,
+			"target_lvl": 5,
+			"xp": 30,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 5,
+			"target_lvl": 6,
+			"xp": 35,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 6,
+			"target_lvl": 7,
+			"xp": 40,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 7,
+			"target_lvl": 8,
+			"xp": 45,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 8,
+			"target_lvl": 9,
+			"xp": 50,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 9,
+			"target_lvl": 10,
+			"xp": 55,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 10,
+			"target_lvl": 11,
+			"xp": 60,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 11,
+			"target_lvl": 12,
+			"xp": 65,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 12,
+			"target_lvl": 13,
+			"xp": 70,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 13,
+			"target_lvl": 14,
+			"xp": 75,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 14,
+			"target_lvl": 15,
+			"xp": 80,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 15,
+			"target_lvl": 16,
+			"xp": 85,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 16,
+			"target_lvl": 17,
+			"xp": 90,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 17,
+			"target_lvl": 18,
+			"xp": 95,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 18,
+			"target_lvl": 19,
+			"xp": 100,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 19,
+			"target_lvl": 20,
+			"xp": 105,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 20,
+			"target_lvl": 21,
+			"xp": 110,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 21,
+			"target_lvl": 22,
+			"xp": 115,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 22,
+			"target_lvl": 23,
+			"xp": 120,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 23,
+			"target_lvl": 24,
+			"xp": 125,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 24,
+			"target_lvl": 25,
+			"xp": 130,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 25,
+			"target_lvl": 26,
+			"xp": 135,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 26,
+			"target_lvl": 27,
+			"xp": 140,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 27,
+			"target_lvl": 28,
+			"xp": 145,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 28,
+			"target_lvl": 29,
+			"xp": 150,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 29,
+			"target_lvl": 30,
+			"xp": 160,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 30,
+			"target_lvl": 31,
+			"xp": 170,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 31,
+			"target_lvl": 32,
+			"xp": 180,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 32,
+			"target_lvl": 33,
+			"xp": 190,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 33,
+			"target_lvl": 34,
+			"xp": 200,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 34,
+			"target_lvl": 35,
+			"xp": 210,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 35,
+			"target_lvl": 36,
+			"xp": 220,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 36,
+			"target_lvl": 37,
+			"xp": 230,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 37,
+			"target_lvl": 38,
+			"xp": 240,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 38,
+			"target_lvl": 39,
+			"xp": 250,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 39,
+			"target_lvl": 40,
+			"xp": 270,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 40,
+			"target_lvl": 41,
+			"xp": 290,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 41,
+			"target_lvl": 42,
+			"xp": 310,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 42,
+			"target_lvl": 43,
+			"xp": 330,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 43,
+			"target_lvl": 44,
+			"xp": 350,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 44,
+			"target_lvl": 45,
+			"xp": 370,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 45,
+			"target_lvl": 46,
+			"xp": 390,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 46,
+			"target_lvl": 47,
+			"xp": 410,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 47,
+			"target_lvl": 48,
+			"xp": 430,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 48,
+			"target_lvl": 49,
+			"xp": 450,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 49,
+			"target_lvl": 50,
+			"xp": 470,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 50,
+			"target_lvl": 51,
+			"xp": 490,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 51,
+			"target_lvl": 52,
+			"xp": 510,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 52,
+			"target_lvl": 53,
+			"xp": 530,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 53,
+			"target_lvl": 54,
+			"xp": 550,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 54,
+			"target_lvl": 55,
+			"xp": 570,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 55,
+			"target_lvl": 56,
+			"xp": 590,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 56,
+			"target_lvl": 57,
+			"xp": 610,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 57,
+			"target_lvl": 58,
+			"xp": 630,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 58,
+			"target_lvl": 59,
+			"xp": 650,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 59,
+			"target_lvl": 60,
+			"xp": 680,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 60,
+			"target_lvl": 61,
+			"xp": 710,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 61,
+			"target_lvl": 62,
+			"xp": 740,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 62,
+			"target_lvl": 63,
+			"xp": 770,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 63,
+			"target_lvl": 64,
+			"xp": 800,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 64,
+			"target_lvl": 65,
+			"xp": 830,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 65,
+			"target_lvl": 66,
+			"xp": 860,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 66,
+			"target_lvl": 67,
+			"xp": 890,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 67,
+			"target_lvl": 68,
+			"xp": 920,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 68,
+			"target_lvl": 69,
+			"xp": 950,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 69,
+			"target_lvl": 70,
+			"xp": 990,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 70,
+			"target_lvl": 71,
+			"xp": 1030,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 71,
+			"target_lvl": 72,
+			"xp": 1070,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 72,
+			"target_lvl": 73,
+			"xp": 1110,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 73,
+			"target_lvl": 74,
+			"xp": 1150,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 74,
+			"target_lvl": 75,
+			"xp": 1190,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 75,
+			"target_lvl": 76,
+			"xp": 1230,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 76,
+			"target_lvl": 77,
+			"xp": 1270,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 77,
+			"target_lvl": 78,
+			"xp": 1310,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 78,
+			"target_lvl": 79,
+			"xp": 1350,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 79,
+			"target_lvl": 80,
+			"xp": 1400,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 80,
+			"target_lvl": 81,
+			"xp": 1450,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 81,
+			"target_lvl": 82,
+			"xp": 1500,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 82,
+			"target_lvl": 83,
+			"xp": 1550,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 83,
+			"target_lvl": 84,
+			"xp": 1600,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 84,
+			"target_lvl": 85,
+			"xp": 1650,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 85,
+			"target_lvl": 86,
+			"xp": 1700,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 86,
+			"target_lvl": 87,
+			"xp": 1750,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 87,
+			"target_lvl": 88,
+			"xp": 1800,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 88,
+			"target_lvl": 89,
+			"xp": 1850,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 89,
+			"target_lvl": 90,
+			"xp": 1900,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 90,
+			"target_lvl": 91,
+			"xp": 1950,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 91,
+			"target_lvl": 92,
+			"xp": 2000,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 92,
+			"target_lvl": 93,
+			"xp": 2050,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 93,
+			"target_lvl": 94,
+			"xp": 2100,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 94,
+			"target_lvl": 95,
+			"xp": 2150,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 95,
+			"target_lvl": 96,
+			"xp": 2200,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 96,
+			"target_lvl": 97,
+			"xp": 2250,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 97,
+			"target_lvl": 98,
+			"xp": 2300,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 98,
+			"target_lvl": 99,
+			"xp": 2350,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 99,
+			"target_lvl": 100,
+			"xp": 2400,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 100,
+			"target_lvl": 101,
+			"xp": null,
+			"mithril": null,
+			"mythic_gear": 2
+		},
+		{
+			"current_lvl": 101,
+			"target_lvl": 102,
+			"xp": 2500,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 102,
+			"target_lvl": 103,
+			"xp": 2550,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 103,
+			"target_lvl": 104,
+			"xp": 2600,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 104,
+			"target_lvl": 105,
+			"xp": 2650,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 105,
+			"target_lvl": 106,
+			"xp": 2700,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 106,
+			"target_lvl": 107,
+			"xp": 2750,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 107,
+			"target_lvl": 108,
+			"xp": 2800,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 108,
+			"target_lvl": 109,
+			"xp": 2850,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 109,
+			"target_lvl": 110,
+			"xp": 2900,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 110,
+			"target_lvl": 111,
+			"xp": 2950,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 111,
+			"target_lvl": 112,
+			"xp": 3000,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 112,
+			"target_lvl": 113,
+			"xp": 3050,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 113,
+			"target_lvl": 114,
+			"xp": 3100,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 114,
+			"target_lvl": 115,
+			"xp": 3150,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 115,
+			"target_lvl": 116,
+			"xp": 3200,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 116,
+			"target_lvl": 117,
+			"xp": 3250,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 117,
+			"target_lvl": 118,
+			"xp": 3300,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 118,
+			"target_lvl": 119,
+			"xp": 3350,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 119,
+			"target_lvl": 120,
+			"xp": null,
+			"mithril": 10,
+			"mythic_gear": 3
+		},
+		{
+			"current_lvl": 120,
+			"target_lvl": 121,
+			"xp": 3450,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 121,
+			"target_lvl": 122,
+			"xp": 3500,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 122,
+			"target_lvl": 123,
+			"xp": 3550,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 123,
+			"target_lvl": 124,
+			"xp": 3600,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 124,
+			"target_lvl": 125,
+			"xp": 3650,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 125,
+			"target_lvl": 126,
+			"xp": 3700,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 126,
+			"target_lvl": 127,
+			"xp": 3750,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 127,
+			"target_lvl": 128,
+			"xp": 3800,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 128,
+			"target_lvl": 129,
+			"xp": 3850,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 129,
+			"target_lvl": 130,
+			"xp": 3900,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 130,
+			"target_lvl": 131,
+			"xp": 3950,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 131,
+			"target_lvl": 132,
+			"xp": 4000,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 132,
+			"target_lvl": 133,
+			"xp": 4050,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 133,
+			"target_lvl": 134,
+			"xp": 4100,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 134,
+			"target_lvl": 135,
+			"xp": 4150,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 135,
+			"target_lvl": 136,
+			"xp": 4200,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 136,
+			"target_lvl": 137,
+			"xp": 4250,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 137,
+			"target_lvl": 138,
+			"xp": 4300,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 138,
+			"target_lvl": 139,
+			"xp": 4350,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 139,
+			"target_lvl": 140,
+			"xp": null,
+			"mithril": 20,
+			"mythic_gear": 5
+		},
+		{
+			"current_lvl": 140,
+			"target_lvl": 141,
+			"xp": 4450,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 141,
+			"target_lvl": 142,
+			"xp": 4500,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 142,
+			"target_lvl": 143,
+			"xp": 4550,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 143,
+			"target_lvl": 144,
+			"xp": 4600,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 144,
+			"target_lvl": 145,
+			"xp": 4650,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 145,
+			"target_lvl": 146,
+			"xp": 4700,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 146,
+			"target_lvl": 147,
+			"xp": 4750,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 147,
+			"target_lvl": 148,
+			"xp": 4800,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 148,
+			"target_lvl": 149,
+			"xp": 4850,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 149,
+			"target_lvl": 150,
+			"xp": 4900,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 150,
+			"target_lvl": 151,
+			"xp": 4950,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 151,
+			"target_lvl": 152,
+			"xp": 5000,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 152,
+			"target_lvl": 153,
+			"xp": 5050,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 153,
+			"target_lvl": 154,
+			"xp": 5100,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 154,
+			"target_lvl": 155,
+			"xp": 5150,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 155,
+			"target_lvl": 156,
+			"xp": 5200,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 156,
+			"target_lvl": 157,
+			"xp": 5250,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 157,
+			"target_lvl": 158,
+			"xp": 5300,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 158,
+			"target_lvl": 159,
+			"xp": 5350,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 159,
+			"target_lvl": 160,
+			"xp": null,
+			"mithril": 30,
+			"mythic_gear": 5
+		},
+		{
+			"current_lvl": 160,
+			"target_lvl": 161,
+			"xp": 5500,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 161,
+			"target_lvl": 162,
+			"xp": 5600,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 162,
+			"target_lvl": 163,
+			"xp": 5700,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 163,
+			"target_lvl": 164,
+			"xp": 5800,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 164,
+			"target_lvl": 165,
+			"xp": 5900,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 165,
+			"target_lvl": 166,
+			"xp": 6000,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 166,
+			"target_lvl": 167,
+			"xp": 6100,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 167,
+			"target_lvl": 168,
+			"xp": 6200,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 168,
+			"target_lvl": 169,
+			"xp": 6300,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 169,
+			"target_lvl": 170,
+			"xp": 6400,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 170,
+			"target_lvl": 171,
+			"xp": 6500,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 171,
+			"target_lvl": 172,
+			"xp": 6600,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 172,
+			"target_lvl": 173,
+			"xp": 6700,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 173,
+			"target_lvl": 174,
+			"xp": 6800,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 174,
+			"target_lvl": 175,
+			"xp": 6900,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 175,
+			"target_lvl": 176,
+			"xp": 7000,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 176,
+			"target_lvl": 177,
+			"xp": 7100,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 177,
+			"target_lvl": 178,
+			"xp": 7200,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 178,
+			"target_lvl": 179,
+			"xp": 7300,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 179,
+			"target_lvl": 180,
+			"xp": null,
+			"mithril": 40,
+			"mythic_gear": 10
+		},
+		{
+			"current_lvl": 180,
+			"target_lvl": 181,
+			"xp": 7500,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 181,
+			"target_lvl": 182,
+			"xp": 7600,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 182,
+			"target_lvl": 183,
+			"xp": 7700,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 183,
+			"target_lvl": 184,
+			"xp": 7800,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 184,
+			"target_lvl": 185,
+			"xp": 7900,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 185,
+			"target_lvl": 186,
+			"xp": 8000,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 186,
+			"target_lvl": 187,
+			"xp": 8100,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 187,
+			"target_lvl": 188,
+			"xp": 8200,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 188,
+			"target_lvl": 189,
+			"xp": 8300,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 189,
+			"target_lvl": 190,
+			"xp": 8400,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 190,
+			"target_lvl": 191,
+			"xp": 8500,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 191,
+			"target_lvl": 192,
+			"xp": 8600,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 192,
+			"target_lvl": 193,
+			"xp": 8700,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 193,
+			"target_lvl": 194,
+			"xp": 8800,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 194,
+			"target_lvl": 195,
+			"xp": 8900,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 195,
+			"target_lvl": 196,
+			"xp": 9000,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 196,
+			"target_lvl": 197,
+			"xp": 9100,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 197,
+			"target_lvl": 198,
+			"xp": 9200,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 198,
+			"target_lvl": 199,
+			"xp": 9300,
+			"mithril": null,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 199,
+			"target_lvl": 200,
+			"xp": null,
+			"mithril": 50,
+			"mythic_gear": 10
+		}
+	]
+}

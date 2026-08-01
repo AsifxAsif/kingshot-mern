@@ -1,0 +1,158 @@
+{
+	"GOV Charm": [
+		{
+			"current": null,
+			"target": "Level 1",
+			"guides": 5,
+			"designs": 5,
+			"point": 625
+		},
+		{
+			"current": "Level 1",
+			"target": "Level 2",
+			"guides": 40,
+			"designs": 15,
+			"point": 1250
+		},
+		{
+			"current": "Level 2",
+			"target": "Level 3",
+			"guides": 60,
+			"designs": 40,
+			"point": 3125
+		},
+		{
+			"current": "Level 3",
+			"target": "Level 4",
+			"guides": 80,
+			"designs": 100,
+			"point": 8750
+		},
+		{
+			"current": "Level 4",
+			"target": "Level 5",
+			"guides": 100,
+			"designs": 200,
+			"point": 11250
+		},
+		{
+			"current": "Level 5",
+			"target": "Level 6",
+			"guides": 120,
+			"designs": 300,
+			"point": 12500
+		},
+		{
+			"current": "Level 6",
+			"target": "Level 7",
+			"guides": 140,
+			"designs": 400,
+			"point": 12500
+		},
+		{
+			"current": "Level 7",
+			"target": "Level 8",
+			"guides": 200,
+			"designs": 400,
+			"point": 13000
+		},
+		{
+			"current": "Level 8",
+			"target": "Level 9",
+			"guides": 300,
+			"designs": 400,
+			"point": 14000
+		},
+		{
+			"current": "Level 9",
+			"target": "Level 10",
+			"guides": 420,
+			"designs": 420,
+			"point": 15000
+		},
+		{
+			"current": "Level 10",
+			"target": "Level 11",
+			"guides": 560,
+			"designs": 420,
+			"point": 16000
+		},
+		{
+			"current": "Level 11",
+			"target": "Level 12",
+			"guides": 580,
+			"designs": 600,
+			"point": 16000
+		},
+		{
+			"current": "Level 12",
+			"target": "Level 13",
+			"guides": 610,
+			"designs": 780,
+			"point": 16000
+		},
+		{
+			"current": "Level 13",
+			"target": "Level 14",
+			"guides": 645,
+			"designs": 960,
+			"point": 16000
+		},
+		{
+			"current": "Level 14",
+			"target": "Level 15",
+			"guides": 685,
+			"designs": 1140,
+			"point": 16000
+		},
+		{
+			"current": "Level 15",
+			"target": "Level 16",
+			"guides": 730,
+			"designs": 1320,
+			"point": 16000
+		},
+		{
+			"current": "Level 16",
+			"target": "Level 17",
+			"guides": 780,
+			"designs": 1500,
+			"point": 16000
+		},
+		{
+			"current": "Level 17",
+			"target": "Level 18",
+			"guides": 835,
+			"designs": 1680,
+			"point": 16000
+		},
+		{
+			"current": "Level 18",
+			"target": "Level 19",
+			"guides": 895,
+			"designs": 1860,
+			"point": 16000
+		},
+		{
+			"current": "Level 19",
+			"target": "Level 20",
+			"guides": 960,
+			"designs": 2040,
+			"point": 16000
+		},
+		{
+			"current": "Level 20",
+			"target": "Level 21",
+			"guides": 1030,
+			"designs": 2220,
+			"point": 16000
+		},
+		{
+			"current": "Level 21",
+			"target": "Level 22",
+			"guides": 1105,
+			"designs": 2400,
+			"point": 16000
+		}
+	]
+}

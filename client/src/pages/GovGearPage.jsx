@@ -1,0 +1,174 @@
+import { useMemo, useEffect } from 'react';
+import { useGameData } from '../hooks/useGameData';
+import { useApp } from '../context/AppContext';
+import { parseCost, formatNumber, SCORE_RULES } from '../utils/calc';
+import { computeAffordability } from '../utils/resources';
+import CostStatus from '../components/CostStatus';
+import AssetImg from '../components/AssetImg';
+import { LevelSelects } from '../components/LevelSelects';
+import { asset } from '../utils/images';
+
+const GEAR_PIECES = ['Helmet', 'Watch', 'Armor', 'Pant', 'Belt', 'Weapon'];
+const GEAR_PREFIX = {
+  Helmet: 'cavalry_gear_1', Watch: 'cavalry_gear_2',
+  Armor: 'infantry_gear_1', Pant: 'infantry_gear_2',
+  Belt: 'archery_gear_1', Weapon: 'archery_gear_2',
+};
+
+function govGearImg(piece, levelName) {
+  const prefix = GEAR_PREFIX[piece] || 'cavalry_gear_1';
+  let color = 'green', tier = '0', stars = '0';
+  if (levelName && String(levelName).trim() && String(levelName) !== '0') {
+    const s = String(levelName);
+    const lower = s.toLowerCase();
+    if (lower.includes('green')) color = 'green';
+    else if (lower.includes('blue')) color = 'blue';
+    else if (lower.includes('purple')) color = 'purple';
+    else if (lower.includes('gold')) color = 'gold';
+    else if (lower.includes('red')) color = 'red';
+    const tm = s.match(/T([0-9])/i);
+    if (tm) tier = tm[1];
+    stars = String((s.match(/⭐/g) || []).length);
+  }
+  return asset(`gov_gears/${prefix}_${color}_t${tier}_s${stars}.webp`);
+}
+
+function buildOrder(rows) {
+  const order = { '0': 0, '': 0 };
+  let i = 1;
+  const seen = new Set();
+  for (const item of rows) {
+    const t = item.target;
+    if (t != null && t !== 'null' && !seen.has(String(t))) {
+      seen.add(String(t));
+      order[String(t)] = i++;
+    }
+  }
+  return order;
+}
+
+function getSteps(rows, from, to, order) {
+  const fromO = order[String(from ?? '0')] ?? 0;
+  const toO = order[String(to)] ?? -1;
+  if (toO <= fromO) return [];
+  return rows.filter((item) => {
+    const t = item.target != null ? String(item.target) : null;
+    if (!t) return false;
+    const o = order[t] ?? -1;
+    return o > fromO && o <= toO;
+  });
+}
+
+export default function GovGearPage() {
+  const { data, loading, error } = useGameData('gov_gears');
+  const { state, updateSection, setPageScore, vault } = useApp();
+  const gState = state.govGear || {};
+  const rows = data?.['GOV Gear'] || [];
+  const order = useMemo(() => buildOrder(rows), [rows]);
+  const levels = useMemo(() => {
+    const set = new Set(['0']);
+    for (const r of rows) {
+      if (r.current != null && r.current !== 'null') set.add(String(r.current));
+      if (r.target != null && r.target !== 'null') set.add(String(r.target));
+    }
+    return Array.from(set).sort((a, b) => (order[a] ?? 0) - (order[b] ?? 0));
+  }, [rows, order]);
+
+  const setPiece = (piece, field, value) => {
+    updateSection('govGear', (prev) => {
+      const cur = { ...(prev[piece] || {}), [field]: value };
+      if (field === 'from') {
+        const fromO = order[String(value)] ?? 0;
+        for (const l of levels) {
+          if ((order[l] ?? 0) > fromO) { cur.to = l; break; }
+        }
+        cur.active = false;
+      }
+      if (field === 'to') cur.active = false;
+      return { ...prev, [piece]: cur };
+    });
+  };
+
+  const cards = useMemo(() => {
+    return GEAR_PIECES.map((piece) => {
+      const s = gState[piece] || {};
+      const from = s.from ?? '0';
+      const to = s.to || '';
+      const steps = to ? getSteps(rows, from, to, order) : [];
+      let points = 0;
+      const costs = { satin: 0, gilded_threads: 0, artisans_vision: 0 };
+      for (const step of steps) {
+        points += parseCost(step.point) * SCORE_RULES.gov_gear_score;
+        costs.satin += parseCost(step.satin);
+        costs.gilded_threads += parseCost(step.threads);
+        costs.artisans_vision += parseCost(step.artisans);
+      }
+      // drop zero costs
+      Object.keys(costs).forEach((k) => { if (!costs[k]) delete costs[k]; });
+      const { canAfford } = computeAffordability(costs, vault);
+      return { piece, s, from, to, steps, points, costs, canAfford };
+    });
+  }, [gState, rows, order, vault]);
+
+  const totalPoints = useMemo(() => {
+    let t = 0;
+    for (const c of cards) {
+      if (c.s.active && c.canAfford) t += c.points;
+    }
+    return t;
+  }, [cards]);
+
+  useEffect(() => { setPageScore('govGear', totalPoints); }, [totalPoints, setPageScore]);
+
+  if (loading) return <div className="page-loading"><div className="spinner" /><p>Loading…</p></div>;
+  if (error) return <div className="page-error"><p>{error}</p></div>;
+
+  return (
+    <div className="app-container">
+      <div className="items-grid cards-grid">
+        {cards.map((c) => (
+          <div className="item-card" key={c.piece}>
+            <div className="item-card-header" style={{ justifyContent: 'space-evenly' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: '0.65rem', color: '#888' }}>Current</span>
+                <AssetImg src={govGearImg(c.piece, c.from === '0' ? 'Green' : c.from)} size={48} />
+              </div>
+              <span style={{ fontWeight: 700 }}>{c.piece}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: '0.65rem', color: '#888' }}>Target</span>
+                <AssetImg src={govGearImg(c.piece, c.to || 'Green')} size={48} />
+              </div>
+            </div>
+            <div className="item-card-body">
+              <LevelSelects
+                levels={levels}
+                from={c.from ?? ''}
+                to={c.to ?? ''}
+                onFrom={(v) => setPiece(c.name, 'from', v)}
+                onTo={(v) => setPiece(c.name, 'to', v)}
+              />
+              <label className="checkbox-label" style={{ opacity: c.canAfford || !c.to ? 1 : 0.5 }}>
+                <input
+                  className="checkbox"
+                  type="checkbox"
+                  checked={!!c.s.active && c.canAfford}
+                  disabled={!c.to || !c.canAfford}
+                  onChange={(e) => setPiece(c.piece, 'active', e.target.checked)}
+                />{' '}
+                Upgrade
+              </label>
+              <CostStatus
+                active={!!c.s.active && c.canAfford}
+                hasSelection={!!c.to && c.steps.length > 0}
+                points={c.points}
+                stepsInfo={` (${c.steps.length} steps)`}
+                costs={c.costs}
+                vault={vault}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

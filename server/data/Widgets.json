@@ -1,0 +1,54 @@
+{
+	"Widgets": [
+		{
+			"current_lvl": 0,
+			"target_lvl": 1,
+			"widgets": 5
+		},
+		{
+			"current_lvl": 1,
+			"target_lvl": 2,
+			"widgets": 10
+		},
+		{
+			"current_lvl": 2,
+			"target_lvl": 3,
+			"widgets": 15
+		},
+		{
+			"current_lvl": 3,
+			"target_lvl": 4,
+			"widgets": 20
+		},
+		{
+			"current_lvl": 4,
+			"target_lvl": 5,
+			"widgets": 25
+		},
+		{
+			"current_lvl": 5,
+			"target_lvl": 6,
+			"widgets": 30
+		},
+		{
+			"current_lvl": 6,
+			"target_lvl": 7,
+			"widgets": 35
+		},
+		{
+			"current_lvl": 7,
+			"target_lvl": 8,
+			"widgets": 40
+		},
+		{
+			"current_lvl": 8,
+			"target_lvl": 9,
+			"widgets": 45
+		},
+		{
+			"current_lvl": 9,
+			"target_lvl": 10,
+			"widgets": 50
+		}
+	]
+}

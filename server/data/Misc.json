@@ -1,0 +1,196 @@
+{
+	"Gathering": [
+		{
+			"node": "lvl 1",
+			"item": "bread",
+			"resource": "70K",
+			"time": "14m"
+		},
+		{
+			"node": "lvl 1",
+			"item": "wood",
+			"resource": "70K",
+			"time": "14m"
+		},
+		{
+			"node": "lvl 1",
+			"item": "stone",
+			"resource": "14K",
+			"time": "14m"
+		},
+		{
+			"node": "lvl 1",
+			"item": "iron",
+			"resource": "3.5K",
+			"time": "14m"
+		},
+		{
+			"node": "lvl 2",
+			"item": "bread",
+			"resource": "150K",
+			"time": "28m"
+		},
+		{
+			"node": "lvl 2",
+			"item": "wood",
+			"resource": "150K",
+			"time": "28m"
+		},
+		{
+			"node": "lvl 2",
+			"item": "stone",
+			"resource": "30K",
+			"time": "28m"
+		},
+		{
+			"node": "lvl 2",
+			"item": "iron",
+			"resource": "7.5K",
+			"time": "28m"
+		},
+		{
+			"node": "lvl 3",
+			"item": "bread",
+			"resource": "300K",
+			"time": "52m"
+		},
+		{
+			"node": "lvl 3",
+			"item": "wood",
+			"resource": "300K",
+			"time": "52m"
+		},
+		{
+			"node": "lvl 3",
+			"item": "stone",
+			"resource": "60K",
+			"time": "52m"
+		},
+		{
+			"node": "lvl 3",
+			"item": "iron",
+			"resource": "15K",
+			"time": "52m"
+		},
+		{
+			"node": "lvl 4",
+			"item": "bread",
+			"resource": "600K",
+			"time": "1h 39m"
+		},
+		{
+			"node": "lvl 4",
+			"item": "wood",
+			"resource": "600K",
+			"time": "1h 39m"
+		},
+		{
+			"node": "lvl 4",
+			"item": "stone",
+			"resource": "120K",
+			"time": "1h 39m"
+		},
+		{
+			"node": "lvl 4",
+			"item": "iron",
+			"resource": "30K",
+			"time": "1h 39m"
+		},
+		{
+			"node": "lvl 5",
+			"item": "bread",
+			"resource": "1.2M",
+			"time": "3h 10m"
+		},
+		{
+			"node": "lvl 5",
+			"item": "wood",
+			"resource": "1.2M",
+			"time": "3h 10m"
+		},
+		{
+			"node": "lvl 5",
+			"item": "stone",
+			"resource": "240K",
+			"time": "3h 10m"
+		},
+		{
+			"node": "lvl 5",
+			"item": "iron",
+			"resource": "60K",
+			"time": "3h 10m"
+		},
+		{
+			"node": "lvl 6",
+			"item": "bread",
+			"resource": "3M",
+			"time": "7h 35m"
+		},
+		{
+			"node": "lvl 6",
+			"item": "wood",
+			"resource": "3M",
+			"time": "7h 35m"
+		},
+		{
+			"node": "lvl 6",
+			"item": "stone",
+			"resource": "600K",
+			"time": "7h 35m"
+		},
+		{
+			"node": "lvl 6",
+			"item": "iron",
+			"resource": "150K",
+			"time": "7h 35m"
+		},
+		{
+			"node": "lvl 7",
+			"item": "bread",
+			"resource": "6M",
+			"time": "14h 35m"
+		},
+		{
+			"node": "lvl 7",
+			"item": "wood",
+			"resource": "6M",
+			"time": "14h 35m"
+		},
+		{
+			"node": "lvl 7",
+			"item": "stone",
+			"resource": "1.2M",
+			"time": "14h 35m"
+		},
+		{
+			"node": "lvl 7",
+			"item": "iron",
+			"resource": "300K",
+			"time": "14h 35m"
+		},
+		{
+			"node": "lvl 8",
+			"item": "bread",
+			"resource": "14M",
+			"time": "32h 45m"
+		},
+		{
+			"node": "lvl 8",
+			"item": "wood",
+			"resource": "14M",
+			"time": "32h 45m"
+		},
+		{
+			"node": "lvl 8",
+			"item": "stone",
+			"resource": "2.8M",
+			"time": "32h 45m"
+		},
+		{
+			"node": "lvl 8",
+			"item": "iron",
+			"resource": "700K",
+			"time": "32h 45m"
+		}
+	]
+}

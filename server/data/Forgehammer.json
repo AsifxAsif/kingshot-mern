@@ -1,0 +1,124 @@
+{
+	"Mastery": [
+		{
+			"current_lvl": 0,
+			"target_lvl": 1,
+			"forgehammer": 10,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 1,
+			"target_lvl": 2,
+			"forgehammer": 20,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 2,
+			"target_lvl": 3,
+			"forgehammer": 30,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 3,
+			"target_lvl": 4,
+			"forgehammer": 40,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 4,
+			"target_lvl": 5,
+			"forgehammer": 50,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 5,
+			"target_lvl": 6,
+			"forgehammer": 60,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 6,
+			"target_lvl": 7,
+			"forgehammer": 70,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 7,
+			"target_lvl": 8,
+			"forgehammer": 80,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 8,
+			"target_lvl": 9,
+			"forgehammer": 90,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 9,
+			"target_lvl": 10,
+			"forgehammer": 100,
+			"mythic_gear": null
+		},
+		{
+			"current_lvl": 10,
+			"target_lvl": 11,
+			"forgehammer": 110,
+			"mythic_gear": 1
+		},
+		{
+			"current_lvl": 11,
+			"target_lvl": 12,
+			"forgehammer": 120,
+			"mythic_gear": 2
+		},
+		{
+			"current_lvl": 12,
+			"target_lvl": 13,
+			"forgehammer": 130,
+			"mythic_gear": 3
+		},
+		{
+			"current_lvl": 13,
+			"target_lvl": 14,
+			"forgehammer": 140,
+			"mythic_gear": 4
+		},
+		{
+			"current_lvl": 14,
+			"target_lvl": 15,
+			"forgehammer": 150,
+			"mythic_gear": 5
+		},
+		{
+			"current_lvl": 15,
+			"target_lvl": 16,
+			"forgehammer": 160,
+			"mythic_gear": 6
+		},
+		{
+			"current_lvl": 16,
+			"target_lvl": 17,
+			"forgehammer": 170,
+			"mythic_gear": 7
+		},
+		{
+			"current_lvl": 17,
+			"target_lvl": 18,
+			"forgehammer": 180,
+			"mythic_gear": 8
+		},
+		{
+			"current_lvl": 18,
+			"target_lvl": 19,
+			"forgehammer": 190,
+			"mythic_gear": 9
+		},
+		{
+			"current_lvl": 19,
+			"target_lvl": 20,
+			"forgehammer": 200,
+			"mythic_gear": 10
+		}
+	]
+}

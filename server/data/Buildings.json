@@ -1,0 +1,6976 @@
+{
+	"Town Center": [
+		{
+			"level": 2,
+			"requirements": [
+				"Sawmill Lv. 1"
+			],
+			"bread": null,
+			"wood": 180,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "6s"
+		},
+		{
+			"level": 3,
+			"requirements": [
+				"House 1 Lv. 2"
+			],
+			"bread": null,
+			"wood": 805,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1m"
+		},
+		{
+			"level": 4,
+			"requirements": [
+				"Quarry Lv. 3"
+			],
+			"bread": null,
+			"wood": "1.8K",
+			"stone": 360,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "3m"
+		},
+		{
+			"level": 5,
+			"requirements": [
+				"Hero Hall Lv. 1",
+				"House 3 Lv. 3"
+			],
+			"bread": null,
+			"wood": "7.6K",
+			"stone": "1.5K",
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "10m"
+		},
+		{
+			"level": 6,
+			"requirements": [
+				"Mine Lv. 5"
+			],
+			"bread": null,
+			"wood": "19K",
+			"stone": "3.8K",
+			"iron": 960,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "30m"
+		},
+		{
+			"level": 7,
+			"requirements": [
+				"Mill Lv. 6"
+			],
+			"bread": null,
+			"wood": "69K",
+			"stone": "13K",
+			"iron": "3.4K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h"
+		},
+		{
+			"level": 8,
+			"requirements": [
+				"Barracks Lv. 7"
+			],
+			"bread": null,
+			"wood": "120K",
+			"stone": "25K",
+			"iron": "6.3K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2h 30m"
+		},
+		{
+			"level": 9,
+			"requirements": [
+				"Embassy Lv. 8",
+				"Infirmary Lv. 1"
+			],
+			"bread": null,
+			"wood": "260K",
+			"stone": "52K",
+			"iron": "13K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4h 30m"
+		},
+		{
+			"level": 10,
+			"requirements": [
+				"Range Lv. 9",
+				"Academy Lv. 1"
+			],
+			"bread": null,
+			"wood": "460K",
+			"stone": "92K",
+			"iron": "23K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "6h"
+		},
+		{
+			"level": 11,
+			"requirements": [
+				"Embassy Lv. 10",
+				"Stable Lv. 10"
+			],
+			"bread": "1.3M",
+			"wood": "1.3M",
+			"stone": "260K",
+			"iron": "65K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "7h 30m"
+		},
+		{
+			"level": 12,
+			"requirements": [
+				"Embassy Lv. 11",
+				"Command Center Lv. 1"
+			],
+			"bread": "1.6M",
+			"wood": "1.6M",
+			"stone": "330K",
+			"iron": "84K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "9h"
+		},
+		{
+			"level": 13,
+			"requirements": [
+				"Embassy Lv. 12",
+				"Barracks Lv. 12"
+			],
+			"bread": "2.3M",
+			"wood": "2.3M",
+			"stone": "470K",
+			"iron": "110K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "11h"
+		},
+		{
+			"level": 14,
+			"requirements": [
+				"Embassy Lv. 13",
+				"Range Lv. 13"
+			],
+			"bread": "3.1M",
+			"wood": "3.1M",
+			"stone": "630K",
+			"iron": "150K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "14h"
+		},
+		{
+			"level": 15,
+			"requirements": [
+				"Embassy Lv. 14",
+				"Stable Lv. 14"
+			],
+			"bread": "4.6M",
+			"wood": "4.6M",
+			"stone": "930K",
+			"iron": "230K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "18h"
+		},
+		{
+			"level": 16,
+			"requirements": [
+				"Embassy Lv. 15",
+				"Academy Lv. 15"
+			],
+			"bread": "5.9M",
+			"wood": "5.9M",
+			"stone": "1.1M",
+			"iron": "290K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 6h 28m"
+		},
+		{
+			"level": 17,
+			"requirements": [
+				"Embassy Lv. 16",
+				"Barracks Lv. 16"
+			],
+			"bread": "9.3M",
+			"wood": "9.3M",
+			"stone": "1.8M",
+			"iron": "460K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 12h 34m"
+		},
+		{
+			"level": 18,
+			"requirements": [
+				"Embassy Lv. 17",
+				"Range Lv. 17"
+			],
+			"bread": "12M",
+			"wood": "12M",
+			"stone": "2.5M",
+			"iron": "620K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 19h 53m"
+		},
+		{
+			"level": 19,
+			"requirements": [
+				"Embassy Lv. 18",
+				"Stable Lv. 18"
+			],
+			"bread": "15M",
+			"wood": "15M",
+			"stone": "3.1M",
+			"iron": "780K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2d 17h 50m"
+		},
+		{
+			"level": 20,
+			"requirements": [
+				"Embassy Lv. 19",
+				"Academy Lv. 19"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.3M",
+			"iron": "1M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "3d 10h 18m"
+		},
+		{
+			"level": 21,
+			"requirements": [
+				"Embassy Lv. 20",
+				"Barracks Lv. 20"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.4M",
+			"iron": "1.3M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4d 10h 59m"
+		},
+		{
+			"level": 22,
+			"requirements": [
+				"Embassy Lv. 21",
+				"Range Lv. 21"
+			],
+			"bread": "36M",
+			"wood": "36M",
+			"stone": "7.2M",
+			"iron": "1.8M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "6d 16h 29m"
+		},
+		{
+			"level": 23,
+			"requirements": [
+				"Embassy Lv. 22",
+				"Stable Lv. 22"
+			],
+			"bread": "44M",
+			"wood": "44M",
+			"stone": "8.9M",
+			"iron": "2.2M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "9d 8h 40m"
+		},
+		{
+			"level": 24,
+			"requirements": [
+				"Embassy Lv. 23",
+				"Academy Lv. 23"
+			],
+			"bread": "60M",
+			"wood": "60M",
+			"stone": "12M",
+			"iron": "3M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "13d 2h 33m"
+		},
+		{
+			"level": 25,
+			"requirements": [
+				"Embassy Lv. 24",
+				"Barracks Lv. 24"
+			],
+			"bread": "81M",
+			"wood": "81M",
+			"stone": "16M",
+			"iron": "4M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "18d 8h 22m"
+		},
+		{
+			"level": 26,
+			"requirements": [
+				"Embassy Lv. 25",
+				"Range Lv. 25"
+			],
+			"bread": "100M",
+			"wood": "100M",
+			"stone": "21M",
+			"iron": "5.2M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "21d 2h 26m"
+		},
+		{
+			"level": 27,
+			"requirements": [
+				"Embassy Lv. 26",
+				"Stable Lv. 26"
+			],
+			"bread": "140M",
+			"wood": "140M",
+			"stone": "29M",
+			"iron": "7.4M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "25d 7h 43m"
+		},
+		{
+			"level": 28,
+			"requirements": [
+				"Embassy Lv. 27",
+				"Academy Lv. 27"
+			],
+			"bread": "190M",
+			"wood": "190M",
+			"stone": "39M",
+			"iron": "9.9M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "29d 2h 52m"
+		},
+		{
+			"level": 29,
+			"requirements": [
+				"Embassy Lv. 28",
+				"Barracks Lv. 28"
+			],
+			"bread": "240M",
+			"wood": "240M",
+			"stone": "49M",
+			"iron": "12M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "33d 11h 42m"
+		},
+		{
+			"level": 30,
+			"requirements": [
+				"Embassy Lv. 29",
+				"Range Lv. 29"
+			],
+			"bread": "300M",
+			"wood": "300M",
+			"stone": "60M",
+			"iron": "15M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "40d 4h 27m"
+		},
+		{
+			"level": 31,
+			"requirements": [
+				"Embassy Lv. 30",
+				"Academy Lv. 30"
+			],
+			"bread": "67M",
+			"wood": "67M",
+			"stone": "13M",
+			"iron": "3.3M",
+			"truegold": 132,
+			"tempered_truegold": null,
+			"time": "7d"
+		},
+		{
+			"level": 32,
+			"requirements": [
+				"Embassy Lv. 30",
+				"Academy Lv. 30"
+			],
+			"bread": "67M",
+			"wood": "67M",
+			"stone": "13M",
+			"iron": "3.3M",
+			"truegold": 132,
+			"tempered_truegold": null,
+			"time": "7d"
+		},
+		{
+			"level": 33,
+			"requirements": [
+				"Embassy Lv. 30",
+				"Academy Lv. 30"
+			],
+			"bread": "67M",
+			"wood": "67M",
+			"stone": "13M",
+			"iron": "3.3M",
+			"truegold": 132,
+			"tempered_truegold": null,
+			"time": "7d"
+		},
+		{
+			"level": 34,
+			"requirements": [
+				"Embassy Lv. 30",
+				"Academy Lv. 30"
+			],
+			"bread": "67M",
+			"wood": "67M",
+			"stone": "13M",
+			"iron": "3.3M",
+			"truegold": 132,
+			"tempered_truegold": null,
+			"time": "7d"
+		},
+		{
+			"level": "TG1",
+			"requirements": [
+				"Embassy Lv. 30",
+				"Academy Lv. 30"
+			],
+			"bread": "67M",
+			"wood": "67M",
+			"stone": "13M",
+			"iron": "3.3M",
+			"truegold": 132,
+			"tempered_truegold": null,
+			"time": "7d"
+		},
+		{
+			"level": "TG1-1",
+			"requirements": [
+				"Embassy Lv. TG1",
+				"Stable Lv. TG1"
+			],
+			"bread": "72M",
+			"wood": "72M",
+			"stone": "14M",
+			"iron": "3.6M",
+			"truegold": 158,
+			"tempered_truegold": null,
+			"time": "9d"
+		},
+		{
+			"level": "TG1-2",
+			"requirements": [
+				"Embassy Lv. TG1",
+				"Stable Lv. TG1"
+			],
+			"bread": "72M",
+			"wood": "72M",
+			"stone": "14M",
+			"iron": "3.6M",
+			"truegold": 158,
+			"tempered_truegold": null,
+			"time": "9d"
+		},
+		{
+			"level": "TG1-3",
+			"requirements": [
+				"Embassy Lv. TG1",
+				"Stable Lv. TG1"
+			],
+			"bread": "72M",
+			"wood": "72M",
+			"stone": "14M",
+			"iron": "3.6M",
+			"truegold": 158,
+			"tempered_truegold": null,
+			"time": "9d"
+		},
+		{
+			"level": "TG1-4",
+			"requirements": [
+				"Embassy Lv. TG1",
+				"Stable Lv. TG1"
+			],
+			"bread": "72M",
+			"wood": "72M",
+			"stone": "14M",
+			"iron": "3.6M",
+			"truegold": 158,
+			"tempered_truegold": null,
+			"time": "9d"
+		},
+		{
+			"level": "TG2",
+			"requirements": [
+				"Embassy Lv. TG1",
+				"Stable Lv. TG1"
+			],
+			"bread": "72M",
+			"wood": "72M",
+			"stone": "14M",
+			"iron": "3.6M",
+			"truegold": 158,
+			"tempered_truegold": null,
+			"time": "9d"
+		},
+		{
+			"level": "TG2-1",
+			"requirements": [
+				"Embassy Lv. TG2",
+				"Barracks Lv. TG2"
+			],
+			"bread": "79M",
+			"wood": "79M",
+			"stone": "15M",
+			"iron": "3.9M",
+			"truegold": 238,
+			"tempered_truegold": null,
+			"time": "11d"
+		},
+		{
+			"level": "TG2-2",
+			"requirements": [
+				"Embassy Lv. TG2",
+				"Barracks Lv. TG2"
+			],
+			"bread": "79M",
+			"wood": "79M",
+			"stone": "15M",
+			"iron": "3.9M",
+			"truegold": 238,
+			"tempered_truegold": null,
+			"time": "11d"
+		},
+		{
+			"level": "TG2-3",
+			"requirements": [
+				"Embassy Lv. TG2",
+				"Barracks Lv. TG2"
+			],
+			"bread": "79M",
+			"wood": "79M",
+			"stone": "15M",
+			"iron": "3.9M",
+			"truegold": 238,
+			"tempered_truegold": null,
+			"time": "11d"
+		},
+		{
+			"level": "TG2-4",
+			"requirements": [
+				"Embassy Lv. TG2",
+				"Barracks Lv. TG2"
+			],
+			"bread": "79M",
+			"wood": "79M",
+			"stone": "15M",
+			"iron": "3.9M",
+			"truegold": 238,
+			"tempered_truegold": null,
+			"time": "11d"
+		},
+		{
+			"level": "TG3",
+			"requirements": [
+				"Embassy Lv. TG2",
+				"Barracks Lv. TG2"
+			],
+			"bread": "79M",
+			"wood": "79M",
+			"stone": "15M",
+			"iron": "3.9M",
+			"truegold": 238,
+			"tempered_truegold": null,
+			"time": "11d"
+		},
+		{
+			"level": "TG3-1",
+			"requirements": [
+				"Embassy Lv. TG3",
+				"Range Lv. TG3"
+			],
+			"bread": "82M",
+			"wood": "82M",
+			"stone": "16M",
+			"iron": "4.1M",
+			"truegold": 280,
+			"tempered_truegold": null,
+			"time": "12d"
+		},
+		{
+			"level": "TG3-2",
+			"requirements": [
+				"Embassy Lv. TG3",
+				"Range Lv. TG3"
+			],
+			"bread": "82M",
+			"wood": "82M",
+			"stone": "16M",
+			"iron": "4.1M",
+			"truegold": 280,
+			"tempered_truegold": null,
+			"time": "12d"
+		},
+		{
+			"level": "TG3-3",
+			"requirements": [
+				"Embassy Lv. TG3",
+				"Range Lv. TG3"
+			],
+			"bread": "82M",
+			"wood": "82M",
+			"stone": "16M",
+			"iron": "4.1M",
+			"truegold": 280,
+			"tempered_truegold": null,
+			"time": "12d"
+		},
+		{
+			"level": "TG3-4",
+			"requirements": [
+				"Embassy Lv. TG3",
+				"Range Lv. TG3"
+			],
+			"bread": "82M",
+			"wood": "82M",
+			"stone": "16M",
+			"iron": "4.1M",
+			"truegold": 280,
+			"tempered_truegold": null,
+			"time": "12d"
+		},
+		{
+			"level": "TG4",
+			"requirements": [
+				"Embassy Lv. TG3",
+				"Range Lv. TG3"
+			],
+			"bread": "82M",
+			"wood": "82M",
+			"stone": "16M",
+			"iron": "4.1M",
+			"truegold": 280,
+			"tempered_truegold": null,
+			"time": "12d"
+		},
+		{
+			"level": "TG4-1",
+			"requirements": [
+				"Embassy Lv. TG4",
+				"Stable Lv. TG4"
+			],
+			"bread": "84M",
+			"wood": "84M",
+			"stone": "16M",
+			"iron": "4.2M",
+			"truegold": 335,
+			"tempered_truegold": null,
+			"time": "14d"
+		},
+		{
+			"level": "TG4-2",
+			"requirements": [
+				"Embassy Lv. TG4",
+				"Stable Lv. TG4"
+			],
+			"bread": "84M",
+			"wood": "84M",
+			"stone": "16M",
+			"iron": "4.2M",
+			"truegold": 335,
+			"tempered_truegold": null,
+			"time": "14d"
+		},
+		{
+			"level": "TG4-3",
+			"requirements": [
+				"Embassy Lv. TG4",
+				"Stable Lv. TG4"
+			],
+			"bread": "84M",
+			"wood": "84M",
+			"stone": "16M",
+			"iron": "4.2M",
+			"truegold": 335,
+			"tempered_truegold": null,
+			"time": "14d"
+		},
+		{
+			"level": "TG4-4",
+			"requirements": [
+				"Embassy Lv. TG4",
+				"Stable Lv. TG4"
+			],
+			"bread": "84M",
+			"wood": "84M",
+			"stone": "16M",
+			"iron": "4.2M",
+			"truegold": 335,
+			"tempered_truegold": null,
+			"time": "14d"
+		},
+		{
+			"level": "TG5",
+			"requirements": [
+				"Embassy Lv. TG4",
+				"Stable Lv. TG4"
+			],
+			"bread": "84M",
+			"wood": "84M",
+			"stone": "16M",
+			"iron": "4.2M",
+			"truegold": 335,
+			"tempered_truegold": null,
+			"time": "14d"
+		},
+		{
+			"level": "TG5-1",
+			"requirements": [
+				"Embassy Lv. TG5",
+				"Barracks Lv. TG5"
+			],
+			"bread": "96M",
+			"wood": "96M",
+			"stone": "19M",
+			"iron": "4.8M",
+			"truegold": 200,
+			"tempered_truegold": 10,
+			"time": "15d"
+		},
+		{
+			"level": "TG5-2",
+			"requirements": [
+				"Embassy Lv. TG5",
+				"Barracks Lv. TG5"
+			],
+			"bread": "96M",
+			"wood": "96M",
+			"stone": "19M",
+			"iron": "4.8M",
+			"truegold": 200,
+			"tempered_truegold": 10,
+			"time": "15d"
+		},
+		{
+			"level": "TG5-3",
+			"requirements": [
+				"Embassy Lv. TG5",
+				"Barracks Lv. TG5"
+			],
+			"bread": "96M",
+			"wood": "96M",
+			"stone": "19M",
+			"iron": "4.8M",
+			"truegold": 200,
+			"tempered_truegold": 10,
+			"time": "15d"
+		},
+		{
+			"level": "TG5-4",
+			"requirements": [
+				"Embassy Lv. TG5",
+				"Barracks Lv. TG5"
+			],
+			"bread": "96M",
+			"wood": "96M",
+			"stone": "19M",
+			"iron": "4.8M",
+			"truegold": 200,
+			"tempered_truegold": 10,
+			"time": "15d"
+		},
+		{
+			"level": "TG6",
+			"requirements": [
+				"Embassy Lv. TG5",
+				"Barracks Lv. TG5"
+			],
+			"bread": "96M",
+			"wood": "96M",
+			"stone": "19M",
+			"iron": "4.8M",
+			"truegold": 100,
+			"tempered_truegold": 20,
+			"time": "15d"
+		},
+		{
+			"level": "TG6-1",
+			"requirements": [
+				"Embassy Lv. TG6",
+				"Range Lv. TG6"
+			],
+			"bread": "100M",
+			"wood": "100M",
+			"stone": "21M",
+			"iron": "5.4M",
+			"truegold": 240,
+			"tempered_truegold": 15,
+			"time": "18d"
+		},
+		{
+			"level": "TG6-2",
+			"requirements": [
+				"Embassy Lv. TG6",
+				"Range Lv. TG6"
+			],
+			"bread": "100M",
+			"wood": "100M",
+			"stone": "21M",
+			"iron": "5.4M",
+			"truegold": 240,
+			"tempered_truegold": 15,
+			"time": "18d"
+		},
+		{
+			"level": "TG6-3",
+			"requirements": [
+				"Embassy Lv. TG6",
+				"Range Lv. TG6"
+			],
+			"bread": "100M",
+			"wood": "100M",
+			"stone": "21M",
+			"iron": "5.4M",
+			"truegold": 240,
+			"tempered_truegold": 15,
+			"time": "18d"
+		},
+		{
+			"level": "TG6-4",
+			"requirements": [
+				"Embassy Lv. TG6",
+				"Range Lv. TG6"
+			],
+			"bread": "100M",
+			"wood": "100M",
+			"stone": "21M",
+			"iron": "5.4M",
+			"truegold": 240,
+			"tempered_truegold": 15,
+			"time": "18d"
+		},
+		{
+			"level": "TG7",
+			"requirements": [
+				"Embassy Lv. TG6",
+				"Range Lv. TG6"
+			],
+			"bread": "100M",
+			"wood": "100M",
+			"stone": "21M",
+			"iron": "5.4M",
+			"truegold": 120,
+			"tempered_truegold": 30,
+			"time": "18d"
+		},
+		{
+			"level": "TG7-1",
+			"requirements": [
+				"Embassy Lv. TG7",
+				"Stable Lv. TG7"
+			],
+			"bread": "130M",
+			"wood": "130M",
+			"stone": "26M",
+			"iron": "6.6M",
+			"truegold": 240,
+			"tempered_truegold": 20,
+			"time": "20d"
+		},
+		{
+			"level": "TG7-2",
+			"requirements": [
+				"Embassy Lv. TG7",
+				"Stable Lv. TG7"
+			],
+			"bread": "130M",
+			"wood": "130M",
+			"stone": "26M",
+			"iron": "6.6M",
+			"truegold": 240,
+			"tempered_truegold": 20,
+			"time": "20d"
+		},
+		{
+			"level": "TG7-3",
+			"requirements": [
+				"Embassy Lv. TG7",
+				"Stable Lv. TG7"
+			],
+			"bread": "130M",
+			"wood": "130M",
+			"stone": "26M",
+			"iron": "6.6M",
+			"truegold": 240,
+			"tempered_truegold": 20,
+			"time": "20d"
+		},
+		{
+			"level": "TG7-4",
+			"requirements": [
+				"Embassy Lv. TG7",
+				"Stable Lv. TG7"
+			],
+			"bread": "130M",
+			"wood": "130M",
+			"stone": "26M",
+			"iron": "6.6M",
+			"truegold": 240,
+			"tempered_truegold": 20,
+			"time": "20d"
+		},
+		{
+			"level": "TG8",
+			"requirements": [
+				"Embassy Lv. TG7",
+				"Stable Lv. TG7"
+			],
+			"bread": "130M",
+			"wood": "130M",
+			"stone": "26M",
+			"iron": "6.6M",
+			"truegold": 120,
+			"tempered_truegold": 40,
+			"time": "20d"
+		}
+	],
+	"Barracks": [
+		{
+			"level": 1,
+			"requirements": [
+				"Watchtower Lv. 1"
+			],
+			"bread": null,
+			"wood": null,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2s"
+		},
+		{
+			"level": 2,
+			"requirements": [
+				"Town Center Lv. 6"
+			],
+			"bread": null,
+			"wood": 140,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "9s"
+		},
+		{
+			"level": 3,
+			"requirements": [
+				"Town Center Lv. 6"
+			],
+			"bread": null,
+			"wood": 645,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "45s"
+		},
+		{
+			"level": 4,
+			"requirements": [
+				"Town Center Lv. 6"
+			],
+			"bread": null,
+			"wood": "1.4K",
+			"stone": 285,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2m 15s"
+		},
+		{
+			"level": 5,
+			"requirements": [
+				"Town Center Lv. 6"
+			],
+			"bread": null,
+			"wood": "6K",
+			"stone": "1.2K",
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4m 30s"
+		},
+		{
+			"level": 6,
+			"requirements": [
+				"Town Center Lv. 6"
+			],
+			"bread": null,
+			"wood": "15K",
+			"stone": "3K",
+			"iron": 765,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "9m"
+		},
+		{
+			"level": 7,
+			"requirements": [
+				"Town Center Lv. 7"
+			],
+			"bread": null,
+			"wood": "55K",
+			"stone": "11K",
+			"iron": "2.7K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "18m"
+		},
+		{
+			"level": 8,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": "100K",
+			"stone": "20K",
+			"iron": "5K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "27m"
+		},
+		{
+			"level": 9,
+			"requirements": [
+				"Town Center Lv. 9"
+			],
+			"bread": null,
+			"wood": "200K",
+			"stone": "41K",
+			"iron": "10K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "40m 30s"
+		},
+		{
+			"level": 10,
+			"requirements": [
+				"Town Center Lv. 10"
+			],
+			"bread": null,
+			"wood": "360K",
+			"stone": "73K",
+			"iron": "18K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "54m"
+		},
+		{
+			"level": 11,
+			"requirements": [
+				"Town Center Lv. 11"
+			],
+			"bread": "460K",
+			"wood": "460K",
+			"stone": "92K",
+			"iron": "23K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h 7m 30s"
+		},
+		{
+			"level": 12,
+			"requirements": [
+				"Town Center Lv. 12"
+			],
+			"bread": "580K",
+			"wood": "580K",
+			"stone": "110K",
+			"iron": "29K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h 21m"
+		},
+		{
+			"level": 13,
+			"requirements": [
+				"Town Center Lv. 13"
+			],
+			"bread": "830K",
+			"wood": "830K",
+			"stone": "160K",
+			"iron": "41K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h 39m"
+		},
+		{
+			"level": 14,
+			"requirements": [
+				"Town Center Lv. 14"
+			],
+			"bread": "1.1M",
+			"wood": "1.1M",
+			"stone": "220K",
+			"iron": "55K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2h 6m"
+		},
+		{
+			"level": 15,
+			"requirements": [
+				"Town Center Lv. 15"
+			],
+			"bread": "1.6M",
+			"wood": "1.6M",
+			"stone": "320K",
+			"iron": "81K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2h 42m"
+		},
+		{
+			"level": 16,
+			"requirements": [
+				"Town Center Lv. 16"
+			],
+			"bread": "2M",
+			"wood": "2M",
+			"stone": "410K",
+			"iron": "100K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4h 34m"
+		},
+		{
+			"level": 17,
+			"requirements": [
+				"Town Center Lv. 17"
+			],
+			"bread": "3.2M",
+			"wood": "3.2M",
+			"stone": "650K",
+			"iron": "160K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "5h 29m"
+		},
+		{
+			"level": 18,
+			"requirements": [
+				"Town Center Lv. 18"
+			],
+			"bread": "4.3M",
+			"wood": "4.3M",
+			"stone": "870K",
+			"iron": "210K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "6h 35m"
+		},
+		{
+			"level": 19,
+			"requirements": [
+				"Town Center Lv. 19"
+			],
+			"bread": "5.4M",
+			"wood": "5.4M",
+			"stone": "1M",
+			"iron": "270K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "9h 52m 30s"
+		},
+		{
+			"level": 20,
+			"requirements": [
+				"Town Center Lv. 20"
+			],
+			"bread": "7.5M",
+			"wood": "7.5M",
+			"stone": "1.5M",
+			"iron": "370K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "12h 20m 30s"
+		},
+		{
+			"level": 21,
+			"requirements": [
+				"Town Center Lv. 21"
+			],
+			"bread": "9.5M",
+			"wood": "9.5M",
+			"stone": "1.9M",
+			"iron": "470K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "16h 2m 30s"
+		},
+		{
+			"level": 22,
+			"requirements": [
+				"Town Center Lv. 22"
+			],
+			"bread": "12M",
+			"wood": "12M",
+			"stone": "2.5M",
+			"iron": "630K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 4m"
+		},
+		{
+			"level": 23,
+			"requirements": [
+				"Town Center Lv. 23"
+			],
+			"bread": "15M",
+			"wood": "15M",
+			"stone": "3.1M",
+			"iron": "780K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 9h 42m"
+		},
+		{
+			"level": 24,
+			"requirements": [
+				"Town Center Lv. 24"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.2M",
+			"iron": "1M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 23h 11m"
+		},
+		{
+			"level": 25,
+			"requirements": [
+				"Town Center Lv. 25"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2d 18h 3m"
+		},
+		{
+			"level": 26,
+			"requirements": [
+				"Town Center Lv. 26"
+			],
+			"bread": "36M",
+			"wood": "36M",
+			"stone": "7.3M",
+			"iron": "1.8M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "3d 3h 57m"
+		},
+		{
+			"level": 27,
+			"requirements": [
+				"Town Center Lv. 27"
+			],
+			"bread": "52M",
+			"wood": "52M",
+			"stone": "10M",
+			"iron": "2.6M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "3d 19h 9m"
+		},
+		{
+			"level": 28,
+			"requirements": [
+				"Town Center Lv. 28"
+			],
+			"bread": "69M",
+			"wood": "69M",
+			"stone": "13M",
+			"iron": "3.4M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4d 8h 49m"
+		},
+		{
+			"level": 29,
+			"requirements": [
+				"Town Center Lv. 29"
+			],
+			"bread": "86M",
+			"wood": "86M",
+			"stone": "17M",
+			"iron": "4.3M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "5d 33m"
+		},
+		{
+			"level": 30,
+			"requirements": [
+				"Town Center Lv. 30"
+			],
+			"bread": "100M",
+			"wood": "100M",
+			"stone": "21M",
+			"iron": "5.2M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "6d 40m"
+		},
+		{
+			"level": 31,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "1d 1h 12m"
+		},
+		{
+			"level": 32,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "1d 1h 12m"
+		},
+		{
+			"level": 33,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "1d 1h 12m"
+		},
+		{
+			"level": 34,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "1d 1h 12m"
+		},
+		{
+			"level": "TG1",
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "1d 1h 12m"
+		},
+		{
+			"level": "TG1-1",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 8h 24m"
+		},
+		{
+			"level": "TG1-2",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 8h 24m"
+		},
+		{
+			"level": "TG1-3",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 8h 24m"
+		},
+		{
+			"level": "TG1-4",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 8h 24m"
+		},
+		{
+			"level": "TG2",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 8h 24m"
+		},
+		{
+			"level": "TG2-1",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.5M",
+			"iron": "1.3M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "1d 15h 36m"
+		},
+		{
+			"level": "TG2-2",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.5M",
+			"iron": "1.3M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "1d 15h 36m"
+		},
+		{
+			"level": "TG2-3",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.5M",
+			"iron": "1.3M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "1d 15h 36m"
+		},
+		{
+			"level": "TG2-4",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.5M",
+			"iron": "1.3M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "1d 15h 36m"
+		},
+		{
+			"level": "TG3",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.5M",
+			"iron": "1.3M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "1d 15h 36m"
+		},
+		{
+			"level": "TG3-1",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG3-2",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG3-3",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG3-4",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG4",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG4-1",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.9M",
+			"iron": "1.4M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG4-2",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.9M",
+			"iron": "1.4M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG4-3",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.9M",
+			"iron": "1.4M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG4-4",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.9M",
+			"iron": "1.4M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG5",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.9M",
+			"iron": "1.4M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG5-1",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.7M",
+			"iron": "1.6M",
+			"truegold": 90,
+			"tempered_truegold": 4,
+			"time": "2d 6h"
+		},
+		{
+			"level": "TG5-2",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.7M",
+			"iron": "1.6M",
+			"truegold": 90,
+			"tempered_truegold": 4,
+			"time": "2d 6h"
+		},
+		{
+			"level": "TG5-3",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.7M",
+			"iron": "1.6M",
+			"truegold": 90,
+			"tempered_truegold": 4,
+			"time": "2d 6h"
+		},
+		{
+			"level": "TG5-4",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.7M",
+			"iron": "1.6M",
+			"truegold": 90,
+			"tempered_truegold": 4,
+			"time": "2d 6h"
+		},
+		{
+			"level": "TG6",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.7M",
+			"iron": "1.6M",
+			"truegold": 45,
+			"tempered_truegold": 9,
+			"time": "2d 6h"
+		},
+		{
+			"level": "TG6-1",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "38M",
+			"wood": "38M",
+			"stone": "7.6M",
+			"iron": "1.9M",
+			"truegold": 108,
+			"tempered_truegold": 6,
+			"time": "2d 16h 48m"
+		},
+		{
+			"level": "TG6-2",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "38M",
+			"wood": "38M",
+			"stone": "7.6M",
+			"iron": "1.9M",
+			"truegold": 108,
+			"tempered_truegold": 6,
+			"time": "2d 16h 48m"
+		},
+		{
+			"level": "TG6-3",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "38M",
+			"wood": "38M",
+			"stone": "7.6M",
+			"iron": "1.9M",
+			"truegold": 108,
+			"tempered_truegold": 6,
+			"time": "2d 16h 48m"
+		},
+		{
+			"level": "TG6-4",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "38M",
+			"wood": "38M",
+			"stone": "7.6M",
+			"iron": "1.9M",
+			"truegold": 108,
+			"tempered_truegold": 6,
+			"time": "2d 16h 48m"
+		},
+		{
+			"level": "TG7",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "38M",
+			"wood": "38M",
+			"stone": "7.6M",
+			"iron": "1.9M",
+			"truegold": 54,
+			"tempered_truegold": 13,
+			"time": "2d 16h 48m"
+		},
+		{
+			"level": "TG7-1",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "46M",
+			"wood": "46M",
+			"stone": "9.3M",
+			"iron": "2.3M",
+			"truegold": 108,
+			"tempered_truegold": 9,
+			"time": "3d"
+		},
+		{
+			"level": "TG7-2",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "46M",
+			"wood": "46M",
+			"stone": "9.3M",
+			"iron": "2.3M",
+			"truegold": 108,
+			"tempered_truegold": 9,
+			"time": "3d"
+		},
+		{
+			"level": "TG7-3",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "46M",
+			"wood": "46M",
+			"stone": "9.3M",
+			"iron": "2.3M",
+			"truegold": 108,
+			"tempered_truegold": 9,
+			"time": "3d"
+		},
+		{
+			"level": "TG7-4",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "46M",
+			"wood": "46M",
+			"stone": "9.3M",
+			"iron": "2.3M",
+			"truegold": 108,
+			"tempered_truegold": 9,
+			"time": "3d"
+		},
+		{
+			"level": "TG8",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "46M",
+			"wood": "46M",
+			"stone": "9.3M",
+			"iron": "2.3M",
+			"truegold": 54,
+			"tempered_truegold": 18,
+			"time": "3d"
+		}
+	],
+	"Stable": [
+		{
+			"level": 1,
+			"requirements": [
+				"Town Center Lv. 9"
+			],
+			"bread": null,
+			"wood": 95,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2s"
+		},
+		{
+			"level": 2,
+			"requirements": [
+				"Town Center Lv. 9"
+			],
+			"bread": null,
+			"wood": 140,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "9s"
+		},
+		{
+			"level": 3,
+			"requirements": [
+				"Town Center Lv. 9"
+			],
+			"bread": null,
+			"wood": 645,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "45s"
+		},
+		{
+			"level": 4,
+			"requirements": [
+				"Town Center Lv. 9"
+			],
+			"bread": null,
+			"wood": "1.4K",
+			"stone": 285,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2m 15s"
+		},
+		{
+			"level": 5,
+			"requirements": [
+				"Town Center Lv. 9"
+			],
+			"bread": null,
+			"wood": "6K",
+			"stone": "1.2K",
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4m 30s"
+		},
+		{
+			"level": 6,
+			"requirements": [
+				"Town Center Lv. 9"
+			],
+			"bread": null,
+			"wood": "15K",
+			"stone": "3K",
+			"iron": 765,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "9m"
+		},
+		{
+			"level": 7,
+			"requirements": [
+				"Town Center Lv. 9"
+			],
+			"bread": null,
+			"wood": "55K",
+			"stone": "11K",
+			"iron": "2.7K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "18m"
+		},
+		{
+			"level": 8,
+			"requirements": [
+				"Town Center Lv. 9"
+			],
+			"bread": null,
+			"wood": "100K",
+			"stone": "20K",
+			"iron": "5K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "27m"
+		},
+		{
+			"level": 9,
+			"requirements": [
+				"Town Center Lv. 9"
+			],
+			"bread": null,
+			"wood": "200K",
+			"stone": "41K",
+			"iron": "10K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "40m 30s"
+		},
+		{
+			"level": 10,
+			"requirements": [
+				"Town Center Lv. 10"
+			],
+			"bread": null,
+			"wood": "360K",
+			"stone": "73K",
+			"iron": "18K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "54m"
+		},
+		{
+			"level": 11,
+			"requirements": [
+				"Town Center Lv. 11"
+			],
+			"bread": "460K",
+			"wood": "460K",
+			"stone": "92K",
+			"iron": "23K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h 7m 30s"
+		},
+		{
+			"level": 12,
+			"requirements": [
+				"Town Center Lv. 12"
+			],
+			"bread": "580K",
+			"wood": "580K",
+			"stone": "110K",
+			"iron": "29K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h 21m"
+		},
+		{
+			"level": 13,
+			"requirements": [
+				"Town Center Lv. 13"
+			],
+			"bread": "830K",
+			"wood": "830K",
+			"stone": "160K",
+			"iron": "41K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h 39m"
+		},
+		{
+			"level": 14,
+			"requirements": [
+				"Town Center Lv. 14"
+			],
+			"bread": "1.1M",
+			"wood": "1.1M",
+			"stone": "220K",
+			"iron": "55K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2h 6m"
+		},
+		{
+			"level": 15,
+			"requirements": [
+				"Town Center Lv. 15"
+			],
+			"bread": "1.6M",
+			"wood": "1.6M",
+			"stone": "320K",
+			"iron": "81K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2h 42m"
+		},
+		{
+			"level": 16,
+			"requirements": [
+				"Town Center Lv. 16"
+			],
+			"bread": "2M",
+			"wood": "2M",
+			"stone": "410K",
+			"iron": "100K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4h 34m"
+		},
+		{
+			"level": 17,
+			"requirements": [
+				"Town Center Lv. 17"
+			],
+			"bread": "3.2M",
+			"wood": "3.2M",
+			"stone": "650K",
+			"iron": "160K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "5h 29m"
+		},
+		{
+			"level": 18,
+			"requirements": [
+				"Town Center Lv. 18"
+			],
+			"bread": "4.3M",
+			"wood": "4.3M",
+			"stone": "870K",
+			"iron": "210K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "6h 35m"
+		},
+		{
+			"level": 19,
+			"requirements": [
+				"Town Center Lv. 19"
+			],
+			"bread": "5.4M",
+			"wood": "5.4M",
+			"stone": "1M",
+			"iron": "270K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "9h 52m 30s"
+		},
+		{
+			"level": 20,
+			"requirements": [
+				"Town Center Lv. 20"
+			],
+			"bread": "7.5M",
+			"wood": "7.5M",
+			"stone": "1.5M",
+			"iron": "370K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "12h 20m 30s"
+		},
+		{
+			"level": 21,
+			"requirements": [
+				"Town Center Lv. 21"
+			],
+			"bread": "9.5M",
+			"wood": "9.5M",
+			"stone": "1.9M",
+			"iron": "470K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "16h 2m 30s"
+		},
+		{
+			"level": 22,
+			"requirements": [
+				"Town Center Lv. 22"
+			],
+			"bread": "12M",
+			"wood": "12M",
+			"stone": "2.5M",
+			"iron": "630K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 4m"
+		},
+		{
+			"level": 23,
+			"requirements": [
+				"Town Center Lv. 23"
+			],
+			"bread": "15M",
+			"wood": "15M",
+			"stone": "3.1M",
+			"iron": "780K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 9h 42m"
+		},
+		{
+			"level": 24,
+			"requirements": [
+				"Town Center Lv. 24"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.2M",
+			"iron": "1M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 23h 11m"
+		},
+		{
+			"level": 25,
+			"requirements": [
+				"Town Center Lv. 25"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2d 18h 3m"
+		},
+		{
+			"level": 26,
+			"requirements": [
+				"Town Center Lv. 26"
+			],
+			"bread": "36M",
+			"wood": "36M",
+			"stone": "7.3M",
+			"iron": "1.8M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "3d 3h 57m"
+		},
+		{
+			"level": 27,
+			"requirements": [
+				"Town Center Lv. 27"
+			],
+			"bread": "52M",
+			"wood": "52M",
+			"stone": "10M",
+			"iron": "2.6M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "3d 19h 9m"
+		},
+		{
+			"level": 28,
+			"requirements": [
+				"Town Center Lv. 28"
+			],
+			"bread": "69M",
+			"wood": "69M",
+			"stone": "13M",
+			"iron": "3.4M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4d 8h 49m"
+		},
+		{
+			"level": 29,
+			"requirements": [
+				"Town Center Lv. 29"
+			],
+			"bread": "86M",
+			"wood": "86M",
+			"stone": "17M",
+			"iron": "4.3M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "5d 33m"
+		},
+		{
+			"level": 30,
+			"requirements": [
+				"Town Center Lv. 30"
+			],
+			"bread": "100M",
+			"wood": "100M",
+			"stone": "21M",
+			"iron": "5.2M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "6d 40m"
+		},
+		{
+			"level": 31,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "1d 1h 12m"
+		},
+		{
+			"level": 32,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "1d 1h 12m"
+		},
+		{
+			"level": 33,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "1d 1h 12m"
+		},
+		{
+			"level": 34,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "1d 1h 12m"
+		},
+		{
+			"level": "TG1",
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "1d 1h 12m"
+		},
+		{
+			"level": "TG1-1",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 8h 24m"
+		},
+		{
+			"level": "TG1-2",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 8h 24m"
+		},
+		{
+			"level": "TG1-3",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 8h 24m"
+		},
+		{
+			"level": "TG1-4",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 8h 24m"
+		},
+		{
+			"level": "TG2",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 8h 24m"
+		},
+		{
+			"level": "TG2-1",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.5M",
+			"iron": "1.3M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "1d 15h 36m"
+		},
+		{
+			"level": "TG2-2",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.5M",
+			"iron": "1.3M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "1d 15h 36m"
+		},
+		{
+			"level": "TG2-3",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.5M",
+			"iron": "1.3M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "1d 15h 36m"
+		},
+		{
+			"level": "TG2-4",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.5M",
+			"iron": "1.3M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "1d 15h 36m"
+		},
+		{
+			"level": "TG3",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.5M",
+			"iron": "1.3M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "1d 15h 36m"
+		},
+		{
+			"level": "TG3-1",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG3-2",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG3-3",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG3-4",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG4",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG4-1",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.9M",
+			"iron": "1.4M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG4-2",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.9M",
+			"iron": "1.4M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG4-3",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.9M",
+			"iron": "1.4M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG4-4",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.9M",
+			"iron": "1.4M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG5",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.9M",
+			"iron": "1.4M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG5-1",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.7M",
+			"iron": "1.6M",
+			"truegold": 90,
+			"tempered_truegold": 4,
+			"time": "2d 6h"
+		},
+		{
+			"level": "TG5-2",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.7M",
+			"iron": "1.6M",
+			"truegold": 90,
+			"tempered_truegold": 4,
+			"time": "2d 6h"
+		},
+		{
+			"level": "TG5-3",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.7M",
+			"iron": "1.6M",
+			"truegold": 90,
+			"tempered_truegold": 4,
+			"time": "2d 6h"
+		},
+		{
+			"level": "TG5-4",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.7M",
+			"iron": "1.6M",
+			"truegold": 90,
+			"tempered_truegold": 4,
+			"time": "2d 6h"
+		},
+		{
+			"level": "TG6",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.7M",
+			"iron": "1.6M",
+			"truegold": 45,
+			"tempered_truegold": 9,
+			"time": "2d 6h"
+		},
+		{
+			"level": "TG6-1",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "38M",
+			"wood": "38M",
+			"stone": "7.6M",
+			"iron": "1.9M",
+			"truegold": 108,
+			"tempered_truegold": 6,
+			"time": "2d 16h 48m"
+		},
+		{
+			"level": "TG6-2",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "38M",
+			"wood": "38M",
+			"stone": "7.6M",
+			"iron": "1.9M",
+			"truegold": 108,
+			"tempered_truegold": 6,
+			"time": "2d 16h 48m"
+		},
+		{
+			"level": "TG6-3",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "38M",
+			"wood": "38M",
+			"stone": "7.6M",
+			"iron": "1.9M",
+			"truegold": 108,
+			"tempered_truegold": 6,
+			"time": "2d 16h 48m"
+		},
+		{
+			"level": "TG6-4",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "38M",
+			"wood": "38M",
+			"stone": "7.6M",
+			"iron": "1.9M",
+			"truegold": 108,
+			"tempered_truegold": 6,
+			"time": "2d 16h 48m"
+		},
+		{
+			"level": "TG7",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "38M",
+			"wood": "38M",
+			"stone": "7.6M",
+			"iron": "1.9M",
+			"truegold": 54,
+			"tempered_truegold": 13,
+			"time": "2d 16h 48m"
+		},
+		{
+			"level": "TG7-1",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "46M",
+			"wood": "46M",
+			"stone": "9.3M",
+			"iron": "2.3M",
+			"truegold": 108,
+			"tempered_truegold": 9,
+			"time": "3d"
+		},
+		{
+			"level": "TG7-2",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "46M",
+			"wood": "46M",
+			"stone": "9.3M",
+			"iron": "2.3M",
+			"truegold": 108,
+			"tempered_truegold": 9,
+			"time": "3d"
+		},
+		{
+			"level": "TG7-3",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "46M",
+			"wood": "46M",
+			"stone": "9.3M",
+			"iron": "2.3M",
+			"truegold": 108,
+			"tempered_truegold": 9,
+			"time": "3d"
+		},
+		{
+			"level": "TG7-4",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "46M",
+			"wood": "46M",
+			"stone": "9.3M",
+			"iron": "2.3M",
+			"truegold": 108,
+			"tempered_truegold": 9,
+			"time": "3d"
+		},
+		{
+			"level": "TG8",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "46M",
+			"wood": "46M",
+			"stone": "9.3M",
+			"iron": "2.3M",
+			"truegold": 54,
+			"tempered_truegold": 18,
+			"time": "3d"
+		}
+	],
+	"Range": [
+		{
+			"level": 1,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": 95,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2s"
+		},
+		{
+			"level": 2,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": 140,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "9s"
+		},
+		{
+			"level": 3,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": 645,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "45s"
+		},
+		{
+			"level": 4,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": "1.4K",
+			"stone": 285,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2m 15s"
+		},
+		{
+			"level": 5,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": "6K",
+			"stone": "1.2K",
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4m 30s"
+		},
+		{
+			"level": 6,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": "15K",
+			"stone": "3K",
+			"iron": 765,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "9m"
+		},
+		{
+			"level": 7,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": "55K",
+			"stone": "11K",
+			"iron": "2.7K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "18m"
+		},
+		{
+			"level": 8,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": "100K",
+			"stone": "20K",
+			"iron": "5K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "27m"
+		},
+		{
+			"level": 9,
+			"requirements": [
+				"Town Center Lv. 9"
+			],
+			"bread": null,
+			"wood": "200K",
+			"stone": "41K",
+			"iron": "10K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "40m 30s"
+		},
+		{
+			"level": 10,
+			"requirements": [
+				"Town Center Lv. 10"
+			],
+			"bread": null,
+			"wood": "360K",
+			"stone": "73K",
+			"iron": "18K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "54m"
+		},
+		{
+			"level": 11,
+			"requirements": [
+				"Town Center Lv. 11"
+			],
+			"bread": "460K",
+			"wood": "460K",
+			"stone": "92K",
+			"iron": "23K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h 7m 30s"
+		},
+		{
+			"level": 12,
+			"requirements": [
+				"Town Center Lv. 12"
+			],
+			"bread": "580K",
+			"wood": "580K",
+			"stone": "110K",
+			"iron": "29K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h 21m"
+		},
+		{
+			"level": 13,
+			"requirements": [
+				"Town Center Lv. 13"
+			],
+			"bread": "830K",
+			"wood": "830K",
+			"stone": "160K",
+			"iron": "41K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h 39m"
+		},
+		{
+			"level": 14,
+			"requirements": [
+				"Town Center Lv. 14"
+			],
+			"bread": "1.1M",
+			"wood": "1.1M",
+			"stone": "220K",
+			"iron": "55K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2h 6m"
+		},
+		{
+			"level": 15,
+			"requirements": [
+				"Town Center Lv. 15"
+			],
+			"bread": "1.6M",
+			"wood": "1.6M",
+			"stone": "320K",
+			"iron": "81K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2h 42m"
+		},
+		{
+			"level": 16,
+			"requirements": [
+				"Town Center Lv. 16"
+			],
+			"bread": "2M",
+			"wood": "2M",
+			"stone": "410K",
+			"iron": "100K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4h 34m"
+		},
+		{
+			"level": 17,
+			"requirements": [
+				"Town Center Lv. 17"
+			],
+			"bread": "3.2M",
+			"wood": "3.2M",
+			"stone": "650K",
+			"iron": "160K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "5h 29m"
+		},
+		{
+			"level": 18,
+			"requirements": [
+				"Town Center Lv. 18"
+			],
+			"bread": "4.3M",
+			"wood": "4.3M",
+			"stone": "870K",
+			"iron": "210K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "6h 35m"
+		},
+		{
+			"level": 19,
+			"requirements": [
+				"Town Center Lv. 19"
+			],
+			"bread": "5.4M",
+			"wood": "5.4M",
+			"stone": "1M",
+			"iron": "270K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "9h 52m 30s"
+		},
+		{
+			"level": 20,
+			"requirements": [
+				"Town Center Lv. 20"
+			],
+			"bread": "7.5M",
+			"wood": "7.5M",
+			"stone": "1.5M",
+			"iron": "370K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "12h 20m 30s"
+		},
+		{
+			"level": 21,
+			"requirements": [
+				"Town Center Lv. 21"
+			],
+			"bread": "9.5M",
+			"wood": "9.5M",
+			"stone": "1.9M",
+			"iron": "470K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "16h 2m 30s"
+		},
+		{
+			"level": 22,
+			"requirements": [
+				"Town Center Lv. 22"
+			],
+			"bread": "12M",
+			"wood": "12M",
+			"stone": "2.5M",
+			"iron": "630K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 4m"
+		},
+		{
+			"level": 23,
+			"requirements": [
+				"Town Center Lv. 23"
+			],
+			"bread": "15M",
+			"wood": "15M",
+			"stone": "3.1M",
+			"iron": "780K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 9h 42m"
+		},
+		{
+			"level": 24,
+			"requirements": [
+				"Town Center Lv. 24"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.2M",
+			"iron": "1M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 23h 11m"
+		},
+		{
+			"level": 25,
+			"requirements": [
+				"Town Center Lv. 25"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2d 18h 3m"
+		},
+		{
+			"level": 26,
+			"requirements": [
+				"Town Center Lv. 26"
+			],
+			"bread": "36M",
+			"wood": "36M",
+			"stone": "7.3M",
+			"iron": "1.8M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "3d 3h 57m"
+		},
+		{
+			"level": 27,
+			"requirements": [
+				"Town Center Lv. 27"
+			],
+			"bread": "52M",
+			"wood": "52M",
+			"stone": "10M",
+			"iron": "2.6M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "3d 19h 9m"
+		},
+		{
+			"level": 28,
+			"requirements": [
+				"Town Center Lv. 28"
+			],
+			"bread": "69M",
+			"wood": "69M",
+			"stone": "13M",
+			"iron": "3.4M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4d 8h 49m"
+		},
+		{
+			"level": 29,
+			"requirements": [
+				"Town Center Lv. 29"
+			],
+			"bread": "86M",
+			"wood": "86M",
+			"stone": "17M",
+			"iron": "4.3M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "5d 33m"
+		},
+		{
+			"level": 30,
+			"requirements": [
+				"Town Center Lv. 30"
+			],
+			"bread": "100M",
+			"wood": "100M",
+			"stone": "21M",
+			"iron": "5.2M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "6d 40m"
+		},
+		{
+			"level": 31,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "1d 1h 12m"
+		},
+		{
+			"level": 32,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "1d 1h 12m"
+		},
+		{
+			"level": 33,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "1d 1h 12m"
+		},
+		{
+			"level": 34,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "1d 1h 12m"
+		},
+		{
+			"level": "TG1",
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "1d 1h 12m"
+		},
+		{
+			"level": "TG1-1",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 8h 24m"
+		},
+		{
+			"level": "TG1-2",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 8h 24m"
+		},
+		{
+			"level": "TG1-3",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 8h 24m"
+		},
+		{
+			"level": "TG1-4",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 8h 24m"
+		},
+		{
+			"level": "TG2",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 8h 24m"
+		},
+		{
+			"level": "TG2-1",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.5M",
+			"iron": "1.3M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "1d 15h 36m"
+		},
+		{
+			"level": "TG2-2",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.5M",
+			"iron": "1.3M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "1d 15h 36m"
+		},
+		{
+			"level": "TG2-3",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.5M",
+			"iron": "1.3M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "1d 15h 36m"
+		},
+		{
+			"level": "TG2-4",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.5M",
+			"iron": "1.3M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "1d 15h 36m"
+		},
+		{
+			"level": "TG3",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.5M",
+			"iron": "1.3M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "1d 15h 36m"
+		},
+		{
+			"level": "TG3-1",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG3-2",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG3-3",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG3-4",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG4",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "28M",
+			"wood": "28M",
+			"stone": "5.7M",
+			"iron": "1.4M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG4-1",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.9M",
+			"iron": "1.4M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG4-2",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.9M",
+			"iron": "1.4M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG4-3",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.9M",
+			"iron": "1.4M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG4-4",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.9M",
+			"iron": "1.4M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG5",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.9M",
+			"iron": "1.4M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG5-1",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.7M",
+			"iron": "1.6M",
+			"truegold": 90,
+			"tempered_truegold": 4,
+			"time": "2d 6h"
+		},
+		{
+			"level": "TG5-2",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.7M",
+			"iron": "1.6M",
+			"truegold": 90,
+			"tempered_truegold": 4,
+			"time": "2d 6h"
+		},
+		{
+			"level": "TG5-3",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.7M",
+			"iron": "1.6M",
+			"truegold": 90,
+			"tempered_truegold": 4,
+			"time": "2d 6h"
+		},
+		{
+			"level": "TG5-4",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.7M",
+			"iron": "1.6M",
+			"truegold": 90,
+			"tempered_truegold": 4,
+			"time": "2d 6h"
+		},
+		{
+			"level": "TG6",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.7M",
+			"iron": "1.6M",
+			"truegold": 45,
+			"tempered_truegold": 9,
+			"time": "2d 6h"
+		},
+		{
+			"level": "TG6-1",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "38M",
+			"wood": "38M",
+			"stone": "7.6M",
+			"iron": "1.9M",
+			"truegold": 108,
+			"tempered_truegold": 6,
+			"time": "2d 16h 48m"
+		},
+		{
+			"level": "TG6-2",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "38M",
+			"wood": "38M",
+			"stone": "7.6M",
+			"iron": "1.9M",
+			"truegold": 108,
+			"tempered_truegold": 6,
+			"time": "2d 16h 48m"
+		},
+		{
+			"level": "TG6-3",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "38M",
+			"wood": "38M",
+			"stone": "7.6M",
+			"iron": "1.9M",
+			"truegold": 108,
+			"tempered_truegold": 6,
+			"time": "2d 16h 48m"
+		},
+		{
+			"level": "TG6-4",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "38M",
+			"wood": "38M",
+			"stone": "7.6M",
+			"iron": "1.9M",
+			"truegold": 108,
+			"tempered_truegold": 6,
+			"time": "2d 16h 48m"
+		},
+		{
+			"level": "TG7",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "38M",
+			"wood": "38M",
+			"stone": "7.6M",
+			"iron": "1.9M",
+			"truegold": 54,
+			"tempered_truegold": 13,
+			"time": "2d 16h 48m"
+		},
+		{
+			"level": "TG7-1",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "46M",
+			"wood": "46M",
+			"stone": "9.3M",
+			"iron": "2.3M",
+			"truegold": 108,
+			"tempered_truegold": 9,
+			"time": "3d"
+		},
+		{
+			"level": "TG7-2",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "46M",
+			"wood": "46M",
+			"stone": "9.3M",
+			"iron": "2.3M",
+			"truegold": 108,
+			"tempered_truegold": 9,
+			"time": "3d"
+		},
+		{
+			"level": "TG7-3",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "46M",
+			"wood": "46M",
+			"stone": "9.3M",
+			"iron": "2.3M",
+			"truegold": 108,
+			"tempered_truegold": 9,
+			"time": "3d"
+		},
+		{
+			"level": "TG7-4",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "46M",
+			"wood": "46M",
+			"stone": "9.3M",
+			"iron": "2.3M",
+			"truegold": 108,
+			"tempered_truegold": 9,
+			"time": "3d"
+		},
+		{
+			"level": "TG8",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "46M",
+			"wood": "46M",
+			"stone": "9.3M",
+			"iron": "2.3M",
+			"truegold": 54,
+			"tempered_truegold": 18,
+			"time": "3d"
+		}
+	],
+	"Command Center": [
+		{
+			"level": 1,
+			"requirements": [
+				"Town Center Lv. 10",
+				"Embassy Lv. 1"
+			],
+			"bread": null,
+			"wood": 80,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2s"
+		},
+		{
+			"level": 2,
+			"requirements": [
+				"Town Center Lv. 10",
+				"Embassy Lv. 2"
+			],
+			"bread": null,
+			"wood": 125,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "8s"
+		},
+		{
+			"level": 3,
+			"requirements": [
+				"Town Center Lv. 10",
+				"Embassy Lv. 3"
+			],
+			"bread": null,
+			"wood": 565,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "35s"
+		},
+		{
+			"level": 4,
+			"requirements": [
+				"Town Center Lv. 10",
+				"Embassy Lv. 4"
+			],
+			"bread": null,
+			"wood": "1.2K",
+			"stone": 250,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1m 45s"
+		},
+		{
+			"level": 5,
+			"requirements": [
+				"Town Center Lv. 10",
+				"Embassy Lv. 5"
+			],
+			"bread": null,
+			"wood": "5.3K",
+			"stone": "1K",
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "3m 35s"
+		},
+		{
+			"level": 6,
+			"requirements": [
+				"Town Center Lv. 10",
+				"Embassy Lv. 6"
+			],
+			"bread": null,
+			"wood": "13K",
+			"stone": "2.6K",
+			"iron": 670,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "7m 10s"
+		},
+		{
+			"level": 7,
+			"requirements": [
+				"Town Center Lv. 10",
+				"Embassy Lv. 7"
+			],
+			"bread": null,
+			"wood": "48K",
+			"stone": "9.6K",
+			"iron": "2.4K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "14m"
+		},
+		{
+			"level": 8,
+			"requirements": [
+				"Town Center Lv. 10",
+				"Embassy Lv. 8"
+			],
+			"bread": null,
+			"wood": "88K",
+			"stone": "17K",
+			"iron": "4.4K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "21m 30s"
+		},
+		{
+			"level": 9,
+			"requirements": [
+				"Town Center Lv. 10",
+				"Embassy Lv. 9"
+			],
+			"bread": null,
+			"wood": "180K",
+			"stone": "36K",
+			"iron": "9.1K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "32m"
+		},
+		{
+			"level": 10,
+			"requirements": [
+				"Town Center Lv. 10",
+				"Embassy Lv. 10"
+			],
+			"bread": null,
+			"wood": "320K",
+			"stone": "64K",
+			"iron": "16K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "43m"
+		},
+		{
+			"level": 11,
+			"requirements": [
+				"Town Center Lv. 11",
+				"Embassy Lv. 11"
+			],
+			"bread": "390K",
+			"wood": "390K",
+			"stone": "79K",
+			"iron": "19K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "54m"
+		},
+		{
+			"level": 12,
+			"requirements": [
+				"Town Center Lv. 12",
+				"Embassy Lv. 12"
+			],
+			"bread": "500K",
+			"wood": "500K",
+			"stone": "100K",
+			"iron": "25K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h 4m 30s"
+		},
+		{
+			"level": 13,
+			"requirements": [
+				"Town Center Lv. 13",
+				"Embassy Lv. 13"
+			],
+			"bread": "710K",
+			"wood": "710K",
+			"stone": "140K",
+			"iron": "35K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h 19m"
+		},
+		{
+			"level": 14,
+			"requirements": [
+				"Town Center Lv. 14",
+				"Embassy Lv. 14"
+			],
+			"bread": "940K",
+			"wood": "940K",
+			"stone": "180K",
+			"iron": "47K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h 40m 30s"
+		},
+		{
+			"level": 15,
+			"requirements": [
+				"Town Center Lv. 15",
+				"Embassy Lv. 15"
+			],
+			"bread": "1.3M",
+			"wood": "1.3M",
+			"stone": "270K",
+			"iron": "69K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2h 9m 30s"
+		},
+		{
+			"level": 16,
+			"requirements": [
+				"Town Center Lv. 16",
+				"Embassy Lv. 16"
+			],
+			"bread": "1.7M",
+			"wood": "1.7M",
+			"stone": "350K",
+			"iron": "89K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "3h 39m"
+		},
+		{
+			"level": 17,
+			"requirements": [
+				"Town Center Lv. 17",
+				"Embassy Lv. 17"
+			],
+			"bread": "2.7M",
+			"wood": "2.7M",
+			"stone": "550K",
+			"iron": "130K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4h 23m"
+		},
+		{
+			"level": 18,
+			"requirements": [
+				"Town Center Lv. 18",
+				"Embassy Lv. 18"
+			],
+			"bread": "3.7M",
+			"wood": "3.7M",
+			"stone": "750K",
+			"iron": "180K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "5h 16m"
+		},
+		{
+			"level": 19,
+			"requirements": [
+				"Town Center Lv. 19",
+				"Embassy Lv. 19"
+			],
+			"bread": "4.7M",
+			"wood": "4.7M",
+			"stone": "940K",
+			"iron": "230K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "7h 54m"
+		},
+		{
+			"level": 20,
+			"requirements": [
+				"Town Center Lv. 20",
+				"Embassy Lv. 20"
+			],
+			"bread": "6.4M",
+			"wood": "6.4M",
+			"stone": "1.2M",
+			"iron": "320K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "9h 52m 30s"
+		},
+		{
+			"level": 21,
+			"requirements": [
+				"Town Center Lv. 21",
+				"Embassy Lv. 21"
+			],
+			"bread": "8.1M",
+			"wood": "8.1M",
+			"stone": "1.6M",
+			"iron": "400K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "12h 50m"
+		},
+		{
+			"level": 22,
+			"requirements": [
+				"Town Center Lv. 22",
+				"Embassy Lv. 22"
+			],
+			"bread": "10M",
+			"wood": "10M",
+			"stone": "2.1M",
+			"iron": "540K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "19h 15m 30s"
+		},
+		{
+			"level": 23,
+			"requirements": [
+				"Town Center Lv. 23",
+				"Embassy Lv. 23"
+			],
+			"bread": "13M",
+			"wood": "13M",
+			"stone": "2.6M",
+			"iron": "670K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 2h 57m"
+		},
+		{
+			"level": 24,
+			"requirements": [
+				"Town Center Lv. 24",
+				"Embassy Lv. 24"
+			],
+			"bread": "18M",
+			"wood": "18M",
+			"stone": "3.6M",
+			"iron": "900K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 13h 44m"
+		},
+		{
+			"level": 25,
+			"requirements": [
+				"Town Center Lv. 25",
+				"Embassy Lv. 25"
+			],
+			"bread": "24M",
+			"wood": "24M",
+			"stone": "4.9M",
+			"iron": "1.2M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2d 4h 50m"
+		},
+		{
+			"level": 26,
+			"requirements": [
+				"Town Center Lv. 26",
+				"Embassy Lv. 26"
+			],
+			"bread": "31M",
+			"wood": "31M",
+			"stone": "6.3M",
+			"iron": "1.5M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2d 12h 46m"
+		},
+		{
+			"level": 27,
+			"requirements": [
+				"Town Center Lv. 27",
+				"Embassy Lv. 27"
+			],
+			"bread": "44M",
+			"wood": "44M",
+			"stone": "8.9M",
+			"iron": "2.2M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "3d 55m"
+		},
+		{
+			"level": 28,
+			"requirements": [
+				"Town Center Lv. 28",
+				"Embassy Lv. 28"
+			],
+			"bread": "59M",
+			"wood": "59M",
+			"stone": "11M",
+			"iron": "2.9M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "3d 11h 51m"
+		},
+		{
+			"level": 29,
+			"requirements": [
+				"Town Center Lv. 29",
+				"Embassy Lv. 29"
+			],
+			"bread": "73M",
+			"wood": "73M",
+			"stone": "14M",
+			"iron": "3.6M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4d 26m"
+		},
+		{
+			"level": 30,
+			"requirements": [
+				"Town Center Lv. 30",
+				"Embassy Lv. 30"
+			],
+			"bread": "90M",
+			"wood": "90M",
+			"stone": "18M",
+			"iron": "4.5M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4d 19h 44m"
+		},
+		{
+			"level": 31,
+			"requirements": [
+				"Town Center Lv. TG1",
+				"Embassy Lv. TG1"
+			],
+			"bread": "20M",
+			"wood": "20M",
+			"stone": "4M",
+			"iron": "1M",
+			"truegold": 26,
+			"tempered_truegold": null,
+			"time": "20h 9m 30s"
+		},
+		{
+			"level": 32,
+			"requirements": [
+				"Town Center Lv. TG1",
+				"Embassy Lv. TG1"
+			],
+			"bread": "20M",
+			"wood": "20M",
+			"stone": "4M",
+			"iron": "1M",
+			"truegold": 26,
+			"tempered_truegold": null,
+			"time": "20h 9m 30s"
+		},
+		{
+			"level": 33,
+			"requirements": [
+				"Town Center Lv. TG1",
+				"Embassy Lv. TG1"
+			],
+			"bread": "20M",
+			"wood": "20M",
+			"stone": "4M",
+			"iron": "1M",
+			"truegold": 26,
+			"tempered_truegold": null,
+			"time": "20h 9m 30s"
+		},
+		{
+			"level": 34,
+			"requirements": [
+				"Town Center Lv. TG1",
+				"Embassy Lv. TG1"
+			],
+			"bread": "20M",
+			"wood": "20M",
+			"stone": "4M",
+			"iron": "1M",
+			"truegold": 26,
+			"tempered_truegold": null,
+			"time": "20h 9m 30s"
+		},
+		{
+			"level": "TG1",
+			"requirements": [
+				"Town Center Lv. TG1",
+				"Embassy Lv. TG1"
+			],
+			"bread": "20M",
+			"wood": "20M",
+			"stone": "4M",
+			"iron": "1M",
+			"truegold": 26,
+			"tempered_truegold": null,
+			"time": "20h 9m 30s"
+		},
+		{
+			"level": "TG1-1",
+			"requirements": [
+				"Town Center Lv. TG2",
+				"Embassy Lv. TG2"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.3M",
+			"iron": "1M",
+			"truegold": 31,
+			"tempered_truegold": null,
+			"time": "1d 1h 55m"
+		},
+		{
+			"level": "TG1-2",
+			"requirements": [
+				"Town Center Lv. TG2",
+				"Embassy Lv. TG2"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.3M",
+			"iron": "1M",
+			"truegold": 31,
+			"tempered_truegold": null,
+			"time": "1d 1h 55m"
+		},
+		{
+			"level": "TG1-3",
+			"requirements": [
+				"Town Center Lv. TG2",
+				"Embassy Lv. TG2"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.3M",
+			"iron": "1M",
+			"truegold": 31,
+			"tempered_truegold": null,
+			"time": "1d 1h 55m"
+		},
+		{
+			"level": "TG1-4",
+			"requirements": [
+				"Town Center Lv. TG2",
+				"Embassy Lv. TG2"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.3M",
+			"iron": "1M",
+			"truegold": 31,
+			"tempered_truegold": null,
+			"time": "1d 1h 55m"
+		},
+		{
+			"level": "TG2",
+			"requirements": [
+				"Town Center Lv. TG2",
+				"Embassy Lv. TG2"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.3M",
+			"iron": "1M",
+			"truegold": 31,
+			"tempered_truegold": null,
+			"time": "1d 1h 55m"
+		},
+		{
+			"level": "TG2-1",
+			"requirements": [
+				"Town Center Lv. TG3",
+				"Embassy Lv. TG3"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 47,
+			"tempered_truegold": null,
+			"time": "1d 7h 40m"
+		},
+		{
+			"level": "TG2-2",
+			"requirements": [
+				"Town Center Lv. TG3",
+				"Embassy Lv. TG3"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 47,
+			"tempered_truegold": null,
+			"time": "1d 7h 40m"
+		},
+		{
+			"level": "TG2-3",
+			"requirements": [
+				"Town Center Lv. TG3",
+				"Embassy Lv. TG3"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 47,
+			"tempered_truegold": null,
+			"time": "1d 7h 40m"
+		},
+		{
+			"level": "TG2-4",
+			"requirements": [
+				"Town Center Lv. TG3",
+				"Embassy Lv. TG3"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 47,
+			"tempered_truegold": null,
+			"time": "1d 7h 40m"
+		},
+		{
+			"level": "TG3",
+			"requirements": [
+				"Town Center Lv. TG3",
+				"Embassy Lv. TG3"
+			],
+			"bread": "23M",
+			"wood": "23M",
+			"stone": "4.7M",
+			"iron": "1.1M",
+			"truegold": 47,
+			"tempered_truegold": null,
+			"time": "1d 7h 40m"
+		},
+		{
+			"level": "TG3-1",
+			"requirements": [
+				"Town Center Lv. TG4",
+				"Embassy Lv. TG4"
+			],
+			"bread": "24M",
+			"wood": "24M",
+			"stone": "4.9M",
+			"iron": "1.2M",
+			"truegold": 56,
+			"tempered_truegold": null,
+			"time": "1d 10h 33m"
+		},
+		{
+			"level": "TG3-2",
+			"requirements": [
+				"Town Center Lv. TG4",
+				"Embassy Lv. TG4"
+			],
+			"bread": "24M",
+			"wood": "24M",
+			"stone": "4.9M",
+			"iron": "1.2M",
+			"truegold": 56,
+			"tempered_truegold": null,
+			"time": "1d 10h 33m"
+		},
+		{
+			"level": "TG3-3",
+			"requirements": [
+				"Town Center Lv. TG4",
+				"Embassy Lv. TG4"
+			],
+			"bread": "24M",
+			"wood": "24M",
+			"stone": "4.9M",
+			"iron": "1.2M",
+			"truegold": 56,
+			"tempered_truegold": null,
+			"time": "1d 10h 33m"
+		},
+		{
+			"level": "TG3-4",
+			"requirements": [
+				"Town Center Lv. TG4",
+				"Embassy Lv. TG4"
+			],
+			"bread": "24M",
+			"wood": "24M",
+			"stone": "4.9M",
+			"iron": "1.2M",
+			"truegold": 56,
+			"tempered_truegold": null,
+			"time": "1d 10h 33m"
+		},
+		{
+			"level": "TG4",
+			"requirements": [
+				"Town Center Lv. TG4",
+				"Embassy Lv. TG4"
+			],
+			"bread": "24M",
+			"wood": "24M",
+			"stone": "4.9M",
+			"iron": "1.2M",
+			"truegold": 56,
+			"tempered_truegold": null,
+			"time": "1d 10h 33m"
+		},
+		{
+			"level": "TG4-1",
+			"requirements": [
+				"Town Center Lv. TG5",
+				"Embassy Lv. TG5"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 67,
+			"tempered_truegold": null,
+			"time": "1d 16h 19m"
+		},
+		{
+			"level": "TG4-2",
+			"requirements": [
+				"Town Center Lv. TG5",
+				"Embassy Lv. TG5"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 67,
+			"tempered_truegold": null,
+			"time": "1d 16h 19m"
+		},
+		{
+			"level": "TG4-3",
+			"requirements": [
+				"Town Center Lv. TG5",
+				"Embassy Lv. TG5"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 67,
+			"tempered_truegold": null,
+			"time": "1d 16h 19m"
+		},
+		{
+			"level": "TG4-4",
+			"requirements": [
+				"Town Center Lv. TG5",
+				"Embassy Lv. TG5"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 67,
+			"tempered_truegold": null,
+			"time": "1d 16h 19m"
+		},
+		{
+			"level": "TG5",
+			"requirements": [
+				"Town Center Lv. TG5",
+				"Embassy Lv. TG5"
+			],
+			"bread": "25M",
+			"wood": "25M",
+			"stone": "5M",
+			"iron": "1.2M",
+			"truegold": 67,
+			"tempered_truegold": null,
+			"time": "1d 16h 19m"
+		},
+		{
+			"level": "TG5-1",
+			"requirements": [
+				"Town Center Lv. TG6",
+				"Embassy Lv. TG6"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.8M",
+			"iron": "1.4M",
+			"truegold": 40,
+			"tempered_truegold": 2,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG5-2",
+			"requirements": [
+				"Town Center Lv. TG6",
+				"Embassy Lv. TG6"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.8M",
+			"iron": "1.4M",
+			"truegold": 40,
+			"tempered_truegold": 2,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG5-3",
+			"requirements": [
+				"Town Center Lv. TG6",
+				"Embassy Lv. TG6"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.8M",
+			"iron": "1.4M",
+			"truegold": 40,
+			"tempered_truegold": 2,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG5-4",
+			"requirements": [
+				"Town Center Lv. TG6",
+				"Embassy Lv. TG6"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.8M",
+			"iron": "1.4M",
+			"truegold": 40,
+			"tempered_truegold": 2,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG6",
+			"requirements": [
+				"Town Center Lv. TG6",
+				"Embassy Lv. TG6"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.8M",
+			"iron": "1.4M",
+			"truegold": 20,
+			"tempered_truegold": 4,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG6-1",
+			"requirements": [
+				"Town Center Lv. TG7",
+				"Embassy Lv. TG7"
+			],
+			"bread": "32M",
+			"wood": "32M",
+			"stone": "6.5M",
+			"iron": "1.6M",
+			"truegold": 48,
+			"tempered_truegold": 3,
+			"time": "2d 3h 50m"
+		},
+		{
+			"level": "TG6-2",
+			"requirements": [
+				"Town Center Lv. TG7",
+				"Embassy Lv. TG7"
+			],
+			"bread": "32M",
+			"wood": "32M",
+			"stone": "6.5M",
+			"iron": "1.6M",
+			"truegold": 48,
+			"tempered_truegold": 3,
+			"time": "2d 3h 50m"
+		},
+		{
+			"level": "TG6-3",
+			"requirements": [
+				"Town Center Lv. TG7",
+				"Embassy Lv. TG7"
+			],
+			"bread": "32M",
+			"wood": "32M",
+			"stone": "6.5M",
+			"iron": "1.6M",
+			"truegold": 48,
+			"tempered_truegold": 3,
+			"time": "2d 3h 50m"
+		},
+		{
+			"level": "TG6-4",
+			"requirements": [
+				"Town Center Lv. TG7",
+				"Embassy Lv. TG7"
+			],
+			"bread": "32M",
+			"wood": "32M",
+			"stone": "6.5M",
+			"iron": "1.6M",
+			"truegold": 48,
+			"tempered_truegold": 3,
+			"time": "2d 3h 50m"
+		},
+		{
+			"level": "TG7",
+			"requirements": [
+				"Town Center Lv. TG7",
+				"Embassy Lv. TG7"
+			],
+			"bread": "32M",
+			"wood": "32M",
+			"stone": "6.5M",
+			"iron": "1.6M",
+			"truegold": 24,
+			"tempered_truegold": 6,
+			"time": "2d 3h 50m"
+		},
+		{
+			"level": "TG7-1",
+			"requirements": [
+				"Town Center Lv. TG8",
+				"Embassy Lv. TG8"
+			],
+			"bread": "39M",
+			"wood": "39M",
+			"stone": "7.9M",
+			"iron": "1.9M",
+			"truegold": 48,
+			"tempered_truegold": 4,
+			"time": "2d 9h 36m"
+		},
+		{
+			"level": "TG7-2",
+			"requirements": [
+				"Town Center Lv. TG8",
+				"Embassy Lv. TG8"
+			],
+			"bread": "39M",
+			"wood": "39M",
+			"stone": "7.9M",
+			"iron": "1.9M",
+			"truegold": 48,
+			"tempered_truegold": 4,
+			"time": "2d 9h 36m"
+		},
+		{
+			"level": "TG7-3",
+			"requirements": [
+				"Town Center Lv. TG8",
+				"Embassy Lv. TG8"
+			],
+			"bread": "39M",
+			"wood": "39M",
+			"stone": "7.9M",
+			"iron": "1.9M",
+			"truegold": 48,
+			"tempered_truegold": 4,
+			"time": "2d 9h 36m"
+		},
+		{
+			"level": "TG7-4",
+			"requirements": [
+				"Town Center Lv. TG8",
+				"Embassy Lv. TG8"
+			],
+			"bread": "39M",
+			"wood": "39M",
+			"stone": "7.9M",
+			"iron": "1.9M",
+			"truegold": 48,
+			"tempered_truegold": 4,
+			"time": "2d 9h 36m"
+		},
+		{
+			"level": "TG8",
+			"requirements": [
+				"Town Center Lv. TG8",
+				"Embassy Lv. TG8"
+			],
+			"bread": "39M",
+			"wood": "39M",
+			"stone": "7.9M",
+			"iron": "1.9M",
+			"truegold": 24,
+			"tempered_truegold": 8,
+			"time": "2d 9h 36m"
+		}
+	],
+	"War Academy": [
+		{
+			"level": "TG1",
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": null,
+			"wood": null,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2s"
+		},
+		{
+			"level": "TG1-1",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "36M",
+			"wood": "36M",
+			"stone": "7.2M",
+			"iron": "1.8M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG1-2",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "36M",
+			"wood": "36M",
+			"stone": "7.2M",
+			"iron": "1.8M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG1-3",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "36M",
+			"wood": "36M",
+			"stone": "7.2M",
+			"iron": "1.8M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG1-4",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "36M",
+			"wood": "36M",
+			"stone": "7.2M",
+			"iron": "1.8M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG2",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "36M",
+			"wood": "36M",
+			"stone": "7.2M",
+			"iron": "1.8M",
+			"truegold": 71,
+			"tempered_truegold": null,
+			"time": "1d 19h 12m"
+		},
+		{
+			"level": "TG2-1",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "39M",
+			"wood": "39M",
+			"stone": "7.9M",
+			"iron": "1.9M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "2d 4h 48m"
+		},
+		{
+			"level": "TG2-2",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "39M",
+			"wood": "39M",
+			"stone": "7.9M",
+			"iron": "1.9M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "2d 4h 48m"
+		},
+		{
+			"level": "TG2-3",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "39M",
+			"wood": "39M",
+			"stone": "7.9M",
+			"iron": "1.9M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "2d 4h 48m"
+		},
+		{
+			"level": "TG2-4",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "39M",
+			"wood": "39M",
+			"stone": "7.9M",
+			"iron": "1.9M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "2d 4h 48m"
+		},
+		{
+			"level": "TG3",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "39M",
+			"wood": "39M",
+			"stone": "7.9M",
+			"iron": "1.9M",
+			"truegold": 107,
+			"tempered_truegold": null,
+			"time": "2d 4h 48m"
+		},
+		{
+			"level": "TG3-1",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "41M",
+			"wood": "41M",
+			"stone": "8.2M",
+			"iron": "2M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "2d 9h 36m"
+		},
+		{
+			"level": "TG3-2",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "41M",
+			"wood": "41M",
+			"stone": "8.2M",
+			"iron": "2M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "2d 9h 36m"
+		},
+		{
+			"level": "TG3-3",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "41M",
+			"wood": "41M",
+			"stone": "8.2M",
+			"iron": "2M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "2d 9h 36m"
+		},
+		{
+			"level": "TG3-4",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "41M",
+			"wood": "41M",
+			"stone": "8.2M",
+			"iron": "2M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "2d 9h 36m"
+		},
+		{
+			"level": "TG4",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "41M",
+			"wood": "41M",
+			"stone": "8.2M",
+			"iron": "2M",
+			"truegold": 126,
+			"tempered_truegold": null,
+			"time": "2d 9h 36m"
+		},
+		{
+			"level": "TG4-1",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "42M",
+			"wood": "42M",
+			"stone": "8.4M",
+			"iron": "2.1M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 19h 12m"
+		},
+		{
+			"level": "TG4-2",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "42M",
+			"wood": "42M",
+			"stone": "8.4M",
+			"iron": "2.1M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 19h 12m"
+		},
+		{
+			"level": "TG4-3",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "42M",
+			"wood": "42M",
+			"stone": "8.4M",
+			"iron": "2.1M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 19h 12m"
+		},
+		{
+			"level": "TG4-4",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "42M",
+			"wood": "42M",
+			"stone": "8.4M",
+			"iron": "2.1M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 19h 12m"
+		},
+		{
+			"level": "TG5",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "42M",
+			"wood": "42M",
+			"stone": "8.4M",
+			"iron": "2.1M",
+			"truegold": 150,
+			"tempered_truegold": null,
+			"time": "2d 19h 12m"
+		},
+		{
+			"level": "TG5-1",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "48M",
+			"wood": "48M",
+			"stone": "9.6M",
+			"iron": "2.4M",
+			"truegold": 90,
+			"tempered_truegold": 4,
+			"time": "3d"
+		},
+		{
+			"level": "TG5-2",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "48M",
+			"wood": "48M",
+			"stone": "9.6M",
+			"iron": "2.4M",
+			"truegold": 90,
+			"tempered_truegold": 4,
+			"time": "3d"
+		},
+		{
+			"level": "TG5-3",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "48M",
+			"wood": "48M",
+			"stone": "9.6M",
+			"iron": "2.4M",
+			"truegold": 90,
+			"tempered_truegold": 4,
+			"time": "3d"
+		},
+		{
+			"level": "TG5-4",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "48M",
+			"wood": "48M",
+			"stone": "9.6M",
+			"iron": "2.4M",
+			"truegold": 90,
+			"tempered_truegold": 4,
+			"time": "3d"
+		},
+		{
+			"level": "TG6",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "48M",
+			"wood": "48M",
+			"stone": "9.6M",
+			"iron": "2.4M",
+			"truegold": 45,
+			"tempered_truegold": 9,
+			"time": "3d"
+		},
+		{
+			"level": "TG6-1",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "54M",
+			"wood": "54M",
+			"stone": "10M",
+			"iron": "2.7M",
+			"truegold": 108,
+			"tempered_truegold": 6,
+			"time": "3d 14h 24m"
+		},
+		{
+			"level": "TG6-2",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "54M",
+			"wood": "54M",
+			"stone": "10M",
+			"iron": "2.7M",
+			"truegold": 108,
+			"tempered_truegold": 6,
+			"time": "3d 14h 24m"
+		},
+		{
+			"level": "TG6-3",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "54M",
+			"wood": "54M",
+			"stone": "10M",
+			"iron": "2.7M",
+			"truegold": 108,
+			"tempered_truegold": 6,
+			"time": "3d 14h 24m"
+		},
+		{
+			"level": "TG6-4",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "54M",
+			"wood": "54M",
+			"stone": "10M",
+			"iron": "2.7M",
+			"truegold": 108,
+			"tempered_truegold": 6,
+			"time": "3d 14h 24m"
+		},
+		{
+			"level": "TG7",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "54M",
+			"wood": "54M",
+			"stone": "10M",
+			"iron": "2.7M",
+			"truegold": 54,
+			"tempered_truegold": 13,
+			"time": "3d 14h 24m"
+		},
+		{
+			"level": "TG7-1",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "66M",
+			"wood": "66M",
+			"stone": "13M",
+			"iron": "3.3M",
+			"truegold": 108,
+			"tempered_truegold": 9,
+			"time": "4d"
+		},
+		{
+			"level": "TG7-2",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "66M",
+			"wood": "66M",
+			"stone": "13M",
+			"iron": "3.3M",
+			"truegold": 108,
+			"tempered_truegold": 9,
+			"time": "4d"
+		},
+		{
+			"level": "TG7-3",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "66M",
+			"wood": "66M",
+			"stone": "13M",
+			"iron": "3.3M",
+			"truegold": 108,
+			"tempered_truegold": 9,
+			"time": "4d"
+		},
+		{
+			"level": "TG7-4",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "66M",
+			"wood": "66M",
+			"stone": "13M",
+			"iron": "3.3M",
+			"truegold": 108,
+			"tempered_truegold": 9,
+			"time": "4d"
+		},
+		{
+			"level": "TG8",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "66M",
+			"wood": "66M",
+			"stone": "13M",
+			"iron": "3.3M",
+			"truegold": 54,
+			"tempered_truegold": 18,
+			"time": "4d"
+		}
+	],
+	"Embassy": [
+		{
+			"level": 1,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": 60,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2s"
+		},
+		{
+			"level": 2,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": 90,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "10s"
+		},
+		{
+			"level": 3,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": 400,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1m"
+		},
+		{
+			"level": 4,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": 900,
+			"stone": 180,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2m"
+		},
+		{
+			"level": 5,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": "3.8K",
+			"stone": 760,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "6m 40s"
+		},
+		{
+			"level": 6,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": "9.6K",
+			"stone": "1.9K",
+			"iron": 480,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "13m 20s"
+		},
+		{
+			"level": 7,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": "34K",
+			"stone": "6.9K",
+			"iron": "1.7K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "25m"
+		},
+		{
+			"level": 8,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": "63K",
+			"stone": "12K",
+			"iron": "3.1K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "45m"
+		},
+		{
+			"level": 9,
+			"requirements": [
+				"Town Center Lv. 9"
+			],
+			"bread": null,
+			"wood": "130K",
+			"stone": "26K",
+			"iron": "6.5K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2h"
+		},
+		{
+			"level": 10,
+			"requirements": [
+				"Town Center Lv. 10"
+			],
+			"bread": null,
+			"wood": "230K",
+			"stone": "46K",
+			"iron": "11K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "3h 57m 30s"
+		},
+		{
+			"level": 11,
+			"requirements": [
+				"Town Center Lv. 11"
+			],
+			"bread": "260K",
+			"wood": "260K",
+			"stone": "52K",
+			"iron": "13K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4h 57m"
+		},
+		{
+			"level": 12,
+			"requirements": [
+				"Town Center Lv. 12"
+			],
+			"bread": "330K",
+			"wood": "330K",
+			"stone": "67K",
+			"iron": "16K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "5h 56m"
+		},
+		{
+			"level": 13,
+			"requirements": [
+				"Town Center Lv. 13"
+			],
+			"bread": "470K",
+			"wood": "470K",
+			"stone": "95K",
+			"iron": "23K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "7h 15m 30s"
+		},
+		{
+			"level": 14,
+			"requirements": [
+				"Town Center Lv. 14"
+			],
+			"bread": "630K",
+			"wood": "630K",
+			"stone": "120K",
+			"iron": "31K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "9h 14m"
+		},
+		{
+			"level": 15,
+			"requirements": [
+				"Town Center Lv. 15"
+			],
+			"bread": "930K",
+			"wood": "930K",
+			"stone": "180K",
+			"iron": "46K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "11h 52m 30s"
+		},
+		{
+			"level": 16,
+			"requirements": [
+				"Town Center Lv. 16"
+			],
+			"bread": "1.1M",
+			"wood": "1.1M",
+			"stone": "230K",
+			"iron": "59K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "20h 7m"
+		},
+		{
+			"level": 17,
+			"requirements": [
+				"Town Center Lv. 17"
+			],
+			"bread": "1.8M",
+			"wood": "1.8M",
+			"stone": "370K",
+			"iron": "93K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 8m"
+		},
+		{
+			"level": 18,
+			"requirements": [
+				"Town Center Lv. 18"
+			],
+			"bread": "2.5M",
+			"wood": "2.5M",
+			"stone": "500K",
+			"iron": "120K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 4h 58m"
+		},
+		{
+			"level": 19,
+			"requirements": [
+				"Town Center Lv. 19"
+			],
+			"bread": "3.1M",
+			"wood": "3.1M",
+			"stone": "620K",
+			"iron": "150K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 19h 27m"
+		},
+		{
+			"level": 20,
+			"requirements": [
+				"Town Center Lv. 20"
+			],
+			"bread": "4.3M",
+			"wood": "4.3M",
+			"stone": "860K",
+			"iron": "210K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2d 6h 19m"
+		},
+		{
+			"level": 21,
+			"requirements": [
+				"Town Center Lv. 21"
+			],
+			"bread": "5.4M",
+			"wood": "5.4M",
+			"stone": "1M",
+			"iron": "270K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2d 22h 36m"
+		},
+		{
+			"level": 22,
+			"requirements": [
+				"Town Center Lv. 22"
+			],
+			"bread": "7.2M",
+			"wood": "7.2M",
+			"stone": "1.4M",
+			"iron": "360K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4d 9h 55m"
+		},
+		{
+			"level": 23,
+			"requirements": [
+				"Town Center Lv. 23"
+			],
+			"bread": "8.9M",
+			"wood": "8.9M",
+			"stone": "1.7M",
+			"iron": "440K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "6d 4h 17m"
+		},
+		{
+			"level": 24,
+			"requirements": [
+				"Town Center Lv. 24"
+			],
+			"bread": "12M",
+			"wood": "12M",
+			"stone": "2.4M",
+			"iron": "600K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "8d 15h 36m"
+		},
+		{
+			"level": 25,
+			"requirements": [
+				"Town Center Lv. 25"
+			],
+			"bread": "16M",
+			"wood": "16M",
+			"stone": "3.2M",
+			"iron": "810K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "12d 2h 38m"
+		},
+		{
+			"level": 26,
+			"requirements": [
+				"Town Center Lv. 26"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.2M",
+			"iron": "1M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "13d 22h 14m"
+		},
+		{
+			"level": 27,
+			"requirements": [
+				"Town Center Lv. 27"
+			],
+			"bread": "29M",
+			"wood": "29M",
+			"stone": "5.9M",
+			"iron": "1.4M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "16d 17h 5m"
+		},
+		{
+			"level": 28,
+			"requirements": [
+				"Town Center Lv. 28"
+			],
+			"bread": "39M",
+			"wood": "39M",
+			"stone": "7.9M",
+			"iron": "1.9M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "19d 5h 15m"
+		},
+		{
+			"level": 29,
+			"requirements": [
+				"Town Center Lv. 29"
+			],
+			"bread": "49M",
+			"wood": "49M",
+			"stone": "9.8M",
+			"iron": "2.4M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "22d 2h 26m"
+		},
+		{
+			"level": 30,
+			"requirements": [
+				"Town Center Lv. 30"
+			],
+			"bread": "60M",
+			"wood": "60M",
+			"stone": "12M",
+			"iron": "3M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "26d 12h 32m"
+		},
+		{
+			"level": 31,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "13M",
+			"wood": "13M",
+			"stone": "2.7M",
+			"iron": "670K",
+			"truegold": 33,
+			"tempered_truegold": null,
+			"time": "4d 14h 52m"
+		},
+		{
+			"level": 32,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "13M",
+			"wood": "13M",
+			"stone": "2.7M",
+			"iron": "670K",
+			"truegold": 33,
+			"tempered_truegold": null,
+			"time": "4d 14h 52m"
+		},
+		{
+			"level": 33,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "13M",
+			"wood": "13M",
+			"stone": "2.7M",
+			"iron": "670K",
+			"truegold": 33,
+			"tempered_truegold": null,
+			"time": "4d 14h 52m"
+		},
+		{
+			"level": 34,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "13M",
+			"wood": "13M",
+			"stone": "2.7M",
+			"iron": "670K",
+			"truegold": 33,
+			"tempered_truegold": null,
+			"time": "4d 14h 52m"
+		},
+		{
+			"level": "TG1",
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "13M",
+			"wood": "13M",
+			"stone": "2.7M",
+			"iron": "670K",
+			"truegold": 33,
+			"tempered_truegold": null,
+			"time": "4d 14h 52m"
+		},
+		{
+			"level": "TG1-1",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "14M",
+			"wood": "14M",
+			"stone": "2.9M",
+			"iron": "720K",
+			"truegold": 39,
+			"tempered_truegold": null,
+			"time": "5d 22h 33m"
+		},
+		{
+			"level": "TG1-2",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "14M",
+			"wood": "14M",
+			"stone": "2.9M",
+			"iron": "720K",
+			"truegold": 39,
+			"tempered_truegold": null,
+			"time": "5d 22h 33m"
+		},
+		{
+			"level": "TG1-3",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "14M",
+			"wood": "14M",
+			"stone": "2.9M",
+			"iron": "720K",
+			"truegold": 39,
+			"tempered_truegold": null,
+			"time": "5d 22h 33m"
+		},
+		{
+			"level": "TG1-4",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "14M",
+			"wood": "14M",
+			"stone": "2.9M",
+			"iron": "720K",
+			"truegold": 39,
+			"tempered_truegold": null,
+			"time": "5d 22h 33m"
+		},
+		{
+			"level": "TG2",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "14M",
+			"wood": "14M",
+			"stone": "2.9M",
+			"iron": "720K",
+			"truegold": 39,
+			"tempered_truegold": null,
+			"time": "5d 22h 33m"
+		},
+		{
+			"level": "TG2-1",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "15M",
+			"wood": "15M",
+			"stone": "3.1M",
+			"iron": "790K",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "7d 6h 14m"
+		},
+		{
+			"level": "TG2-2",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "15M",
+			"wood": "15M",
+			"stone": "3.1M",
+			"iron": "790K",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "7d 6h 14m"
+		},
+		{
+			"level": "TG2-3",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "15M",
+			"wood": "15M",
+			"stone": "3.1M",
+			"iron": "790K",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "7d 6h 14m"
+		},
+		{
+			"level": "TG2-4",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "15M",
+			"wood": "15M",
+			"stone": "3.1M",
+			"iron": "790K",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "7d 6h 14m"
+		},
+		{
+			"level": "TG3",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "15M",
+			"wood": "15M",
+			"stone": "3.1M",
+			"iron": "790K",
+			"truegold": 59,
+			"tempered_truegold": null,
+			"time": "7d 6h 14m"
+		},
+		{
+			"level": "TG3-1",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "16M",
+			"wood": "16M",
+			"stone": "3.2M",
+			"iron": "820K",
+			"truegold": 70,
+			"tempered_truegold": null,
+			"time": "7d 22h 4m"
+		},
+		{
+			"level": "TG3-2",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "16M",
+			"wood": "16M",
+			"stone": "3.2M",
+			"iron": "820K",
+			"truegold": 70,
+			"tempered_truegold": null,
+			"time": "7d 22h 4m"
+		},
+		{
+			"level": "TG3-3",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "16M",
+			"wood": "16M",
+			"stone": "3.2M",
+			"iron": "820K",
+			"truegold": 70,
+			"tempered_truegold": null,
+			"time": "7d 22h 4m"
+		},
+		{
+			"level": "TG3-4",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "16M",
+			"wood": "16M",
+			"stone": "3.2M",
+			"iron": "820K",
+			"truegold": 70,
+			"tempered_truegold": null,
+			"time": "7d 22h 4m"
+		},
+		{
+			"level": "TG4",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "16M",
+			"wood": "16M",
+			"stone": "3.2M",
+			"iron": "820K",
+			"truegold": 70,
+			"tempered_truegold": null,
+			"time": "7d 22h 4m"
+		},
+		{
+			"level": "TG4-1",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "16M",
+			"wood": "16M",
+			"stone": "3.3M",
+			"iron": "840K",
+			"truegold": 83,
+			"tempered_truegold": null,
+			"time": "9d 5h 45m"
+		},
+		{
+			"level": "TG4-2",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "16M",
+			"wood": "16M",
+			"stone": "3.3M",
+			"iron": "840K",
+			"truegold": 83,
+			"tempered_truegold": null,
+			"time": "9d 5h 45m"
+		},
+		{
+			"level": "TG4-3",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "16M",
+			"wood": "16M",
+			"stone": "3.3M",
+			"iron": "840K",
+			"truegold": 83,
+			"tempered_truegold": null,
+			"time": "9d 5h 45m"
+		},
+		{
+			"level": "TG4-4",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "16M",
+			"wood": "16M",
+			"stone": "3.3M",
+			"iron": "840K",
+			"truegold": 83,
+			"tempered_truegold": null,
+			"time": "9d 5h 45m"
+		},
+		{
+			"level": "TG5",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "16M",
+			"wood": "16M",
+			"stone": "3.3M",
+			"iron": "840K",
+			"truegold": 83,
+			"tempered_truegold": null,
+			"time": "9d 5h 45m"
+		},
+		{
+			"level": "TG5-1",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "19M",
+			"wood": "19M",
+			"stone": "3.8M",
+			"iron": "960K",
+			"truegold": 50,
+			"tempered_truegold": 2,
+			"time": "9d 21h 36m"
+		},
+		{
+			"level": "TG5-2",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "19M",
+			"wood": "19M",
+			"stone": "3.8M",
+			"iron": "960K",
+			"truegold": 50,
+			"tempered_truegold": 2,
+			"time": "9d 21h 36m"
+		},
+		{
+			"level": "TG5-3",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "19M",
+			"wood": "19M",
+			"stone": "3.8M",
+			"iron": "960K",
+			"truegold": 50,
+			"tempered_truegold": 2,
+			"time": "9d 21h 36m"
+		},
+		{
+			"level": "TG5-4",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "19M",
+			"wood": "19M",
+			"stone": "3.8M",
+			"iron": "960K",
+			"truegold": 50,
+			"tempered_truegold": 2,
+			"time": "9d 21h 36m"
+		},
+		{
+			"level": "TG6",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "19M",
+			"wood": "19M",
+			"stone": "3.8M",
+			"iron": "960K",
+			"truegold": 25,
+			"tempered_truegold": 5,
+			"time": "9d 21h 36m"
+		},
+		{
+			"level": "TG6-1",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.3M",
+			"iron": "1M",
+			"truegold": 60,
+			"tempered_truegold": 3,
+			"time": "11d 21h 7m"
+		},
+		{
+			"level": "TG6-2",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.3M",
+			"iron": "1M",
+			"truegold": 60,
+			"tempered_truegold": 3,
+			"time": "11d 21h 7m"
+		},
+		{
+			"level": "TG6-3",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.3M",
+			"iron": "1M",
+			"truegold": 60,
+			"tempered_truegold": 3,
+			"time": "11d 21h 7m"
+		},
+		{
+			"level": "TG6-4",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.3M",
+			"iron": "1M",
+			"truegold": 60,
+			"tempered_truegold": 3,
+			"time": "11d 21h 7m"
+		},
+		{
+			"level": "TG7",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.3M",
+			"iron": "1M",
+			"truegold": 30,
+			"tempered_truegold": 7,
+			"time": "11d 21h 7m"
+		},
+		{
+			"level": "TG7-1",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "26M",
+			"wood": "26M",
+			"stone": "5.3M",
+			"iron": "1.3M",
+			"truegold": 60,
+			"tempered_truegold": 5,
+			"time": "13d 4h 48m"
+		},
+		{
+			"level": "TG7-2",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "26M",
+			"wood": "26M",
+			"stone": "5.3M",
+			"iron": "1.3M",
+			"truegold": 60,
+			"tempered_truegold": 5,
+			"time": "13d 4h 48m"
+		},
+		{
+			"level": "TG7-3",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "26M",
+			"wood": "26M",
+			"stone": "5.3M",
+			"iron": "1.3M",
+			"truegold": 60,
+			"tempered_truegold": 5,
+			"time": "13d 4h 48m"
+		},
+		{
+			"level": "TG7-4",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "26M",
+			"wood": "26M",
+			"stone": "5.3M",
+			"iron": "1.3M",
+			"truegold": 60,
+			"tempered_truegold": 5,
+			"time": "13d 4h 48m"
+		},
+		{
+			"level": "TG8",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "26M",
+			"wood": "26M",
+			"stone": "5.3M",
+			"iron": "1.3M",
+			"truegold": 30,
+			"tempered_truegold": 10,
+			"time": "13d 4h 48m"
+		}
+	],
+	"Infirmary": [
+		{
+			"level": 1,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": null,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2s"
+		},
+		{
+			"level": 2,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": 100,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "9s"
+		},
+		{
+			"level": 3,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": 460,
+			"stone": null,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "40s"
+		},
+		{
+			"level": 4,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": "1K",
+			"stone": 205,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2m 5s"
+		},
+		{
+			"level": 5,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": "4.3K",
+			"stone": 865,
+			"iron": null,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4m 10s"
+		},
+		{
+			"level": 6,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": "10K",
+			"stone": "2.1K",
+			"iron": 545,
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "8m 20s"
+		},
+		{
+			"level": 7,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": "39K",
+			"stone": "7.8K",
+			"iron": "1.9K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "16m 30s"
+		},
+		{
+			"level": 8,
+			"requirements": [
+				"Town Center Lv. 8"
+			],
+			"bread": null,
+			"wood": "72K",
+			"stone": "14K",
+			"iron": "3.6K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "25m"
+		},
+		{
+			"level": 9,
+			"requirements": [
+				"Town Center Lv. 9"
+			],
+			"bread": null,
+			"wood": "140K",
+			"stone": "29K",
+			"iron": "7.4K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "37m 30s"
+		},
+		{
+			"level": 10,
+			"requirements": [
+				"Town Center Lv. 10"
+			],
+			"bread": null,
+			"wood": "260K",
+			"stone": "52K",
+			"iron": "13K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "50m"
+		},
+		{
+			"level": 11,
+			"requirements": [
+				"Town Center Lv. 11"
+			],
+			"bread": "320K",
+			"wood": "320K",
+			"stone": "65K",
+			"iron": "16K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h 3m"
+		},
+		{
+			"level": 12,
+			"requirements": [
+				"Town Center Lv. 12"
+			],
+			"bread": "420K",
+			"wood": "420K",
+			"stone": "84K",
+			"iron": "21K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h 15m 30s"
+		},
+		{
+			"level": 13,
+			"requirements": [
+				"Town Center Lv. 13"
+			],
+			"bread": "590K",
+			"wood": "590K",
+			"stone": "110K",
+			"iron": "29K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h 32m"
+		},
+		{
+			"level": 14,
+			"requirements": [
+				"Town Center Lv. 14"
+			],
+			"bread": "780K",
+			"wood": "780K",
+			"stone": "150K",
+			"iron": "39K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1h 57m 30s"
+		},
+		{
+			"level": 15,
+			"requirements": [
+				"Town Center Lv. 15"
+			],
+			"bread": "1.1M",
+			"wood": "1.1M",
+			"stone": "230K",
+			"iron": "58K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2h 31m"
+		},
+		{
+			"level": 16,
+			"requirements": [
+				"Town Center Lv. 16"
+			],
+			"bread": "1.4M",
+			"wood": "1.4M",
+			"stone": "290K",
+			"iron": "74K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4h 16m"
+		},
+		{
+			"level": 17,
+			"requirements": [
+				"Town Center Lv. 17"
+			],
+			"bread": "2.3M",
+			"wood": "2.3M",
+			"stone": "460K",
+			"iron": "110K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "5h 7m"
+		},
+		{
+			"level": 18,
+			"requirements": [
+				"Town Center Lv. 18"
+			],
+			"bread": "3.1M",
+			"wood": "3.1M",
+			"stone": "620K",
+			"iron": "150K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "6h 8m 30s"
+		},
+		{
+			"level": 19,
+			"requirements": [
+				"Town Center Lv. 19"
+			],
+			"bread": "3.9M",
+			"wood": "3.9M",
+			"stone": "780K",
+			"iron": "190K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "9h 13m"
+		},
+		{
+			"level": 20,
+			"requirements": [
+				"Town Center Lv. 20"
+			],
+			"bread": "5.3M",
+			"wood": "5.3M",
+			"stone": "1M",
+			"iron": "260K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "11h 31m"
+		},
+		{
+			"level": 21,
+			"requirements": [
+				"Town Center Lv. 21"
+			],
+			"bread": "6.8M",
+			"wood": "6.8M",
+			"stone": "1.3M",
+			"iron": "340K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "14h 58m 30s"
+		},
+		{
+			"level": 22,
+			"requirements": [
+				"Town Center Lv. 22"
+			],
+			"bread": "9M",
+			"wood": "9M",
+			"stone": "1.8M",
+			"iron": "450K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "22h 28m"
+		},
+		{
+			"level": 23,
+			"requirements": [
+				"Town Center Lv. 23"
+			],
+			"bread": "11M",
+			"wood": "11M",
+			"stone": "2.2M",
+			"iron": "560K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 7h 27m"
+		},
+		{
+			"level": 24,
+			"requirements": [
+				"Town Center Lv. 24"
+			],
+			"bread": "15M",
+			"wood": "15M",
+			"stone": "3M",
+			"iron": "750K",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "1d 20h 2m"
+		},
+		{
+			"level": 25,
+			"requirements": [
+				"Town Center Lv. 25"
+			],
+			"bread": "20M",
+			"wood": "20M",
+			"stone": "4M",
+			"iron": "1M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2d 13h 39m"
+		},
+		{
+			"level": 26,
+			"requirements": [
+				"Town Center Lv. 26"
+			],
+			"bread": "26M",
+			"wood": "26M",
+			"stone": "5.2M",
+			"iron": "1.3M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "2d 22h 54m"
+		},
+		{
+			"level": 27,
+			"requirements": [
+				"Town Center Lv. 27"
+			],
+			"bread": "37M",
+			"wood": "37M",
+			"stone": "7.4M",
+			"iron": "1.8M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "3d 13h 4m"
+		},
+		{
+			"level": 28,
+			"requirements": [
+				"Town Center Lv. 28"
+			],
+			"bread": "49M",
+			"wood": "49M",
+			"stone": "9.9M",
+			"iron": "2.4M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4d 1h 50m"
+		},
+		{
+			"level": 29,
+			"requirements": [
+				"Town Center Lv. 29"
+			],
+			"bread": "61M",
+			"wood": "61M",
+			"stone": "12M",
+			"iron": "3M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "4d 16h 31m"
+		},
+		{
+			"level": 30,
+			"requirements": [
+				"Town Center Lv. 30"
+			],
+			"bread": "75M",
+			"wood": "75M",
+			"stone": "15M",
+			"iron": "3.7M",
+			"truegold": null,
+			"tempered_truegold": null,
+			"time": "5d 15h 1m"
+		},
+		{
+			"level": 31,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "16M",
+			"wood": "16M",
+			"stone": "3.3M",
+			"iron": "840K",
+			"truegold": 26,
+			"tempered_truegold": null,
+			"time": "23h 31m"
+		},
+		{
+			"level": 32,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "16M",
+			"wood": "16M",
+			"stone": "3.3M",
+			"iron": "840K",
+			"truegold": 26,
+			"tempered_truegold": null,
+			"time": "23h 31m"
+		},
+		{
+			"level": 33,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "16M",
+			"wood": "16M",
+			"stone": "3.3M",
+			"iron": "840K",
+			"truegold": 26,
+			"tempered_truegold": null,
+			"time": "23h 31m"
+		},
+		{
+			"level": 34,
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "16M",
+			"wood": "16M",
+			"stone": "3.3M",
+			"iron": "840K",
+			"truegold": 26,
+			"tempered_truegold": null,
+			"time": "23h 31m"
+		},
+		{
+			"level": "TG1",
+			"requirements": [
+				"Town Center Lv. TG1"
+			],
+			"bread": "16M",
+			"wood": "16M",
+			"stone": "3.3M",
+			"iron": "840K",
+			"truegold": 26,
+			"tempered_truegold": null,
+			"time": "23h 31m"
+		},
+		{
+			"level": "TG1-1",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "18M",
+			"wood": "18M",
+			"stone": "3.6M",
+			"iron": "900K",
+			"truegold": 31,
+			"tempered_truegold": null,
+			"time": "1d 6h 14m"
+		},
+		{
+			"level": "TG1-2",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "18M",
+			"wood": "18M",
+			"stone": "3.6M",
+			"iron": "900K",
+			"truegold": 31,
+			"tempered_truegold": null,
+			"time": "1d 6h 14m"
+		},
+		{
+			"level": "TG1-3",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "18M",
+			"wood": "18M",
+			"stone": "3.6M",
+			"iron": "900K",
+			"truegold": 31,
+			"tempered_truegold": null,
+			"time": "1d 6h 14m"
+		},
+		{
+			"level": "TG1-4",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "18M",
+			"wood": "18M",
+			"stone": "3.6M",
+			"iron": "900K",
+			"truegold": 31,
+			"tempered_truegold": null,
+			"time": "1d 6h 14m"
+		},
+		{
+			"level": "TG2",
+			"requirements": [
+				"Town Center Lv. TG2"
+			],
+			"bread": "18M",
+			"wood": "18M",
+			"stone": "3.6M",
+			"iron": "900K",
+			"truegold": 31,
+			"tempered_truegold": null,
+			"time": "1d 6h 14m"
+		},
+		{
+			"level": "TG2-1",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "19M",
+			"wood": "19M",
+			"stone": "3.9M",
+			"iron": "990K",
+			"truegold": 47,
+			"tempered_truegold": null,
+			"time": "1d 12h 57m"
+		},
+		{
+			"level": "TG2-2",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "19M",
+			"wood": "19M",
+			"stone": "3.9M",
+			"iron": "990K",
+			"truegold": 47,
+			"tempered_truegold": null,
+			"time": "1d 12h 57m"
+		},
+		{
+			"level": "TG2-3",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "19M",
+			"wood": "19M",
+			"stone": "3.9M",
+			"iron": "990K",
+			"truegold": 47,
+			"tempered_truegold": null,
+			"time": "1d 12h 57m"
+		},
+		{
+			"level": "TG2-4",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "19M",
+			"wood": "19M",
+			"stone": "3.9M",
+			"iron": "990K",
+			"truegold": 47,
+			"tempered_truegold": null,
+			"time": "1d 12h 57m"
+		},
+		{
+			"level": "TG3",
+			"requirements": [
+				"Town Center Lv. TG3"
+			],
+			"bread": "19M",
+			"wood": "19M",
+			"stone": "3.9M",
+			"iron": "990K",
+			"truegold": 47,
+			"tempered_truegold": null,
+			"time": "1d 12h 57m"
+		},
+		{
+			"level": "TG3-1",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "20M",
+			"wood": "20M",
+			"stone": "4.1M",
+			"iron": "1M",
+			"truegold": 56,
+			"tempered_truegold": null,
+			"time": "1d 16h 19m"
+		},
+		{
+			"level": "TG3-2",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "20M",
+			"wood": "20M",
+			"stone": "4.1M",
+			"iron": "1M",
+			"truegold": 56,
+			"tempered_truegold": null,
+			"time": "1d 16h 19m"
+		},
+		{
+			"level": "TG3-3",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "20M",
+			"wood": "20M",
+			"stone": "4.1M",
+			"iron": "1M",
+			"truegold": 56,
+			"tempered_truegold": null,
+			"time": "1d 16h 19m"
+		},
+		{
+			"level": "TG3-4",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "20M",
+			"wood": "20M",
+			"stone": "4.1M",
+			"iron": "1M",
+			"truegold": 56,
+			"tempered_truegold": null,
+			"time": "1d 16h 19m"
+		},
+		{
+			"level": "TG4",
+			"requirements": [
+				"Town Center Lv. TG4"
+			],
+			"bread": "20M",
+			"wood": "20M",
+			"stone": "4.1M",
+			"iron": "1M",
+			"truegold": 56,
+			"tempered_truegold": null,
+			"time": "1d 16h 19m"
+		},
+		{
+			"level": "TG4-1",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.2M",
+			"iron": "1M",
+			"truegold": 67,
+			"tempered_truegold": null,
+			"time": "1d 23h 2m"
+		},
+		{
+			"level": "TG4-2",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.2M",
+			"iron": "1M",
+			"truegold": 67,
+			"tempered_truegold": null,
+			"time": "1d 23h 2m"
+		},
+		{
+			"level": "TG4-3",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.2M",
+			"iron": "1M",
+			"truegold": 67,
+			"tempered_truegold": null,
+			"time": "1d 23h 2m"
+		},
+		{
+			"level": "TG4-4",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.2M",
+			"iron": "1M",
+			"truegold": 67,
+			"tempered_truegold": null,
+			"time": "1d 23h 2m"
+		},
+		{
+			"level": "TG5",
+			"requirements": [
+				"Town Center Lv. TG5"
+			],
+			"bread": "21M",
+			"wood": "21M",
+			"stone": "4.2M",
+			"iron": "1M",
+			"truegold": 67,
+			"tempered_truegold": null,
+			"time": "1d 23h 2m"
+		},
+		{
+			"level": "TG5-1",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "24M",
+			"wood": "24M",
+			"stone": "4.8M",
+			"iron": "1.2M",
+			"truegold": 40,
+			"tempered_truegold": 2,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG5-2",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "24M",
+			"wood": "24M",
+			"stone": "4.8M",
+			"iron": "1.2M",
+			"truegold": 40,
+			"tempered_truegold": 2,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG5-3",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "24M",
+			"wood": "24M",
+			"stone": "4.8M",
+			"iron": "1.2M",
+			"truegold": 40,
+			"tempered_truegold": 2,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG5-4",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "24M",
+			"wood": "24M",
+			"stone": "4.8M",
+			"iron": "1.2M",
+			"truegold": 40,
+			"tempered_truegold": 2,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG6",
+			"requirements": [
+				"Town Center Lv. TG6"
+			],
+			"bread": "24M",
+			"wood": "24M",
+			"stone": "4.8M",
+			"iron": "1.2M",
+			"truegold": 20,
+			"tempered_truegold": 4,
+			"time": "2d 2h 24m"
+		},
+		{
+			"level": "TG6-1",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.4M",
+			"iron": "1.3M",
+			"truegold": 48,
+			"tempered_truegold": 3,
+			"time": "2d 12h 28m"
+		},
+		{
+			"level": "TG6-2",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.4M",
+			"iron": "1.3M",
+			"truegold": 48,
+			"tempered_truegold": 3,
+			"time": "2d 12h 28m"
+		},
+		{
+			"level": "TG6-3",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.4M",
+			"iron": "1.3M",
+			"truegold": 48,
+			"tempered_truegold": 3,
+			"time": "2d 12h 28m"
+		},
+		{
+			"level": "TG6-4",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.4M",
+			"iron": "1.3M",
+			"truegold": 48,
+			"tempered_truegold": 3,
+			"time": "2d 12h 28m"
+		},
+		{
+			"level": "TG7",
+			"requirements": [
+				"Town Center Lv. TG7"
+			],
+			"bread": "27M",
+			"wood": "27M",
+			"stone": "5.4M",
+			"iron": "1.3M",
+			"truegold": 24,
+			"tempered_truegold": 6,
+			"time": "2d 12h 28m"
+		},
+		{
+			"level": "TG7-1",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.6M",
+			"iron": "1.6M",
+			"truegold": 48,
+			"tempered_truegold": 4,
+			"time": "2d 19h 12m"
+		},
+		{
+			"level": "TG7-2",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.6M",
+			"iron": "1.6M",
+			"truegold": 48,
+			"tempered_truegold": 4,
+			"time": "2d 19h 12m"
+		},
+		{
+			"level": "TG7-3",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.6M",
+			"iron": "1.6M",
+			"truegold": 48,
+			"tempered_truegold": 4,
+			"time": "2d 19h 12m"
+		},
+		{
+			"level": "TG7-4",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.6M",
+			"iron": "1.6M",
+			"truegold": 48,
+			"tempered_truegold": 4,
+			"time": "2d 19h 12m"
+		},
+		{
+			"level": "TG8",
+			"requirements": [
+				"Town Center Lv. TG8"
+			],
+			"bread": "33M",
+			"wood": "33M",
+			"stone": "6.6M",
+			"iron": "1.6M",
+			"truegold": 24,
+			"tempered_truegold": 8,
+			"time": "2d 19h 12m"
+		}
+	]
+}

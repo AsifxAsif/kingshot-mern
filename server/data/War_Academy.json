@@ -1,0 +1,3373 @@
+{
+	"War Academy": {
+		"Truegold Battalion (Infantry)": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "300K",
+				"wood": "300K",
+				"stone": "60K",
+				"iron": "15K",
+				"gold": "5K",
+				"truegold_dust": 16,
+				"time": "8h"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "480K",
+				"wood": "480K",
+				"stone": "96K",
+				"iron": "24K",
+				"gold": "8K",
+				"truegold_dust": 25,
+				"time": "12h 48m"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "780K",
+				"wood": "780K",
+				"stone": "150K",
+				"iron": "39K",
+				"gold": "13K",
+				"truegold_dust": 41,
+				"time": "20h 48m"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "1.2M",
+				"wood": "1.2M",
+				"stone": "250K",
+				"iron": "64K",
+				"gold": "21K",
+				"truegold_dust": 68,
+				"time": "1d 10h 24m"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "2M",
+				"wood": "2M",
+				"stone": "400K",
+				"iron": "100K",
+				"gold": "33K",
+				"truegold_dust": 108,
+				"time": "2d 6h"
+			}
+		],
+		"Truegold Blades": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "800K",
+				"wood": "800K",
+				"stone": "160K",
+				"iron": "40K",
+				"gold": "10K",
+				"truegold_dust": 40,
+				"time": "20h"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG2"
+				],
+				"bread": "1.1M",
+				"wood": "1.1M",
+				"stone": "220K",
+				"iron": "56K",
+				"gold": "14K",
+				"truegold_dust": 56,
+				"time": "1d 6h"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG2"
+				],
+				"bread": "1.4M",
+				"wood": "1.4M",
+				"stone": "290K",
+				"iron": "74K",
+				"gold": "18K",
+				"truegold_dust": 74,
+				"time": "1d 13h"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG2",
+					"Truegold Battalion (Infantry) lvl4"
+				],
+				"bread": "2M",
+				"wood": "2M",
+				"stone": "400K",
+				"iron": "100K",
+				"gold": "25K",
+				"truegold_dust": 102,
+				"time": "2d 3h"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG2",
+					"Truegold Battalion (Infantry) lvl5"
+				],
+				"bread": "2.7M",
+				"wood": "2.7M",
+				"stone": "540K",
+				"iron": "130K",
+				"gold": "34K",
+				"truegold_dust": 136,
+				"time": "2d 20h"
+			},
+			{
+				"level": 6,
+				"requirements": [
+					"War Academy TG3"
+				],
+				"bread": "3.6M",
+				"wood": "3.6M",
+				"stone": "730K",
+				"iron": "180K",
+				"gold": "46K",
+				"truegold_dust": 184,
+				"time": "3d 20h"
+			},
+			{
+				"level": 7,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "4.9M",
+				"wood": "4.9M",
+				"stone": "990K",
+				"iron": "240K",
+				"gold": "62K",
+				"truegold_dust": 248,
+				"time": "5d 4h"
+			},
+			{
+				"level": 8,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "6.6M",
+				"wood": "6.6M",
+				"stone": "1.3M",
+				"iron": "330K",
+				"gold": "83K",
+				"truegold_dust": 334,
+				"time": "6d 23h"
+			}
+		],
+		"Truegold Shields": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "800K",
+				"wood": "800K",
+				"stone": "160K",
+				"iron": "40K",
+				"gold": "10K",
+				"truegold_dust": 40,
+				"time": "20h"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG2"
+				],
+				"bread": "1.1M",
+				"wood": "1.1M",
+				"stone": "220K",
+				"iron": "56K",
+				"gold": "14K",
+				"truegold_dust": 56,
+				"time": "1d 6h"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG2"
+				],
+				"bread": "1.4M",
+				"wood": "1.4M",
+				"stone": "290K",
+				"iron": "74K",
+				"gold": "18K",
+				"truegold_dust": 74,
+				"time": "1d 13h"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG2",
+					"Truegold Battalion (Infantry) lvl4"
+				],
+				"bread": "2M",
+				"wood": "2M",
+				"stone": "400K",
+				"iron": "100K",
+				"gold": "25K",
+				"truegold_dust": 102,
+				"time": "2d 3h"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG2",
+					"Truegold Battalion (Infantry) lvl5"
+				],
+				"bread": "2.7M",
+				"wood": "2.7M",
+				"stone": "540K",
+				"iron": "130K",
+				"gold": "34K",
+				"truegold_dust": 136,
+				"time": "2d 20h"
+			},
+			{
+				"level": 6,
+				"requirements": [
+					"War Academy TG3"
+				],
+				"bread": "3.6M",
+				"wood": "3.6M",
+				"stone": "730K",
+				"iron": "180K",
+				"gold": "46K",
+				"truegold_dust": 184,
+				"time": "3d 20h"
+			},
+			{
+				"level": 7,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "4.9M",
+				"wood": "4.9M",
+				"stone": "990K",
+				"iron": "240K",
+				"gold": "62K",
+				"truegold_dust": 248,
+				"time": "5d 4h"
+			},
+			{
+				"level": 8,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "6.6M",
+				"wood": "6.6M",
+				"stone": "1.3M",
+				"iron": "330K",
+				"gold": "83K",
+				"truegold_dust": 334,
+				"time": "6d 23h"
+			}
+		],
+		"Truegold Legionaries (Infantry)": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG4",
+					"Truegold Blades lvl6",
+					"Truegold Shields lvl6"
+				],
+				"bread": "1M",
+				"wood": "1M",
+				"stone": "210K",
+				"iron": "54K",
+				"gold": "23K",
+				"truegold_dust": 83,
+				"time": "1d 5h 20m"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.3M",
+				"wood": "1.3M",
+				"stone": "260K",
+				"iron": "66K",
+				"gold": "28K",
+				"truegold_dust": 102,
+				"time": "1d 12h 5m"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.6M",
+				"wood": "1.6M",
+				"stone": "320K",
+				"iron": "81K",
+				"gold": "34K",
+				"truegold_dust": 125,
+				"time": "1d 20h"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "1.9M",
+				"wood": "1.9M",
+				"stone": "390K",
+				"iron": "97K",
+				"gold": "41K",
+				"truegold_dust": 150,
+				"time": "2d 4h 48m"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "2.3M",
+				"wood": "2.3M",
+				"stone": "470K",
+				"iron": "110K",
+				"gold": "51K",
+				"truegold_dust": 184,
+				"time": "2d 16h 32m"
+			},
+			{
+				"level": 6,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "2.9M",
+				"wood": "2.9M",
+				"stone": "580K",
+				"iron": "140K",
+				"gold": "62K",
+				"truegold_dust": 225,
+				"time": "3d 7h 12m"
+			},
+			{
+				"level": 7,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Blades lvl7",
+					"Truegold Shields lvl7"
+				],
+				"bread": "3.5M",
+				"wood": "3.5M",
+				"stone": "710K",
+				"iron": "170K",
+				"gold": "76K",
+				"truegold_dust": 276,
+				"time": "4d 48m"
+			},
+			{
+				"level": 8,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Blades lvl8",
+					"Truegold Shields lvl8"
+				],
+				"bread": "4.3M",
+				"wood": "4.3M",
+				"stone": "860K",
+				"iron": "210K",
+				"gold": "93K",
+				"truegold_dust": 334,
+				"time": "4d 21h 21m"
+			},
+			{
+				"level": 9,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "5.4M",
+				"wood": "5.4M",
+				"stone": "1M",
+				"iron": "270K",
+				"gold": "110K",
+				"truegold_dust": 418,
+				"time": "6d 2h 40m"
+			},
+			{
+				"level": 10,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "6.5M",
+				"wood": "6.5M",
+				"stone": "1.3M",
+				"iron": "320K",
+				"gold": "130K",
+				"truegold_dust": 502,
+				"time": "7d 8h 2m"
+			},
+			{
+				"level": 11,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "7.8M",
+				"wood": "7.8M",
+				"stone": "1.5M",
+				"iron": "390K",
+				"gold": "160K",
+				"truegold_dust": 602,
+				"time": "8d 19h 14m"
+			},
+			{
+				"level": 12,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "9.6M",
+				"wood": "9.6M",
+				"stone": "1.9M",
+				"iron": "480K",
+				"gold": "200K",
+				"truegold_dust": 744,
+				"time": "10d 21h 6m"
+			}
+		],
+		"Truegold Mauls": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG3",
+					"Truegold Blades LVL6"
+				],
+				"bread": "700K",
+				"wood": "700K",
+				"stone": "140K",
+				"iron": "35K",
+				"gold": "15K",
+				"truegold_dust": 54,
+				"time": "18h 55m"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG3"
+				],
+				"bread": "860K",
+				"wood": "860K",
+				"stone": "170K",
+				"iron": "43K",
+				"gold": "18K",
+				"truegold_dust": 66,
+				"time": "23h 17m"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1M",
+				"wood": "1M",
+				"stone": "210K",
+				"iron": "52K",
+				"gold": "22K",
+				"truegold_dust": 81,
+				"time": "1d 4h 23m"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.2M",
+				"wood": "1.2M",
+				"stone": "250K",
+				"iron": "63K",
+				"gold": "27K",
+				"truegold_dust": 97,
+				"time": "1d 10h 4m"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.5M",
+				"wood": "1.5M",
+				"stone": "300K",
+				"iron": "77K",
+				"gold": "33K",
+				"truegold_dust": 118,
+				"time": "1d 17h 38m"
+			},
+			{
+				"level": 6,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.8M",
+				"wood": "1.8M",
+				"stone": "370K",
+				"iron": "94K",
+				"gold": "40K",
+				"truegold_dust": 145,
+				"time": "2d 3h 6m"
+			},
+			{
+				"level": 7,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Blades LVL7"
+				],
+				"bread": "2.3M",
+				"wood": "2.3M",
+				"stone": "460K",
+				"iron": "460K",
+				"gold": "49K",
+				"truegold_dust": 178,
+				"time": "2d 14h 28m"
+			},
+			{
+				"level": 8,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Blades LVL8"
+				],
+				"bread": "2.8M",
+				"wood": "2.8M",
+				"stone": "560K",
+				"iron": "140K",
+				"gold": "60K",
+				"truegold_dust": 216,
+				"time": "3d 3h 42m"
+			},
+			{
+				"level": 9,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "3.5M",
+				"wood": "3.5M",
+				"stone": "700K",
+				"iron": "170K",
+				"gold": "75K",
+				"truegold_dust": 270,
+				"time": "3d 22h 38m"
+			},
+			{
+				"level": 10,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "4.2M",
+				"wood": "4.2M",
+				"stone": "840K",
+				"iron": "210K",
+				"gold": "90K",
+				"truegold_dust": 324,
+				"time": "4d 17h 34m"
+			},
+			{
+				"level": 11,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "5M",
+				"wood": "5M",
+				"stone": "1M",
+				"iron": "250K",
+				"gold": "100K",
+				"truegold_dust": 388,
+				"time": "5d 16h 16m"
+			},
+			{
+				"level": 12,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "6.2M",
+				"wood": "6.2M",
+				"stone": "1.2M",
+				"iron": "310K",
+				"gold": "130K",
+				"truegold_dust": 480,
+				"time": "7d 27m"
+			}
+		],
+		"Truegold Plating": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG3",
+					"Truegold Shields LVL6"
+				],
+				"bread": "700K",
+				"wood": "700K",
+				"stone": "140K",
+				"iron": "35K",
+				"gold": "15K",
+				"truegold_dust": 54,
+				"time": "18h 55m"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG3"
+				],
+				"bread": "860K",
+				"wood": "860K",
+				"stone": "170K",
+				"iron": "43K",
+				"gold": "18K",
+				"truegold_dust": 66,
+				"time": "23h 17m"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1M",
+				"wood": "1M",
+				"stone": "210K",
+				"iron": "52K",
+				"gold": "22K",
+				"truegold_dust": 81,
+				"time": "1d 4h 23m"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.2M",
+				"wood": "1.2M",
+				"stone": "250K",
+				"iron": "63K",
+				"gold": "27K",
+				"truegold_dust": 97,
+				"time": "1d 10h 4m"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.5M",
+				"wood": "1.5M",
+				"stone": "300K",
+				"iron": "77K",
+				"gold": "33K",
+				"truegold_dust": 118,
+				"time": "1d 17h 38m"
+			},
+			{
+				"level": 6,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.8M",
+				"wood": "1.8M",
+				"stone": "370K",
+				"iron": "94K",
+				"gold": "40K",
+				"truegold_dust": 145,
+				"time": "2d 3h 6m"
+			},
+			{
+				"level": 7,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Shields LVL7"
+				],
+				"bread": "2.3M",
+				"wood": "2.3M",
+				"stone": "460K",
+				"iron": "460K",
+				"gold": "49K",
+				"truegold_dust": 178,
+				"time": "2d 14h 28m"
+			},
+			{
+				"level": 8,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Shields LVL8"
+				],
+				"bread": "2.8M",
+				"wood": "2.8M",
+				"stone": "560K",
+				"iron": "140K",
+				"gold": "60K",
+				"truegold_dust": 216,
+				"time": "3d 3h 42m"
+			},
+			{
+				"level": 9,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "3.5M",
+				"wood": "3.5M",
+				"stone": "700K",
+				"iron": "170K",
+				"gold": "75K",
+				"truegold_dust": 270,
+				"time": "3d 22h 38m"
+			},
+			{
+				"level": 10,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "4.2M",
+				"wood": "4.2M",
+				"stone": "840K",
+				"iron": "210K",
+				"gold": "90K",
+				"truegold_dust": 324,
+				"time": "4d 17h 34m"
+			},
+			{
+				"level": 11,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "5M",
+				"wood": "5M",
+				"stone": "1M",
+				"iron": "250K",
+				"gold": "100K",
+				"truegold_dust": 388,
+				"time": "5d 16h 16m"
+			},
+			{
+				"level": 12,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "6.2M",
+				"wood": "6.2M",
+				"stone": "1.2M",
+				"iron": "310K",
+				"gold": "130K",
+				"truegold_dust": 480,
+				"time": "7d 27m"
+			}
+		],
+		"Truegold Infantry": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Legionaries (Infantry) lvl12",
+					"Truegold Mauls lvl12",
+					"Truegold Plating lvl12"
+				],
+				"bread": "85M",
+				"wood": "85M",
+				"stone": "17M",
+				"iron": "4.2M",
+				"gold": "1M",
+				"truegold_dust": "2.2K",
+				"time": "91d 7h 40m"
+			}
+		],
+		"Truegold Infantry Healing": [
+			{
+				"level": 1,
+				"requirements": [],
+				"bread": "2.5M",
+				"wood": "2.5M",
+				"stone": "500K",
+				"iron": "120K",
+				"gold": "30K",
+				"truegold_dust": 102,
+				"time": "2d 2h"
+			},
+			{
+				"level": 2,
+				"requirements": [],
+				"bread": "3.3M",
+				"wood": "3.3M",
+				"stone": "670K",
+				"iron": "160K",
+				"gold": "40K",
+				"truegold_dust": 137,
+				"time": "2d 19h 30m"
+			},
+			{
+				"level": 3,
+				"requirements": [],
+				"bread": "4.6M",
+				"wood": "4.6M",
+				"stone": "920K",
+				"iron": "230K",
+				"gold": "55K",
+				"truegold_dust": 188,
+				"time": "3d 20h 30m"
+			},
+			{
+				"level": 4,
+				"requirements": [],
+				"bread": "6.2M",
+				"wood": "6.2M",
+				"stone": "1.2M",
+				"iron": "310K",
+				"gold": "75K",
+				"truegold_dust": 255,
+				"time": "5d 5h"
+			},
+			{
+				"level": 5,
+				"requirements": [],
+				"bread": "8.3M",
+				"wood": "8.3M",
+				"stone": "1.6M",
+				"iron": "410K",
+				"gold": "100K",
+				"truegold_dust": 341,
+				"time": "17h 30m"
+			},
+			{
+				"level": 6,
+				"requirements": [],
+				"bread": "11M",
+				"wood": "11M",
+				"stone": "2.2M",
+				"iron": "560K",
+				"gold": "130K",
+				"truegold_dust": 459,
+				"time": "9d 9h"
+			},
+			{
+				"level": 7,
+				"requirements": [],
+				"bread": "15M",
+				"wood": "15M",
+				"stone": "3M",
+				"iron": "750K",
+				"gold": "180K",
+				"truegold_dust": 612,
+				"time": "12d 12h"
+			},
+			{
+				"level": 8,
+				"requirements": [],
+				"bread": "20M",
+				"wood": "20M",
+				"stone": "4.1M",
+				"iron": "1M",
+				"gold": "240K",
+				"truegold_dust": 836,
+				"time": "17d 2h"
+			},
+			{
+				"level": 9,
+				"requirements": [],
+				"bread": "27M",
+				"wood": "27M",
+				"stone": "5.5M",
+				"iron": "1.3M",
+				"gold": "330K",
+				"truegold_dust": "1.1K",
+				"time": "22d 22h"
+			},
+			{
+				"level": 10,
+				"requirements": [],
+				"bread": "37M",
+				"wood": "37M",
+				"stone": "7.5M",
+				"iron": "1.8M",
+				"gold": "450K",
+				"truegold_dust": "1.5K",
+				"time": "31d 6h"
+			}
+		],
+		"Truegold Infantry Training": [
+			{
+				"level": 1,
+				"requirements": [],
+				"bread": "2.5M",
+				"wood": "2.5M",
+				"stone": "500K",
+				"iron": "120K",
+				"gold": "30K",
+				"truegold_dust": 102,
+				"time": "2d 2h"
+			},
+			{
+				"level": 2,
+				"requirements": [],
+				"bread": "3.3M",
+				"wood": "3.3M",
+				"stone": "670K",
+				"iron": "160K",
+				"gold": "40K",
+				"truegold_dust": 137,
+				"time": "2d 19h 30m"
+			},
+			{
+				"level": 3,
+				"requirements": [],
+				"bread": "4.6M",
+				"wood": "4.6M",
+				"stone": "920K",
+				"iron": "230K",
+				"gold": "55K",
+				"truegold_dust": 188,
+				"time": "3d 20h 30m"
+			},
+			{
+				"level": 4,
+				"requirements": [],
+				"bread": "6.2M",
+				"wood": "6.2M",
+				"stone": "1.2M",
+				"iron": "310K",
+				"gold": "75K",
+				"truegold_dust": 255,
+				"time": "5d 5h"
+			},
+			{
+				"level": 5,
+				"requirements": [],
+				"bread": "8.3M",
+				"wood": "8.3M",
+				"stone": "1.6M",
+				"iron": "410K",
+				"gold": "100K",
+				"truegold_dust": 341,
+				"time": "17h 30m"
+			},
+			{
+				"level": 6,
+				"requirements": [],
+				"bread": "11M",
+				"wood": "11M",
+				"stone": "2.2M",
+				"iron": "560K",
+				"gold": "130K",
+				"truegold_dust": 459,
+				"time": "9d 9h"
+			},
+			{
+				"level": 7,
+				"requirements": [],
+				"bread": "15M",
+				"wood": "15M",
+				"stone": "3M",
+				"iron": "750K",
+				"gold": "180K",
+				"truegold_dust": 612,
+				"time": "12d 12h"
+			},
+			{
+				"level": 8,
+				"requirements": [],
+				"bread": "20M",
+				"wood": "20M",
+				"stone": "4.1M",
+				"iron": "1M",
+				"gold": "240K",
+				"truegold_dust": 836,
+				"time": "17d 2h"
+			},
+			{
+				"level": 9,
+				"requirements": [],
+				"bread": "27M",
+				"wood": "27M",
+				"stone": "5.5M",
+				"iron": "1.3M",
+				"gold": "330K",
+				"truegold_dust": "1.1K",
+				"time": "22d 22h"
+			},
+			{
+				"level": 10,
+				"requirements": [],
+				"bread": "37M",
+				"wood": "37M",
+				"stone": "7.5M",
+				"iron": "1.8M",
+				"gold": "450K",
+				"truegold_dust": "1.5K",
+				"time": "31d 6h"
+			}
+		],
+		"Truegold Infantry Aid": [
+			{
+				"level": 1,
+				"requirements": [],
+				"bread": "2.5M",
+				"wood": "2.5M",
+				"stone": "500K",
+				"iron": "120K",
+				"gold": "30K",
+				"truegold_dust": 102,
+				"time": "2d 2h"
+			},
+			{
+				"level": 2,
+				"requirements": [],
+				"bread": "3.3M",
+				"wood": "3.3M",
+				"stone": "670K",
+				"iron": "160K",
+				"gold": "40K",
+				"truegold_dust": 137,
+				"time": "2d 19h 30m"
+			},
+			{
+				"level": 3,
+				"requirements": [],
+				"bread": "4.6M",
+				"wood": "4.6M",
+				"stone": "920K",
+				"iron": "230K",
+				"gold": "55K",
+				"truegold_dust": 188,
+				"time": "3d 20h 30m"
+			},
+			{
+				"level": 4,
+				"requirements": [],
+				"bread": "6.2M",
+				"wood": "6.2M",
+				"stone": "1.2M",
+				"iron": "310K",
+				"gold": "75K",
+				"truegold_dust": 255,
+				"time": "5d 5h"
+			},
+			{
+				"level": 5,
+				"requirements": [],
+				"bread": "8.3M",
+				"wood": "8.3M",
+				"stone": "1.6M",
+				"iron": "410K",
+				"gold": "100K",
+				"truegold_dust": 341,
+				"time": "17h 30m"
+			},
+			{
+				"level": 6,
+				"requirements": [],
+				"bread": "11M",
+				"wood": "11M",
+				"stone": "2.2M",
+				"iron": "560K",
+				"gold": "130K",
+				"truegold_dust": 459,
+				"time": "9d 9h"
+			},
+			{
+				"level": 7,
+				"requirements": [],
+				"bread": "15M",
+				"wood": "15M",
+				"stone": "3M",
+				"iron": "750K",
+				"gold": "180K",
+				"truegold_dust": 612,
+				"time": "12d 12h"
+			},
+			{
+				"level": 8,
+				"requirements": [],
+				"bread": "20M",
+				"wood": "20M",
+				"stone": "4.1M",
+				"iron": "1M",
+				"gold": "240K",
+				"truegold_dust": 836,
+				"time": "17d 2h"
+			},
+			{
+				"level": 9,
+				"requirements": [],
+				"bread": "27M",
+				"wood": "27M",
+				"stone": "5.5M",
+				"iron": "1.3M",
+				"gold": "330K",
+				"truegold_dust": "1.1K",
+				"time": "22d 22h"
+			},
+			{
+				"level": 10,
+				"requirements": [],
+				"bread": "37M",
+				"wood": "37M",
+				"stone": "7.5M",
+				"iron": "1.8M",
+				"gold": "450K",
+				"truegold_dust": "1.5K",
+				"time": "31d 6h"
+			}
+		],
+		"Truegold Battalion (Cavalry)": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "300K",
+				"wood": "300K",
+				"stone": "60K",
+				"iron": "15K",
+				"gold": "5K",
+				"truegold_dust": 16,
+				"time": "8h"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "480K",
+				"wood": "480K",
+				"stone": "96K",
+				"iron": "24K",
+				"gold": "8K",
+				"truegold_dust": 25,
+				"time": "12h 48m"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "780K",
+				"wood": "780K",
+				"stone": "150K",
+				"iron": "39K",
+				"gold": "13K",
+				"truegold_dust": 41,
+				"time": "20h 48m"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "1.2M",
+				"wood": "1.2M",
+				"stone": "250K",
+				"iron": "64K",
+				"gold": "21K",
+				"truegold_dust": 68,
+				"time": "1d 10h 24m"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "2M",
+				"wood": "2M",
+				"stone": "400K",
+				"iron": "100K",
+				"gold": "33K",
+				"truegold_dust": 108,
+				"time": "2d 6h"
+			}
+		],
+		"Truegold Charge": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "800K",
+				"wood": "800K",
+				"stone": "160K",
+				"iron": "40K",
+				"gold": "10K",
+				"truegold_dust": 40,
+				"time": "20h"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG2"
+				],
+				"bread": "1.1M",
+				"wood": "1.1M",
+				"stone": "220K",
+				"iron": "56K",
+				"gold": "14K",
+				"truegold_dust": 56,
+				"time": "1d 6h"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG2"
+				],
+				"bread": "1.4M",
+				"wood": "1.4M",
+				"stone": "290K",
+				"iron": "74K",
+				"gold": "18K",
+				"truegold_dust": 74,
+				"time": "1d 13h"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG2",
+					"Truegold Battalion (Cavalry) lvl4"
+				],
+				"bread": "2M",
+				"wood": "2M",
+				"stone": "400K",
+				"iron": "100K",
+				"gold": "25K",
+				"truegold_dust": 102,
+				"time": "2d 3h"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG2",
+					"Truegold Battalion (Cavalry) lvl5"
+				],
+				"bread": "2.7M",
+				"wood": "2.7M",
+				"stone": "540K",
+				"iron": "130K",
+				"gold": "34K",
+				"truegold_dust": 136,
+				"time": "2d 20h"
+			},
+			{
+				"level": 6,
+				"requirements": [
+					"War Academy TG3"
+				],
+				"bread": "3.6M",
+				"wood": "3.6M",
+				"stone": "730K",
+				"iron": "180K",
+				"gold": "46K",
+				"truegold_dust": 184,
+				"time": "3d 20h"
+			},
+			{
+				"level": 7,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "4.9M",
+				"wood": "4.9M",
+				"stone": "990K",
+				"iron": "240K",
+				"gold": "62K",
+				"truegold_dust": 248,
+				"time": "5d 4h"
+			},
+			{
+				"level": 8,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "6.6M",
+				"wood": "6.6M",
+				"stone": "1.3M",
+				"iron": "330K",
+				"gold": "83K",
+				"truegold_dust": 334,
+				"time": "6d 23h"
+			}
+		],
+		"Truegold Farriery": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "800K",
+				"wood": "800K",
+				"stone": "160K",
+				"iron": "40K",
+				"gold": "10K",
+				"truegold_dust": 40,
+				"time": "20h"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG2"
+				],
+				"bread": "1.1M",
+				"wood": "1.1M",
+				"stone": "220K",
+				"iron": "56K",
+				"gold": "14K",
+				"truegold_dust": 56,
+				"time": "1d 6h"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG2"
+				],
+				"bread": "1.4M",
+				"wood": "1.4M",
+				"stone": "290K",
+				"iron": "74K",
+				"gold": "18K",
+				"truegold_dust": 74,
+				"time": "1d 13h"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG2",
+					"Truegold Battalion (Cavalry) lvl4"
+				],
+				"bread": "2M",
+				"wood": "2M",
+				"stone": "400K",
+				"iron": "100K",
+				"gold": "25K",
+				"truegold_dust": 102,
+				"time": "2d 3h"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG2",
+					"Truegold Battalion (Cavalry) lvl5"
+				],
+				"bread": "2.7M",
+				"wood": "2.7M",
+				"stone": "540K",
+				"iron": "130K",
+				"gold": "34K",
+				"truegold_dust": 136,
+				"time": "2d 20h"
+			},
+			{
+				"level": 6,
+				"requirements": [
+					"War Academy TG3"
+				],
+				"bread": "3.6M",
+				"wood": "3.6M",
+				"stone": "730K",
+				"iron": "180K",
+				"gold": "46K",
+				"truegold_dust": 184,
+				"time": "3d 20h"
+			},
+			{
+				"level": 7,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "4.9M",
+				"wood": "4.9M",
+				"stone": "990K",
+				"iron": "240K",
+				"gold": "62K",
+				"truegold_dust": 248,
+				"time": "5d 4h"
+			},
+			{
+				"level": 8,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "6.6M",
+				"wood": "6.6M",
+				"stone": "1.3M",
+				"iron": "330K",
+				"gold": "83K",
+				"truegold_dust": 334,
+				"time": "6d 23h"
+			}
+		],
+		"Truegold Legionaries (Cavalry)": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG4",
+					"Truegold Charge lvl6",
+					"Truegold Farriery lvl6"
+				],
+				"bread": "1M",
+				"wood": "1M",
+				"stone": "210K",
+				"iron": "54K",
+				"gold": "23K",
+				"truegold_dust": 83,
+				"time": "1d 5h 20m"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.3M",
+				"wood": "1.3M",
+				"stone": "260K",
+				"iron": "66K",
+				"gold": "28K",
+				"truegold_dust": 102,
+				"time": "1d 12h 5m"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.6M",
+				"wood": "1.6M",
+				"stone": "320K",
+				"iron": "81K",
+				"gold": "34K",
+				"truegold_dust": 125,
+				"time": "1d 20h"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "1.9M",
+				"wood": "1.9M",
+				"stone": "390K",
+				"iron": "97K",
+				"gold": "41K",
+				"truegold_dust": 150,
+				"time": "2d 4h 48m"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "2.3M",
+				"wood": "2.3M",
+				"stone": "470K",
+				"iron": "110K",
+				"gold": "51K",
+				"truegold_dust": 184,
+				"time": "2d 16h 32m"
+			},
+			{
+				"level": 6,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "2.9M",
+				"wood": "2.9M",
+				"stone": "580K",
+				"iron": "140K",
+				"gold": "62K",
+				"truegold_dust": 225,
+				"time": "3d 7h 12m"
+			},
+			{
+				"level": 7,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Charge lvl7",
+					"Truegold Farriery lvl7"
+				],
+				"bread": "3.5M",
+				"wood": "3.5M",
+				"stone": "710K",
+				"iron": "170K",
+				"gold": "76K",
+				"truegold_dust": 276,
+				"time": "4d 48m"
+			},
+			{
+				"level": 8,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Charge lvl8",
+					"Truegold Farriery lvl8"
+				],
+				"bread": "4.3M",
+				"wood": "4.3M",
+				"stone": "860K",
+				"iron": "210K",
+				"gold": "93K",
+				"truegold_dust": 334,
+				"time": "4d 21h 21m"
+			},
+			{
+				"level": 9,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "5.4M",
+				"wood": "5.4M",
+				"stone": "1M",
+				"iron": "270K",
+				"gold": "110K",
+				"truegold_dust": 418,
+				"time": "6d 2h 40m"
+			},
+			{
+				"level": 10,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "6.5M",
+				"wood": "6.5M",
+				"stone": "1.3M",
+				"iron": "320K",
+				"gold": "130K",
+				"truegold_dust": 502,
+				"time": "7d 8h 2m"
+			},
+			{
+				"level": 11,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "7.8M",
+				"wood": "7.8M",
+				"stone": "1.5M",
+				"iron": "390K",
+				"gold": "160K",
+				"truegold_dust": 602,
+				"time": "8d 19h 14m"
+			},
+			{
+				"level": 12,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "9.6M",
+				"wood": "9.6M",
+				"stone": "1.9M",
+				"iron": "480K",
+				"gold": "200K",
+				"truegold_dust": 744,
+				"time": "10d 21h 6m"
+			}
+		],
+		"Truegold Lances": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG3",
+					"Truegold Charge LVL6"
+				],
+				"bread": "700K",
+				"wood": "700K",
+				"stone": "140K",
+				"iron": "35K",
+				"gold": "15K",
+				"truegold_dust": 54,
+				"time": "18h 55m"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG3"
+				],
+				"bread": "860K",
+				"wood": "860K",
+				"stone": "170K",
+				"iron": "43K",
+				"gold": "18K",
+				"truegold_dust": 66,
+				"time": "23h 17m"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1M",
+				"wood": "1M",
+				"stone": "210K",
+				"iron": "52K",
+				"gold": "22K",
+				"truegold_dust": 81,
+				"time": "1d 4h 23m"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.2M",
+				"wood": "1.2M",
+				"stone": "250K",
+				"iron": "63K",
+				"gold": "27K",
+				"truegold_dust": 97,
+				"time": "1d 10h 4m"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.5M",
+				"wood": "1.5M",
+				"stone": "300K",
+				"iron": "77K",
+				"gold": "33K",
+				"truegold_dust": 118,
+				"time": "1d 17h 38m"
+			},
+			{
+				"level": 6,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.8M",
+				"wood": "1.8M",
+				"stone": "370K",
+				"iron": "94K",
+				"gold": "40K",
+				"truegold_dust": 145,
+				"time": "2d 3h 6m"
+			},
+			{
+				"level": 7,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Charge LVL7"
+				],
+				"bread": "2.3M",
+				"wood": "2.3M",
+				"stone": "460K",
+				"iron": "460K",
+				"gold": "49K",
+				"truegold_dust": 178,
+				"time": "2d 14h 28m"
+			},
+			{
+				"level": 8,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Charge LVL8"
+				],
+				"bread": "2.8M",
+				"wood": "2.8M",
+				"stone": "560K",
+				"iron": "140K",
+				"gold": "60K",
+				"truegold_dust": 216,
+				"time": "3d 3h 42m"
+			},
+			{
+				"level": 9,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "3.5M",
+				"wood": "3.5M",
+				"stone": "700K",
+				"iron": "170K",
+				"gold": "75K",
+				"truegold_dust": 270,
+				"time": "3d 22h 38m"
+			},
+			{
+				"level": 10,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "4.2M",
+				"wood": "4.2M",
+				"stone": "840K",
+				"iron": "210K",
+				"gold": "90K",
+				"truegold_dust": 324,
+				"time": "4d 17h 34m"
+			},
+			{
+				"level": 11,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "5M",
+				"wood": "5M",
+				"stone": "1M",
+				"iron": "250K",
+				"gold": "100K",
+				"truegold_dust": 388,
+				"time": "5d 16h 16m"
+			},
+			{
+				"level": 12,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "6.2M",
+				"wood": "6.2M",
+				"stone": "1.2M",
+				"iron": "310K",
+				"gold": "130K",
+				"truegold_dust": 480,
+				"time": "7d 27m"
+			}
+		],
+		"Truegold Platecraft": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG3",
+					"Truegold Farriery LVL6"
+				],
+				"bread": "700K",
+				"wood": "700K",
+				"stone": "140K",
+				"iron": "35K",
+				"gold": "15K",
+				"truegold_dust": 54,
+				"time": "18h 55m"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG3"
+				],
+				"bread": "860K",
+				"wood": "860K",
+				"stone": "170K",
+				"iron": "43K",
+				"gold": "18K",
+				"truegold_dust": 66,
+				"time": "23h 17m"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1M",
+				"wood": "1M",
+				"stone": "210K",
+				"iron": "52K",
+				"gold": "22K",
+				"truegold_dust": 81,
+				"time": "1d 4h 23m"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.2M",
+				"wood": "1.2M",
+				"stone": "250K",
+				"iron": "63K",
+				"gold": "27K",
+				"truegold_dust": 97,
+				"time": "1d 10h 4m"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.5M",
+				"wood": "1.5M",
+				"stone": "300K",
+				"iron": "77K",
+				"gold": "33K",
+				"truegold_dust": 118,
+				"time": "1d 17h 38m"
+			},
+			{
+				"level": 6,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.8M",
+				"wood": "1.8M",
+				"stone": "370K",
+				"iron": "94K",
+				"gold": "40K",
+				"truegold_dust": 145,
+				"time": "2d 3h 6m"
+			},
+			{
+				"level": 7,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Farriery LVL7"
+				],
+				"bread": "2.3M",
+				"wood": "2.3M",
+				"stone": "460K",
+				"iron": "460K",
+				"gold": "49K",
+				"truegold_dust": 178,
+				"time": "2d 14h 28m"
+			},
+			{
+				"level": 8,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Farriery LVL8"
+				],
+				"bread": "2.8M",
+				"wood": "2.8M",
+				"stone": "560K",
+				"iron": "140K",
+				"gold": "60K",
+				"truegold_dust": 216,
+				"time": "3d 3h 42m"
+			},
+			{
+				"level": 9,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "3.5M",
+				"wood": "3.5M",
+				"stone": "700K",
+				"iron": "170K",
+				"gold": "75K",
+				"truegold_dust": 270,
+				"time": "3d 22h 38m"
+			},
+			{
+				"level": 10,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "4.2M",
+				"wood": "4.2M",
+				"stone": "840K",
+				"iron": "210K",
+				"gold": "90K",
+				"truegold_dust": 324,
+				"time": "4d 17h 34m"
+			},
+			{
+				"level": 11,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "5M",
+				"wood": "5M",
+				"stone": "1M",
+				"iron": "250K",
+				"gold": "100K",
+				"truegold_dust": 388,
+				"time": "5d 16h 16m"
+			},
+			{
+				"level": 12,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "6.2M",
+				"wood": "6.2M",
+				"stone": "1.2M",
+				"iron": "310K",
+				"gold": "130K",
+				"truegold_dust": 480,
+				"time": "7d 27m"
+			}
+		],
+		"Truegold Cavalry": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Legionaries (Cavalry) lvl12",
+					"Truegold Lances lvl12",
+					"Truegold Platecraft lvl12"
+				],
+				"bread": "85M",
+				"wood": "85M",
+				"stone": "17M",
+				"iron": "4.2M",
+				"gold": "1M",
+				"truegold_dust": "2.2K",
+				"time": "91d 7h 40m"
+			}
+		],
+		"Truegold Cavalry Healing": [
+			{
+				"level": 1,
+				"requirements": [],
+				"bread": "2.5M",
+				"wood": "2.5M",
+				"stone": "500K",
+				"iron": "120K",
+				"gold": "30K",
+				"truegold_dust": 102,
+				"time": "2d 2h"
+			},
+			{
+				"level": 2,
+				"requirements": [],
+				"bread": "3.3M",
+				"wood": "3.3M",
+				"stone": "670K",
+				"iron": "160K",
+				"gold": "40K",
+				"truegold_dust": 137,
+				"time": "2d 19h 30m"
+			},
+			{
+				"level": 3,
+				"requirements": [],
+				"bread": "4.6M",
+				"wood": "4.6M",
+				"stone": "920K",
+				"iron": "230K",
+				"gold": "55K",
+				"truegold_dust": 188,
+				"time": "3d 20h 30m"
+			},
+			{
+				"level": 4,
+				"requirements": [],
+				"bread": "6.2M",
+				"wood": "6.2M",
+				"stone": "1.2M",
+				"iron": "310K",
+				"gold": "75K",
+				"truegold_dust": 255,
+				"time": "5d 5h"
+			},
+			{
+				"level": 5,
+				"requirements": [],
+				"bread": "8.3M",
+				"wood": "8.3M",
+				"stone": "1.6M",
+				"iron": "410K",
+				"gold": "100K",
+				"truegold_dust": 341,
+				"time": "17h 30m"
+			},
+			{
+				"level": 6,
+				"requirements": [],
+				"bread": "11M",
+				"wood": "11M",
+				"stone": "2.2M",
+				"iron": "560K",
+				"gold": "130K",
+				"truegold_dust": 459,
+				"time": "9d 9h"
+			},
+			{
+				"level": 7,
+				"requirements": [],
+				"bread": "15M",
+				"wood": "15M",
+				"stone": "3M",
+				"iron": "750K",
+				"gold": "180K",
+				"truegold_dust": 612,
+				"time": "12d 12h"
+			},
+			{
+				"level": 8,
+				"requirements": [],
+				"bread": "20M",
+				"wood": "20M",
+				"stone": "4.1M",
+				"iron": "1M",
+				"gold": "240K",
+				"truegold_dust": 836,
+				"time": "17d 2h"
+			},
+			{
+				"level": 9,
+				"requirements": [],
+				"bread": "27M",
+				"wood": "27M",
+				"stone": "5.5M",
+				"iron": "1.3M",
+				"gold": "330K",
+				"truegold_dust": "1.1K",
+				"time": "22d 22h"
+			},
+			{
+				"level": 10,
+				"requirements": [],
+				"bread": "37M",
+				"wood": "37M",
+				"stone": "7.5M",
+				"iron": "1.8M",
+				"gold": "450K",
+				"truegold_dust": "1.5K",
+				"time": "31d 6h"
+			}
+		],
+		"Truegold Cavalry Training": [
+			{
+				"level": 1,
+				"requirements": [],
+				"bread": "2.5M",
+				"wood": "2.5M",
+				"stone": "500K",
+				"iron": "120K",
+				"gold": "30K",
+				"truegold_dust": 102,
+				"time": "2d 2h"
+			},
+			{
+				"level": 2,
+				"requirements": [],
+				"bread": "3.3M",
+				"wood": "3.3M",
+				"stone": "670K",
+				"iron": "160K",
+				"gold": "40K",
+				"truegold_dust": 137,
+				"time": "2d 19h 30m"
+			},
+			{
+				"level": 3,
+				"requirements": [],
+				"bread": "4.6M",
+				"wood": "4.6M",
+				"stone": "920K",
+				"iron": "230K",
+				"gold": "55K",
+				"truegold_dust": 188,
+				"time": "3d 20h 30m"
+			},
+			{
+				"level": 4,
+				"requirements": [],
+				"bread": "6.2M",
+				"wood": "6.2M",
+				"stone": "1.2M",
+				"iron": "310K",
+				"gold": "75K",
+				"truegold_dust": 255,
+				"time": "5d 5h"
+			},
+			{
+				"level": 5,
+				"requirements": [],
+				"bread": "8.3M",
+				"wood": "8.3M",
+				"stone": "1.6M",
+				"iron": "410K",
+				"gold": "100K",
+				"truegold_dust": 341,
+				"time": "17h 30m"
+			},
+			{
+				"level": 6,
+				"requirements": [],
+				"bread": "11M",
+				"wood": "11M",
+				"stone": "2.2M",
+				"iron": "560K",
+				"gold": "130K",
+				"truegold_dust": 459,
+				"time": "9d 9h"
+			},
+			{
+				"level": 7,
+				"requirements": [],
+				"bread": "15M",
+				"wood": "15M",
+				"stone": "3M",
+				"iron": "750K",
+				"gold": "180K",
+				"truegold_dust": 612,
+				"time": "12d 12h"
+			},
+			{
+				"level": 8,
+				"requirements": [],
+				"bread": "20M",
+				"wood": "20M",
+				"stone": "4.1M",
+				"iron": "1M",
+				"gold": "240K",
+				"truegold_dust": 836,
+				"time": "17d 2h"
+			},
+			{
+				"level": 9,
+				"requirements": [],
+				"bread": "27M",
+				"wood": "27M",
+				"stone": "5.5M",
+				"iron": "1.3M",
+				"gold": "330K",
+				"truegold_dust": "1.1K",
+				"time": "22d 22h"
+			},
+			{
+				"level": 10,
+				"requirements": [],
+				"bread": "37M",
+				"wood": "37M",
+				"stone": "7.5M",
+				"iron": "1.8M",
+				"gold": "450K",
+				"truegold_dust": "1.5K",
+				"time": "31d 6h"
+			}
+		],
+		"Truegold Cavalry Aid": [
+			{
+				"level": 1,
+				"requirements": [],
+				"bread": "2.5M",
+				"wood": "2.5M",
+				"stone": "500K",
+				"iron": "120K",
+				"gold": "30K",
+				"truegold_dust": 102,
+				"time": "2d 2h"
+			},
+			{
+				"level": 2,
+				"requirements": [],
+				"bread": "3.3M",
+				"wood": "3.3M",
+				"stone": "670K",
+				"iron": "160K",
+				"gold": "40K",
+				"truegold_dust": 137,
+				"time": "2d 19h 30m"
+			},
+			{
+				"level": 3,
+				"requirements": [],
+				"bread": "4.6M",
+				"wood": "4.6M",
+				"stone": "920K",
+				"iron": "230K",
+				"gold": "55K",
+				"truegold_dust": 188,
+				"time": "3d 20h 30m"
+			},
+			{
+				"level": 4,
+				"requirements": [],
+				"bread": "6.2M",
+				"wood": "6.2M",
+				"stone": "1.2M",
+				"iron": "310K",
+				"gold": "75K",
+				"truegold_dust": 255,
+				"time": "5d 5h"
+			},
+			{
+				"level": 5,
+				"requirements": [],
+				"bread": "8.3M",
+				"wood": "8.3M",
+				"stone": "1.6M",
+				"iron": "410K",
+				"gold": "100K",
+				"truegold_dust": 341,
+				"time": "17h 30m"
+			},
+			{
+				"level": 6,
+				"requirements": [],
+				"bread": "11M",
+				"wood": "11M",
+				"stone": "2.2M",
+				"iron": "560K",
+				"gold": "130K",
+				"truegold_dust": 459,
+				"time": "9d 9h"
+			},
+			{
+				"level": 7,
+				"requirements": [],
+				"bread": "15M",
+				"wood": "15M",
+				"stone": "3M",
+				"iron": "750K",
+				"gold": "180K",
+				"truegold_dust": 612,
+				"time": "12d 12h"
+			},
+			{
+				"level": 8,
+				"requirements": [],
+				"bread": "20M",
+				"wood": "20M",
+				"stone": "4.1M",
+				"iron": "1M",
+				"gold": "240K",
+				"truegold_dust": 836,
+				"time": "17d 2h"
+			},
+			{
+				"level": 9,
+				"requirements": [],
+				"bread": "27M",
+				"wood": "27M",
+				"stone": "5.5M",
+				"iron": "1.3M",
+				"gold": "330K",
+				"truegold_dust": "1.1K",
+				"time": "22d 22h"
+			},
+			{
+				"level": 10,
+				"requirements": [],
+				"bread": "37M",
+				"wood": "37M",
+				"stone": "7.5M",
+				"iron": "1.8M",
+				"gold": "450K",
+				"truegold_dust": "1.5K",
+				"time": "31d 6h"
+			}
+		],
+		"Truegold Battalion (Archer)": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "300K",
+				"wood": "300K",
+				"stone": "60K",
+				"iron": "15K",
+				"gold": "5K",
+				"truegold_dust": 16,
+				"time": "8h"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "480K",
+				"wood": "480K",
+				"stone": "96K",
+				"iron": "24K",
+				"gold": "8K",
+				"truegold_dust": 25,
+				"time": "12h 48m"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "780K",
+				"wood": "780K",
+				"stone": "150K",
+				"iron": "39K",
+				"gold": "13K",
+				"truegold_dust": 41,
+				"time": "20h 48m"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "1.2M",
+				"wood": "1.2M",
+				"stone": "250K",
+				"iron": "64K",
+				"gold": "21K",
+				"truegold_dust": 68,
+				"time": "1d 10h 24m"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "2M",
+				"wood": "2M",
+				"stone": "400K",
+				"iron": "100K",
+				"gold": "33K",
+				"truegold_dust": 108,
+				"time": "2d 6h"
+			}
+		],
+		"Truegold Bows": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "800K",
+				"wood": "800K",
+				"stone": "160K",
+				"iron": "40K",
+				"gold": "10K",
+				"truegold_dust": 40,
+				"time": "20h"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG2"
+				],
+				"bread": "1.1M",
+				"wood": "1.1M",
+				"stone": "220K",
+				"iron": "56K",
+				"gold": "14K",
+				"truegold_dust": 56,
+				"time": "1d 6h"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG2"
+				],
+				"bread": "1.4M",
+				"wood": "1.4M",
+				"stone": "290K",
+				"iron": "74K",
+				"gold": "18K",
+				"truegold_dust": 74,
+				"time": "1d 13h"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG2",
+					"Truegold Battalion (Archer) lvl4"
+				],
+				"bread": "2M",
+				"wood": "2M",
+				"stone": "400K",
+				"iron": "100K",
+				"gold": "25K",
+				"truegold_dust": 102,
+				"time": "2d 3h"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG2",
+					"Truegold Battalion (Archer) lvl5"
+				],
+				"bread": "2.7M",
+				"wood": "2.7M",
+				"stone": "540K",
+				"iron": "130K",
+				"gold": "34K",
+				"truegold_dust": 136,
+				"time": "2d 20h"
+			},
+			{
+				"level": 6,
+				"requirements": [
+					"War Academy TG3"
+				],
+				"bread": "3.6M",
+				"wood": "3.6M",
+				"stone": "730K",
+				"iron": "180K",
+				"gold": "46K",
+				"truegold_dust": 184,
+				"time": "3d 20h"
+			},
+			{
+				"level": 7,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "4.9M",
+				"wood": "4.9M",
+				"stone": "990K",
+				"iron": "240K",
+				"gold": "62K",
+				"truegold_dust": 248,
+				"time": "5d 4h"
+			},
+			{
+				"level": 8,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "6.6M",
+				"wood": "6.6M",
+				"stone": "1.3M",
+				"iron": "330K",
+				"gold": "83K",
+				"truegold_dust": 334,
+				"time": "6d 23h"
+			}
+		],
+		"Truegold Bracers": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG1"
+				],
+				"bread": "800K",
+				"wood": "800K",
+				"stone": "160K",
+				"iron": "40K",
+				"gold": "10K",
+				"truegold_dust": 40,
+				"time": "20h"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG2"
+				],
+				"bread": "1.1M",
+				"wood": "1.1M",
+				"stone": "220K",
+				"iron": "56K",
+				"gold": "14K",
+				"truegold_dust": 56,
+				"time": "1d 6h"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG2"
+				],
+				"bread": "1.4M",
+				"wood": "1.4M",
+				"stone": "290K",
+				"iron": "74K",
+				"gold": "18K",
+				"truegold_dust": 74,
+				"time": "1d 13h"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG2",
+					"Truegold Battalion (Archer) lvl4"
+				],
+				"bread": "2M",
+				"wood": "2M",
+				"stone": "400K",
+				"iron": "100K",
+				"gold": "25K",
+				"truegold_dust": 102,
+				"time": "2d 3h"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG2",
+					"Truegold Battalion (Archer) lvl5"
+				],
+				"bread": "2.7M",
+				"wood": "2.7M",
+				"stone": "540K",
+				"iron": "130K",
+				"gold": "34K",
+				"truegold_dust": 136,
+				"time": "2d 20h"
+			},
+			{
+				"level": 6,
+				"requirements": [
+					"War Academy TG3"
+				],
+				"bread": "3.6M",
+				"wood": "3.6M",
+				"stone": "730K",
+				"iron": "180K",
+				"gold": "46K",
+				"truegold_dust": 184,
+				"time": "3d 20h"
+			},
+			{
+				"level": 7,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "4.9M",
+				"wood": "4.9M",
+				"stone": "990K",
+				"iron": "240K",
+				"gold": "62K",
+				"truegold_dust": 248,
+				"time": "5d 4h"
+			},
+			{
+				"level": 8,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "6.6M",
+				"wood": "6.6M",
+				"stone": "1.3M",
+				"iron": "330K",
+				"gold": "83K",
+				"truegold_dust": 334,
+				"time": "6d 23h"
+			}
+		],
+		"Truegold Legionaries (Archer)": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG4",
+					"Truegold Bows lvl6",
+					"Truegold Bracers lvl6"
+				],
+				"bread": "1M",
+				"wood": "1M",
+				"stone": "210K",
+				"iron": "54K",
+				"gold": "23K",
+				"truegold_dust": 83,
+				"time": "1d 5h 20m"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.3M",
+				"wood": "1.3M",
+				"stone": "260K",
+				"iron": "66K",
+				"gold": "28K",
+				"truegold_dust": 102,
+				"time": "1d 12h 5m"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.6M",
+				"wood": "1.6M",
+				"stone": "320K",
+				"iron": "81K",
+				"gold": "34K",
+				"truegold_dust": 125,
+				"time": "1d 20h"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "1.9M",
+				"wood": "1.9M",
+				"stone": "390K",
+				"iron": "97K",
+				"gold": "41K",
+				"truegold_dust": 150,
+				"time": "2d 4h 48m"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "2.3M",
+				"wood": "2.3M",
+				"stone": "470K",
+				"iron": "110K",
+				"gold": "51K",
+				"truegold_dust": 184,
+				"time": "2d 16h 32m"
+			},
+			{
+				"level": 6,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "2.9M",
+				"wood": "2.9M",
+				"stone": "580K",
+				"iron": "140K",
+				"gold": "62K",
+				"truegold_dust": 225,
+				"time": "3d 7h 12m"
+			},
+			{
+				"level": 7,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Bows lvl7",
+					"Truegold Bracers lvl7"
+				],
+				"bread": "3.5M",
+				"wood": "3.5M",
+				"stone": "710K",
+				"iron": "170K",
+				"gold": "76K",
+				"truegold_dust": 276,
+				"time": "4d 48m"
+			},
+			{
+				"level": 8,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Bows lvl8",
+					"Truegold Bracers lvl8"
+				],
+				"bread": "4.3M",
+				"wood": "4.3M",
+				"stone": "860K",
+				"iron": "210K",
+				"gold": "93K",
+				"truegold_dust": 334,
+				"time": "4d 21h 21m"
+			},
+			{
+				"level": 9,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "5.4M",
+				"wood": "5.4M",
+				"stone": "1M",
+				"iron": "270K",
+				"gold": "110K",
+				"truegold_dust": 418,
+				"time": "6d 2h 40m"
+			},
+			{
+				"level": 10,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "6.5M",
+				"wood": "6.5M",
+				"stone": "1.3M",
+				"iron": "320K",
+				"gold": "130K",
+				"truegold_dust": 502,
+				"time": "7d 8h 2m"
+			},
+			{
+				"level": 11,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "7.8M",
+				"wood": "7.8M",
+				"stone": "1.5M",
+				"iron": "390K",
+				"gold": "160K",
+				"truegold_dust": 602,
+				"time": "8d 19h 14m"
+			},
+			{
+				"level": 12,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "9.6M",
+				"wood": "9.6M",
+				"stone": "1.9M",
+				"iron": "480K",
+				"gold": "200K",
+				"truegold_dust": 744,
+				"time": "10d 21h 6m"
+			}
+		],
+		"Truegold Arrows": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG3",
+					"Truegold Bows LVL6"
+				],
+				"bread": "700K",
+				"wood": "700K",
+				"stone": "140K",
+				"iron": "35K",
+				"gold": "15K",
+				"truegold_dust": 54,
+				"time": "18h 55m"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG3"
+				],
+				"bread": "860K",
+				"wood": "860K",
+				"stone": "170K",
+				"iron": "43K",
+				"gold": "18K",
+				"truegold_dust": 66,
+				"time": "23h 17m"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1M",
+				"wood": "1M",
+				"stone": "210K",
+				"iron": "52K",
+				"gold": "22K",
+				"truegold_dust": 81,
+				"time": "1d 4h 23m"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.2M",
+				"wood": "1.2M",
+				"stone": "250K",
+				"iron": "63K",
+				"gold": "27K",
+				"truegold_dust": 97,
+				"time": "1d 10h 4m"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.5M",
+				"wood": "1.5M",
+				"stone": "300K",
+				"iron": "77K",
+				"gold": "33K",
+				"truegold_dust": 118,
+				"time": "1d 17h 38m"
+			},
+			{
+				"level": 6,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.8M",
+				"wood": "1.8M",
+				"stone": "370K",
+				"iron": "94K",
+				"gold": "40K",
+				"truegold_dust": 145,
+				"time": "2d 3h 6m"
+			},
+			{
+				"level": 7,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Bows LVL7"
+				],
+				"bread": "2.3M",
+				"wood": "2.3M",
+				"stone": "460K",
+				"iron": "460K",
+				"gold": "49K",
+				"truegold_dust": 178,
+				"time": "2d 14h 28m"
+			},
+			{
+				"level": 8,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Bows LVL8"
+				],
+				"bread": "2.8M",
+				"wood": "2.8M",
+				"stone": "560K",
+				"iron": "140K",
+				"gold": "60K",
+				"truegold_dust": 216,
+				"time": "3d 3h 42m"
+			},
+			{
+				"level": 9,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "3.5M",
+				"wood": "3.5M",
+				"stone": "700K",
+				"iron": "170K",
+				"gold": "75K",
+				"truegold_dust": 270,
+				"time": "3d 22h 38m"
+			},
+			{
+				"level": 10,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "4.2M",
+				"wood": "4.2M",
+				"stone": "840K",
+				"iron": "210K",
+				"gold": "90K",
+				"truegold_dust": 324,
+				"time": "4d 17h 34m"
+			},
+			{
+				"level": 11,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "5M",
+				"wood": "5M",
+				"stone": "1M",
+				"iron": "250K",
+				"gold": "100K",
+				"truegold_dust": 388,
+				"time": "5d 16h 16m"
+			},
+			{
+				"level": 12,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "6.2M",
+				"wood": "6.2M",
+				"stone": "1.2M",
+				"iron": "310K",
+				"gold": "130K",
+				"truegold_dust": 480,
+				"time": "7d 27m"
+			}
+		],
+		"Truegold Vests": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG3",
+					"Truegold Bracers LVL6"
+				],
+				"bread": "700K",
+				"wood": "700K",
+				"stone": "140K",
+				"iron": "35K",
+				"gold": "15K",
+				"truegold_dust": 54,
+				"time": "18h 55m"
+			},
+			{
+				"level": 2,
+				"requirements": [
+					"War Academy TG3"
+				],
+				"bread": "860K",
+				"wood": "860K",
+				"stone": "170K",
+				"iron": "43K",
+				"gold": "18K",
+				"truegold_dust": 66,
+				"time": "23h 17m"
+			},
+			{
+				"level": 3,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1M",
+				"wood": "1M",
+				"stone": "210K",
+				"iron": "52K",
+				"gold": "22K",
+				"truegold_dust": 81,
+				"time": "1d 4h 23m"
+			},
+			{
+				"level": 4,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.2M",
+				"wood": "1.2M",
+				"stone": "250K",
+				"iron": "63K",
+				"gold": "27K",
+				"truegold_dust": 97,
+				"time": "1d 10h 4m"
+			},
+			{
+				"level": 5,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.5M",
+				"wood": "1.5M",
+				"stone": "300K",
+				"iron": "77K",
+				"gold": "33K",
+				"truegold_dust": 118,
+				"time": "1d 17h 38m"
+			},
+			{
+				"level": 6,
+				"requirements": [
+					"War Academy TG4"
+				],
+				"bread": "1.8M",
+				"wood": "1.8M",
+				"stone": "370K",
+				"iron": "94K",
+				"gold": "40K",
+				"truegold_dust": 145,
+				"time": "2d 3h 6m"
+			},
+			{
+				"level": 7,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Bracers LVL7"
+				],
+				"bread": "2.3M",
+				"wood": "2.3M",
+				"stone": "460K",
+				"iron": "460K",
+				"gold": "49K",
+				"truegold_dust": 178,
+				"time": "2d 14h 28m"
+			},
+			{
+				"level": 8,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Bracers LVL8"
+				],
+				"bread": "2.8M",
+				"wood": "2.8M",
+				"stone": "560K",
+				"iron": "140K",
+				"gold": "60K",
+				"truegold_dust": 216,
+				"time": "3d 3h 42m"
+			},
+			{
+				"level": 9,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "3.5M",
+				"wood": "3.5M",
+				"stone": "700K",
+				"iron": "170K",
+				"gold": "75K",
+				"truegold_dust": 270,
+				"time": "3d 22h 38m"
+			},
+			{
+				"level": 10,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "4.2M",
+				"wood": "4.2M",
+				"stone": "840K",
+				"iron": "210K",
+				"gold": "90K",
+				"truegold_dust": 324,
+				"time": "4d 17h 34m"
+			},
+			{
+				"level": 11,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "5M",
+				"wood": "5M",
+				"stone": "1M",
+				"iron": "250K",
+				"gold": "100K",
+				"truegold_dust": 388,
+				"time": "5d 16h 16m"
+			},
+			{
+				"level": 12,
+				"requirements": [
+					"War Academy TG5"
+				],
+				"bread": "6.2M",
+				"wood": "6.2M",
+				"stone": "1.2M",
+				"iron": "310K",
+				"gold": "130K",
+				"truegold_dust": 480,
+				"time": "7d 27m"
+			}
+		],
+		"Truegold Archer": [
+			{
+				"level": 1,
+				"requirements": [
+					"War Academy TG5",
+					"Truegold Legionaries (Archer) lvl12",
+					"Truegold Arrows lvl12",
+					"Truegold Vests lvl12"
+				],
+				"bread": "85M",
+				"wood": "85M",
+				"stone": "17M",
+				"iron": "4.2M",
+				"gold": "1M",
+				"truegold_dust": "2.2K",
+				"time": "91d 7h 40m"
+			}
+		],
+		"Truegold Archer Healing": [
+			{
+				"level": 1,
+				"requirements": [],
+				"bread": "2.5M",
+				"wood": "2.5M",
+				"stone": "500K",
+				"iron": "120K",
+				"gold": "30K",
+				"truegold_dust": 102,
+				"time": "2d 2h"
+			},
+			{
+				"level": 2,
+				"requirements": [],
+				"bread": "3.3M",
+				"wood": "3.3M",
+				"stone": "670K",
+				"iron": "160K",
+				"gold": "40K",
+				"truegold_dust": 137,
+				"time": "2d 19h 30m"
+			},
+			{
+				"level": 3,
+				"requirements": [],
+				"bread": "4.6M",
+				"wood": "4.6M",
+				"stone": "920K",
+				"iron": "230K",
+				"gold": "55K",
+				"truegold_dust": 188,
+				"time": "3d 20h 30m"
+			},
+			{
+				"level": 4,
+				"requirements": [],
+				"bread": "6.2M",
+				"wood": "6.2M",
+				"stone": "1.2M",
+				"iron": "310K",
+				"gold": "75K",
+				"truegold_dust": 255,
+				"time": "5d 5h"
+			},
+			{
+				"level": 5,
+				"requirements": [],
+				"bread": "8.3M",
+				"wood": "8.3M",
+				"stone": "1.6M",
+				"iron": "410K",
+				"gold": "100K",
+				"truegold_dust": 341,
+				"time": "17h 30m"
+			},
+			{
+				"level": 6,
+				"requirements": [],
+				"bread": "11M",
+				"wood": "11M",
+				"stone": "2.2M",
+				"iron": "560K",
+				"gold": "130K",
+				"truegold_dust": 459,
+				"time": "9d 9h"
+			},
+			{
+				"level": 7,
+				"requirements": [],
+				"bread": "15M",
+				"wood": "15M",
+				"stone": "3M",
+				"iron": "750K",
+				"gold": "180K",
+				"truegold_dust": 612,
+				"time": "12d 12h"
+			},
+			{
+				"level": 8,
+				"requirements": [],
+				"bread": "20M",
+				"wood": "20M",
+				"stone": "4.1M",
+				"iron": "1M",
+				"gold": "240K",
+				"truegold_dust": 836,
+				"time": "17d 2h"
+			},
+			{
+				"level": 9,
+				"requirements": [],
+				"bread": "27M",
+				"wood": "27M",
+				"stone": "5.5M",
+				"iron": "1.3M",
+				"gold": "330K",
+				"truegold_dust": "1.1K",
+				"time": "22d 22h"
+			},
+			{
+				"level": 10,
+				"requirements": [],
+				"bread": "37M",
+				"wood": "37M",
+				"stone": "7.5M",
+				"iron": "1.8M",
+				"gold": "450K",
+				"truegold_dust": "1.5K",
+				"time": "31d 6h"
+			}
+		],
+		"Truegold Archer Training": [
+			{
+				"level": 1,
+				"requirements": [],
+				"bread": "2.5M",
+				"wood": "2.5M",
+				"stone": "500K",
+				"iron": "120K",
+				"gold": "30K",
+				"truegold_dust": 102,
+				"time": "2d 2h"
+			},
+			{
+				"level": 2,
+				"requirements": [],
+				"bread": "3.3M",
+				"wood": "3.3M",
+				"stone": "670K",
+				"iron": "160K",
+				"gold": "40K",
+				"truegold_dust": 137,
+				"time": "2d 19h 30m"
+			},
+			{
+				"level": 3,
+				"requirements": [],
+				"bread": "4.6M",
+				"wood": "4.6M",
+				"stone": "920K",
+				"iron": "230K",
+				"gold": "55K",
+				"truegold_dust": 188,
+				"time": "3d 20h 30m"
+			},
+			{
+				"level": 4,
+				"requirements": [],
+				"bread": "6.2M",
+				"wood": "6.2M",
+				"stone": "1.2M",
+				"iron": "310K",
+				"gold": "75K",
+				"truegold_dust": 255,
+				"time": "5d 5h"
+			},
+			{
+				"level": 5,
+				"requirements": [],
+				"bread": "8.3M",
+				"wood": "8.3M",
+				"stone": "1.6M",
+				"iron": "410K",
+				"gold": "100K",
+				"truegold_dust": 341,
+				"time": "17h 30m"
+			},
+			{
+				"level": 6,
+				"requirements": [],
+				"bread": "11M",
+				"wood": "11M",
+				"stone": "2.2M",
+				"iron": "560K",
+				"gold": "130K",
+				"truegold_dust": 459,
+				"time": "9d 9h"
+			},
+			{
+				"level": 7,
+				"requirements": [],
+				"bread": "15M",
+				"wood": "15M",
+				"stone": "3M",
+				"iron": "750K",
+				"gold": "180K",
+				"truegold_dust": 612,
+				"time": "12d 12h"
+			},
+			{
+				"level": 8,
+				"requirements": [],
+				"bread": "20M",
+				"wood": "20M",
+				"stone": "4.1M",
+				"iron": "1M",
+				"gold": "240K",
+				"truegold_dust": 836,
+				"time": "17d 2h"
+			},
+			{
+				"level": 9,
+				"requirements": [],
+				"bread": "27M",
+				"wood": "27M",
+				"stone": "5.5M",
+				"iron": "1.3M",
+				"gold": "330K",
+				"truegold_dust": "1.1K",
+				"time": "22d 22h"
+			},
+			{
+				"level": 10,
+				"requirements": [],
+				"bread": "37M",
+				"wood": "37M",
+				"stone": "7.5M",
+				"iron": "1.8M",
+				"gold": "450K",
+				"truegold_dust": "1.5K",
+				"time": "31d 6h"
+			}
+		],
+		"Truegold Archer Aid": [
+			{
+				"level": 1,
+				"requirements": [],
+				"bread": "2.5M",
+				"wood": "2.5M",
+				"stone": "500K",
+				"iron": "120K",
+				"gold": "30K",
+				"truegold_dust": 102,
+				"time": "2d 2h"
+			},
+			{
+				"level": 2,
+				"requirements": [],
+				"bread": "3.3M",
+				"wood": "3.3M",
+				"stone": "670K",
+				"iron": "160K",
+				"gold": "40K",
+				"truegold_dust": 137,
+				"time": "2d 19h 30m"
+			},
+			{
+				"level": 3,
+				"requirements": [],
+				"bread": "4.6M",
+				"wood": "4.6M",
+				"stone": "920K",
+				"iron": "230K",
+				"gold": "55K",
+				"truegold_dust": 188,
+				"time": "3d 20h 30m"
+			},
+			{
+				"level": 4,
+				"requirements": [],
+				"bread": "6.2M",
+				"wood": "6.2M",
+				"stone": "1.2M",
+				"iron": "310K",
+				"gold": "75K",
+				"truegold_dust": 255,
+				"time": "5d 5h"
+			},
+			{
+				"level": 5,
+				"requirements": [],
+				"bread": "8.3M",
+				"wood": "8.3M",
+				"stone": "1.6M",
+				"iron": "410K",
+				"gold": "100K",
+				"truegold_dust": 341,
+				"time": "17h 30m"
+			},
+			{
+				"level": 6,
+				"requirements": [],
+				"bread": "11M",
+				"wood": "11M",
+				"stone": "2.2M",
+				"iron": "560K",
+				"gold": "130K",
+				"truegold_dust": 459,
+				"time": "9d 9h"
+			},
+			{
+				"level": 7,
+				"requirements": [],
+				"bread": "15M",
+				"wood": "15M",
+				"stone": "3M",
+				"iron": "750K",
+				"gold": "180K",
+				"truegold_dust": 612,
+				"time": "12d 12h"
+			},
+			{
+				"level": 8,
+				"requirements": [],
+				"bread": "20M",
+				"wood": "20M",
+				"stone": "4.1M",
+				"iron": "1M",
+				"gold": "240K",
+				"truegold_dust": 836,
+				"time": "17d 2h"
+			},
+			{
+				"level": 9,
+				"requirements": [],
+				"bread": "27M",
+				"wood": "27M",
+				"stone": "5.5M",
+				"iron": "1.3M",
+				"gold": "330K",
+				"truegold_dust": "1.1K",
+				"time": "22d 22h"
+			},
+			{
+				"level": 10,
+				"requirements": [],
+				"bread": "37M",
+				"wood": "37M",
+				"stone": "7.5M",
+				"iron": "1.8M",
+				"gold": "450K",
+				"truegold_dust": "1.5K",
+				"time": "31d 6h"
+			}
+		]
+	}
+}
