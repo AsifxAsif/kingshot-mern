@@ -141,6 +141,7 @@ export default function GovGearPage() {
             </div>
             <div className="item-card-body">
               <LevelSelects
+                preserveOrder
                 levels={levels}
                 from={c.from ?? ''}
                 to={c.to ?? ''}

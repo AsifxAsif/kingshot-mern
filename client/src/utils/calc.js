@@ -203,10 +203,8 @@ export function getLevelsFromArray(arr, fields = ['level', 'current_lvl', 'curre
   if (preserveOrder) return ordered;
   // stable numeric / advancement aware sort
   return ordered.sort((a, b) => {
-    const advA = String(a).match(/^(\d+(?:\.\d+)?)[_ ]?Advancement$/i);
-    const advB = String(b).match(/^(\d+(?:\.\d+)?)[_ ]?Advancement$/i);
-    const na = advA ? parseFloat(advA[1]) + 0.5 : parseFloat(String(a).replace(/[^\d.]/g, '')) || 0;
-    const nb = advB ? parseFloat(advB[1]) + 0.5 : parseFloat(String(b).replace(/[^\d.]/g, '')) || 0;
+    const na = convertLevelToNumeric(a);
+    const nb = convertLevelToNumeric(b);
     if (na !== nb) return na - nb;
     return String(a).localeCompare(String(b));
   });
@@ -264,7 +262,8 @@ export function getUpgradeSteps(dataArray, fromLevel, toLevel) {
 /** Original buildings.js convertLevelToNumeric – sorts TG levels correctly */
 export function convertLevelToNumeric(level) {
   if (level === undefined || level === null || level === '') return 0;
-  const levelStr = String(level);
+  const levelStr = String(level).trim();
+  // Original buildings.js: TG1, TG1-1 … TG8
   const tgMatch = levelStr.match(/^TG(\d+)(?:-(\d+))?$/i);
   if (tgMatch) {
     const mainTg = parseInt(tgMatch[1], 10);
@@ -273,8 +272,13 @@ export function convertLevelToNumeric(level) {
     if (subLevel > 0) numericValue += subLevel;
     return numericValue;
   }
+  // Pets: 10_Advancement → 10.5
+  const advMatch = levelStr.match(/^(\d+(?:\.\d+)?)[_ ]?Advancement$/i);
+  if (advMatch) return parseFloat(advMatch[1]) + 0.5;
   const num = parseFloat(levelStr);
-  return isNaN(num) ? 0 : num;
+  if (!Number.isNaN(num) && /^-?\d+(\.\d+)?$/.test(levelStr)) return num;
+  const m = levelStr.match(/(\d+(?:\.\d+)?)/);
+  return m ? parseFloat(m[1]) : 0;
 }
 
 export function sortLevels(levels) {

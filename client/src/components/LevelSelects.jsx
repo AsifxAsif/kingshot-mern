@@ -1,35 +1,26 @@
 /**
- * Current / Target selects — order follows data path (not alpha rank).
- * Supports numeric, TG, stars (Green⭐), and pet "10_Advancement".
+ * Current / Target selects — matches original site ordering:
+ * numeric, TG1/TG1-1…, pet 10_Advancement, gov Green→Blue stars
  */
+import { convertLevelToNumeric } from '../utils/calc';
 
-function isPureNumber(s) {
-  return /^-?\d+(\.\d+)?$/.test(String(s).trim());
-}
-
-function levelRank(v) {
-  const s = String(v);
-  if (isPureNumber(s)) return parseFloat(s);
-  // 10_Advancement → 10.5 so it sits between 10 and 11
-  const adv = s.match(/^(\d+(?:\.\d+)?)[_ ]?Advancement$/i);
-  if (adv) return parseFloat(adv[1]) + 0.5;
-  const m = s.match(/(\d+(?:\.\d+)?)/);
-  return m ? parseFloat(m[1]) : null;
-}
-
-function sortLevels(list) {
+function sortLevels(list, preserveOrder = false) {
   const arr = Array.from(new Set((list || []).map((l) => String(l))));
-  const numericish = arr.filter((l) => levelRank(l) != null).length >= Math.ceil(arr.length * 0.5);
-  if (!numericish) {
-    // Keep original order (gov gear Green → Green⭐ → Blue …)
-    return arr;
-  }
+  if (preserveOrder) return arr;
+  // If values are mostly non-numeric labels (gov gear colors), keep insertion order
+  const numericCount = arr.filter((l) => {
+    const s = String(l).trim();
+    return (
+      /^-?\d+(\.\d+)?$/.test(s) ||
+      /^TG\d+/i.test(s) ||
+      /Advancement/i.test(s)
+    );
+  }).length;
+  if (numericCount < Math.ceil(arr.length * 0.4)) return arr;
   return arr.sort((a, b) => {
-    const ra = levelRank(a);
-    const rb = levelRank(b);
-    if (ra != null && rb != null && ra !== rb) return ra - rb;
-    if (ra != null && rb == null) return -1;
-    if (ra == null && rb != null) return 1;
+    const ra = convertLevelToNumeric(a);
+    const rb = convertLevelToNumeric(b);
+    if (ra !== rb) return ra - rb;
     return String(a).localeCompare(String(b));
   });
 }
@@ -42,8 +33,9 @@ export function LevelSelects({
   onTo,
   highest,
   disabled = false,
+  preserveOrder = false,
 }) {
-  const list = sortLevels(levels || []);
+  const list = sortLevels(levels || [], preserveOrder);
   const maxLevel =
     highest != null && highest !== ''
       ? String(highest)
@@ -56,13 +48,11 @@ export function LevelSelects({
 
   const fromValid = fromStr === '' || list.includes(fromStr);
   const safeFrom = fromValid ? fromStr : '';
-
   const fromIdx = safeFrom === '' ? -1 : list.indexOf(safeFrom);
   const isMaxed = safeFrom !== '' && maxLevel !== '' && safeFrom === maxLevel;
 
-  // Target = any level after current in ordered list (allows 1 → 11, 10 → 10_Advancement)
-  const targetOpts =
-    fromIdx < 0 ? list : list.filter((_, i) => i > fromIdx);
+  // All levels after current in ordered list (1→11, 10→10_Advancement, Green→Blue)
+  const targetOpts = fromIdx < 0 ? list : list.filter((_, i) => i > fromIdx);
 
   const toValid = toStr !== '' && targetOpts.includes(toStr);
   const safeTo = isMaxed ? maxLevel : toValid ? toStr : '';
