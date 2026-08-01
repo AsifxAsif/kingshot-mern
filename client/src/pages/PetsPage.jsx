@@ -3,6 +3,8 @@ import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
 import { parseCost, formatNumber, getUpgradeSteps, getLevelsFromArray, SCORE_RULES } from '../utils/calc';
 import AssetImg from '../components/AssetImg';
+import CostStatus from '../components/CostStatus';
+import { computeAffordability } from '../utils/resources';
 import { LevelSelects } from '../components/LevelSelects';
 import { petImg } from '../utils/images';
 
@@ -58,7 +60,7 @@ export default function PetsPage() {
       <div className="cards-grid">
         {petNames.map((name) => {
           const rows = root[name] || [];
-          const levels = getLevelsFromArray(rows);
+          const levels = getLevelsFromArray(rows, ['level', 'current_lvl', 'current', 'target_lvl', 'target'], { includeZero: true });
           const s = petsState[name] || {};
           const steps = s.to ? getUpgradeSteps(rows, s.from ?? '0', s.to) : [];
           const costs = {};

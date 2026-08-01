@@ -182,20 +182,33 @@ export function sumStepCosts(steps, resourceKeys) {
   return costs;
 }
 
-export function getLevelsFromArray(arr, fields = ['level', 'current_lvl', 'current', 'target_lvl', 'target'], { includeZero = true } = {}) {
+export function getLevelsFromArray(arr, fields = ['level', 'current_lvl', 'current', 'target_lvl', 'target'], { includeZero = true, preserveOrder = false } = {}) {
+  const ordered = [];
   const set = new Set();
-  if (includeZero) set.add('0');
+  const push = (v) => {
+    const s = String(v);
+    if (!set.has(s)) {
+      set.add(s);
+      ordered.push(s);
+    }
+  };
+  if (includeZero) push('0');
   for (const item of arr || []) {
     for (const f of fields) {
       if (item[f] !== undefined && item[f] !== null && item[f] !== '') {
-        set.add(String(item[f]));
+        push(item[f]);
       }
     }
   }
-  return Array.from(set).sort((a, b) => {
-    const na = parseFloat(String(a).replace(/[^\d.]/g, '')) || 0;
-    const nb = parseFloat(String(b).replace(/[^\d.]/g, '')) || 0;
-    return na - nb;
+  if (preserveOrder) return ordered;
+  // stable numeric / advancement aware sort
+  return ordered.sort((a, b) => {
+    const advA = String(a).match(/^(\d+(?:\.\d+)?)[_ ]?Advancement$/i);
+    const advB = String(b).match(/^(\d+(?:\.\d+)?)[_ ]?Advancement$/i);
+    const na = advA ? parseFloat(advA[1]) + 0.5 : parseFloat(String(a).replace(/[^\d.]/g, '')) || 0;
+    const nb = advB ? parseFloat(advB[1]) + 0.5 : parseFloat(String(b).replace(/[^\d.]/g, '')) || 0;
+    if (na !== nb) return na - nb;
+    return String(a).localeCompare(String(b));
   });
 }
 

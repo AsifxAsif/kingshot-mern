@@ -8,20 +8,15 @@ function userFilter(req) {
 
 export const listPresets = async (req, res) => {
   try {
-    const filter = userFilter(req);
-    let presets = await Preset.find(filter).select('name updatedAt').sort({ name: 1 }).lean();
-    if (!req.user) {
-      presets = presets.filter((p) => p.name === 'default');
+    if (!req.user?.id) {
+      return res.json([]);
     }
-    if (!presets.length) {
-      const created = await Preset.findOneAndUpdate(
-        { ...filter, name: 'default' },
-        { $setOnInsert: { name: 'default', userId: req.user?.id || null } },
-        { upsert: true, new: true }
-      ).select('name updatedAt').lean();
-      presets = created ? [created] : [];
-    }
-    res.json(presets);
+    const presets = await Preset.find({ userId: req.user.id })
+      .select('name username gameId updatedAt')
+      .sort({ name: 1 })
+      .lean();
+    // Never return a synthetic default from DB
+    res.json(presets.filter((p) => p.name !== 'default'));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -30,16 +25,13 @@ export const listPresets = async (req, res) => {
 export const getPreset = async (req, res) => {
   try {
     const name = sanitizePresetName(req.params.name);
-    if (!name) return res.status(400).json({ message: 'Invalid preset name' });
-    if (!req.user && name !== 'default') {
+    if (!name || name === 'default') {
+      return res.status(400).json({ message: 'Invalid preset name' });
+    }
+    if (!req.user) {
       return res.status(401).json({ message: 'Login required', code: 'AUTH_REQUIRED' });
     }
-    const filter = { ...userFilter(req), name };
-    let preset = await Preset.findOne(filter).lean();
-    if (!preset && name === 'default') {
-      preset = await Preset.create({ name: 'default', userId: req.user?.id || null });
-      preset = preset.toObject();
-    }
+    const preset = await Preset.findOne({ userId: req.user.id, name }).lean();
     if (!preset) return res.status(404).json({ message: 'Preset not found' });
     res.json(preset);
   } catch (error) {
@@ -51,25 +43,33 @@ export const createPreset = async (req, res) => {
   try {
     assertNoOperators(req.body || {});
     const name = sanitizePresetName(req.body?.name);
-    if (!name) return res.status(400).json({ message: 'Invalid preset name' });
-    if (name !== 'default' && !req.user) {
+    if (!name || name === 'default') {
+      return res.status(400).json({ message: 'Invalid preset name' });
+    }
+    if (!req.user) {
       return res.status(401).json({ message: 'Login required', code: 'AUTH_REQUIRED' });
     }
-    const userId = req.user?.id || null;
+    const userId = req.user.id;
     const existing = await Preset.findOne({ userId, name });
     if (existing) return res.status(409).json({ message: 'Preset already exists' });
 
-    const base =
-      (await Preset.findOne({ userId, name: 'default' }).lean()) ||
-      (await Preset.findOne({ userId: null, name: 'default' }).lean()) ||
-      {};
-    const { _id, name: _n, userId: _u, createdAt, updatedAt, ...rest } = base;
+    const {
+      _id,
+      name: _n,
+      userId: _u,
+      createdAt,
+      updatedAt,
+      __v,
+      ...rest
+    } = req.body || {};
 
     const preset = await Preset.create({
       ...rest,
       name,
       userId,
-      vault: rest.vault || {},
+      username: req.body.username || req.user.username || '',
+      gameId: req.body.gameId || '',
+      vault: req.body.vault || {},
     });
     res.status(201).json(preset);
   } catch (error) {
@@ -81,11 +81,12 @@ export const updatePreset = async (req, res) => {
   try {
     assertNoOperators(req.body || {});
     const name = sanitizePresetName(req.params.name);
-    if (!name) return res.status(400).json({ message: 'Invalid preset name' });
-    if (!req.user && name !== 'default') {
+    if (!name || name === 'default') {
+      return res.status(400).json({ message: 'Invalid preset name' });
+    }
+    if (!req.user) {
       return res.status(401).json({ message: 'Login required', code: 'AUTH_REQUIRED' });
     }
-    const filter = { ...userFilter(req), name };
     const allowed = { ...req.body };
     delete allowed._id;
     delete allowed.name;
@@ -93,17 +94,15 @@ export const updatePreset = async (req, res) => {
     delete allowed.__v;
     delete allowed.createdAt;
     delete allowed.updatedAt;
+    if (req.body.username != null) allowed.username = String(req.body.username);
+    if (req.body.gameId != null) allowed.gameId = String(req.body.gameId);
 
     const preset = await Preset.findOneAndUpdate(
-      filter,
+      { userId: req.user.id, name },
       { $set: allowed },
-      { new: true, upsert: name === 'default', setDefaultsOnInsert: true }
+      { new: true }
     );
     if (!preset) return res.status(404).json({ message: 'Preset not found' });
-    if (!preset.userId && req.user?.id) {
-      preset.userId = req.user.id;
-      await preset.save();
-    }
     res.json(preset);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -113,8 +112,9 @@ export const updatePreset = async (req, res) => {
 export const deletePreset = async (req, res) => {
   try {
     const name = sanitizePresetName(req.params.name);
-    if (!name) return res.status(400).json({ message: 'Invalid preset name' });
-    if (name === 'default') return res.status(400).json({ message: 'Cannot delete default' });
+    if (!name || name === 'default') {
+      return res.status(400).json({ message: 'Cannot delete default' });
+    }
     if (!req.user) return res.status(401).json({ message: 'Login required', code: 'AUTH_REQUIRED' });
     const result = await Preset.findOneAndDelete({ userId: req.user.id, name });
     if (!result) return res.status(404).json({ message: 'Preset not found' });

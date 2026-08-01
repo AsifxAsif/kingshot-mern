@@ -42,14 +42,8 @@ async function seed() {
     console.log(`  ✓ ${key}`);
   }
 
-  // Ensure default preset exists
-  const existing = await Preset.findOne({ name: 'default' });
-  if (!existing) {
-    await Preset.create({ name: 'default', vault: {} });
-    console.log('  ✓ default preset created');
-  } else {
-    console.log('  ✓ default preset already exists');
-  }
+  // Default preset is client-only (localStorage) — do not seed into MongoDB
+  console.log('  ✓ skipped DB default preset (local only)');
 
   console.log('\nSeed complete.');
   process.exit(0);

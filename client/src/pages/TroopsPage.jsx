@@ -67,29 +67,40 @@ export default function TroopsPage() {
         }
       }
 
-      // Promotion
+      // Promotion — sum all steps from → to (e.g. 1→11)
       const pKey = `promo_${type}`;
       const p = troopsState[pKey] || {};
       const from = parseInt(p.from, 10) || 0;
       const to = parseInt(p.to, 10) || 0;
       const pQty = parseFloat(p.qty) || 0;
       if (from > 0 && to > from && pQty > 0) {
-        const row = (promoting[type] || []).find(
-          (r) => r.current_lvl === from && r.target_lvl === to
-        );
-        if (row) {
+        const rows = promoting[type] || [];
+        const chain = [];
+        let cur = from;
+        for (let guard = 0; guard < 20 && cur < to; guard++) {
+          const row = rows.find((r) => Number(r.current_lvl) === cur);
+          if (!row) break;
+          chain.push(row);
+          cur = Number(row.target_lvl);
+          if (cur === to) break;
+        }
+        if (chain.length && Number(chain[chain.length - 1].target_lvl) === to) {
           const costs = {};
-          for (const k of ['bread', 'wood', 'stone', 'iron', 'gold', 'truegold']) {
-            if (row[k] != null) costs[k] = parseCost(row[k]) * pQty;
+          let timeSec = 0;
+          for (const row of chain) {
+            for (const k of ['bread', 'wood', 'stone', 'iron', 'gold', 'truegold']) {
+              if (row[k] != null) costs[k] = (costs[k] || 0) + parseCost(row[k]) * pQty;
+            }
+            timeSec += parseTimeToSeconds(row.time) * pQty;
           }
           const points =
-            ((SCORE_RULES.troops[to] || 0) - (SCORE_RULES.troops[from] || 0)) * pQty;
-          const timeSec = parseTimeToSeconds(row.time) * pQty;
+            ((SCORE_RULES.troops?.[to] || SCORE_RULES[`troop_${to}`] || 0) -
+              (SCORE_RULES.troops?.[from] || SCORE_RULES[`troop_${from}`] || 0)) * pQty;
           out.cards[pKey] = {
             costs,
             points: Math.max(0, points),
             timeSec,
-            label: `${type} T${from}→T${to} ×${pQty}`,
+            label: `${type} T${from}→T${to} ×${pQty} (${chain.length} steps)`,
           };
           if (p.active) {
             out.totalPoints += Math.max(0, points);
@@ -99,7 +110,7 @@ export default function TroopsPage() {
             if (p.speedup && timeSec > 0) {
               const mins = Math.ceil(timeSec / 60);
               out.totalCosts.training_speedup = (out.totalCosts.training_speedup || 0) + mins;
-              out.totalPoints += mins * SCORE_RULES.speedup_min;
+              out.totalPoints += mins * (SCORE_RULES.speedup_min || 0);
             }
           }
         }
@@ -148,7 +159,7 @@ export default function TroopsPage() {
                   </select>
                   <input
                     type="text"
-                    placeholder="Qty"
+                    placeholder="Qty" className="hero-shard-input"
                     value={s.qty || ''}
                     onChange={(e) => setField(key, 'qty', e.target.value.replace(/[^0-9.]/g, ''))}
                   />
@@ -210,11 +221,12 @@ export default function TroopsPage() {
           const key = `promo_${type}`;
           const s = troopsState[key] || {};
           const rows = promoting[type] || [];
-          const fromLevels = [...new Set(rows.map((r) => r.current_lvl))].sort((a, b) => a - b);
-          const toLevels = rows
-            .filter((r) => !s.from || r.current_lvl === parseInt(s.from, 10))
-            .map((r) => r.target_lvl)
-            .filter((t) => !s.from || t > parseInt(s.from, 10));
+          const fromLevels = [...new Set(rows.map((r) => Number(r.current_lvl)))].sort((a, b) => a - b);
+          const allTargets = [...new Set(rows.map((r) => Number(r.target_lvl)))].sort((a, b) => a - b);
+          const fromN = s.from ? parseInt(s.from, 10) : 0;
+          const toLevels = fromN
+            ? allTargets.filter((t) => t > fromN)
+            : allTargets;
           const card = results.cards[key];
           return (
             <div className="item-card" key={key}>
@@ -223,7 +235,14 @@ export default function TroopsPage() {
                 <div className="level-controls">
                   <select
                     value={s.from || ''}
-                    onChange={(e) => setField(key, 'from', e.target.value)}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setField(key, 'from', v);
+                      const n = parseInt(v, 10);
+                      const next = allTargets.find((t) => t > n);
+                      setField(key, 'to', next != null ? String(next) : '');
+                      setField(key, 'active', false);
+                    }}
                   >
                     <option value="">From</option>
                     {fromLevels.map((l) => (
@@ -242,7 +261,7 @@ export default function TroopsPage() {
                 </div>
                 <input
                   type="text"
-                  placeholder="Qty to promote"
+                  placeholder="Qty to promote" className="hero-shard-input"
                   value={s.qty || ''}
                   onChange={(e) => setField(key, 'qty', e.target.value.replace(/[^0-9.]/g, ''))}
                   style={{ width: '100%', marginTop: 8, textAlign: 'center' }}

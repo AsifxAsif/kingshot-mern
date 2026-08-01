@@ -1,61 +1,28 @@
-import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   listPresets,
   getPreset,
   createPreset as apiCreate,
   updatePreset as apiUpdate,
   deletePreset as apiDelete,
-  resetPreset as apiReset,
 } from '../services/api';
+import { calcVaultScore } from '../utils/calc';
+import { useAuth } from './AuthContext';
 
 const AppContext = createContext(null);
 
-// Same page score keys as original app.js (score_buildings, score_troops, ...)
-export const PAGE_SCORE_KEYS = {
-  buildings: 'score_buildings',
-  warAcademy: 'score_academy',
-  widgets: 'score_widgets',
-  heroes: 'score_heroes',
-  heroGear: 'score_herogear',
-  govGear: 'score_govgear',
-  govCharm: 'score_govcharm',
-  pets: 'score_pets',
-  troops: 'score_troops',
-  misc: 'score_misc',
-};
+const ACTIVE_KEY = 'kingshot_active_preset';
+const DEFAULT_LOCAL_KEY = 'kingshot_default_state';
 
-// Which state keys belong to each route (page-only reset)
-export const PAGE_STATE_KEYS = {
-  '/': ['vault'],
-  '/buildings': ['buildings'],
-  '/war-academy': ['warAcademy'],
-  '/widgets': ['widgets', 'heroWidgets'],
-  '/heroes': ['heroes', 'heroShards', 'heroFlowers'],
-  '/hero-gear': ['heroGear'],
-  '/gov-gear': ['govGear'],
-  '/gov-charm': ['govCharm'],
-  '/pets': ['pets'],
-  '/troops': ['troops'],
-  '/misc': ['misc'],
-  '/profile': [],
-};
-
-export const PAGE_SCORE_RESET = {
-  '/': null,
-  '/buildings': 'score_buildings',
-  '/war-academy': 'score_academy',
-  '/widgets': 'score_widgets',
-  '/heroes': 'score_heroes',
-  '/hero-gear': 'score_herogear',
-  '/gov-gear': 'score_govgear',
-  '/gov-charm': 'score_govcharm',
-  '/pets': 'score_pets',
-  '/troops': 'score_troops',
-  '/misc': 'score_misc',
-};
-
-
-const emptyState = () => ({
+const EMPTY_STATE = {
   vault: {},
   troops: {},
   buildings: {},
@@ -68,203 +35,362 @@ const emptyState = () => ({
   widgets: {},
   misc: {},
   heroShards: {},
-  heroFlowers: {},
   heroWidgets: {},
+  heroFlowers: {},
   lockedUpgrades: {},
   settings: {},
   pageScores: {},
-});
+};
 
-function sumPageScores(pageScores = {}) {
-  let total = 0;
-  for (const key of Object.values(PAGE_SCORE_KEYS)) {
-    total += parseInt(pageScores[key] || 0, 10) || 0;
+const PAGE_SCORE_RESET = {
+  '/': 'vault',
+  '/buildings': 'buildings',
+  '/troops': 'troops',
+  '/war-academy': 'warAcademy',
+  '/heroes': 'heroes',
+  '/hero-gear': 'heroGear',
+  '/gov-gear': 'govGear',
+  '/gov-charm': 'govCharm',
+  '/widgets': 'widgets',
+  '/pets': 'pets',
+  '/misc': 'misc',
+};
+
+function loadLocalDefault() {
+  try {
+    const raw = localStorage.getItem(DEFAULT_LOCAL_KEY);
+    if (!raw) return { ...EMPTY_STATE };
+    return { ...EMPTY_STATE, ...JSON.parse(raw) };
+  } catch {
+    return { ...EMPTY_STATE };
   }
-  return total;
+}
+
+function saveLocalDefault(state) {
+  try {
+    localStorage.setItem(DEFAULT_LOCAL_KEY, JSON.stringify(state));
+  } catch {
+    /* ignore quota */
+  }
+}
+
+function getSavedActiveName() {
+  try {
+    return localStorage.getItem(ACTIVE_KEY) || 'default';
+  } catch {
+    return 'default';
+  }
+}
+
+function setSavedActiveName(name) {
+  try {
+    localStorage.setItem(ACTIVE_KEY, name);
+  } catch {
+    /* */
+  }
 }
 
 export function AppProvider({ children }) {
-  const [presetList, setPresetList] = useState([]);
-  const [currentName, setCurrentName] = useState('default');
-  const [state, setState] = useState(emptyState());
-  const [globalScore, setGlobalScore] = useState(0);
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [presetList, setPresetList] = useState([]);
+  const [currentName, setCurrentName] = useState(() => getSavedActiveName());
+  const [state, setState] = useState(() =>
+    getSavedActiveName() === 'default' ? loadLocalDefault() : { ...EMPTY_STATE }
+  );
   const saveTimer = useRef(null);
+  const currentNameRef = useRef(currentName);
+  currentNameRef.current = currentName;
 
+  const applyPresetDoc = (doc) => {
+    if (!doc) {
+      setState({ ...EMPTY_STATE });
+      return;
+    }
+    setState({
+      ...EMPTY_STATE,
+      vault: doc.vault || {},
+      troops: doc.troops || {},
+      buildings: doc.buildings || {},
+      heroes: doc.heroes || {},
+      heroGear: doc.heroGear || {},
+      govGear: doc.govGear || {},
+      govCharm: doc.govCharm || {},
+      pets: doc.pets || {},
+      warAcademy: doc.warAcademy || {},
+      widgets: doc.widgets || {},
+      misc: doc.misc || {},
+      heroShards: doc.heroShards || {},
+      heroWidgets: doc.heroWidgets || {},
+      heroFlowers: doc.heroFlowers || {},
+      lockedUpgrades: doc.lockedUpgrades || {},
+      settings: doc.settings || {},
+      pageScores: doc.pageScores || {},
+    });
+  };
+
+  const refreshList = useCallback(async () => {
+    if (!user) {
+      setPresetList([{ name: 'default' }]);
+      return [{ name: 'default' }];
+    }
+    try {
+      const list = await listPresets();
+      // Never treat server "default" as required — filter optional legacy rows
+      const cleaned = (list || []).filter((p) => p.name && p.name !== 'default');
+      const withDefault = [{ name: 'default' }, ...cleaned];
+      setPresetList(withDefault);
+      return withDefault;
+    } catch (err) {
+      console.error('Failed to load presets:', err);
+      setPresetList([{ name: 'default' }]);
+      return [{ name: 'default' }];
+    }
+  }, [user]);
+
+  // Initial load
   useEffect(() => {
+    let cancelled = false;
     (async () => {
-      try {
-        let list = await listPresets();
-        if (!list.length) {
-          await apiCreate('default');
-          list = await listPresets();
+      setLoading(true);
+      const list = await refreshList();
+      const wanted = getSavedActiveName();
+      const exists =
+        wanted === 'default' || list.some((p) => p.name === wanted);
+
+      if (!cancelled) {
+        if (!exists || wanted === 'default') {
+          setCurrentName('default');
+          setSavedActiveName('default');
+          setState(loadLocalDefault());
+        } else {
+          try {
+            const doc = await getPreset(wanted);
+            setCurrentName(wanted);
+            setSavedActiveName(wanted);
+            applyPresetDoc(doc);
+          } catch {
+            setCurrentName('default');
+            setSavedActiveName('default');
+            setState(loadLocalDefault());
+          }
         }
-        setPresetList(list);
-        const name = list.find((p) => p.name === 'default')?.name || list[0].name;
-        setCurrentName(name);
-        const full = await getPreset(name);
-        const merged = { ...emptyState(), ...full };
-        setState(merged);
-        setGlobalScore(sumPageScores(merged.pageScores));
-      } catch (err) {
-        console.error('Failed to load presets from MongoDB:', err);
-      } finally {
         setLoading(false);
       }
     })();
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [user, refreshList]);
 
-  // Keep global score in sync with pageScores
-  useEffect(() => {
-    setGlobalScore(sumPageScores(state.pageScores));
-  }, [state.pageScores]);
-
-  const scheduleSave = useCallback((name, patch) => {
-    if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(async () => {
-      setSaving(true);
-      try {
-        await apiUpdate(name, patch);
-      } catch (err) {
-        console.error('Save to MongoDB failed:', err);
-      } finally {
-        setSaving(false);
-      }
-    }, 400);
-  }, []);
+  const scheduleSave = useCallback(
+    (name, patch) => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      saveTimer.current = setTimeout(async () => {
+        if (name === 'default') {
+          // already persisted in updateSection via saveLocalDefault
+          return;
+        }
+        if (!user) return;
+        setSaving(true);
+        try {
+          await apiUpdate(name, {
+            ...patch,
+            username: user.username || '',
+            gameId: user.gameId || '',
+          });
+        } catch (e) {
+          console.error('Save failed', e);
+        } finally {
+          setSaving(false);
+        }
+      }, 400);
+    },
+    [user]
+  );
 
   const updateSection = useCallback(
-    (section, valueOrUpdater) => {
+    (section, valueOrFn) => {
       setState((prev) => {
-        const nextVal =
-          typeof valueOrUpdater === 'function' ? valueOrUpdater(prev[section] || {}) : valueOrUpdater;
-        const next = { ...prev, [section]: nextVal };
-        scheduleSave(currentName, { [section]: nextVal });
+        const prevSec = prev[section] || {};
+        const nextSec =
+          typeof valueOrFn === 'function' ? valueOrFn(prevSec) : valueOrFn;
+        const next = { ...prev, [section]: nextSec };
+        if (currentNameRef.current === 'default') {
+          saveLocalDefault(next);
+        } else {
+          scheduleSave(currentNameRef.current, { [section]: nextSec });
+        }
         return next;
       });
     },
-    [currentName, scheduleSave]
+    [scheduleSave]
   );
 
-  /**
-   * Save a page's active score (like original saveCurrentPageScore).
-   * pageKey: 'troops' | 'buildings' | ...  OR full key 'score_troops'
-   */
   const setPageScore = useCallback(
-    (pageKey, score) => {
-      const storageKey = PAGE_SCORE_KEYS[pageKey] || pageKey;
-      const num = Math.round(Number(score) || 0);
+    (key, score) => {
       setState((prev) => {
-        const prevNum = Math.round(Number(prev.pageScores?.[storageKey] || 0));
-        if (prevNum === num) return prev;
-        const pageScores = { ...(prev.pageScores || {}), [storageKey]: num };
-        scheduleSave(currentName, { pageScores });
-        return { ...prev, pageScores };
+        const pageScores = { ...(prev.pageScores || {}), [key]: score };
+        const next = { ...prev, pageScores };
+        if (currentNameRef.current === 'default') {
+          saveLocalDefault(next);
+        } else {
+          scheduleSave(currentNameRef.current, { pageScores });
+        }
+        return next;
       });
     },
-    [currentName, scheduleSave]
+    [scheduleSave]
   );
 
-  const switchPreset = useCallback(async (name) => {
-    setLoading(true);
-    try {
-      const full = await getPreset(name);
-      const merged = { ...emptyState(), ...full };
-      setCurrentName(name);
-      setState(merged);
-      setGlobalScore(sumPageScores(merged.pageScores));
-    } catch (err) {
-      console.error(err);
-      alert('Failed to load preset from database');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const switchPreset = useCallback(
+    async (name) => {
+      setLoading(true);
+      try {
+        setSavedActiveName(name);
+        setCurrentName(name);
+        if (name === 'default') {
+          setState(loadLocalDefault());
+        } else {
+          const doc = await getPreset(name);
+          applyPresetDoc(doc);
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Failed to load preset');
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
 
   const createPreset = useCallback(
     async (name) => {
-      if (!name?.trim()) return;
+      if (!user) {
+        alert('Login required to create a preset');
+        return;
+      }
+      const n = String(name || '').trim();
+      if (!n || n === 'default') {
+        alert('Choose a different preset name');
+        return;
+      }
       try {
-        await apiCreate(name.trim());
-        const list = await listPresets();
-        setPresetList(list);
-        await switchPreset(name.trim());
-      } catch (err) {
-        alert(err.response?.data?.message || err.message);
+        // Snapshot current calculator state into the new preset
+        const body = {
+          name: n,
+          username: user.username || '',
+          gameId: user.gameId || '',
+          vault: state.vault,
+          troops: state.troops,
+          buildings: state.buildings,
+          heroes: state.heroes,
+          heroGear: state.heroGear,
+          govGear: state.govGear,
+          govCharm: state.govCharm,
+          pets: state.pets,
+          warAcademy: state.warAcademy,
+          widgets: state.widgets,
+          misc: state.misc,
+          heroShards: state.heroShards,
+          heroWidgets: state.heroWidgets,
+          heroFlowers: state.heroFlowers,
+          settings: state.settings,
+          pageScores: state.pageScores,
+        };
+        await apiCreate(body);
+        await refreshList();
+        setSavedActiveName(n);
+        setCurrentName(n);
+        // stay on same state (already copied)
+      } catch (e) {
+        alert(e.message || 'Create failed');
       }
     },
-    [switchPreset]
+    [user, state, refreshList]
   );
 
   const deletePreset = useCallback(
     async (name) => {
       if (name === 'default') {
-        alert('Cannot delete default preset');
+        if (!confirm('Clear local default preset data?')) return;
+        saveLocalDefault({ ...EMPTY_STATE });
+        if (currentNameRef.current === 'default') setState({ ...EMPTY_STATE });
         return;
       }
+      if (!user) return;
+      if (!confirm(`Delete preset "${name}"?`)) return;
       try {
         await apiDelete(name);
-        const list = await listPresets();
-        setPresetList(list);
-        await switchPreset('default');
-      } catch (err) {
-        alert(err.response?.data?.message || err.message);
+        const list = await refreshList();
+        if (currentNameRef.current === name) {
+          setSavedActiveName('default');
+          setCurrentName('default');
+          setState(loadLocalDefault());
+        }
+      } catch (e) {
+        alert(e.message || 'Delete failed');
       }
     },
-    [switchPreset]
+    [user, refreshList]
   );
 
-  const resetCurrentPage = useCallback(
-    async (pathname) => {
-      const path = pathname || '/';
-      const keys = PAGE_STATE_KEYS[path];
-      if (!keys || keys.length === 0) {
-        alert('Nothing to reset on this page.');
-        return;
-      }
-      const label = path === '/' ? 'Vault' : path.replace('/', '').replace(/-/g, ' ');
-      if (!confirm(`Reset only the "${label}" page selections? Other pages stay unchanged.`)) return;
+  const resetCurrentPage = useCallback(() => {
+    const path = window.location.pathname || '/';
+    const scoreKey = PAGE_SCORE_RESET[path];
+    let keys = [];
+    if (path === '/' || path === '') keys = ['vault'];
+    else if (path.includes('building')) keys = ['buildings'];
+    else if (path.includes('troop')) keys = ['troops'];
+    else if (path.includes('war')) keys = ['warAcademy'];
+    else if (path.includes('hero-gear')) keys = ['heroGear'];
+    else if (path.includes('hero')) keys = ['heroes', 'heroShards', 'heroFlowers'];
+    else if (path.includes('gov-gear')) keys = ['govGear'];
+    else if (path.includes('gov-charm')) keys = ['govCharm'];
+    else if (path.includes('widget')) keys = ['widgets', 'heroWidgets'];
+    else if (path.includes('pet')) keys = ['pets'];
+    else if (path.includes('misc')) keys = ['misc'];
+    else keys = [];
 
-      setState((prev) => {
-        const next = { ...prev };
-        for (const k of keys) {
-          if (k === 'vault') next.vault = {};
-          else if (k === 'heroShards') next.heroShards = {};
-          else if (k === 'heroWidgets') next.heroWidgets = {};
-          else if (k === 'heroFlowers') next.heroFlowers = {};
-          else next[k] = {};
-        }
-        // Clear page-related buff settings
-        if (path === '/buildings' && next.settings) {
-          next.settings = { ...next.settings, buildingBuff: undefined, saul: undefined, pans: undefined, wolf: undefined, kingPos: undefined, groundWorks: undefined, doubleTime: undefined };
-        }
-        if (path === '/war-academy' && next.settings) {
-          next.settings = { ...next.settings, researchBuff: undefined, researchKing: undefined, freshIdeas: undefined };
-        }
-        if (path === '/troops' && next.settings) {
-          next.settings = { ...next.settings, trainingBuff: undefined, trainingKing: undefined };
-        }
-        if (path === '/misc' && next.settings) {
-          next.settings = { ...next.settings, gatherBuff: undefined };
-        }
-        const scoreKey = PAGE_SCORE_RESET[path];
-        if (scoreKey) {
-          next.pageScores = { ...(prev.pageScores || {}), [scoreKey]: 0 };
-        }
-        // Persist only changed slices
+    const label = path === '/' ? 'Vault' : path.replace('/', '').replace(/-/g, ' ');
+    if (!confirm(`Reset only the "${label}" page?`)) return;
+
+    setState((prev) => {
+      const next = { ...prev };
+      for (const k of keys) {
+        if (k === 'vault') next.vault = {};
+        else next[k] = {};
+      }
+      if (scoreKey) {
+        next.pageScores = { ...(prev.pageScores || {}), [scoreKey]: 0 };
+      }
+      if (currentNameRef.current === 'default') {
+        saveLocalDefault(next);
+      } else {
         const patch = {};
         for (const k of keys) patch[k] = next[k];
         if (scoreKey) patch.pageScores = next.pageScores;
-        scheduleSave(currentName, patch);
-        return next;
-      });
-    },
-    [currentName, scheduleSave]
-  );
+        scheduleSave(currentNameRef.current, patch);
+      }
+      return next;
+    });
+  }, [scheduleSave]);
 
-  // legacy name kept for any callers
-  const resetCurrent = resetCurrentPage;
+  const globalScore = useMemo(() => {
+    const vaultScore = calcVaultScore(state.vault || {});
+    const pages = Object.values(state.pageScores || {}).reduce(
+      (s, n) => s + (Number(n) || 0),
+      0
+    );
+    // Prefer page scores when set; vault always included once via vault page score or calc
+    const pageVault = Number(state.pageScores?.vault);
+    if (pageVault === pageVault) {
+      return pages;
+    }
+    return vaultScore + pages;
+  }, [state.vault, state.pageScores]);
 
   const value = {
     loading,
@@ -276,7 +402,8 @@ export function AppProvider({ children }) {
     switchPreset,
     createPreset,
     deletePreset,
-    resetCurrent, resetCurrentPage,
+    resetCurrent: resetCurrentPage,
+    resetCurrentPage,
     updateSection,
     setPageScore,
     vault: state.vault,

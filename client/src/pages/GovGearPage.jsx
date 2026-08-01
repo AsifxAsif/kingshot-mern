@@ -153,7 +153,7 @@ export default function GovGearPage() {
                   type="checkbox"
                   checked={!!c.s.active && c.canAfford}
                   disabled={!c.to || !c.canAfford}
-                  onChange={(e) => setPiece(c.piece, 'active', e.target.checked)}
+                  onChange={(e) => setPiece(c.name, 'active', e.target.checked)}
                 />{' '}
                 Upgrade
               </label>

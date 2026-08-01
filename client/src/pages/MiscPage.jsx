@@ -229,7 +229,7 @@ export default function MiscPage() {
               <AssetImg src={asset('grip_of_the_titan.webp')} size={22} /> Bison Grip (uses)
             </label>
             <select value={String(bisonGrip)} onChange={(e) => setField('bisonGrip', e.target.value)}>
-              {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+              {[0, 1, 2].map((n) => (
                 <option key={n} value={n}>{n === 0 ? 'Off' : n}</option>
               ))}
             </select>
