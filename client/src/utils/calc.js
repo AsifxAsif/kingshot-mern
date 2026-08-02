@@ -2,12 +2,14 @@
 export function parseCost(val) {
 	if (val == null || val === '') return 0;
 	if (typeof val === 'number') return val;
-	let str = String(val).toUpperCase().trim().replace(/,/g, '');
-	str = str.replace(/\s+(?=[KMB])/g, '');
-	if (str.endsWith('B')) return parseFloat(str) * 1e9 || 0;
-	if (str.endsWith('M')) return parseFloat(str) * 1e6 || 0;
-	if (str.endsWith('K')) return parseFloat(str) * 1e3 || 0;
-	return parseFloat(str) || 0;
+	const str = String(val).trim();
+	if (!str) return 0;
+	// If it contains time units (d, h, m, s), parse to minutes
+	if (/[dhms]/i.test(str) && /\d/.test(str)) {
+		return parseTimeToMinutes(str);
+	}
+	// Delegate K/M/B/number parsing to parseResourceValue
+	return parseResourceValue(str);
 }
 export function parseTimeToSeconds(timeStr) {
 	if (timeStr == null || timeStr === '') return 0;

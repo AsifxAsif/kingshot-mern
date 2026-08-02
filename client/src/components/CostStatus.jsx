@@ -1,4 +1,4 @@
-import { formatNumber, formatSecondsToTime, parseResourceValue } from '../utils/calc';
+import { formatNumber, formatSecondsToTime, parseResourceValue, parseCost } from '../utils/calc';
 import { computeAffordability } from '../utils/resources';
 import AssetImg from './AssetImg';
 import { resourceImg } from '../utils/images';
@@ -48,7 +48,7 @@ export default function CostStatus({
           {Object.entries(costs || {}).map(([key, amt]) => {
             if (key.startsWith('_')) return null;
             const have = parseResourceValue(vault?.[key]);
-            const need = parseFloat(amt) || 0;
+            const need = parseCost(amt); // Fix: use parseCost instead of parseFloat(amt)
             const left = have - need;
             const deficit = left < 0;
             const isSpeedup = key.includes('speedup');
