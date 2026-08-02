@@ -1,199 +1,228 @@
 /* SPA layout only — visual design from original-style.css (includes mobile breakpoints) */
-
-html { box-sizing: border-box; }
-*, *::before, *::after { box-sizing: inherit; }
-
+html {
+	box-sizing: border-box;
+}
+*, *::before, *::after {
+	box-sizing: inherit;
+}
 /* Match original body: centered column, full min-height */
 body {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  min-height: 100vh !important;
-  margin: 0 !important;
-  padding: 12px 12px 24px !important;
-  width: 100%;
-  overflow-x: hidden;
+	display: flex !important;
+	flex-direction: column !important;
+	align-items: center !important;
+	min-height: 100vh !important;
+	margin: 0 !important;
+	padding: 12px 12px 24px !important;
+	width: 100%;
+	overflow-x: hidden;
 }
-
 #root {
-  width: 100%;
-  max-width: 1400px;
+	width: 100%;
+	max-width: 1400px;
 }
-
 .app {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
 }
-
 .app-container,
 main.app-container {
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 0 24px;
+	width: 100%;
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 0 0 24px;
 }
-
 a.nav-link {
-  display: inline-block;
-  text-decoration: none;
-  cursor: pointer;
+	display: inline-block;
+	text-decoration: none;
+	cursor: pointer;
 }
-
 .nav-links.show {
-  display: flex !important;
+	display: flex !important;
 }
-
 .page-loading,
 .page-error {
-  text-align: center;
-  padding: 48px 16px;
-  color: var(--text-muted, #666);
+	text-align: center;
+	padding: 48px 16px;
+	color: var(--text-muted, #666);
 }
 .page-loading.full {
-  min-height: 50vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+	min-height: 50vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 }
-
 .spinner {
-  width: 40px;
-  height: 40px;
-  margin: 0 auto 12px;
-  border: 3px solid #ddd;
-  border-top-color: var(--lcd-glow, #4af205);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+	width: 40px;
+	height: 40px;
+	margin: 0 auto 12px;
+	border: 3px solid #ddd;
+	border-top-color: var(--lcd-glow, #4af205);
+	border-radius: 50%;
+	animation: spin 0.8s linear infinite;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.hint { font-size: 0.85rem; color: var(--text-muted, #666); margin-bottom: 12px; }
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+.hint {
+	font-size: 0.85rem;
+	color: var(--text-muted, #666);
+	margin-bottom: 12px;
+}
 .totals-bar {
-  margin-top: 16px;
-  padding: 12px 16px;
-  font-weight: 700;
-  background: var(--surface-dark, #e0e0e0);
-  border-radius: var(--radius-sm, 8px);
-  text-align: center;
+	margin-top: 16px;
+	padding: 12px 16px;
+	font-weight: 700;
+	background: var(--surface-dark, #e0e0e0);
+	border-radius: var(--radius-sm, 8px);
+	text-align: center;
 }
-.section-title { font-weight: 700; margin: 16px 0 8px; font-size: 0.95rem; }
-
+.section-title {
+	font-weight: 700;
+	margin: 16px 0 8px;
+	font-size: 0.95rem;
+}
 .cards-grid {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: 1fr;
+	display: grid;
+	gap: 16px;
+	grid-template-columns: 1fr;
 }
 @media (min-width: 769px) {
-  .cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  }
+	.cards-grid {
+		grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+	}
 }
 @media (min-width: 1201px) {
-  .cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  }
+	.cards-grid {
+		grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+	}
 }
-
 .cost-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 6px;
-  font-size: 0.85rem;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin-top: 6px;
+	font-size: 0.85rem;
 }
-.text-deficit { color: #c62828; font-weight: 600; }
-.text-remaining { color: #2e7d32; font-weight: 600; }
-
+.text-deficit {
+	color: #c62828;
+	font-weight: 600;
+}
+.text-remaining {
+	color: #2e7d32;
+	font-weight: 600;
+}
 .checkbox-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin: 8px 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin: 8px 0;
 }
-
 .level-controls {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin-bottom: 8px;
 }
 .level-controls select,
 .level-controls input {
-  flex: 1;
-  min-width: 100px;
+	flex: 1;
+	min-width: 100px;
 }
-
 .vault-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+	gap: 12px;
 }
 @media (min-width: 769px) {
-  .vault-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  }
+	.vault-grid {
+		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	}
 }
 .vault-item {
-  background: var(--surface, #f0f0f0);
-  border: 1px solid #d0d0d0;
-  border-radius: var(--radius-sm, 8px);
-  padding: 10px 12px;
+	background: var(--surface, #f0f0f0);
+	border: 1px solid #d0d0d0;
+	border-radius: var(--radius-sm, 8px);
+	padding: 10px 12px;
 }
 .vault-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-  font-weight: 600;
-  font-size: 0.85rem;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 6px;
+	font-weight: 600;
+	font-size: 0.85rem;
 }
 .vault-item input {
-  width: 100%;
-  padding: 8px;
-  text-align: center;
-  font-weight: 700;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background: #f8f8f8;
+	width: 100%;
+	padding: 8px;
+	text-align: center;
+	font-weight: 700;
+	border-radius: 6px;
+	border: 1px solid #ccc;
+	background: #f8f8f8;
 }
-
-.rarity { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
-.rarity-mythic { background: #ffe082; }
-.rarity-legendary { background: #ce93d8; }
-.rarity-epic { background: #90caf9; }
-.rarity-rare { background: #a5d6a7; }
-
+.rarity {
+	font-size: 0.7rem;
+	padding: 2px 6px;
+	border-radius: 4px;
+	margin-left: 6px;
+}
+.rarity-mythic {
+	background: #ffe082;
+}
+.rarity-legendary {
+	background: #ce93d8;
+}
+.rarity-epic {
+	background: #90caf9;
+}
+.rarity-rare {
+	background: #a5d6a7;
+}
 /* Ensure flowers scroll on small screens */
 .flowers-container {
-  max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+	max-width: 100%;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
 }
-
 /* Prevent horizontal page scroll on phones */
 @media (max-width: 768px) {
-  body { padding: 8px 8px 20px !important; }
-  .navbar { padding: 8px 10px 10px !important; }
-  .scoreboard .lcd-value { font-size: 1rem !important; }
-  .level-controls { flex-direction: column; }
-  .level-controls select,
-  .level-controls input { width: 100%; min-width: 0; }
+	body {
+		padding: 8px 8px 20px !important;
+	}
+	.navbar {
+		padding: 8px 10px 10px !important;
+	}
+	.scoreboard .lcd-value {
+		font-size: 1rem !important;
+	}
+	.level-controls {
+		flex-direction: column;
+	}
+	.level-controls select,
+	.level-controls input {
+		width: 100%;
+		min-width: 0;
+	}
 }
-
 @media (max-width: 400px) {
-  .flower-wrapper { flex: 0 0 44px; width: 44px; height: 44px; }
+	.flower-wrapper {
+		flex: 0 0 44px;
+		width: 44px;
+		height: 44px;
+	}
 }
-
-
 /* Inputs never overflow cards */
 .item-card,
 .item-card-body,
 .vault-item,
 .buff-field {
-  min-width: 0;
-  max-width: 100%;
+	min-width: 0;
+	max-width: 100%;
 }
 .item-card-body input,
 .item-card-body select,
@@ -204,206 +233,204 @@ a.nav-link {
 .vault-item input,
 .hero-shard-item input,
 .status-pane {
-  max-width: 100%;
-  width: 100%;
-  box-sizing: border-box;
+	max-width: 100%;
+	width: 100%;
+	box-sizing: border-box;
 }
 .level-controls {
-  width: 100%;
+	width: 100%;
 }
 .level-controls > * {
-  min-width: 0;
-  flex: 1 1 120px;
+	min-width: 0;
+	flex: 1 1 120px;
 }
 .hero-shard-item,
 .hero-widget-item {
-  overflow: hidden;
+	overflow: hidden;
 }
 .hero-shard-item input,
 .hero-widget-item input {
-  width: 100%;
-  max-width: 100%;
+	width: 100%;
+	max-width: 100%;
 }
-
 /* Inventory cards like original */
 .inventory-card {
-  background: var(--surface, #f0f0f0);
-  border: 1px solid #d0d0d0;
-  border-radius: var(--radius, 16px);
-  padding: 14px;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow-extruded, 8px 8px 16px rgba(0,0,0,0.08));
+	background: var(--surface, #f0f0f0);
+	border: 1px solid #d0d0d0;
+	border-radius: var(--radius, 16px);
+	padding: 14px;
+	margin-bottom: 16px;
+	box-shadow: var(--shadow-extruded, 8px 8px 16px rgba(0, 0, 0, 0.08));
 }
 .inventory-card-header {
-  font-weight: 700;
-  margin-bottom: 10px;
-  font-size: 0.95rem;
+	font-weight: 700;
+	margin-bottom: 10px;
+	font-size: 0.95rem;
 }
-
 /* ——— Hero rarity tiers ——— */
 .tier-badge {
-  display: inline-block;
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  padding: 2px 8px;
-  border-radius: 6px;
-  margin-left: 6px;
-  vertical-align: middle;
-  text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+	display: inline-block;
+	font-size: 0.65rem;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	padding: 2px 8px;
+	border-radius: 6px;
+	margin-left: 6px;
+	vertical-align: middle;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 .tier-badge.tier-r {
-  color: #0d47a1;
-  background: linear-gradient(180deg, #90caf9 0%, #42a5f5 50%, #1e88e5 100%);
-  border: 1px solid #1565c0;
-  box-shadow: 0 0 8px rgba(33, 150, 243, 0.55);
+	color: #0d47a1;
+	background: linear-gradient(180deg, #90caf9 0%, #42a5f5 50%, #1e88e5 100%);
+	border: 1px solid #1565c0;
+	box-shadow: 0 0 8px rgba(33, 150, 243, 0.55);
 }
 .tier-badge.tier-sr {
-  color: #4a148c;
-  background: linear-gradient(180deg, #e1bee7 0%, #ab47bc 50%, #8e24aa 100%);
-  border: 1px solid #6a1b9a;
-  box-shadow: 0 0 10px rgba(156, 39, 176, 0.55);
+	color: #4a148c;
+	background: linear-gradient(180deg, #e1bee7 0%, #ab47bc 50%, #8e24aa 100%);
+	border: 1px solid #6a1b9a;
+	box-shadow: 0 0 10px rgba(156, 39, 176, 0.55);
 }
 .tier-badge.tier-ssr {
-  color: #5d4037;
-  background: linear-gradient(180deg, #fff8e1 0%, #ffd54f 35%, #ffb300 70%, #ff8f00 100%);
-  border: 1px solid #ff8f00;
-  box-shadow: 0 0 12px rgba(255, 193, 7, 0.65);
+	color: #5d4037;
+	background: linear-gradient(180deg, #fff8e1 0%, #ffd54f 35%, #ffb300 70%, #ff8f00 100%);
+	border: 1px solid #ff8f00;
+	box-shadow: 0 0 12px rgba(255, 193, 7, 0.65);
 }
 .tier-badge.tier-default {
-  background: #cfd8dc;
-  color: #37474f;
+	background: #cfd8dc;
+	color: #37474f;
 }
-
 /* Card edge tint by tier + glossy glass */
 .item-card.hero-card.tier-r {
-  border-color: #42a5f5;
-  box-shadow: 8px 8px 16px rgba(33, 150, 243, 0.18), -4px -4px 10px rgba(255,255,255,0.6);
+	border-color: #42a5f5;
+	box-shadow: 8px 8px 16px rgba(33, 150, 243, 0.18), -4px -4px 10px rgba(255, 255, 255, 0.6);
 }
 .item-card.hero-card.tier-sr {
-  border-color: #ab47bc;
-  box-shadow: 8px 8px 16px rgba(156, 39, 176, 0.18), -4px -4px 10px rgba(255,255,255,0.6);
+	border-color: #ab47bc;
+	box-shadow: 8px 8px 16px rgba(156, 39, 176, 0.18), -4px -4px 10px rgba(255, 255, 255, 0.6);
 }
 .item-card.hero-card.tier-ssr {
-  border-color: #ffb300;
-  box-shadow: 8px 8px 16px rgba(255, 193, 7, 0.22), -4px -4px 10px rgba(255,255,255,0.6);
+	border-color: #ffb300;
+	box-shadow: 8px 8px 16px rgba(255, 193, 7, 0.22), -4px -4px 10px rgba(255, 255, 255, 0.6);
 }
-
 /* glass-sheen removed — was causing oval expand / reveal on cards */
 .glass-card {
-  /* static tint only, no animation */
+	/* static tint only, no animation */
 }
-
-.hero-shard-item.tier-r { border-color: #64b5f6; }
-.hero-shard-item.tier-sr { border-color: #ba68c8; }
-.hero-shard-item.tier-ssr { border-color: #ffca28; }
-
-/* Toast for invalid petal selection */
-.hero-toast {
-  position: sticky;
-  top: 8px;
-  z-index: 50;
-  margin: 0 auto 12px;
-  max-width: 520px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-align: center;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-}
-.hero-toast-error {
-  background: #ffebee;
-  color: #b71c1c;
-  border: 1px solid #ef9a9a;
-}
-.hero-toast-ok {
-  background: #e8f5e9;
-  color: #1b5e20;
-  border: 1px solid #a5d6a7;
-}
-
-/* 5 flowers need a bit more room on mobile */
-@media (max-width: 480px) {
-  .flower-wrapper { flex: 0 0 40px; width: 40px; height: 40px; }
-  .flowers-container { gap: 1px; padding: 4px 2px; }
-}
-
-/* Shard inventory: border color only, no tier text */
 .hero-shard-item.tier-r {
-  border: 2px solid #42a5f5 !important;
-  box-shadow: 0 0 8px rgba(33, 150, 243, 0.35);
+	border-color: #64b5f6;
 }
 .hero-shard-item.tier-sr {
-  border: 2px solid #ab47bc !important;
-  box-shadow: 0 0 8px rgba(156, 39, 176, 0.35);
+	border-color: #ba68c8;
 }
 .hero-shard-item.tier-ssr {
-  border: 2px solid #ffb300 !important;
-  box-shadow: 0 0 10px rgba(255, 193, 7, 0.4);
+	border-color: #ffca28;
 }
-
-
+/* Toast for invalid petal selection */
+.hero-toast {
+	position: sticky;
+	top: 8px;
+	z-index: 50;
+	margin: 0 auto 12px;
+	max-width: 520px;
+	padding: 10px 14px;
+	border-radius: 10px;
+	font-size: 0.85rem;
+	font-weight: 600;
+	text-align: center;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+.hero-toast-error {
+	background: #ffebee;
+	color: #b71c1c;
+	border: 1px solid #ef9a9a;
+}
+.hero-toast-ok {
+	background: #e8f5e9;
+	color: #1b5e20;
+	border: 1px solid #a5d6a7;
+}
+/* 5 flowers need a bit more room on mobile */
+@media (max-width: 480px) {
+	.flower-wrapper {
+		flex: 0 0 40px;
+		width: 40px;
+		height: 40px;
+	}
+	.flowers-container {
+		gap: 1px;
+		padding: 4px 2px;
+	}
+}
+/* Shard inventory: border color only, no tier text */
+.hero-shard-item.tier-r {
+	border: 2px solid #42a5f5 !important;
+	box-shadow: 0 0 8px rgba(33, 150, 243, 0.35);
+}
+.hero-shard-item.tier-sr {
+	border: 2px solid #ab47bc !important;
+	box-shadow: 0 0 8px rgba(156, 39, 176, 0.35);
+}
+.hero-shard-item.tier-ssr {
+	border: 2px solid #ffb300 !important;
+	box-shadow: 0 0 10px rgba(255, 193, 7, 0.4);
+}
 /* hero-shard-input override — match original */
 .hero-shard-item {
-  display: flex !important;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  border-radius: var(--radius-sm, 8px);
-  background: rgba(255, 255, 255, 0.55);
-  min-width: 0;
+	display: flex !important;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 10px;
+	border-radius: var(--radius-sm, 8px);
+	background: rgba(255, 255, 255, 0.55);
+	min-width: 0;
 }
 .hero-shard-item .hero-shard-name {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.8rem;
-  font-weight: 600;
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 0.8rem;
+	font-weight: 600;
 }
 .hero-shard-input {
-  width: 72px !important;
-  min-width: 56px !important;
-  max-width: 88px !important;
-  flex: 0 0 auto !important;
-  text-align: center;
-  padding: 6px 8px !important;
-  border-radius: 8px !important;
-  border: 1px solid #c5c5c5 !important;
-  background: #f7f7f7 !important;
-  font-weight: 700 !important;
-  box-sizing: border-box !important;
+	width: 72px !important;
+	min-width: 56px !important;
+	max-width: 88px !important;
+	flex: 0 0 auto !important;
+	text-align: center;
+	padding: 6px 8px !important;
+	border-radius: 8px !important;
+	border: 1px solid #c5c5c5 !important;
+	background: #f7f7f7 !important;
+	font-weight: 700 !important;
+	box-sizing: border-box !important;
 }
 .hero-shard-input:focus {
-  outline: 2px solid var(--lcd-glow, #4af205);
-  border-color: transparent !important;
+	outline: 2px solid var(--lcd-glow, #4af205);
+	border-color: transparent !important;
 }
-
-
 /* Prevent weird card morph / oval reveal */
 .item-card,
 .inventory-card,
 .gathering-card {
-  animation: none !important;
-  transform: none;
+	animation: none !important;
+	transform: none;
 }
 .item-card::before,
 .item-card::after {
-  animation: none !important;
+	animation: none !important;
 }
-
 /* content-visibility was causing cards to "grow" from a small box (looked like oval reveal) */
 .item-card,
 .inventory-card,
 .gathering-card {
-  content-visibility: visible !important;
-  contain-intrinsic-size: auto !important;
-  animation: none !important;
+	content-visibility: visible !important;
+	contain-intrinsic-size: auto !important;
+	animation: none !important;
 }
-
-
 /* FORCE: no content-visibility expand / oval morph on any card */
 .item-card,
 .inventory-card,
@@ -411,29 +438,27 @@ a.nav-link {
 .collapsible-section,
 .buff-panel,
 .status-pane {
-  content-visibility: visible !important;
-  contain: none !important;
-  contain-intrinsic-size: none !important;
-  animation: none !important;
+	content-visibility: visible !important;
+	contain: none !important;
+	contain-intrinsic-size: none !important;
+	animation: none !important;
 }
 .item-card {
-  transition: box-shadow 0.15s ease, transform 0.15s ease !important;
+	transition: box-shadow 0.15s ease, transform 0.15s ease !important;
 }
-
-
 /* === FINAL anti-oval overrides (highest priority) === */
 .item-card,
 .inventory-card,
 .gathering-card,
 .collapsible-section {
-  content-visibility: visible !important;
-  contain: none !important;
-  contain-intrinsic-size: none !important;
-  animation: none !important;
-  transition: none !important;
-  transform: none !important;
-  overflow: visible !important;
+	content-visibility: visible !important;
+	contain: none !important;
+	contain-intrinsic-size: none !important;
+	animation: none !important;
+	transition: none !important;
+	transform: none !important;
+	overflow: visible !important;
 }
 .item-card:hover {
-  transform: none !important;
+	transform: none !important;
 }
