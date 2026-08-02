@@ -3,7 +3,6 @@ export function parseCost(val) {
 	if (val == null || val === '') return 0;
 	if (typeof val === 'number') return val;
 	let str = String(val).toUpperCase().trim().replace(/,/g, '');
-	// Remove spaces between number and suffix (e.g., "1.5 M" -> "1.5M")
 	str = str.replace(/\s+(?=[KMB])/g, '');
 	if (str.endsWith('B')) return parseFloat(str) * 1e9 || 0;
 	if (str.endsWith('M')) return parseFloat(str) * 1e6 || 0;
@@ -15,7 +14,6 @@ export function parseTimeToSeconds(timeStr) {
 	if (typeof timeStr === 'number') return timeStr;
 	const s = String(timeStr).toUpperCase().trim();
 	if (!s) return 0;
-	// If it's just a number (no time units), assume it's seconds
 	if (/^\d+(\.\d+)?$/.test(s)) return Math.round(parseFloat(s));
 	let sec = 0;
 	const d = s.match(/(\d+)\s*D/);
@@ -26,7 +24,6 @@ export function parseTimeToSeconds(timeStr) {
 	if (h) sec += parseInt(h[1], 10) * 3600;
 	if (m) sec += parseInt(m[1], 10) * 60;
 	if (secM) sec += parseInt(secM[1], 10);
-	// If no time units matched, try parsing as plain number (seconds)
 	if (sec === 0) {
 		const num = parseFloat(s);
 		if (!isNaN(num)) return Math.round(num);
@@ -364,32 +361,38 @@ export function calcVaultScore(vault) {
  * Supports: K, M, B suffixes, time formats (d/h/m/s), plain numbers
  */
 export function parseResourceValue(str) {
+	// Handle null/undefined/empty
 	if (str == null || str === '') return 0;
-	if (typeof str === 'number') return str;
+	// If it's already a number, return it
+	if (typeof str === 'number') {
+		return str;
+	}
+	// Convert to string and clean
 	const s = String(str).trim();
 	if (!s) return 0;
-	// Check if it's a time format (contains d, h, m, s)
-	// Must have at least one letter and look like a time
+	// Handle time formats (contains d, h, m, s)
 	if (/[dhms]/i.test(s) && /[\d]/.test(s)) {
 		const minutes = parseTimeToMinutes(s);
 		if (minutes > 0) return minutes;
 	}
-	// Check if it's a number with K/M/B suffix
-	// Match pattern: optional number with optional decimal, then K/M/B
-	// Examples: 1.78B, 470.29M, 408.75M, 7.09M, 500K, 2.5K
-	const kMBSuffixMatch = s.match(/^([\d.]+)\s*([KMB])$/i);
-	if (kMBSuffixMatch) {
-		const num = parseFloat(kMBSuffixMatch[1]);
-		if (isNaN(num)) return 0;
-		const suffix = kMBSuffixMatch[2].toUpperCase();
-		if (suffix === 'K') return num * 1000;
-		if (suffix === 'M') return num * 1000000;
-		if (suffix === 'B') return num * 1000000000;
+	// Handle K/M/B suffix - works with or without decimal
+	// This handles: "470.29M", "470.29 M", "500K", "2.5K", "1.78B"
+	const upper = s.toUpperCase();
+	// Check if it ends with K, M, or B (with or without space)
+	const kbMatch = upper.match(/^([\d.]+)\s*([KMB])$/);
+	if (kbMatch) {
+		const num = parseFloat(kbMatch[1]);
+		if (!isNaN(num)) {
+			const suffix = kbMatch[2];
+			if (suffix === 'K') return num * 1000;
+			if (suffix === 'M') return num * 1000000;
+			if (suffix === 'B') return num * 1000000000;
+		}
 	}
-	// Check if it's a plain number (with or without commas)
+	// Try parsing as plain number (with commas)
 	const num = parseFloat(s.replace(/,/g, ''));
 	if (!isNaN(num)) return num;
-	// If we get here, try to extract any number from the string
+	// Fallback: extract any number from the string
 	const extracted = s.match(/(\d+(?:\.\d+)?)/);
 	if (extracted) {
 		return parseFloat(extracted[1]);
