@@ -1,6 +1,7 @@
 import {
 	parseCost,
-	formatNumber
+	formatNumber,
+	parseResourceValue
 } from './calc';
 /**
  * remaining = vault - cost
@@ -11,7 +12,8 @@ export function computeAffordability(costs, vault = {}) {
 	let canAfford = true;
 	for (const [key, amt] of Object.entries(costs || {})) {
 		if (key.startsWith('_')) continue;
-		const have = parseCost(vault[key]);
+		// FIX: Use parseResourceValue instead of parseCost to handle K/M/B and time formats
+		const have = parseResourceValue(vault[key]);
 		const need = parseCost(amt);
 		const left = have - need;
 		remaining[key] = left;

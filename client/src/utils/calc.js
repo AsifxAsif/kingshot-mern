@@ -355,8 +355,9 @@ export function calcVaultScore(vault) {
 	return Math.round(total);
 }
 export function parseResourceValue(str) {
-	if (!str || typeof str !== 'string') return 0;
-	const s = str.trim();
+	if (str == null || str === '') return 0;
+	if (typeof str === 'number') return str;
+	const s = String(str).trim();
 	if (!s) return 0;
 	// Check if it's a time format (contains d, h, m, s)
 	if (/[dhms]/i.test(s)) {
@@ -366,11 +367,18 @@ export function parseResourceValue(str) {
 	const upper = s.toUpperCase().trim();
 	// Remove spaces between number and suffix (e.g., "1.5 M" -> "1.5M")
 	const cleaned = upper.replace(/\s+(?=[KMB])/g, '');
+	// Handle K, M, B suffix
 	if (/[KMB]$/.test(cleaned)) {
-		return parseCost(cleaned);
+		const numStr = cleaned.slice(0, -1);
+		const num = parseFloat(numStr);
+		if (isNaN(num)) return 0;
+		const suffix = cleaned.slice(-1);
+		if (suffix === 'K') return num * 1000;
+		if (suffix === 'M') return num * 1000000;
+		if (suffix === 'B') return num * 1000000000;
 	}
-	// Try parsing as regular number
-	const num = parseFloat(s);
+	// Check if it's a plain number (with commas)
+	const num = parseFloat(s.replace(/,/g, ''));
 	if (!isNaN(num)) return num;
 	return 0;
 }
