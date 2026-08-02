@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
 import { formatNumber, SCORE_RULES, getUpgradeSteps, sortLevels } from '../utils/calc';
@@ -14,6 +14,7 @@ export default function WidgetsPage() {
   const { state, updateSection, setPageScore, vault } = useApp();
   const heroWidgets = state.heroWidgets || {};
   const wState = state.widgets || {};
+  const prevScoreRef = useRef(0);
 
   const ssrHeroes = useMemo(() => {
     const list = heroesData?.Hero?.Heroes || [];
@@ -79,8 +80,12 @@ export default function WidgetsPage() {
     return total;
   }, [cards]);
 
+  // Only update score when it actually changes
   useEffect(() => {
-    setPageScore('widgets', totalActivePoints);
+    if (prevScoreRef.current !== totalActivePoints) {
+      prevScoreRef.current = totalActivePoints;
+      setPageScore('widgets', totalActivePoints);
+    }
   }, [totalActivePoints, setPageScore]);
 
   if (lw || lh) return <div className="page-loading"><div className="spinner" /><p>Loading…</p></div>;

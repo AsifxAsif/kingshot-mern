@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
 import {
@@ -51,6 +51,7 @@ export default function BuildingsPage() {
   const { state, updateSection, setPageScore, vault } = useApp();
   const bState = state.buildings || {};
   const buffs = state.settings?.buildingBuffs || {};
+  const prevScoreRef = useRef(0);
 
   const buildingNames = useMemo(
     () => (data ? Object.keys(data).filter((k) => Array.isArray(data[k])) : []),
@@ -121,7 +122,9 @@ export default function BuildingsPage() {
       
       const { canAfford } = computeAffordability(costs, vault);
       const hasSelection = !!to && steps.length > 0;
-      const isMaxed = from && levels.length && convertLevelToNumeric(from) === convertLevelToNumeric(levels[levels.length - 1]);
+      const levelsArray = levels || [];
+      const maxLevel = levelsArray.length ? levelsArray[levelsArray.length - 1] : '';
+      const isMaxed = from && maxLevel && convertLevelToNumeric(from) === convertLevelToNumeric(maxLevel);
       const canUpgrade = canAfford && hasSelection && !isMaxed;
       const canSpeedup = canUseSpeedup && canAfford && hasSelection && !isMaxed;
 
@@ -129,7 +132,7 @@ export default function BuildingsPage() {
         name, levels, s, from, to, steps, costs, points,
         totalTime, buffedTime, speedupMins, canAfford,
         hasSelection, isMaxed, canUpgrade, canSpeedup, hasSpeedups,
-        availableBuildingSpeedups, speedupResult,
+        availableBuildingSpeedups, speedupResult, maxLevel,
       };
     });
   }, [data, buildingNames, bState, buffs, vault]);
@@ -142,8 +145,12 @@ export default function BuildingsPage() {
     return total;
   }, [cards]);
 
+  // Only update score when it actually changes
   useEffect(() => {
-    setPageScore('buildings', totalActivePoints);
+    if (prevScoreRef.current !== totalActivePoints) {
+      prevScoreRef.current = totalActivePoints;
+      setPageScore('buildings', totalActivePoints);
+    }
   }, [totalActivePoints, setPageScore]);
 
   if (loading) return <div className="page-loading"><div className="spinner" /><p>Loading buildings…</p></div>;
@@ -166,6 +173,7 @@ export default function BuildingsPage() {
                 to={c.to}
                 onFrom={(v) => setField(c.name, 'from', v)}
                 onTo={(v) => setField(c.name, 'to', v)}
+                highest={c.maxLevel}
               />
               <div className="checkbox-group">
                 <label className="checkbox-label" style={{ opacity: c.canUpgrade ? 1 : 0.5 }}>

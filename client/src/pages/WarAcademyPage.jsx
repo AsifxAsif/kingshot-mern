@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
 import {
@@ -29,6 +29,7 @@ export default function WarAcademyPage() {
   const { state, updateSection, setPageScore, vault } = useApp();
   const wa = state.warAcademy || {};
   const buffs = state.settings?.researchBuffs || {};
+  const prevScoreRef = useRef(0);
 
   const techNames = useMemo(() => {
     const root = data?.['War Academy'] || data || {};
@@ -91,7 +92,7 @@ export default function WarAcademyPage() {
       
       const { canAfford } = computeAffordability(costs, vault);
       const hasSelection = !!to && steps.length > 0;
-      const levelsArray = getLevelsFromArray(rows);
+      const levelsArray = levels || [];
       const maxLevel = levelsArray.length ? levelsArray[levelsArray.length - 1] : '';
       const isMaxed = from && maxLevel && convertLevelToNumeric(from) === convertLevelToNumeric(maxLevel);
       const canUpgrade = canAfford && hasSelection && !isMaxed;
@@ -131,8 +132,12 @@ export default function WarAcademyPage() {
     return total;
   }, [cards]);
 
+  // Only update score when it actually changes
   useEffect(() => {
-    setPageScore('warAcademy', totalActivePoints);
+    if (prevScoreRef.current !== totalActivePoints) {
+      prevScoreRef.current = totalActivePoints;
+      setPageScore('warAcademy', totalActivePoints);
+    }
   }, [totalActivePoints, setPageScore]);
 
   if (loading) return <div className="page-loading"><div className="spinner" /><p>Loading…</p></div>;
