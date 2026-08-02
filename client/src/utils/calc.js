@@ -5,9 +5,9 @@ export function parseCost(val) {
 	let str = String(val).toUpperCase().trim().replace(/,/g, '');
 	// Remove spaces between number and suffix (e.g., "1.5 M" -> "1.5M")
 	str = str.replace(/\s+(?=[KMB])/g, '');
-	if (str.endsWith('B')) return (parseFloat(str) || 0) * 1e9;
-	if (str.endsWith('M')) return (parseFloat(str) || 0) * 1e6;
-	if (str.endsWith('K')) return (parseFloat(str) || 0) * 1e3;
+	if (str.endsWith('B')) return parseFloat(str) * 1e9 || 0;
+	if (str.endsWith('M')) return parseFloat(str) * 1e6 || 0;
+	if (str.endsWith('K')) return parseFloat(str) * 1e3 || 0;
 	return parseFloat(str) || 0;
 }
 export function parseTimeToSeconds(timeStr) {
@@ -367,12 +367,12 @@ export function parseResourceValue(str) {
 	const upper = s.toUpperCase().trim();
 	// Remove spaces between number and suffix (e.g., "1.5 M" -> "1.5M")
 	const cleaned = upper.replace(/\s+(?=[KMB])/g, '');
-	// Handle K, M, B suffix
+	// Handle K, M, B suffix - support decimal values like 470.29M
 	if (/[KMB]$/.test(cleaned)) {
+		const suffix = cleaned.slice(-1);
 		const numStr = cleaned.slice(0, -1);
 		const num = parseFloat(numStr);
 		if (isNaN(num)) return 0;
-		const suffix = cleaned.slice(-1);
 		if (suffix === 'K') return num * 1000;
 		if (suffix === 'M') return num * 1000000;
 		if (suffix === 'B') return num * 1000000000;

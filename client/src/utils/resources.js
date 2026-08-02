@@ -25,7 +25,6 @@ export function formatCostLines(costs, vault = {}) {
   for (const [key, amt] of Object.entries(costs || {})) {
     if (key.startsWith('_') || !amt) continue;
     const left = remaining[key] ?? 0;
-    // Determine if this is a speedup resource to format time differently
     const isSpeedup = key.includes('speedup');
     const displayNeed = isSpeedup ? formatTimeValue(need) : formatNumber(need);
     const displayLeft = isSpeedup ? formatTimeValue(left) : formatNumber(left);
