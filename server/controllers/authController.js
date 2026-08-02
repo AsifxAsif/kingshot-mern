@@ -76,7 +76,7 @@ export async function register(req, res) {
 				error: 'Invalid request'
 			});
 		}
-		console.error('register error');
+		console.error('register error:', err);
 		res.status(500).json({
 			error: 'Registration failed'
 		});
@@ -104,10 +104,13 @@ export async function login(req, res) {
 			username: sanitizeUsername(raw) || '__invalid__'
 		};
 		const user = await User.findOne(query);
-		// constant-ish response timing: always hash compare path
-		const hash = user?.passwordHash || '$2a$12$invalidhashinvalidhashinvalidho';
-		const ok = await bcrypt.compare(password, hash);
-		if (!user || !ok) {
+		if (!user) {
+			return res.status(401).json({
+				error: 'Invalid credentials'
+			});
+		}
+		const ok = await bcrypt.compare(password, user.passwordHash);
+		if (!ok) {
 			return res.status(401).json({
 				error: 'Invalid credentials'
 			});
@@ -128,7 +131,7 @@ export async function login(req, res) {
 				error: 'Invalid request'
 			});
 		}
-		console.error('login error');
+		console.error('login error:', err);
 		res.status(500).json({
 			error: 'Login failed'
 		});
@@ -151,7 +154,8 @@ export async function me(req, res) {
 				gameId: full.gameId || '',
 			},
 		});
-	} catch {
+	} catch (err) {
+		console.error('me error:', err);
 		res.status(500).json({
 			error: 'Failed'
 		});

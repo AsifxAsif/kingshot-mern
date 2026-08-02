@@ -29,8 +29,8 @@ export default async function handler(req, res) {
 		console.error('DB ensure failed:', e?.message || e);
 		return res.status(500).json({
 			error: 'Database unavailable',
-			detail: e?.message || String(e),
-			hint: 'Set MONGODB_URI in Vercel → Settings → Environment Variables (Production + Preview), allow Atlas IP 0.0.0.0/0, then Redeploy. Prefer the standard mongodb:// shard URI if mongodb+srv fails.',
+			detail: process.env.NODE_ENV === 'production' ? undefined : (e?.message || String(e)),
+			hint: 'Set MONGODB_URI in Vercel → Settings → Environment Variables (Production + Preview)',
 		});
 	}
 	return app(req, res);
