@@ -1,12 +1,8 @@
-import { formatNumber } from '../utils/calc';
-import { formatCostLines, computeAffordability } from '../utils/resources';
+import { formatNumber, formatSecondsToTime } from '../utils/calc';
+import { computeAffordability } from '../utils/resources';
 import AssetImg from './AssetImg';
 import { resourceImg } from '../utils/images';
 
-/**
- * Status pane matching original: ESTIMATED / ACTIVE / INSUFFICIENT
- * with remaining resource amounts
- */
 export default function CostStatus({
   active,
   hasSelection,
@@ -14,14 +10,13 @@ export default function CostStatus({
   stepsInfo = '',
   costs = {},
   vault = {},
-  extra = null, // time / speedup lines
+  extra = null,
 }) {
   if (!hasSelection) {
     return <div className="status-pane">Select current & target level</div>;
   }
 
-  const { canAfford } = computeAffordability(costs, vault);
-  const lines = formatCostLines(costs, vault);
+  const { remaining, canAfford } = computeAffordability(costs, vault);
 
   let label;
   let cls = 'status-pane';
@@ -36,6 +31,8 @@ export default function CostStatus({
     cls += ' status-info';
   }
 
+  const hasCosts = Object.keys(costs || {}).filter(k => !k.startsWith('_')).length > 0;
+
   return (
     <div className={cls}>
       <div>
@@ -46,19 +43,30 @@ export default function CostStatus({
         )}
       </div>
       {extra}
-      <div className="cost-grid">
-        {lines.map(({ key, need, left, deficit }) => (
-          <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-            <AssetImg src={resourceImg(key)} size={18} />
-            <span>
-              {key.replace(/_/g, ' ')}: {formatNumber(need)}
-            </span>
-            <span className={deficit ? 'text-deficit' : 'text-remaining'}>
-              ({left >= 0 ? formatNumber(left) + ' left' : formatNumber(Math.abs(left)) + ' short'})
-            </span>
-          </div>
-        ))}
-      </div>
+      {hasCosts && (
+        <div className="cost-grid">
+          {Object.entries(costs || {}).map(([key, amt]) => {
+            if (key.startsWith('_')) return null;
+            const have = parseFloat(vault?.[key]) || 0;
+            const need = parseFloat(amt) || 0;
+            const left = have - need;
+            const deficit = left < 0;
+            const displayNeed = key.includes('speedup') ? formatSecondsToTime(need * 60) : formatNumber(need);
+            const displayLeft = key.includes('speedup') ? formatSecondsToTime(Math.abs(left) * 60) : formatNumber(Math.abs(left));
+            return (
+              <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                <AssetImg src={resourceImg(key)} size={18} />
+                <span>
+                  {key.replace(/_/g, ' ')}: {displayNeed}
+                </span>
+                <span className={deficit ? 'text-deficit' : 'text-remaining'}>
+                  ({left >= 0 ? formatNumber(left) + ' left' : displayLeft + ' short'})
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
       {!active && canAfford && (
         <span className="text-remaining">Check Upgrade to lock points</span>
       )}

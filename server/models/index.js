@@ -37,12 +37,12 @@ export const modelMap = {
   forgehammers: Forgehammer,
 };
 
-// User presets stored entirely in MongoDB (no localStorage)
 const presetSchema = new mongoose.Schema(
   {
-    // null / missing = guest (anonymous default-only flow)
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null, index: true },
     name: { type: String, required: true, trim: true },
+    username: { type: String, default: '', trim: true },
+    gameId: { type: String, default: '', trim: true },
     vault: { type: mongoose.Schema.Types.Mixed, default: {} },
     troops: { type: mongoose.Schema.Types.Mixed, default: {} },
     buildings: { type: mongoose.Schema.Types.Mixed, default: {} },
@@ -56,15 +56,14 @@ const presetSchema = new mongoose.Schema(
     misc: { type: mongoose.Schema.Types.Mixed, default: {} },
     heroShards: { type: mongoose.Schema.Types.Mixed, default: {} },
     heroWidgets: { type: mongoose.Schema.Types.Mixed, default: {} },
+    heroFlowers: { type: mongoose.Schema.Types.Mixed, default: {} },
     lockedUpgrades: { type: mongoose.Schema.Types.Mixed, default: {} },
     settings: { type: mongoose.Schema.Types.Mixed, default: {} },
-    // Per-page scores (mirrors original localStorage score_buildings, score_troops, ...)
     pageScores: { type: mongoose.Schema.Types.Mixed, default: {} },
   },
   { timestamps: true, collection: 'presets' }
 );
 presetSchema.index({ userId: 1, name: 1 }, { unique: true });
-
 
 export const Preset = mongoose.models.Preset || mongoose.model('Preset', presetSchema);
 

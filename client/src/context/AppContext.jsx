@@ -70,7 +70,6 @@ function saveLocalDefault(state) {
   try {
     localStorage.setItem(DEFAULT_LOCAL_KEY, JSON.stringify(state));
   } catch {
-    /* ignore quota */
   }
 }
 
@@ -86,7 +85,6 @@ function setSavedActiveName(name) {
   try {
     localStorage.setItem(ACTIVE_KEY, name);
   } catch {
-    /* */
   }
 }
 
@@ -137,7 +135,6 @@ export function AppProvider({ children }) {
     }
     try {
       const list = await listPresets();
-      // Never treat server "default" as required — filter optional legacy rows
       const cleaned = (list || []).filter((p) => p.name && p.name !== 'default');
       const withDefault = [{ name: 'default' }, ...cleaned];
       setPresetList(withDefault);
@@ -149,18 +146,23 @@ export function AppProvider({ children }) {
     }
   }, [user]);
 
-  // Initial load
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
       const list = await refreshList();
       const wanted = getSavedActiveName();
-      const exists =
-        wanted === 'default' || list.some((p) => p.name === wanted);
+
+      if (wanted !== 'default' && !list.some((p) => p.name === wanted)) {
+        setSavedActiveName('default');
+        setCurrentName('default');
+        setState(loadLocalDefault());
+        setLoading(false);
+        return;
+      }
 
       if (!cancelled) {
-        if (!exists || wanted === 'default') {
+        if (wanted === 'default') {
           setCurrentName('default');
           setSavedActiveName('default');
           setState(loadLocalDefault());
@@ -189,7 +191,6 @@ export function AppProvider({ children }) {
       if (saveTimer.current) clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(async () => {
         if (name === 'default') {
-          // already persisted in updateSection via saveLocalDefault
           return;
         }
         if (!user) return;
@@ -278,7 +279,6 @@ export function AppProvider({ children }) {
         return;
       }
       try {
-        // Snapshot current calculator state into the new preset
         const body = {
           name: n,
           username: user.username || '',
@@ -304,7 +304,6 @@ export function AppProvider({ children }) {
         await refreshList();
         setSavedActiveName(n);
         setCurrentName(n);
-        // stay on same state (already copied)
       } catch (e) {
         alert(e.message || 'Create failed');
       }
@@ -324,7 +323,7 @@ export function AppProvider({ children }) {
       if (!confirm(`Delete preset "${name}"?`)) return;
       try {
         await apiDelete(name);
-        const list = await refreshList();
+        await refreshList();
         if (currentNameRef.current === name) {
           setSavedActiveName('default');
           setCurrentName('default');
@@ -339,7 +338,6 @@ export function AppProvider({ children }) {
 
   const resetCurrentPage = useCallback(() => {
     const path = window.location.pathname || '/';
-    const scoreKey = PAGE_SCORE_RESET[path];
     let keys = [];
     if (path === '/' || path === '') keys = ['vault'];
     else if (path.includes('building')) keys = ['buildings'];
@@ -363,15 +361,11 @@ export function AppProvider({ children }) {
         if (k === 'vault') next.vault = {};
         else next[k] = {};
       }
-      if (scoreKey) {
-        next.pageScores = { ...(prev.pageScores || {}), [scoreKey]: 0 };
-      }
       if (currentNameRef.current === 'default') {
         saveLocalDefault(next);
       } else {
         const patch = {};
         for (const k of keys) patch[k] = next[k];
-        if (scoreKey) patch.pageScores = next.pageScores;
         scheduleSave(currentNameRef.current, patch);
       }
       return next;
@@ -384,7 +378,6 @@ export function AppProvider({ children }) {
       (s, n) => s + (Number(n) || 0),
       0
     );
-    // Prefer page scores when set; vault always included once via vault page score or calc
     const pageVault = Number(state.pageScores?.vault);
     if (pageVault === pageVault) {
       return pages;

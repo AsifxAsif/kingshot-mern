@@ -1,11 +1,6 @@
 import { sanitizePresetName, assertNoOperators } from '../utils/validate.js';
 import { Preset } from '../models/index.js';
 
-function userFilter(req) {
-  if (req.user?.id) return { userId: req.user.id };
-  return { userId: null };
-}
-
 export const listPresets = async (req, res) => {
   try {
     if (!req.user?.id) {
@@ -15,7 +10,6 @@ export const listPresets = async (req, res) => {
       .select('name username gameId updatedAt')
       .sort({ name: 1 })
       .lean();
-    // Never return a synthetic default from DB
     res.json(presets.filter((p) => p.name !== 'default'));
   } catch (error) {
     res.status(500).json({ message: error.message });

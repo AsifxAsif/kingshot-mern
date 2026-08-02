@@ -1,6 +1,5 @@
 /** Shared calculation helpers ported from original app.js / page scripts */
 
-
 export function parseCost(val) {
   if (val == null || val === '') return 0;
   if (typeof val === 'number') return val;
@@ -11,7 +10,6 @@ export function parseCost(val) {
   return parseFloat(str) || 0;
 }
 
-/** 1d 3h 23m / 2h30m / 45m / 90s */
 export function parseTimeToSeconds(timeStr) {
   if (timeStr == null || timeStr === '') return 0;
   if (typeof timeStr === 'number') return timeStr;
@@ -61,6 +59,7 @@ export const SCORE_RULES = {
   building_speedup: 30,
   training_speedup: 30,
   research_speedup: 30,
+  pet_advancement_score: 50
 };
 
 export const RESOURCE_ITEMS = [
@@ -80,7 +79,7 @@ export const RESOURCE_ITEMS = [
   { id: 'promotion_medallion', placeholder: '10', label: 'Promotion Medallion' },
   { id: 'nutrient_potion', placeholder: '20', label: 'Nutrient Potion' },
   { id: 'growth_manual', placeholder: '100', label: 'Growth Manual' },
-  { id: 'advanced_taming_mark', placeholder: '10', label: 'Advanced Taming Mark' },
+  { id: 'advanced_taming_mark', placeholder: '30', label: 'Advanced Taming Mark' },
   { id: 'common_taming_mark', placeholder: '30', label: 'Common Taming Mark' },
   { id: 'pet_food', placeholder: '5000', label: 'Pet Food' },
   { id: 'charm_design', placeholder: '80', label: 'Charm Design' },
@@ -99,28 +98,8 @@ export const RESOURCE_ITEMS = [
   { id: 'master_speedup', placeholder: '1d', label: 'Master Speedup' },
   { id: 'general_speedup', placeholder: '10d 8h 45m', label: 'General Speedup' },
   { id: 'mythic_gear', placeholder: '10', label: 'Mythic Gear' },
-  { id: 'hero_roulette_token', placeholder: '100', label: 'Hero Roulette Token' },
+  { id: 'hero_roulette_token', placeholder: '100', label: 'Hero Roulette Token' }
 ];
-
-/* parseCost moved */
-
-export function parseResourceValue(str) {
-  if (!str || typeof str !== 'string') return 0;
-  const s = str.trim().toUpperCase();
-  if (/[DHM]/.test(s) && !/[KM]/.test(s.replace(/[DHM\s]/g, ''))) {
-    let mins = 0;
-    const d = s.match(/(\d+)\s*D/);
-    const h = s.match(/(\d+)\s*H/);
-    const m = s.match(/(\d+)\s*M/);
-    if (d) mins += parseInt(d[1], 10) * 1440;
-    if (h) mins += parseInt(h[1], 10) * 60;
-    if (m) mins += parseInt(m[1], 10);
-    return mins;
-  }
-  return parseCost(s);
-}
-
-/* parseTimeToSeconds moved */
 
 export function formatNumber(n) {
   if (n == null || isNaN(n)) return '0';
@@ -154,32 +133,27 @@ export function formatSecondsToTime(totalSeconds) {
   return parts.join(' ') || '0s';
 }
 
-export function calcVaultScore(vault) {
-  let total = 0;
-  const speedupKeys = [
-    'building_speedup', 'research_speedup', 'training_speedup',
-    'master_speedup', 'general_speedup',
-  ];
-  for (const [key, raw] of Object.entries(vault || {})) {
-    const val = parseResourceValue(String(raw ?? ''));
-    if (!val) continue;
-    if (speedupKeys.includes(key)) total += val * SCORE_RULES.speedup_min;
-    else if (SCORE_RULES[key] != null) total += val * SCORE_RULES[key];
+export function convertLevelToNumeric(level) {
+  if (level === undefined || level === null || level === '') return 0;
+  const levelStr = String(level).trim();
+  const tgMatch = levelStr.match(/^TG(\d+)(?:-(\d+))?$/i);
+  if (tgMatch) {
+    const mainTg = parseInt(tgMatch[1], 10);
+    const subLevel = tgMatch[2] ? parseInt(tgMatch[2], 10) : 0;
+    let numericValue = 30 + (mainTg * 5);
+    if (subLevel > 0) numericValue += subLevel;
+    return numericValue;
   }
-  return Math.round(total);
+  const advMatch = levelStr.match(/^(\d+(?:\.\d+)?)[_ ]?Advancement$/i);
+  if (advMatch) return parseFloat(advMatch[1]) + 0.5;
+  const num = parseFloat(levelStr);
+  if (!Number.isNaN(num) && /^-?\d+(\.\d+)?$/.test(levelStr)) return num;
+  const m = levelStr.match(/(\d+(?:\.\d+)?)/);
+  return m ? parseFloat(m[1]) : 0;
 }
 
-/** Sum costs across upgrade steps (buildings, gear, etc.) */
-export function sumStepCosts(steps, resourceKeys) {
-  const costs = {};
-  for (const step of steps || []) {
-    for (const key of resourceKeys) {
-      if (step[key] != null) {
-        costs[key] = (costs[key] || 0) + parseCost(step[key]);
-      }
-    }
-  }
-  return costs;
+export function sortLevels(levels) {
+  return [...levels].sort((a, b) => convertLevelToNumeric(a) - convertLevelToNumeric(b));
 }
 
 export function getLevelsFromArray(arr, fields = ['level', 'current_lvl', 'current', 'target_lvl', 'target'], { includeZero = true, preserveOrder = false } = {}) {
@@ -201,7 +175,6 @@ export function getLevelsFromArray(arr, fields = ['level', 'current_lvl', 'curre
     }
   }
   if (preserveOrder) return ordered;
-  // stable numeric / advancement aware sort
   return ordered.sort((a, b) => {
     const na = convertLevelToNumeric(a);
     const nb = convertLevelToNumeric(b);
@@ -235,7 +208,6 @@ export function getUpgradeSteps(dataArray, fromLevel, toLevel) {
     for (let i = start + 1; i <= end; i++) steps.push(dataArray[i]);
     return steps;
   }
-  // chain by current_lvl → target
   let current = fromStr;
   const visited = new Set();
   for (let safety = 0; safety < 300; safety++) {
@@ -258,34 +230,37 @@ export function getUpgradeSteps(dataArray, fromLevel, toLevel) {
   return steps;
 }
 
-
-/** Original buildings.js convertLevelToNumeric – sorts TG levels correctly */
-export function convertLevelToNumeric(level) {
-  if (level === undefined || level === null || level === '') return 0;
-  const levelStr = String(level).trim();
-  // Original buildings.js: TG1, TG1-1 … TG8
-  const tgMatch = levelStr.match(/^TG(\d+)(?:-(\d+))?$/i);
-  if (tgMatch) {
-    const mainTg = parseInt(tgMatch[1], 10);
-    const subLevel = tgMatch[2] ? parseInt(tgMatch[2], 10) : 0;
-    let numericValue = 30 + mainTg * 5;
-    if (subLevel > 0) numericValue += subLevel;
-    return numericValue;
+export function calcVaultScore(vault) {
+  let total = 0;
+  const speedupKeys = [
+    'building_speedup', 'research_speedup', 'training_speedup',
+    'master_speedup', 'general_speedup'
+  ];
+  for (const [key, raw] of Object.entries(vault || {})) {
+    const val = parseResourceValue(String(raw ?? ''));
+    if (!val) continue;
+    if (speedupKeys.includes(key)) total += val * SCORE_RULES.speedup_min;
+    else if (SCORE_RULES[key] != null) total += val * SCORE_RULES[key];
   }
-  // Pets: 10_Advancement → 10.5
-  const advMatch = levelStr.match(/^(\d+(?:\.\d+)?)[_ ]?Advancement$/i);
-  if (advMatch) return parseFloat(advMatch[1]) + 0.5;
-  const num = parseFloat(levelStr);
-  if (!Number.isNaN(num) && /^-?\d+(\.\d+)?$/.test(levelStr)) return num;
-  const m = levelStr.match(/(\d+(?:\.\d+)?)/);
-  return m ? parseFloat(m[1]) : 0;
+  return Math.round(total);
 }
 
-export function sortLevels(levels) {
-  return [...levels].sort((a, b) => convertLevelToNumeric(a) - convertLevelToNumeric(b));
+export function parseResourceValue(str) {
+  if (!str || typeof str !== 'string') return 0;
+  const s = str.trim().toUpperCase();
+  if (/[DHM]/.test(s) && !/[KM]/.test(s.replace(/[DHM\s]/g, ''))) {
+    let mins = 0;
+    const d = s.match(/(\d+)\s*D/);
+    const h = s.match(/(\d+)\s*H/);
+    const m = s.match(/(\d+)\s*M/);
+    if (d) mins += parseInt(d[1], 10) * 1440;
+    if (h) mins += parseInt(h[1], 10) * 60;
+    if (m) mins += parseInt(m[1], 10);
+    return mins;
+  }
+  return parseCost(s);
 }
 
-/** Apply building speedup buffs (from original app.js applyBuildingSpeedupBuffs) */
 export function applyBuildingSpeedupBuffs(originalSeconds, buffs = {}) {
   if (!originalSeconds || originalSeconds <= 0) return 0;
   let remaining = originalSeconds;
@@ -295,7 +270,6 @@ export function applyBuildingSpeedupBuffs(originalSeconds, buffs = {}) {
     (parseFloat(buffs.kingPos) || 0) +
     (buffs.groundWorks ? 10 : 0);
   if (totalPercent > 0) remaining = remaining / (1 + totalPercent / 100);
-  // Pan's artifact: fixed hours off
   if (buffs.pansArtifact) {
     const pansSec = parseTimeToSeconds(String(buffs.pansArtifact));
     remaining = Math.max(0, remaining - pansSec);
@@ -304,7 +278,6 @@ export function applyBuildingSpeedupBuffs(originalSeconds, buffs = {}) {
   return Math.max(1, Math.ceil(remaining));
 }
 
-/** Apply training speedup buffs */
 export function applyTrainingSpeedupBuffs(originalSeconds, buffs = {}) {
   if (!originalSeconds || originalSeconds <= 0) return 0;
   let remaining = originalSeconds;
@@ -330,4 +303,77 @@ export function applyResearchSpeedupBuffs(originalSeconds, buffs = {}) {
 
 export function secondsToSpeedupMinutes(sec) {
   return Math.ceil((sec || 0) / 60);
+}
+
+export function getAvailableSpeedups(vault, type) {
+  const training = parseFloat(vault?.training_speedup) || 0;
+  const general = parseFloat(vault?.general_speedup) || 0;
+  
+  if (type === 'building') {
+    return parseFloat(vault?.building_speedup) || 0;
+  }
+  if (type === 'research') {
+    return parseFloat(vault?.research_speedup) || 0;
+  }
+  if (type === 'training') {
+    return training + general;
+  }
+  return 0;
+}
+
+export function calculateSpeedupUsage(totalTimeSeconds, vault, type, otherLocked = {}) {
+  if (totalTimeSeconds <= 0) {
+    return { usedSpeedup: 0, totalUsed: 0, totalPoints: 0, partialNote: '' };
+  }
+
+  const buffedTimeSeconds = totalTimeSeconds;
+  const totalSpeedupMinutesNeeded = secondsToSpeedupMinutes(buffedTimeSeconds);
+
+  if (type === 'building') {
+    const available = Math.max(0, (vault.building_speedup || 0) - (otherLocked.building_speedup || 0));
+    const used = Math.min(available, totalSpeedupMinutesNeeded);
+    const remaining = totalSpeedupMinutesNeeded - used;
+    const partialNote = remaining > 0 ? `Only ${formatSecondsToTime(used * 60)} available (need ${formatSecondsToTime(totalSpeedupMinutesNeeded * 60)})` : '';
+    return { usedSpeedup: used, totalUsed: used, totalPoints: used * SCORE_RULES.speedup_min, partialNote };
+  }
+
+  if (type === 'research') {
+    const available = Math.max(0, (vault.research_speedup || 0) - (otherLocked.research_speedup || 0));
+    const used = Math.min(available, totalSpeedupMinutesNeeded);
+    const remaining = totalSpeedupMinutesNeeded - used;
+    const partialNote = remaining > 0 ? `Only ${formatSecondsToTime(used * 60)} available (need ${formatSecondsToTime(totalSpeedupMinutesNeeded * 60)})` : '';
+    return { usedSpeedup: used, totalUsed: used, totalPoints: used * SCORE_RULES.speedup_min, partialNote };
+  }
+
+  if (type === 'training') {
+    const trainingAvailable = Math.max(0, (vault.training_speedup || 0) - (otherLocked.training_speedup || 0));
+    const generalAvailable = Math.max(0, (vault.general_speedup || 0) - (otherLocked.general_speedup || 0));
+    
+    let remaining = totalSpeedupMinutesNeeded;
+    let usedTraining = 0;
+    let usedGeneral = 0;
+
+    if (trainingAvailable > 0) {
+      usedTraining = Math.min(trainingAvailable, remaining);
+      remaining -= usedTraining;
+    }
+    if (remaining > 0 && generalAvailable > 0) {
+      usedGeneral = Math.min(generalAvailable, remaining);
+      remaining -= usedGeneral;
+    }
+
+    const totalUsed = usedTraining + usedGeneral;
+    const totalPoints = totalUsed * SCORE_RULES.speedup_min;
+    const partialNote = remaining > 0 ? `Only ${formatSecondsToTime(totalUsed * 60)} available (need ${formatSecondsToTime(totalSpeedupMinutesNeeded * 60)})` : '';
+    
+    return {
+      usedTraining,
+      usedGeneral,
+      totalUsed,
+      totalPoints,
+      partialNote
+    };
+  }
+
+  return { usedSpeedup: 0, totalUsed: 0, totalPoints: 0, partialNote: '' };
 }

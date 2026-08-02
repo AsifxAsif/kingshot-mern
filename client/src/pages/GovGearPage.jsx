@@ -1,7 +1,7 @@
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
-import { parseCost, formatNumber, SCORE_RULES } from '../utils/calc';
+import { parseCost, formatNumber, SCORE_RULES, sortLevels, convertLevelToNumeric } from '../utils/calc';
 import { computeAffordability } from '../utils/resources';
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
@@ -28,7 +28,8 @@ function govGearImg(piece, levelName) {
     else if (lower.includes('red')) color = 'red';
     const tm = s.match(/T([0-9])/i);
     if (tm) tier = tm[1];
-    stars = String((s.match(/⭐/g) || []).length);
+    const starCount = (s.match(/★/g) || []).length;
+    stars = String(starCount);
   }
   return asset(`gov_gears/${prefix}_${color}_t${tier}_s${stars}.webp`);
 }
@@ -59,20 +60,22 @@ function getSteps(rows, from, to, order) {
   });
 }
 
+function getLevelsFromRows(rows, order) {
+  const set = new Set(['0']);
+  for (const r of rows) {
+    if (r.current != null && r.current !== 'null') set.add(String(r.current));
+    if (r.target != null && r.target !== 'null') set.add(String(r.target));
+  }
+  return sortLevels(Array.from(set));
+}
+
 export default function GovGearPage() {
   const { data, loading, error } = useGameData('gov_gears');
   const { state, updateSection, setPageScore, vault } = useApp();
   const gState = state.govGear || {};
   const rows = data?.['GOV Gear'] || [];
   const order = useMemo(() => buildOrder(rows), [rows]);
-  const levels = useMemo(() => {
-    const set = new Set(['0']);
-    for (const r of rows) {
-      if (r.current != null && r.current !== 'null') set.add(String(r.current));
-      if (r.target != null && r.target !== 'null') set.add(String(r.target));
-    }
-    return Array.from(set).sort((a, b) => (order[a] ?? 0) - (order[b] ?? 0));
-  }, [rows, order]);
+  const levels = useMemo(() => getLevelsFromRows(rows, order), [rows, order]);
 
   const setPiece = (piece, field, value) => {
     updateSection('govGear', (prev) => {
@@ -103,12 +106,11 @@ export default function GovGearPage() {
         costs.gilded_threads += parseCost(step.threads);
         costs.artisans_vision += parseCost(step.artisans);
       }
-      // drop zero costs
       Object.keys(costs).forEach((k) => { if (!costs[k]) delete costs[k]; });
       const { canAfford } = computeAffordability(costs, vault);
-      return { piece, s, from, to, steps, points, costs, canAfford };
+      return { piece, s, from, to, steps, points, costs, canAfford, levels };
     });
-  }, [gState, rows, order, vault]);
+  }, [gState, rows, order, vault, levels]);
 
   const totalPoints = useMemo(() => {
     let t = 0;
@@ -145,8 +147,8 @@ export default function GovGearPage() {
                 levels={levels}
                 from={c.from ?? ''}
                 to={c.to ?? ''}
-                onFrom={(v) => setPiece(c.name, 'from', v)}
-                onTo={(v) => setPiece(c.name, 'to', v)}
+                onFrom={(v) => setPiece(c.piece, 'from', v)}
+                onTo={(v) => setPiece(c.piece, 'to', v)}
               />
               <label className="checkbox-label" style={{ opacity: c.canAfford || !c.to ? 1 : 0.5 }}>
                 <input
@@ -154,8 +156,8 @@ export default function GovGearPage() {
                   type="checkbox"
                   checked={!!c.s.active && c.canAfford}
                   disabled={!c.to || !c.canAfford}
-                  onChange={(e) => setPiece(c.name, 'active', e.target.checked)}
-                />{' '}
+                  onChange={(e) => setPiece(c.piece, 'active', e.target.checked)}
+                />
                 Upgrade
               </label>
               <CostStatus

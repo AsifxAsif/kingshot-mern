@@ -1,7 +1,7 @@
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
-import { parseCost, formatNumber, SCORE_RULES } from '../utils/calc';
+import { parseCost, formatNumber, SCORE_RULES, sortLevels } from '../utils/calc';
 import { computeAffordability } from '../utils/resources';
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
@@ -17,22 +17,29 @@ export default function HeroGearPage() {
   const forgeRows = forgeData?.Mastery || forgeData?.Forgehammer || (Array.isArray(forgeData) ? forgeData : []);
 
   const levels = useMemo(() => {
-    const set = new Set([0]);
+    const set = new Set();
     for (const r of rows) {
-      if (r.current_lvl != null) set.add(Number(r.current_lvl));
-      if (r.target_lvl != null) set.add(Number(r.target_lvl));
+      if (r.current_lvl !== undefined && r.current_lvl !== null) set.add(Number(r.current_lvl));
+      if (r.target_lvl !== undefined && r.target_lvl !== null) set.add(Number(r.target_lvl));
     }
-    return Array.from(set).sort((a, b) => a - b);
+    if (set.size <= 1) {
+      for (let i = 0; i <= 100; i++) set.add(i);
+    }
+    const result = sortLevels(Array.from(set));
+    return result.length ? result : [0, 1, 2, 3, 4, 5];
   }, [rows]);
 
   const forgeLevels = useMemo(() => {
-    const set = new Set([0]);
+    const set = new Set();
     for (const r of forgeRows) {
-      if (r.current_lvl != null) set.add(Number(r.current_lvl));
-      if (r.target_lvl != null) set.add(Number(r.target_lvl));
+      if (r.current_lvl !== undefined && r.current_lvl !== null) set.add(Number(r.current_lvl));
+      if (r.target_lvl !== undefined && r.target_lvl !== null) set.add(Number(r.target_lvl));
     }
-    if (set.size <= 1) for (let i = 0; i <= 20; i++) set.add(i);
-    return Array.from(set).sort((a, b) => a - b);
+    if (set.size <= 1) {
+      for (let i = 0; i <= 20; i++) set.add(i);
+    }
+    const result = sortLevels(Array.from(set));
+    return result.length ? result : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
   }, [forgeRows]);
 
   const setField = (field, value) => {
@@ -56,19 +63,13 @@ export default function HeroGearPage() {
     });
   };
 
-  const from = s.from ?? '';
-  const to = s.to ?? '';
-  const forgeFrom = s.forgeFrom ?? '';
-  const forgeTo = s.forgeTo ?? '';
+  const from = s.from !== undefined && s.from !== '' ? String(s.from) : '';
+  const to = s.to !== undefined && s.to !== '' ? String(s.to) : '';
+  const forgeFrom = s.forgeFrom !== undefined && s.forgeFrom !== '' ? String(s.forgeFrom) : '';
+  const forgeTo = s.forgeTo !== undefined && s.forgeTo !== '' ? String(s.forgeTo) : '';
   const fromN = from === '' ? null : Number(from);
   const toN = to === '' ? null : Number(to);
 
-  // Image: >100 red, else mythic (original site)
-  const gearImg =
-    fromN != null && fromN > 100
-      ? asset('hero-gear-red.webp')
-      : asset('hero-gear-mythic.webp');
-  // also react to target > 100
   const displayImg =
     (toN != null && toN > 100) || (fromN != null && fromN > 100)
       ? asset('hero-gear-red.webp')
@@ -76,11 +77,19 @@ export default function HeroGearPage() {
 
   const steps = useMemo(() => {
     if (fromN == null || toN == null || toN <= fromN) return [];
-    return rows.filter((r) => {
-      const c = Number(r.current_lvl);
-      const t = Number(r.target_lvl);
-      return c >= fromN && t <= toN && t > fromN;
-    });
+    const result = [];
+    let current = fromN;
+    const visited = new Set();
+    for (let guard = 0; guard < 300 && current < toN && !visited.has(current); guard++) {
+      visited.add(current);
+      const step = rows.find((r) => Number(r.current_lvl) === current);
+      if (!step) break;
+      result.push(step);
+      current = Number(step.target_lvl);
+      if (current === toN) break;
+      if (current > toN) { result.length = 0; break; }
+    }
+    return result;
   }, [rows, fromN, toN]);
 
   const costs = useMemo(() => {
@@ -105,16 +114,23 @@ export default function HeroGearPage() {
 
   const { canAfford } = useMemo(() => computeAffordability(costs, vault || {}), [costs, vault]);
 
-  // forge hammer card
   const forgeSteps = useMemo(() => {
     const ff = forgeFrom === '' ? null : Number(forgeFrom);
     const ft = forgeTo === '' ? null : Number(forgeTo);
     if (ff == null || ft == null || ft <= ff) return [];
-    return forgeRows.filter((r) => {
-      const c = Number(r.current_lvl);
-      const t = Number(r.target_lvl);
-      return c >= ff && t <= ft && t > ff;
-    });
+    const result = [];
+    let current = ff;
+    const visited = new Set();
+    for (let guard = 0; guard < 300 && current < ft && !visited.has(current); guard++) {
+      visited.add(current);
+      const step = forgeRows.find((r) => Number(r.current_lvl) === current);
+      if (!step) break;
+      result.push(step);
+      current = Number(step.target_lvl);
+      if (current === ft) break;
+      if (current > ft) { result.length = 0; break; }
+    }
+    return result;
   }, [forgeRows, forgeFrom, forgeTo]);
 
   const forgeCosts = useMemo(() => {
@@ -157,6 +173,9 @@ export default function HeroGearPage() {
   }
   if (error) return <div className="page-error"><p>{error}</p></div>;
 
+  const hasGearSelection = !!to && steps.length > 0;
+  const isGearMaxed = fromN != null && fromN === levels[levels.length - 1];
+
   return (
     <div className="app-container">
       <div className="item-card">
@@ -174,20 +193,20 @@ export default function HeroGearPage() {
             highest={levels[levels.length - 1]}
           />
           <div className="checkbox-group">
-            <label className="checkbox-label">
+            <label className="checkbox-label" style={{ opacity: canAfford && hasGearSelection && !isGearMaxed ? 1 : 0.5 }}>
               <input
                 className="checkbox"
                 type="checkbox"
                 checked={!!s.active && canAfford}
-                disabled={!to || !canAfford || (fromN != null && fromN === levels[levels.length - 1])}
+                disabled={!hasGearSelection || !canAfford || isGearMaxed}
                 onChange={(e) => setField('active', e.target.checked)}
-              />{' '}
+              />
               Upgrade
             </label>
           </div>
           <CostStatus
             active={!!s.active && canAfford}
-            hasSelection={!!to && steps.length > 0}
+            hasSelection={hasGearSelection}
             points={points}
             stepsInfo={` (${steps.length} steps)`}
             costs={costs}
@@ -211,14 +230,14 @@ export default function HeroGearPage() {
             highest={forgeLevels[forgeLevels.length - 1]}
           />
           <div className="checkbox-group">
-            <label className="checkbox-label">
+            <label className="checkbox-label" style={{ opacity: forgeAfford && forgeTo ? 1 : 0.5 }}>
               <input
                 className="checkbox"
                 type="checkbox"
                 checked={!!s.forgeActive && forgeAfford}
                 disabled={!forgeTo || !forgeAfford}
                 onChange={(e) => setField('forgeActive', e.target.checked)}
-              />{' '}
+              />
               Upgrade
             </label>
           </div>

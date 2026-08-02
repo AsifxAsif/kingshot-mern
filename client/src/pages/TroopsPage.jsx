@@ -9,13 +9,41 @@ import {
   SCORE_RULES,
   applyTrainingSpeedupBuffs,
   secondsToSpeedupMinutes,
+  getAvailableSpeedups,
+  calculateSpeedupUsage,
 } from '../utils/calc';
+import { computeAffordability } from '../utils/resources';
 import { TrainingBuffPanel } from '../components/BuffPanel';
+import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
-import { LevelSelects } from '../components/LevelSelects';
-import { troopImg } from '../utils/images';
+import { troopImg, resourceImg } from '../utils/images';
 
 const TYPES = ['Infantry', 'Cavalry', 'Archer'];
+
+function getTrainingPoints(level) {
+  const map = { 1: 1, 2: 2, 3: 3, 4: 5, 5: 7, 6: 11, 7: 16, 8: 23, 9: 30, 10: 39, 11: 49 };
+  return map[level] || 0;
+}
+
+function getPromotionSteps(promotingData, type, from, to) {
+  const rows = promotingData[type] || [];
+  const chain = [];
+  let cur = from;
+  const visited = new Set();
+  for (let guard = 0; guard < 30 && cur < to && !visited.has(cur); guard++) {
+    visited.add(cur);
+    const row = rows.find((r) => Number(r.current_lvl) === cur);
+    if (!row) break;
+    chain.push(row);
+    cur = Number(row.target_lvl);
+    if (cur === to) break;
+    if (cur > to) { chain.length = 0; break; }
+  }
+  if (chain.length && Number(chain[chain.length - 1].target_lvl) === to) {
+    return chain;
+  }
+  return [];
+}
 
 export default function TroopsPage() {
   const { data, loading, error } = useGameData('troops');
@@ -27,23 +55,56 @@ export default function TroopsPage() {
   const promoting = data?.Troops?.Promoting || {};
 
   const setField = (key, field, value) => {
-    updateSection('troops', (prev) => ({
-      ...prev,
-      [key]: { ...(prev[key] || {}), [field]: value },
-    }));
+    updateSection('troops', (prev) => {
+      const cur = { ...(prev[key] || {}), [field]: value };
+      if (field === 'level' || field === 'from') {
+        cur.active = false;
+        cur.speedup = false;
+      }
+      if (field === 'to') {
+        cur.active = false;
+        cur.speedup = false;
+      }
+      if (field === 'qty') {
+        cur.active = false;
+        cur.speedup = false;
+      }
+      return { ...prev, [key]: cur };
+    });
   };
 
-  const results = useMemo(() => {
-    const out = { cards: {}, totalPoints: 0, totalCosts: {} };
-    if (!data) return out;
-
+  // Generate training cards - always show 3 cards
+  const trainingCards = useMemo(() => {
+    const result = [];
     for (const type of TYPES) {
-      // Training
-      const tKey = `train_${type}`;
-      const t = troopsState[tKey] || {};
-      const level = parseInt(t.level, 10) || 0;
-      const qty = parseFloat(t.qty) || 0;
-      if (level > 0 && qty > 0) {
+      const key = `train_${type}`;
+      const s = troopsState[key] || {};
+      const level = parseInt(s.level, 10) || 0;
+      const qty = parseFloat(s.qty) || 0;
+      const hasSelection = level > 0 && qty > 0;
+      const levels = (training[type] || []).map((r) => r.lvl).sort((a, b) => a - b);
+      
+      let cardData = {
+        type: 'training',
+        troopType: type,
+        key: key,
+        s: s,
+        level: level,
+        qty: qty,
+        hasSelection: hasSelection,
+        levels: levels,
+        costs: {},
+        points: 0,
+        timeSec: 0,
+        buffedTime: 0,
+        canAfford: true,
+        canUpgrade: false,
+        canSpeedup: false,
+        hasSpeedups: false,
+        speedupResult: null,
+      };
+      
+      if (hasSelection) {
         const row = (training[type] || []).find((r) => r.lvl === level);
         if (row) {
           const costs = {};
@@ -52,106 +113,191 @@ export default function TroopsPage() {
           }
           const points = (row.point || SCORE_RULES.troops[level] || 0) * qty;
           const timeSec = parseTimeToSeconds(row.time) * qty;
-          out.cards[tKey] = { costs, points, timeSec, label: `${type} T${level} ×${qty}` };
-          if (t.active) {
-            out.totalPoints += points;
-            for (const [k, v] of Object.entries(costs)) {
-              out.totalCosts[k] = (out.totalCosts[k] || 0) + v;
-            }
-            if (t.speedup && timeSec > 0) {
-              const mins = Math.ceil(timeSec / 60);
-              out.totalCosts.training_speedup = (out.totalCosts.training_speedup || 0) + mins;
-              out.totalPoints += mins * SCORE_RULES.speedup_min;
+          const buffedTime = applyTrainingSpeedupBuffs(timeSec, trainBuffs);
+          
+          const availableSpeedups = getAvailableSpeedups(vault, 'training');
+          const hasSpeedups = availableSpeedups > 0;
+          const canUseSpeedup = hasSpeedups && buffedTime > 0;
+          
+          let speedupResult = null;
+          let finalPoints = points;
+          const finalCosts = { ...costs };
+          
+          if (s.speedup && canUseSpeedup) {
+            const otherLocked = {};
+            speedupResult = calculateSpeedupUsage(buffedTime, vault, 'training', otherLocked);
+            if (speedupResult.totalUsed > 0) {
+              if (speedupResult.usedTraining > 0) {
+                finalCosts.training_speedup = (finalCosts.training_speedup || 0) + speedupResult.usedTraining;
+              }
+              if (speedupResult.usedGeneral > 0) {
+                finalCosts.general_speedup = (finalCosts.general_speedup || 0) + speedupResult.usedGeneral;
+              }
+              finalPoints += speedupResult.totalPoints;
             }
           }
+          
+          const { canAfford } = computeAffordability(finalCosts, vault);
+          const canUpgrade = canAfford && hasSelection;
+          const canSpeedup = canUseSpeedup && canAfford && hasSelection;
+          
+          cardData = {
+            ...cardData,
+            costs: finalCosts,
+            points: finalPoints,
+            timeSec: timeSec,
+            buffedTime: buffedTime,
+            canAfford: canAfford,
+            canUpgrade: canUpgrade,
+            canSpeedup: canSpeedup,
+            hasSpeedups: hasSpeedups,
+            speedupResult: speedupResult,
+          };
         }
       }
+      result.push(cardData);
+    }
+    return result;
+  }, [troopsState, training, trainBuffs, vault]);
 
-      // Promotion — sum all steps from → to (e.g. 1→11)
-      const pKey = `promo_${type}`;
-      const p = troopsState[pKey] || {};
-      const from = parseInt(p.from, 10) || 0;
-      const to = parseInt(p.to, 10) || 0;
-      const pQty = parseFloat(p.qty) || 0;
-      if (from > 0 && to > from && pQty > 0) {
-        const rows = promoting[type] || [];
-        const chain = [];
-        let cur = from;
-        for (let guard = 0; guard < 20 && cur < to; guard++) {
-          const row = rows.find((r) => Number(r.current_lvl) === cur);
-          if (!row) break;
-          chain.push(row);
-          cur = Number(row.target_lvl);
-          if (cur === to) break;
-        }
-        if (chain.length && Number(chain[chain.length - 1].target_lvl) === to) {
+  // Generate promotion cards - always show 3 cards
+  const promotionCards = useMemo(() => {
+    const result = [];
+    for (const type of TYPES) {
+      const key = `promo_${type}`;
+      const s = troopsState[key] || {};
+      const from = parseInt(s.from, 10) || 0;
+      const to = parseInt(s.to, 10) || 0;
+      const qty = parseFloat(s.qty) || 0;
+      const hasSelection = from > 0 && to > from && qty > 0;
+      
+      const rows = promoting[type] || [];
+      const fromLevels = [...new Set(rows.map((r) => Number(r.current_lvl)))].sort((a, b) => a - b);
+      const allTargets = [...new Set(rows.map((r) => Number(r.target_lvl)))].sort((a, b) => a - b);
+      
+      let cardData = {
+        type: 'promotion',
+        troopType: type,
+        key: key,
+        s: s,
+        from: from,
+        to: to,
+        qty: qty,
+        hasSelection: hasSelection,
+        fromLevels: fromLevels,
+        allTargets: allTargets,
+        costs: {},
+        points: 0,
+        timeSec: 0,
+        buffedTime: 0,
+        canAfford: true,
+        canUpgrade: false,
+        canSpeedup: false,
+        hasSpeedups: false,
+        speedupResult: null,
+      };
+      
+      if (hasSelection) {
+        const chain = getPromotionSteps(promoting, type, from, to);
+        if (chain.length) {
           const costs = {};
           let timeSec = 0;
           for (const row of chain) {
             for (const k of ['bread', 'wood', 'stone', 'iron', 'gold', 'truegold']) {
-              if (row[k] != null) costs[k] = (costs[k] || 0) + parseCost(row[k]) * pQty;
+              if (row[k] != null) costs[k] = (costs[k] || 0) + parseCost(row[k]) * qty;
             }
-            timeSec += parseTimeToSeconds(row.time) * pQty;
+            timeSec += parseTimeToSeconds(row.time) * qty;
           }
-          const points =
-            ((SCORE_RULES.troops?.[to] || SCORE_RULES[`troop_${to}`] || 0) -
-              (SCORE_RULES.troops?.[from] || SCORE_RULES[`troop_${from}`] || 0)) * pQty;
-          out.cards[pKey] = {
-            costs,
-            points: Math.max(0, points),
-            timeSec,
-            label: `${type} T${from}→T${to} ×${pQty} (${chain.length} steps)`,
+          const fromPoints = getTrainingPoints(from);
+          const toPoints = getTrainingPoints(to);
+          const points = (toPoints - fromPoints) * qty;
+          const buffedTime = applyTrainingSpeedupBuffs(timeSec, trainBuffs);
+          
+          const availableSpeedups = getAvailableSpeedups(vault, 'training');
+          const hasSpeedups = availableSpeedups > 0;
+          const canUseSpeedup = hasSpeedups && buffedTime > 0;
+          
+          let speedupResult = null;
+          let finalPoints = Math.max(0, points);
+          const finalCosts = { ...costs };
+          
+          if (s.speedup && canUseSpeedup) {
+            const otherLocked = {};
+            speedupResult = calculateSpeedupUsage(buffedTime, vault, 'training', otherLocked);
+            if (speedupResult.totalUsed > 0) {
+              if (speedupResult.usedTraining > 0) {
+                finalCosts.training_speedup = (finalCosts.training_speedup || 0) + speedupResult.usedTraining;
+              }
+              if (speedupResult.usedGeneral > 0) {
+                finalCosts.general_speedup = (finalCosts.general_speedup || 0) + speedupResult.usedGeneral;
+              }
+              finalPoints += speedupResult.totalPoints;
+            }
+          }
+          
+          const { canAfford } = computeAffordability(finalCosts, vault);
+          const canUpgrade = canAfford && hasSelection;
+          const canSpeedup = canUseSpeedup && canAfford && hasSelection;
+          
+          cardData = {
+            ...cardData,
+            costs: finalCosts,
+            points: finalPoints,
+            timeSec: timeSec,
+            buffedTime: buffedTime,
+            canAfford: canAfford,
+            canUpgrade: canUpgrade,
+            canSpeedup: canSpeedup,
+            hasSpeedups: hasSpeedups,
+            speedupResult: speedupResult,
           };
-          if (p.active) {
-            out.totalPoints += Math.max(0, points);
-            for (const [k, v] of Object.entries(costs)) {
-              out.totalCosts[k] = (out.totalCosts[k] || 0) + v;
-            }
-            if (p.speedup && timeSec > 0) {
-              const mins = Math.ceil(timeSec / 60);
-              out.totalCosts.training_speedup = (out.totalCosts.training_speedup || 0) + mins;
-              out.totalPoints += mins * (SCORE_RULES.speedup_min || 0);
-            }
-          }
         }
       }
+      result.push(cardData);
     }
-    return out;
-  }, [data, troopsState, training, promoting]);
+    return result;
+  }, [troopsState, promoting, trainBuffs, vault]);
 
-  // Push active points into global score (MongoDB) — same idea as original saveCurrentPageScore
+  const totalActivePoints = useMemo(() => {
+    let total = 0;
+    for (const c of trainingCards) {
+      if (c && c.s && c.s.active && c.canAfford && c.hasSelection) total += c.points;
+    }
+    for (const c of promotionCards) {
+      if (c && c.s && c.s.active && c.canAfford && c.hasSelection) total += c.points;
+    }
+    return total;
+  }, [trainingCards, promotionCards]);
+
   useEffect(() => {
-    setPageScore('troops', results.totalPoints);
-  }, [results.totalPoints, setPageScore]);
+    setPageScore('troops', totalActivePoints);
+  }, [totalActivePoints, setPageScore]);
 
   if (loading) return <div className="page-loading"><div className="spinner" /><p>Loading troops…</p></div>;
   if (error) return <div className="page-error"><p>{error}</p></div>;
 
   return (
-    <div className="calculator-page">
-      <h2>Troops</h2>
-      <p className="hint">Training & promotion costs/points. Toggle Active to lock into score. Saved to MongoDB.</p>
-
+    <div className="app-container">
       <TrainingBuffPanel />
       <div className="section-title">Training</div>
-      <div className="cards-grid">
-        {TYPES.map((type) => {
-          const key = `train_${type}`;
-          const s = troopsState[key] || {};
-          const levels = (training[type] || []).map((r) => r.lvl);
-          const card = results.cards[key];
+      <div className="items-grid cards-grid">
+        {trainingCards.map((c) => {
+          if (!c) return null;
           return (
-            <div className="item-card" key={key}>
-              <div className="item-card-header"><AssetImg src={troopImg(type)} size={40} /><span>{type}</span></div>
+            <div className="item-card" key={c.key}>
+              <div className="item-card-header">
+                <AssetImg src={troopImg(c.troopType)} size={40} />
+                <span>{c.troopType}</span>
+              </div>
               <div className="item-card-body">
                 <div className="level-controls">
                   <select
-                    value={s.level || ''}
-                    onChange={(e) => setField(key, 'level', e.target.value)}
+                    value={c.s.level || ''}
+                    onChange={(e) => setField(c.key, 'level', e.target.value)}
                   >
                     <option value="" disabled hidden>Current Tier</option>
                     <option value="0">0</option>
-                    {levels.map((l) => (
+                    {c.levels.map((l) => (
                       <option key={l} value={l}>
                         Tier {l}{l === 11 ? ' (Max)' : ''}
                       </option>
@@ -159,56 +305,77 @@ export default function TroopsPage() {
                   </select>
                   <input
                     type="text"
-                    placeholder="Qty" className="hero-shard-input"
-                    value={s.qty || ''}
-                    onChange={(e) => setField(key, 'qty', e.target.value.replace(/[^0-9.]/g, ''))}
+                    placeholder="Quantity"
+                    className="hero-shard-input"
+                    style={{ textAlign: 'center' }}
+                    value={c.s.qty || ''}
+                    onChange={(e) => setField(c.key, 'qty', e.target.value.replace(/[^0-9.]/g, ''))}
                   />
                 </div>
                 <div className="checkbox-group">
-                  <label className="checkbox-label">
+                  <label className="checkbox-label" style={{ opacity: c.canUpgrade ? 1 : 0.5 }}>
                     <input
                       type="checkbox"
-                      checked={!!s.active}
-                      onChange={(e) => setField(key, 'active', e.target.checked)}
-                    />{' '}
-                    Active
+                      checked={!!c.s.active && c.canAfford}
+                      disabled={!c.canUpgrade}
+                      onChange={(e) => setField(c.key, 'active', e.target.checked)}
+                    />
+                    Train Active
                   </label>
-                  <label className="checkbox-label">
+                  <label className="checkbox-label" style={{ opacity: c.canSpeedup ? 1 : 0.5 }}>
                     <input
                       type="checkbox"
-                      checked={!!s.speedup}
-                      onChange={(e) => setField(key, 'speedup', e.target.checked)}
-                    />{' '}
-                    +Speedups
+                      checked={!!c.s.speedup && c.canSpeedup}
+                      disabled={!c.canSpeedup}
+                      onChange={(e) => setField(c.key, 'speedup', e.target.checked)}
+                    />
+                    <AssetImg src={resourceImg('training_speedup')} size={18} /> +Speedups
+                    {!c.hasSpeedups && c.hasSelection && (
+                      <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', marginLeft: 4 }}>
+                        (no speedups)
+                      </span>
+                    )}
                   </label>
                 </div>
-                <div className="status-pane">
-                  {card ? (
-                    <>
-                      <div><strong>{s.active ? 'ACTIVE' : 'ESTIMATED'}</strong> Points: {formatNumber(card.points)}</div>
-                      <div>Time: {formatSecondsToTime(applyTrainingSpeedupBuffs(card.timeSec, trainBuffs))}
-                        {applyTrainingSpeedupBuffs(card.timeSec, trainBuffs) !== card.timeSec && (
-                          <span style={{ opacity: 0.7 }}> (base {formatSecondsToTime(card.timeSec)})</span>
+                <CostStatus
+                  active={!!c.s.active && c.canAfford}
+                  hasSelection={c.hasSelection}
+                  points={c.points}
+                  stepsInfo=""
+                  costs={c.costs}
+                  vault={vault}
+                  extra={
+                    c.hasSelection ? (
+                      <div>
+                        <AssetImg src={resourceImg('training_speedup')} size={18} /> Time: {formatSecondsToTime(c.buffedTime)}
+                        {c.buffedTime !== c.timeSec && (
+                          <span style={{ opacity: 0.7 }}> (base {formatSecondsToTime(c.timeSec)})</span>
+                        )}
+                        {c.s.speedup && c.canSpeedup && c.speedupResult && (
+                          <div>
+                            <AssetImg src={resourceImg('training_speedup')} size={18} /> Speedup: {formatSecondsToTime(c.speedupResult.totalUsed * 60)}
+                            {c.speedupResult.usedTraining > 0 && (
+                              <span style={{ opacity: 0.7 }}> (training: {formatSecondsToTime(c.speedupResult.usedTraining * 60)})</span>
+                            )}
+                            {c.speedupResult.usedGeneral > 0 && (
+                              <span style={{ opacity: 0.7 }}> (general: {formatSecondsToTime(c.speedupResult.usedGeneral * 60)})</span>
+                            )}
+                            {c.speedupResult.partialNote && (
+                              <span style={{ color: 'var(--color-warning)', fontSize: '0.65rem', display: 'block' }}>
+                                {c.speedupResult.partialNote}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        {c.s.speedup && !c.canSpeedup && c.hasSelection && (
+                          <div style={{ color: 'var(--color-warning)', fontSize: '0.65rem' }}>
+                            <AssetImg src={resourceImg('training_speedup')} size={18} /> No speedups available in vault
+                          </div>
                         )}
                       </div>
-                      {s.speedup && (
-                        <div>Speedup: {formatNumber(secondsToSpeedupMinutes(applyTrainingSpeedupBuffs(card.timeSec, trainBuffs)))} min</div>
-                      )}
-                      {Object.entries(card.costs).map(([k, v]) => (
-                        <div key={k}>
-                          {k}: {formatNumber(v)}
-                          {vault?.[k] != null && (
-                            <span className={parseCost(vault[k]) >= v ? 'text-remaining' : 'text-deficit'}>
-                              {' '}({formatNumber(parseCost(vault[k]) - v)} left)
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </>
-                  ) : (
-                    'Select tier & quantity'
-                  )}
-                </div>
+                    ) : null
+                  }
+                />
               </div>
             </div>
           );
@@ -216,87 +383,118 @@ export default function TroopsPage() {
       </div>
 
       <div className="section-title">Promotion</div>
-      <div className="cards-grid">
-        {TYPES.map((type) => {
-          const key = `promo_${type}`;
-          const s = troopsState[key] || {};
-          const rows = promoting[type] || [];
-          const fromLevels = [...new Set(rows.map((r) => Number(r.current_lvl)))].sort((a, b) => a - b);
-          const allTargets = [...new Set(rows.map((r) => Number(r.target_lvl)))].sort((a, b) => a - b);
-          const fromN = s.from ? parseInt(s.from, 10) : 0;
-          const toLevels = fromN
-            ? allTargets.filter((t) => t > fromN)
-            : allTargets;
-          const card = results.cards[key];
+      <div className="items-grid cards-grid">
+        {promotionCards.map((c) => {
+          if (!c) return null;
+          const fromN = c.s.from ? parseInt(c.s.from, 10) : 0;
+          const toLevels = fromN ? c.allTargets.filter((t) => t > fromN) : c.allTargets;
+
+          const handleFromChange = (val) => {
+            const v = parseInt(val, 10);
+            setField(c.key, 'from', val);
+            const next = c.allTargets.find((t) => t > v);
+            setField(c.key, 'to', next != null ? String(next) : '');
+          };
+
           return (
-            <div className="item-card" key={key}>
-              <div className="item-card-header"><AssetImg src={troopImg(type)} size={40} /><span>{type} Promotion</span></div>
+            <div className="item-card" key={c.key}>
+              <div className="item-card-header">
+                <AssetImg src={troopImg(c.troopType)} size={40} />
+                <span>{c.troopType} Promotion</span>
+              </div>
               <div className="item-card-body">
                 <div className="level-controls">
                   <select
-                    value={s.from || ''}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      setField(key, 'from', v);
-                      const n = parseInt(v, 10);
-                      const next = allTargets.find((t) => t > n);
-                      setField(key, 'to', next != null ? String(next) : '');
-                      setField(key, 'active', false);
-                    }}
+                    value={c.s.from || ''}
+                    onChange={(e) => handleFromChange(e.target.value)}
                   >
-                    <option value="">From</option>
-                    {fromLevels.map((l) => (
+                    <option value="" disabled hidden>Current Tier</option>
+                    {c.fromLevels.map((l) => (
                       <option key={l} value={l}>Tier {l}</option>
                     ))}
                   </select>
                   <select
-                    value={s.to || ''}
-                    onChange={(e) => setField(key, 'to', e.target.value)}
+                    value={c.s.to || ''}
+                    onChange={(e) => setField(c.key, 'to', e.target.value)}
                   >
-                    <option value="">To</option>
-                    {[...new Set(toLevels)].sort((a, b) => a - b).map((l) => (
+                    <option value="" disabled hidden>Target Tier</option>
+                    {toLevels.map((l) => (
                       <option key={l} value={l}>Tier {l}</option>
                     ))}
                   </select>
                 </div>
                 <input
                   type="text"
-                  placeholder="Qty to promote" className="hero-shard-input"
-                  value={s.qty || ''}
-                  onChange={(e) => setField(key, 'qty', e.target.value.replace(/[^0-9.]/g, ''))}
-                  style={{ width: '100%', marginTop: 8, textAlign: 'center' }}
+                  placeholder="Quantity to promote"
+                  className="hero-shard-input"
+                  style={{ textAlign: 'center', width: '100%', marginTop: 8 }}
+                  value={c.s.qty || ''}
+                  onChange={(e) => setField(c.key, 'qty', e.target.value.replace(/[^0-9.]/g, ''))}
                 />
                 <div className="checkbox-group">
-                  <label className="checkbox-label">
+                  <label className="checkbox-label" style={{ opacity: c.canUpgrade ? 1 : 0.5 }}>
                     <input
                       type="checkbox"
-                      checked={!!s.active}
-                      onChange={(e) => setField(key, 'active', e.target.checked)}
-                    />{' '}
-                    Active
+                      checked={!!c.s.active && c.canAfford}
+                      disabled={!c.canUpgrade}
+                      onChange={(e) => setField(c.key, 'active', e.target.checked)}
+                    />
+                    Promote Active
                   </label>
-                  <label className="checkbox-label">
+                  <label className="checkbox-label" style={{ opacity: c.canSpeedup ? 1 : 0.5 }}>
                     <input
                       type="checkbox"
-                      checked={!!s.speedup}
-                      onChange={(e) => setField(key, 'speedup', e.target.checked)}
-                    />{' '}
-                    +Speedups
+                      checked={!!c.s.speedup && c.canSpeedup}
+                      disabled={!c.canSpeedup}
+                      onChange={(e) => setField(c.key, 'speedup', e.target.checked)}
+                    />
+                    <AssetImg src={resourceImg('training_speedup')} size={18} /> +Speedups
+                    {!c.hasSpeedups && c.hasSelection && (
+                      <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', marginLeft: 4 }}>
+                        (no speedups)
+                      </span>
+                    )}
                   </label>
                 </div>
-                <div className="status-pane">
-                  {card ? (
-                    <>
-                      <div>Points: {formatNumber(card.points)}</div>
-                      <div>Time: {formatSecondsToTime(card.timeSec)}</div>
-                      {Object.entries(card.costs).map(([k, v]) => (
-                        <div key={k}>{k}: {formatNumber(v)}</div>
-                      ))}
-                    </>
-                  ) : (
-                    'Select from → to & quantity'
-                  )}
-                </div>
+                <CostStatus
+                  active={!!c.s.active && c.canAfford}
+                  hasSelection={c.hasSelection}
+                  points={c.points}
+                  stepsInfo=""
+                  costs={c.costs}
+                  vault={vault}
+                  extra={
+                    c.hasSelection ? (
+                      <div>
+                        <AssetImg src={resourceImg('training_speedup')} size={18} /> Time: {formatSecondsToTime(c.buffedTime)}
+                        {c.buffedTime !== c.timeSec && (
+                          <span style={{ opacity: 0.7 }}> (base {formatSecondsToTime(c.timeSec)})</span>
+                        )}
+                        {c.s.speedup && c.canSpeedup && c.speedupResult && (
+                          <div>
+                            <AssetImg src={resourceImg('training_speedup')} size={18} /> Speedup: {formatSecondsToTime(c.speedupResult.totalUsed * 60)}
+                            {c.speedupResult.usedTraining > 0 && (
+                              <span style={{ opacity: 0.7 }}> (training: {formatSecondsToTime(c.speedupResult.usedTraining * 60)})</span>
+                            )}
+                            {c.speedupResult.usedGeneral > 0 && (
+                              <span style={{ opacity: 0.7 }}> (general: {formatSecondsToTime(c.speedupResult.usedGeneral * 60)})</span>
+                            )}
+                            {c.speedupResult.partialNote && (
+                              <span style={{ color: 'var(--color-warning)', fontSize: '0.65rem', display: 'block' }}>
+                                {c.speedupResult.partialNote}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        {c.s.speedup && !c.canSpeedup && c.hasSelection && (
+                          <div style={{ color: 'var(--color-warning)', fontSize: '0.65rem' }}>
+                            <AssetImg src={resourceImg('training_speedup')} size={18} /> No speedups available in vault
+                          </div>
+                        )}
+                      </div>
+                    ) : null
+                  }
+                />
               </div>
             </div>
           );

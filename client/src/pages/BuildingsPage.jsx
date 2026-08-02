@@ -12,13 +12,15 @@ import {
   sortLevels,
   applyBuildingSpeedupBuffs,
   secondsToSpeedupMinutes,
+  getAvailableSpeedups,
+  calculateSpeedupUsage,
 } from '../utils/calc';
 import { computeAffordability } from '../utils/resources';
 import { BuildingBuffPanel } from '../components/BuffPanel';
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
 import { LevelSelects } from '../components/LevelSelects';
-import { buildingImg } from '../utils/images';
+import { buildingImg, resourceImg } from '../utils/images';
 
 const RESOURCE_KEYS = [
   'bread', 'wood', 'stone', 'iron', 'gold',
@@ -26,8 +28,6 @@ const RESOURCE_KEYS = [
 ];
 
 function getBuildingLevels(dataArray, buildingName) {
-  // Levels come from data only. Always include baseline 0 (not unlocked).
-  // Town Center data starts at 2 — do NOT invent level 1.
   const levels = new Set(['0']);
   for (const item of dataArray || []) {
     const lvl = item.level ?? item.current_lvl ?? item.current;
@@ -64,10 +64,13 @@ export default function BuildingsPage() {
         const levels = getBuildingLevels(data[name], name);
         const next = getNextLevel(levels, value);
         if (next) cur.to = next;
-        // clear active when levels change
         cur.active = false;
+        cur.speedup = false;
       }
-      if (field === 'to') cur.active = false;
+      if (field === 'to') {
+        cur.active = false;
+        cur.speedup = false;
+      }
       return { ...prev, [name]: cur };
     });
   };
@@ -101,14 +104,32 @@ export default function BuildingsPage() {
       }
       const buffedTime = applyBuildingSpeedupBuffs(totalTime, buffs);
       const speedupMins = secondsToSpeedupMinutes(buffedTime);
-      if (s.speedup) {
-        costs.building_speedup = (costs.building_speedup || 0) + speedupMins;
-        points += speedupMins * SCORE_RULES.speedup_min;
+      
+      const availableBuildingSpeedups = getAvailableSpeedups(vault, 'building');
+      const hasSpeedups = availableBuildingSpeedups > 0;
+      const canUseSpeedup = hasSpeedups && buffedTime > 0 && steps.length > 0;
+      
+      let speedupResult = null;
+      if (s.speedup && canUseSpeedup) {
+        const otherLocked = {};
+        speedupResult = calculateSpeedupUsage(buffedTime, vault, 'building', otherLocked);
+        if (speedupResult.usedSpeedup > 0) {
+          costs.building_speedup = (costs.building_speedup || 0) + speedupResult.usedSpeedup;
+          points += speedupResult.totalPoints;
+        }
       }
+      
       const { canAfford } = computeAffordability(costs, vault);
+      const hasSelection = !!to && steps.length > 0;
+      const isMaxed = from && levels.length && convertLevelToNumeric(from) === convertLevelToNumeric(levels[levels.length - 1]);
+      const canUpgrade = canAfford && hasSelection && !isMaxed;
+      const canSpeedup = canUseSpeedup && canAfford && hasSelection && !isMaxed;
+
       return {
         name, levels, s, from, to, steps, costs, points,
         totalTime, buffedTime, speedupMins, canAfford,
+        hasSelection, isMaxed, canUpgrade, canSpeedup, hasSpeedups,
+        availableBuildingSpeedups, speedupResult,
       };
     });
   }, [data, buildingNames, bState, buffs, vault]);
@@ -116,7 +137,6 @@ export default function BuildingsPage() {
   const totalActivePoints = useMemo(() => {
     let total = 0;
     for (const c of cards) {
-      // ONLY count when Active AND can afford from vault
       if (c.s.active && c.canAfford && c.steps.length) total += c.points;
     }
     return total;
@@ -148,42 +168,60 @@ export default function BuildingsPage() {
                 onTo={(v) => setField(c.name, 'to', v)}
               />
               <div className="checkbox-group">
-                <label className="checkbox-label" style={{ opacity: c.canAfford || !c.to ? 1 : 0.5 }}>
+                <label className="checkbox-label" style={{ opacity: c.canUpgrade ? 1 : 0.5 }}>
                   <input
                     className="checkbox"
                     type="checkbox"
                     checked={!!c.s.active && c.canAfford}
-                    disabled={!c.to || !c.canAfford}
+                    disabled={!c.canUpgrade}
                     onChange={(e) => setField(c.name, 'active', e.target.checked)}
-                  />{' '}
+                  />
                   Upgrade
                 </label>
-                <label className="checkbox-label">
+                <label className="checkbox-label" style={{ opacity: c.canSpeedup ? 1 : 0.5 }}>
                   <input
                     className="checkbox"
                     type="checkbox"
-                    checked={!!c.s.speedup}
+                    checked={!!c.s.speedup && c.canSpeedup}
+                    disabled={!c.canSpeedup}
                     onChange={(e) => setField(c.name, 'speedup', e.target.checked)}
-                  />{' '}
-                  +Speedups
+                  />
+                  <AssetImg src={resourceImg('building_speedup')} size={18} /> +Speedups
+                  {!c.hasSpeedups && c.steps.length > 0 && (
+                    <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', marginLeft: 4 }}>
+                      (no building speedups)
+                    </span>
+                  )}
                 </label>
               </div>
               <CostStatus
                 active={!!c.s.active && c.canAfford}
-                hasSelection={!!c.to && c.steps.length > 0}
+                hasSelection={c.hasSelection}
                 points={c.points}
                 stepsInfo={` (${c.steps.length} steps)`}
                 costs={c.costs}
                 vault={vault}
                 extra={
-                  c.steps.length > 0 ? (
+                  c.hasSelection ? (
                     <div>
-                      Time: {formatSecondsToTime(c.buffedTime)}
+                      <AssetImg src={resourceImg('building_speedup')} size={18} /> Time: {formatSecondsToTime(c.buffedTime)}
                       {c.buffedTime !== c.totalTime && (
                         <span style={{ opacity: 0.7 }}> (base {formatSecondsToTime(c.totalTime)})</span>
                       )}
-                      {c.s.speedup && (
-                        <div>Speedup: {formatNumber(c.speedupMins)} min</div>
+                      {c.s.speedup && c.canSpeedup && c.speedupResult && (
+                        <div>
+                          <AssetImg src={resourceImg('building_speedup')} size={18} /> Speedup: {formatSecondsToTime(c.speedupResult.usedSpeedup * 60)}
+                          {c.speedupResult.partialNote && (
+                            <span style={{ color: 'var(--color-warning)', fontSize: '0.65rem', display: 'block' }}>
+                              {c.speedupResult.partialNote}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {c.s.speedup && !c.canSpeedup && c.hasSelection && (
+                        <div style={{ color: 'var(--color-warning)', fontSize: '0.65rem' }}>
+                          <AssetImg src={resourceImg('building_speedup')} size={18} /> No building speedups available in vault
+                        </div>
                       )}
                     </div>
                   ) : null

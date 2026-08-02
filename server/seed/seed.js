@@ -42,9 +42,6 @@ async function seed() {
     console.log(`  ✓ ${key}`);
   }
 
-  // Default preset is client-only (localStorage) — do not seed into MongoDB
-  console.log('  ✓ skipped DB default preset (local only)');
-
   console.log('\nSeed complete.');
   process.exit(0);
 }
