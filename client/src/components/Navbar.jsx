@@ -86,10 +86,13 @@ export default function Navbar() {
   const handleSwitchPreset = (e) => {
     const value = e.target.value;
     if (value === '') {
-      // Empty option - do nothing or create default
       return;
     }
     switchPreset(value);
+  };
+
+  const closeMenu = () => {
+    setMenuOpen(false);
   };
 
   return (
@@ -116,8 +119,10 @@ export default function Navbar() {
               key={l.to}
               to={l.to}
               end={l.to === '/'}
-              className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
-              onClick={() => setMenuOpen(false)}
+              onClick={closeMenu}
+              className={({ isActive }) => {
+                return `nav-link${isActive ? ' active' : ''}`;
+              }}
             >
               {l.label}
             </NavLink>

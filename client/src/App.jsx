@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { lazy, Suspense, useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { useApp } from './context/AppContext';
 import Navbar from './components/Navbar';
 import AuthModal from './components/AuthModal';
@@ -26,6 +26,14 @@ function PageFallback() {
   );
 }
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 export default function App() {
   const { loading } = useApp();
 
@@ -33,7 +41,7 @@ export default function App() {
     return (
       <div className="page-loading full">
         <div className="spinner" />
-        <p>Loading...</p>
+        <p>Loading from MongoDB...</p>
       </div>
     );
   }
@@ -42,6 +50,7 @@ export default function App() {
     <div className="app">
       <Navbar />
       <AuthModal />
+      <ScrollToTop />
       <main className="app-container">
         <Suspense fallback={<PageFallback />}>
           <Routes>
