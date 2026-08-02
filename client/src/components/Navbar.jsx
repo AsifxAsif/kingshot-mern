@@ -33,16 +33,16 @@ const PAGE_LABELS = {
 };
 
 const PATH_TO_SCORE_KEY = {
-  '/buildings': 'score_buildings',
-  '/war-academy': 'score_academy',
-  '/widgets': 'score_widgets',
-  '/heroes': 'score_heroes',
-  '/hero-gear': 'score_herogear',
-  '/gov-gear': 'score_govgear',
-  '/gov-charm': 'score_govcharm',
-  '/pets': 'score_pets',
-  '/troops': 'score_troops',
-  '/misc': 'score_misc',
+  '/buildings': 'buildings',
+  '/war-academy': 'warAcademy',
+  '/widgets': 'widgets',
+  '/heroes': 'heroes',
+  '/hero-gear': 'heroGear',
+  '/gov-gear': 'govGear',
+  '/gov-charm': 'govCharm',
+  '/pets': 'pets',
+  '/troops': 'troops',
+  '/misc': 'misc',
 };
 
 export default function Navbar() {

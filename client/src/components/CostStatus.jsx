@@ -53,6 +53,7 @@ export default function CostStatus({
             const deficit = left < 0;
             const displayNeed = key.includes('speedup') ? formatSecondsToTime(need * 60) : formatNumber(need);
             const displayLeft = key.includes('speedup') ? formatSecondsToTime(Math.abs(left) * 60) : formatNumber(Math.abs(left));
+            const displayRemaining = key.includes('speedup') ? formatSecondsToTime(left * 60) : formatNumber(left);
             return (
               <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                 <AssetImg src={resourceImg(key)} size={18} />
@@ -60,7 +61,7 @@ export default function CostStatus({
                   {key.replace(/_/g, ' ')}: {displayNeed}
                 </span>
                 <span className={deficit ? 'text-deficit' : 'text-remaining'}>
-                  ({left >= 0 ? formatNumber(left) + ' left' : displayLeft + ' short'})
+                  ({left >= 0 ? displayRemaining + ' left' : displayLeft + ' short'})
                 </span>
               </div>
             );
