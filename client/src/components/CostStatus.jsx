@@ -1,4 +1,4 @@
-import { formatNumber, formatSecondsToTime } from '../utils/calc';
+import { formatNumber, formatSecondsToTime, parseResourceValue } from '../utils/calc';
 import { computeAffordability } from '../utils/resources';
 import AssetImg from './AssetImg';
 import { resourceImg } from '../utils/images';
@@ -47,13 +47,14 @@ export default function CostStatus({
         <div className="cost-grid">
           {Object.entries(costs || {}).map(([key, amt]) => {
             if (key.startsWith('_')) return null;
-            const have = parseFloat(vault?.[key]) || 0;
+            const have = parseResourceValue(vault?.[key]);
             const need = parseFloat(amt) || 0;
             const left = have - need;
             const deficit = left < 0;
-            const displayNeed = key.includes('speedup') ? formatSecondsToTime(need * 60) : formatNumber(need);
-            const displayLeft = key.includes('speedup') ? formatSecondsToTime(Math.abs(left) * 60) : formatNumber(Math.abs(left));
-            const displayRemaining = key.includes('speedup') ? formatSecondsToTime(left * 60) : formatNumber(left);
+            const isSpeedup = key.includes('speedup');
+            const displayNeed = isSpeedup ? formatSecondsToTime(need * 60) : formatNumber(need);
+            const displayLeft = isSpeedup ? formatSecondsToTime(Math.abs(left) * 60) : formatNumber(Math.abs(left));
+            const displayRemaining = isSpeedup ? formatSecondsToTime(left * 60) : formatNumber(left);
             return (
               <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                 <AssetImg src={resourceImg(key)} size={18} />

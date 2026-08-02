@@ -110,6 +110,7 @@ export function AppProvider({ children }) {
       setState({ ...EMPTY_STATE });
       return;
     }
+    // Keep vault values as strings (they will be parsed when used)
     setState({
       ...EMPTY_STATE,
       vault: doc.vault || {},
@@ -134,13 +135,11 @@ export function AppProvider({ children }) {
 
   const refreshList = useCallback(async () => {
     if (!user) {
-      // Guest: only local default preset
       setPresetList([{ name: 'default' }]);
       return [{ name: 'default' }];
     }
     try {
       const list = await listPresets();
-      // All presets from DB, including 'default' if it exists
       const cleaned = (list || []).filter((p) => p.name);
       setPresetList(cleaned);
       return cleaned;
@@ -160,10 +159,8 @@ export function AppProvider({ children }) {
       const list = await refreshList();
       const savedName = getSavedActiveName();
       
-      // Check if saved preset exists
       const exists = list.some((p) => p.name === savedName);
       if (!exists || !savedName) {
-        // Find first preset
         const firstPreset = list.length > 0 ? list[0] : null;
         if (firstPreset && !cancelled) {
           try {
@@ -177,7 +174,6 @@ export function AppProvider({ children }) {
             console.error('Failed to load preset after login:', e);
           }
         } else if (!cancelled) {
-          // No presets exist, create default
           setCurrentName('');
           setSavedActiveName('');
           setState({ ...EMPTY_STATE });
@@ -228,7 +224,6 @@ export function AppProvider({ children }) {
             }
           }
         } else if (list.length > 0 && !cancelled) {
-          // Load first available preset
           try {
             const doc = await getPreset(list[0].name);
             setCurrentName(list[0].name);
@@ -245,7 +240,6 @@ export function AppProvider({ children }) {
           setState({ ...EMPTY_STATE });
         }
       } else {
-        // Guest: load from localStorage
         const savedName = getSavedActiveName();
         if (savedName) {
           setCurrentName(savedName);
@@ -270,7 +264,6 @@ export function AppProvider({ children }) {
       saveTimer.current = setTimeout(async () => {
         if (!name) return;
         if (!user) {
-          // Guest: save to localStorage
           saveLocalDefault({ ...state, ...patch });
           return;
         }
@@ -299,10 +292,8 @@ export function AppProvider({ children }) {
           typeof valueOrFn === 'function' ? valueOrFn(prevSec) : valueOrFn;
         const next = { ...prev, [section]: nextSec };
         if (!currentNameRef.current || currentNameRef.current === '') {
-          // No active preset, save to localStorage as default
           saveLocalDefault(next);
         } else if (!user) {
-          // Guest with named preset (shouldn't happen)
           saveLocalDefault(next);
         } else {
           scheduleSave(currentNameRef.current, { [section]: nextSec });
@@ -347,7 +338,6 @@ export function AppProvider({ children }) {
         if (name === 'default' && !user) {
           setState(loadLocalDefault());
         } else if (name === 'default' && user) {
-          // If 'default' exists in DB, load it
           try {
             const doc = await getPreset(name);
             applyPresetDoc(doc);
@@ -380,7 +370,6 @@ export function AppProvider({ children }) {
         return;
       }
       try {
-        // Check if preset already exists
         const existing = presetList.find((p) => p.name === n);
         if (existing) {
           alert(`Preset "${n}" already exists`);
@@ -426,7 +415,6 @@ export function AppProvider({ children }) {
         return;
       }
       
-      // If guest and deleting 'default' from localStorage
       if (!user && name === 'default') {
         if (!confirm(`Delete preset "${name}" from local storage?`)) return;
         saveLocalDefault({ ...EMPTY_STATE });
@@ -448,7 +436,6 @@ export function AppProvider({ children }) {
         await apiDelete(name);
         const list = await refreshList();
         
-        // If we deleted the current preset, switch to another
         if (currentNameRef.current === name) {
           const firstPreset = list.length > 0 ? list[0] : null;
           if (firstPreset) {
