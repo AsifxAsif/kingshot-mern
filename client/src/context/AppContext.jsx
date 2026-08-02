@@ -146,27 +146,94 @@ export function AppProvider({ children }) {
     }
   }, [user]);
 
+  // Handle user login - switch from default to first available preset
+  useEffect(() => {
+    if (!user) return;
+
+    let cancelled = false;
+    (async () => {
+      const list = await refreshList();
+      const savedName = getSavedActiveName();
+
+      // If current is default or saved preset doesn't exist, switch to first available
+      const exists = list.some((p) => p.name === savedName);
+      if (savedName === 'default' || !exists) {
+        // Find first non-default preset
+        const firstPreset = list.find((p) => p.name !== 'default');
+        if (firstPreset) {
+          try {
+            const doc = await getPreset(firstPreset.name);
+            if (!cancelled) {
+              setCurrentName(firstPreset.name);
+              setSavedActiveName(firstPreset.name);
+              applyPresetDoc(doc);
+            }
+          } catch (e) {
+            console.error('Failed to load preset after login:', e);
+          }
+        }
+        // If no presets exist, keep default but mark that user is logged in
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, refreshList]);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
       const list = await refreshList();
-      const wanted = getSavedActiveName();
 
-      if (wanted !== 'default' && !list.some((p) => p.name === wanted)) {
-        setSavedActiveName('default');
-        setCurrentName('default');
-        setState(loadLocalDefault());
-        setLoading(false);
-        return;
-      }
+      // If user is logged in, never default to 'default' preset
+      if (user) {
+        const savedName = getSavedActiveName();
+        // Check if saved preset exists
+        const exists = list.some((p) => p.name === savedName);
 
-      if (!cancelled) {
+        if (savedName === 'default' || !exists) {
+          // Find first non-default preset
+          const firstPreset = list.find((p) => p.name !== 'default');
+          if (firstPreset && !cancelled) {
+            try {
+              const doc = await getPreset(firstPreset.name);
+              setCurrentName(firstPreset.name);
+              setSavedActiveName(firstPreset.name);
+              applyPresetDoc(doc);
+            } catch (e) {
+              console.error('Failed to load first preset:', e);
+              setCurrentName('default');
+              setSavedActiveName('default');
+              setState(loadLocalDefault());
+            }
+          } else if (!cancelled) {
+            // No presets exist, but user is logged in - create default preset for them?
+            // Actually, just use empty state with default name
+            setCurrentName('default');
+            setSavedActiveName('default');
+            setState(loadLocalDefault());
+          }
+        } else if (!cancelled) {
+          try {
+            const doc = await getPreset(savedName);
+            setCurrentName(savedName);
+            setSavedActiveName(savedName);
+            applyPresetDoc(doc);
+          } catch {
+            setCurrentName('default');
+            setSavedActiveName('default');
+            setState(loadLocalDefault());
+          }
+        }
+      } else {
+        // Guest user - use default preset from localStorage
+        const wanted = getSavedActiveName();
         if (wanted === 'default') {
           setCurrentName('default');
           setSavedActiveName('default');
           setState(loadLocalDefault());
-        } else {
+        } else if (list.some((p) => p.name === wanted)) {
           try {
             const doc = await getPreset(wanted);
             setCurrentName(wanted);
@@ -177,9 +244,13 @@ export function AppProvider({ children }) {
             setSavedActiveName('default');
             setState(loadLocalDefault());
           }
+        } else {
+          setCurrentName('default');
+          setSavedActiveName('default');
+          setState(loadLocalDefault());
         }
-        setLoading(false);
       }
+      setLoading(false);
     })();
     return () => {
       cancelled = true;
@@ -325,9 +396,18 @@ export function AppProvider({ children }) {
         await apiDelete(name);
         await refreshList();
         if (currentNameRef.current === name) {
-          setSavedActiveName('default');
-          setCurrentName('default');
-          setState(loadLocalDefault());
+          const list = await refreshList();
+          const firstPreset = list.find((p) => p.name !== 'default');
+          if (firstPreset) {
+            const doc = await getPreset(firstPreset.name);
+            setSavedActiveName(firstPreset.name);
+            setCurrentName(firstPreset.name);
+            applyPresetDoc(doc);
+          } else {
+            setSavedActiveName('default');
+            setCurrentName('default');
+            setState(loadLocalDefault());
+          }
         }
       } catch (e) {
         alert(e.message || 'Delete failed');
@@ -361,11 +441,16 @@ export function AppProvider({ children }) {
         if (k === 'vault') next.vault = {};
         else next[k] = {};
       }
+      const scoreKey = PAGE_SCORE_RESET[path];
+      if (scoreKey) {
+        next.pageScores = { ...(prev.pageScores || {}), [scoreKey]: 0 };
+      }
       if (currentNameRef.current === 'default') {
         saveLocalDefault(next);
       } else {
         const patch = {};
         for (const k of keys) patch[k] = next[k];
+        if (scoreKey) patch.pageScores = next.pageScores;
         scheduleSave(currentNameRef.current, patch);
       }
       return next;
@@ -373,17 +458,12 @@ export function AppProvider({ children }) {
   }, [scheduleSave]);
 
   const globalScore = useMemo(() => {
-    const vaultScore = calcVaultScore(state.vault || {});
     const pages = Object.values(state.pageScores || {}).reduce(
       (s, n) => s + (Number(n) || 0),
       0
     );
-    const pageVault = Number(state.pageScores?.vault);
-    if (pageVault === pageVault) {
-      return pages;
-    }
-    return vaultScore + pages;
-  }, [state.vault, state.pageScores]);
+    return pages;
+  }, [state.pageScores]);
 
   const value = {
     loading,

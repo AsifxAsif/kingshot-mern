@@ -4,7 +4,7 @@ import AssetImg from '../components/AssetImg';
 import { resourceImg, asset } from '../utils/images';
 
 export default function VaultPage() {
-  const { vault, updateVaultField } = useApp();
+  const { vault, updateVaultField, globalScore } = useApp();
 
   return (
     <div className="vault-section">
@@ -13,7 +13,7 @@ export default function VaultPage() {
         RESOURCE VAULT
       </h2>
       <p className="hint">
-        Inventory saved to MongoDB. Global score comes from <strong>Active</strong> upgrades on other pages.
+        Enter your available resources here. The <strong>Strongest Governor</strong> total score is calculated from all active upgrades across all pages, NOT from vault resources.
       </p>
       <div className="vault-grid">
         {RESOURCE_ITEMS.map((item) => (
@@ -31,6 +31,12 @@ export default function VaultPage() {
             />
           </div>
         ))}
+      </div>
+      <div className="totals-bar">
+        <strong>Strongest Governor Total Score:</strong>{' '}
+        <span style={{ color: 'var(--lcd-glow, #4af205)', fontWeight: 700 }}>
+          {globalScore.toLocaleString()}
+        </span>
       </div>
     </div>
   );
