@@ -13,7 +13,8 @@ export default function VaultPage() {
         RESOURCE VAULT
       </h2>
       <p className="hint">
-        Enter your available resources here. The <strong>Strongest Governor</strong> total score is calculated from all active upgrades across all pages, NOT from vault resources.
+        Enter your available resources here. Supports K, M, B (e.g., 1.5M, 2.3B) and time formats (e.g., 2d 14h 35m).<br />
+        The <strong>Strongest Governor</strong> total score is calculated from all active upgrades across all pages, NOT from vault resources.
       </p>
       <div className="vault-grid">
         {RESOURCE_ITEMS.map((item) => (

@@ -3,6 +3,8 @@ export function parseCost(val) {
 	if (val == null || val === '') return 0;
 	if (typeof val === 'number') return val;
 	let str = String(val).toUpperCase().trim().replace(/,/g, '');
+	// Remove spaces between number and suffix (e.g., "1.5 M" -> "1.5M")
+	str = str.replace(/\s+(?=[KMB])/g, '');
 	if (str.endsWith('B')) return (parseFloat(str) || 0) * 1e9;
 	if (str.endsWith('M')) return (parseFloat(str) || 0) * 1e6;
 	if (str.endsWith('K')) return (parseFloat(str) || 0) * 1e3;
@@ -13,7 +15,8 @@ export function parseTimeToSeconds(timeStr) {
 	if (typeof timeStr === 'number') return timeStr;
 	const s = String(timeStr).toUpperCase().trim();
 	if (!s) return 0;
-	if (/^\d+(\.\d+)?$/.test(s)) return Math.round(parseFloat(s) * 60);
+	// If it's just a number (no time units), assume it's seconds
+	if (/^\d+(\.\d+)?$/.test(s)) return Math.round(parseFloat(s));
 	let sec = 0;
 	const d = s.match(/(\d+)\s*D/);
 	const h = s.match(/(\d+)\s*H/);
@@ -353,18 +356,23 @@ export function calcVaultScore(vault) {
 }
 export function parseResourceValue(str) {
 	if (!str || typeof str !== 'string') return 0;
-	const s = str.trim().toUpperCase();
-	if (/[DHM]/.test(s) && !/[KM]/.test(s.replace(/[DHM\s]/g, ''))) {
-		let mins = 0;
-		const d = s.match(/(\d+)\s*D/);
-		const h = s.match(/(\d+)\s*H/);
-		const m = s.match(/(\d+)\s*M/);
-		if (d) mins += parseInt(d[1], 10) * 1440;
-		if (h) mins += parseInt(h[1], 10) * 60;
-		if (m) mins += parseInt(m[1], 10);
-		return mins;
+	const s = str.trim();
+	if (!s) return 0;
+	// Check if it's a time format (contains d, h, m, s)
+	if (/[dhms]/i.test(s)) {
+		return parseTimeToMinutes(s);
 	}
-	return parseCost(s);
+	// Check if it's a number with K/M/B suffix
+	const upper = s.toUpperCase().trim();
+	// Remove spaces between number and suffix (e.g., "1.5 M" -> "1.5M")
+	const cleaned = upper.replace(/\s+(?=[KMB])/g, '');
+	if (/[KMB]$/.test(cleaned)) {
+		return parseCost(cleaned);
+	}
+	// Try parsing as regular number
+	const num = parseFloat(s);
+	if (!isNaN(num)) return num;
+	return 0;
 }
 export function applyBuildingSpeedupBuffs(originalSeconds, buffs = {}) {
 	if (!originalSeconds || originalSeconds <= 0) return 0;
