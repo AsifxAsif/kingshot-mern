@@ -14,7 +14,6 @@ import {
   updatePreset as apiUpdate,
   deletePreset as apiDelete,
 } from '../services/api';
-import { calcVaultScore } from '../utils/calc';
 import { useAuth } from './AuthContext';
 
 const AppContext = createContext(null);
@@ -75,15 +74,19 @@ function saveLocalDefault(state) {
 
 function getSavedActiveName() {
   try {
-    return localStorage.getItem(ACTIVE_KEY) || 'default';
+    return localStorage.getItem(ACTIVE_KEY) || '';
   } catch {
-    return 'default';
+    return '';
   }
 }
 
 function setSavedActiveName(name) {
   try {
-    localStorage.setItem(ACTIVE_KEY, name);
+    if (name) {
+      localStorage.setItem(ACTIVE_KEY, name);
+    } else {
+      localStorage.removeItem(ACTIVE_KEY);
+    }
   } catch {
   }
 }
@@ -93,10 +96,11 @@ export function AppProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [presetList, setPresetList] = useState([]);
-  const [currentName, setCurrentName] = useState(() => getSavedActiveName());
-  const [state, setState] = useState(() =>
-    getSavedActiveName() === 'default' ? loadLocalDefault() : { ...EMPTY_STATE }
-  );
+  const [currentName, setCurrentName] = useState(() => getSavedActiveName() || '');
+  const [state, setState] = useState(() => {
+    const saved = getSavedActiveName();
+    return saved ? loadLocalDefault() : { ...EMPTY_STATE };
+  });
   const saveTimer = useRef(null);
   const currentNameRef = useRef(currentName);
   currentNameRef.current = currentName;
@@ -130,37 +134,38 @@ export function AppProvider({ children }) {
 
   const refreshList = useCallback(async () => {
     if (!user) {
+      // Guest: only local default preset
       setPresetList([{ name: 'default' }]);
       return [{ name: 'default' }];
     }
     try {
       const list = await listPresets();
-      const cleaned = (list || []).filter((p) => p.name && p.name !== 'default');
-      const withDefault = [{ name: 'default' }, ...cleaned];
-      setPresetList(withDefault);
-      return withDefault;
+      // All presets from DB, including 'default' if it exists
+      const cleaned = (list || []).filter((p) => p.name);
+      setPresetList(cleaned);
+      return cleaned;
     } catch (err) {
       console.error('Failed to load presets:', err);
-      setPresetList([{ name: 'default' }]);
-      return [{ name: 'default' }];
+      setPresetList([]);
+      return [];
     }
   }, [user]);
 
-  // Handle user login - switch from default to first available preset
+  // Handle user login - load first available preset
   useEffect(() => {
     if (!user) return;
-
+    
     let cancelled = false;
     (async () => {
       const list = await refreshList();
       const savedName = getSavedActiveName();
-
-      // If current is default or saved preset doesn't exist, switch to first available
+      
+      // Check if saved preset exists
       const exists = list.some((p) => p.name === savedName);
-      if (savedName === 'default' || !exists) {
-        // Find first non-default preset
-        const firstPreset = list.find((p) => p.name !== 'default');
-        if (firstPreset) {
+      if (!exists || !savedName) {
+        // Find first preset
+        const firstPreset = list.length > 0 ? list[0] : null;
+        if (firstPreset && !cancelled) {
           try {
             const doc = await getPreset(firstPreset.name);
             if (!cancelled) {
@@ -171,8 +176,12 @@ export function AppProvider({ children }) {
           } catch (e) {
             console.error('Failed to load preset after login:', e);
           }
+        } else if (!cancelled) {
+          // No presets exist, create default
+          setCurrentName('');
+          setSavedActiveName('');
+          setState({ ...EMPTY_STATE });
         }
-        // If no presets exist, keep default but mark that user is logged in
       }
     })();
     return () => {
@@ -185,69 +194,67 @@ export function AppProvider({ children }) {
     (async () => {
       setLoading(true);
       const list = await refreshList();
-
-      // If user is logged in, never default to 'default' preset
+      
       if (user) {
         const savedName = getSavedActiveName();
-        // Check if saved preset exists
         const exists = list.some((p) => p.name === savedName);
-
-        if (savedName === 'default' || !exists) {
-          // Find first non-default preset
-          const firstPreset = list.find((p) => p.name !== 'default');
-          if (firstPreset && !cancelled) {
-            try {
-              const doc = await getPreset(firstPreset.name);
-              setCurrentName(firstPreset.name);
-              setSavedActiveName(firstPreset.name);
-              applyPresetDoc(doc);
-            } catch (e) {
-              console.error('Failed to load first preset:', e);
-              setCurrentName('default');
-              setSavedActiveName('default');
-              setState(loadLocalDefault());
-            }
-          } else if (!cancelled) {
-            // No presets exist, but user is logged in - create default preset for them?
-            // Actually, just use empty state with default name
-            setCurrentName('default');
-            setSavedActiveName('default');
-            setState(loadLocalDefault());
-          }
-        } else if (!cancelled) {
+        
+        if (savedName && exists) {
           try {
             const doc = await getPreset(savedName);
-            setCurrentName(savedName);
-            setSavedActiveName(savedName);
-            applyPresetDoc(doc);
-          } catch {
-            setCurrentName('default');
-            setSavedActiveName('default');
-            setState(loadLocalDefault());
+            if (!cancelled) {
+              setCurrentName(savedName);
+              setSavedActiveName(savedName);
+              applyPresetDoc(doc);
+            }
+          } catch (e) {
+            console.error('Failed to load saved preset:', e);
+            const firstPreset = list.length > 0 ? list[0] : null;
+            if (firstPreset && !cancelled) {
+              try {
+                const doc = await getPreset(firstPreset.name);
+                setCurrentName(firstPreset.name);
+                setSavedActiveName(firstPreset.name);
+                applyPresetDoc(doc);
+              } catch (err) {
+                setCurrentName('');
+                setSavedActiveName('');
+                setState({ ...EMPTY_STATE });
+              }
+            } else if (!cancelled) {
+              setCurrentName('');
+              setSavedActiveName('');
+              setState({ ...EMPTY_STATE });
+            }
           }
+        } else if (list.length > 0 && !cancelled) {
+          // Load first available preset
+          try {
+            const doc = await getPreset(list[0].name);
+            setCurrentName(list[0].name);
+            setSavedActiveName(list[0].name);
+            applyPresetDoc(doc);
+          } catch (e) {
+            setCurrentName('');
+            setSavedActiveName('');
+            setState({ ...EMPTY_STATE });
+          }
+        } else if (!cancelled) {
+          setCurrentName('');
+          setSavedActiveName('');
+          setState({ ...EMPTY_STATE });
         }
       } else {
-        // Guest user - use default preset from localStorage
-        const wanted = getSavedActiveName();
-        if (wanted === 'default') {
-          setCurrentName('default');
-          setSavedActiveName('default');
+        // Guest: load from localStorage
+        const savedName = getSavedActiveName();
+        if (savedName) {
+          setCurrentName(savedName);
+          setSavedActiveName(savedName);
           setState(loadLocalDefault());
-        } else if (list.some((p) => p.name === wanted)) {
-          try {
-            const doc = await getPreset(wanted);
-            setCurrentName(wanted);
-            setSavedActiveName(wanted);
-            applyPresetDoc(doc);
-          } catch {
-            setCurrentName('default');
-            setSavedActiveName('default');
-            setState(loadLocalDefault());
-          }
         } else {
-          setCurrentName('default');
-          setSavedActiveName('default');
-          setState(loadLocalDefault());
+          setCurrentName('');
+          setSavedActiveName('');
+          setState({ ...EMPTY_STATE });
         }
       }
       setLoading(false);
@@ -261,10 +268,12 @@ export function AppProvider({ children }) {
     (name, patch) => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(async () => {
-        if (name === 'default') {
+        if (!name) return;
+        if (!user) {
+          // Guest: save to localStorage
+          saveLocalDefault({ ...state, ...patch });
           return;
         }
-        if (!user) return;
         setSaving(true);
         try {
           await apiUpdate(name, {
@@ -279,7 +288,7 @@ export function AppProvider({ children }) {
         }
       }, 400);
     },
-    [user]
+    [user, state]
   );
 
   const updateSection = useCallback(
@@ -289,7 +298,11 @@ export function AppProvider({ children }) {
         const nextSec =
           typeof valueOrFn === 'function' ? valueOrFn(prevSec) : valueOrFn;
         const next = { ...prev, [section]: nextSec };
-        if (currentNameRef.current === 'default') {
+        if (!currentNameRef.current || currentNameRef.current === '') {
+          // No active preset, save to localStorage as default
+          saveLocalDefault(next);
+        } else if (!user) {
+          // Guest with named preset (shouldn't happen)
           saveLocalDefault(next);
         } else {
           scheduleSave(currentNameRef.current, { [section]: nextSec });
@@ -297,7 +310,7 @@ export function AppProvider({ children }) {
         return next;
       });
     },
-    [scheduleSave]
+    [scheduleSave, user]
   );
 
   const setPageScore = useCallback(
@@ -305,7 +318,9 @@ export function AppProvider({ children }) {
       setState((prev) => {
         const pageScores = { ...(prev.pageScores || {}), [key]: score };
         const next = { ...prev, pageScores };
-        if (currentNameRef.current === 'default') {
+        if (!currentNameRef.current || currentNameRef.current === '') {
+          saveLocalDefault(next);
+        } else if (!user) {
           saveLocalDefault(next);
         } else {
           scheduleSave(currentNameRef.current, { pageScores });
@@ -313,17 +328,32 @@ export function AppProvider({ children }) {
         return next;
       });
     },
-    [scheduleSave]
+    [scheduleSave, user]
   );
 
   const switchPreset = useCallback(
     async (name) => {
       setLoading(true);
       try {
+        if (!name) {
+          setCurrentName('');
+          setSavedActiveName('');
+          setState({ ...EMPTY_STATE });
+          setLoading(false);
+          return;
+        }
         setSavedActiveName(name);
         setCurrentName(name);
-        if (name === 'default') {
+        if (name === 'default' && !user) {
           setState(loadLocalDefault());
+        } else if (name === 'default' && user) {
+          // If 'default' exists in DB, load it
+          try {
+            const doc = await getPreset(name);
+            applyPresetDoc(doc);
+          } catch {
+            setState({ ...EMPTY_STATE });
+          }
         } else {
           const doc = await getPreset(name);
           applyPresetDoc(doc);
@@ -335,7 +365,7 @@ export function AppProvider({ children }) {
         setLoading(false);
       }
     },
-    []
+    [user]
   );
 
   const createPreset = useCallback(
@@ -345,11 +375,18 @@ export function AppProvider({ children }) {
         return;
       }
       const n = String(name || '').trim();
-      if (!n || n === 'default') {
-        alert('Choose a different preset name');
+      if (!n) {
+        alert('Please enter a preset name');
         return;
       }
       try {
+        // Check if preset already exists
+        const existing = presetList.find((p) => p.name === n);
+        if (existing) {
+          alert(`Preset "${n}" already exists`);
+          return;
+        }
+        
         const body = {
           name: n,
           username: user.username || '',
@@ -379,34 +416,50 @@ export function AppProvider({ children }) {
         alert(e.message || 'Create failed');
       }
     },
-    [user, state, refreshList]
+    [user, state, refreshList, presetList]
   );
 
   const deletePreset = useCallback(
     async (name) => {
-      if (name === 'default') {
-        if (!confirm('Clear local default preset data?')) return;
-        saveLocalDefault({ ...EMPTY_STATE });
-        if (currentNameRef.current === 'default') setState({ ...EMPTY_STATE });
+      if (!name) {
+        alert('No preset selected to delete');
         return;
       }
-      if (!user) return;
+      
+      // If guest and deleting 'default' from localStorage
+      if (!user && name === 'default') {
+        if (!confirm(`Delete preset "${name}" from local storage?`)) return;
+        saveLocalDefault({ ...EMPTY_STATE });
+        setState({ ...EMPTY_STATE });
+        setCurrentName('');
+        setSavedActiveName('');
+        await refreshList();
+        return;
+      }
+      
+      if (!user) {
+        alert('Login required to delete presets');
+        return;
+      }
+      
       if (!confirm(`Delete preset "${name}"?`)) return;
+      
       try {
         await apiDelete(name);
-        await refreshList();
+        const list = await refreshList();
+        
+        // If we deleted the current preset, switch to another
         if (currentNameRef.current === name) {
-          const list = await refreshList();
-          const firstPreset = list.find((p) => p.name !== 'default');
+          const firstPreset = list.length > 0 ? list[0] : null;
           if (firstPreset) {
             const doc = await getPreset(firstPreset.name);
             setSavedActiveName(firstPreset.name);
             setCurrentName(firstPreset.name);
             applyPresetDoc(doc);
           } else {
-            setSavedActiveName('default');
-            setCurrentName('default');
-            setState(loadLocalDefault());
+            setSavedActiveName('');
+            setCurrentName('');
+            setState({ ...EMPTY_STATE });
           }
         }
       } catch (e) {
@@ -445,17 +498,21 @@ export function AppProvider({ children }) {
       if (scoreKey) {
         next.pageScores = { ...(prev.pageScores || {}), [scoreKey]: 0 };
       }
-      if (currentNameRef.current === 'default') {
+      
+      const currentName = currentNameRef.current;
+      if (!currentName || currentName === '') {
+        saveLocalDefault(next);
+      } else if (!user) {
         saveLocalDefault(next);
       } else {
         const patch = {};
         for (const k of keys) patch[k] = next[k];
         if (scoreKey) patch.pageScores = next.pageScores;
-        scheduleSave(currentNameRef.current, patch);
+        scheduleSave(currentName, patch);
       }
       return next;
     });
-  }, [scheduleSave]);
+  }, [scheduleSave, user]);
 
   const globalScore = useMemo(() => {
     const pages = Object.values(state.pageScores || {}).reduce(

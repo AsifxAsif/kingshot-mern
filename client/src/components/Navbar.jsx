@@ -74,9 +74,22 @@ export default function Navbar() {
       }
     }
   };
+  
   const handleDelete = () => {
-    if (currentName === 'default') return alert('Cannot delete default');
-    if (confirm(`Delete preset "${currentName}" from database?`)) deletePreset(currentName);
+    if (!currentName) {
+      alert('No preset selected to delete');
+      return;
+    }
+    deletePreset(currentName);
+  };
+
+  const handleSwitchPreset = (e) => {
+    const value = e.target.value;
+    if (value === '') {
+      // Empty option - do nothing or create default
+      return;
+    }
+    switchPreset(value);
   };
 
   return (
@@ -131,12 +144,16 @@ export default function Navbar() {
             <select
               id="presetSelect"
               className="preset-select"
-              value={currentName}
-              onChange={(e) => switchPreset(e.target.value)}
+              value={currentName || ''}
+              onChange={handleSwitchPreset}
             >
-              {presetList.map((p) => (
-                <option key={p.name} value={p.name}>{p.name}</option>
-              ))}
+              {presetList.length === 0 ? (
+                <option value="">No presets</option>
+              ) : (
+                presetList.map((p) => (
+                  <option key={p.name} value={p.name}>{p.name}</option>
+                ))
+              )}
             </select>
             <button type="button" className="preset-btn" onClick={handleNew} title="Create New Preset">
               <i className="fas fa-plus" /> New
