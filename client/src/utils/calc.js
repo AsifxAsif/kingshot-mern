@@ -26,6 +26,11 @@ export function parseTimeToSeconds(timeStr) {
 	if (h) sec += parseInt(h[1], 10) * 3600;
 	if (m) sec += parseInt(m[1], 10) * 60;
 	if (secM) sec += parseInt(secM[1], 10);
+	// If no time units matched, try parsing as plain number (seconds)
+	if (sec === 0) {
+		const num = parseFloat(s);
+		if (!isNaN(num)) return Math.round(num);
+	}
 	return sec;
 }
 export function parseTimeToMinutes(timeStr) {
@@ -354,32 +359,41 @@ export function calcVaultScore(vault) {
 	}
 	return Math.round(total);
 }
+/**
+ * Parse a resource value from the vault
+ * Supports: K, M, B suffixes, time formats (d/h/m/s), plain numbers
+ */
 export function parseResourceValue(str) {
 	if (str == null || str === '') return 0;
 	if (typeof str === 'number') return str;
 	const s = String(str).trim();
 	if (!s) return 0;
 	// Check if it's a time format (contains d, h, m, s)
-	if (/[dhms]/i.test(s)) {
-		return parseTimeToMinutes(s);
+	// Must have at least one letter and look like a time
+	if (/[dhms]/i.test(s) && /[\d]/.test(s)) {
+		const minutes = parseTimeToMinutes(s);
+		if (minutes > 0) return minutes;
 	}
 	// Check if it's a number with K/M/B suffix
-	const upper = s.toUpperCase().trim();
-	// Remove spaces between number and suffix (e.g., "1.5 M" -> "1.5M")
-	const cleaned = upper.replace(/\s+(?=[KMB])/g, '');
-	// Handle K, M, B suffix - support decimal values like 470.29M
-	if (/[KMB]$/.test(cleaned)) {
-		const suffix = cleaned.slice(-1);
-		const numStr = cleaned.slice(0, -1);
-		const num = parseFloat(numStr);
+	// Match pattern: optional number with optional decimal, then K/M/B
+	// Examples: 1.78B, 470.29M, 408.75M, 7.09M, 500K, 2.5K
+	const kMBSuffixMatch = s.match(/^([\d.]+)\s*([KMB])$/i);
+	if (kMBSuffixMatch) {
+		const num = parseFloat(kMBSuffixMatch[1]);
 		if (isNaN(num)) return 0;
+		const suffix = kMBSuffixMatch[2].toUpperCase();
 		if (suffix === 'K') return num * 1000;
 		if (suffix === 'M') return num * 1000000;
 		if (suffix === 'B') return num * 1000000000;
 	}
-	// Check if it's a plain number (with commas)
+	// Check if it's a plain number (with or without commas)
 	const num = parseFloat(s.replace(/,/g, ''));
 	if (!isNaN(num)) return num;
+	// If we get here, try to extract any number from the string
+	const extracted = s.match(/(\d+(?:\.\d+)?)/);
+	if (extracted) {
+		return parseFloat(extracted[1]);
+	}
 	return 0;
 }
 export function applyBuildingSpeedupBuffs(originalSeconds, buffs = {}) {
