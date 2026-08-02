@@ -11,7 +11,7 @@ import { LevelSelects } from '../components/LevelSelects';
 export default function HeroGearPage() {
   const { data, loading, error } = useGameData('hero_gears');
   const { data: forgeData, loading: forgeLoading } = useGameData('forgehammers');
-  const { state, updateSection, setPageScore, vault } = useApp();
+  const { state, updateSection, setPageScore, vault, remainingVault } = useApp();
   const s = state.heroGear || {};
   const rows = data?.['Hero Gear'] || (Array.isArray(data) ? data : []);
   const forgeRows = forgeData?.Mastery || forgeData?.Forgehammer || (Array.isArray(forgeData) ? forgeData : []);
@@ -112,7 +112,7 @@ export default function HeroGearPage() {
     return p;
   }, [costs]);
 
-  const { canAfford } = useMemo(() => computeAffordability(costs, vault || {}), [costs, vault]);
+  const { canAfford } = useMemo(() => computeAffordability(costs, remainingVault || {}), [costs, remainingVault]);
 
   const forgeSteps = useMemo(() => {
     const ff = forgeFrom === '' ? null : Number(forgeFrom);
@@ -154,8 +154,8 @@ export default function HeroGearPage() {
   }, [forgeCosts]);
 
   const forgeAfford = useMemo(
-    () => computeAffordability(forgeCosts, vault || {}).canAfford,
-    [forgeCosts, vault]
+    () => computeAffordability(forgeCosts, remainingVault || {}).canAfford,
+    [forgeCosts, remainingVault]
   );
 
   const total = (s.active && canAfford ? points : 0) + (s.forgeActive && forgeAfford ? forgePoints : 0);
@@ -210,7 +210,7 @@ export default function HeroGearPage() {
             points={points}
             stepsInfo={` (${steps.length} steps)`}
             costs={costs}
-            vault={vault}
+            vault={remainingVault}
           />
         </div>
       </div>
@@ -247,7 +247,7 @@ export default function HeroGearPage() {
             points={forgePoints}
             stepsInfo={` (${forgeSteps.length} steps)`}
             costs={forgeCosts}
-            vault={vault}
+            vault={remainingVault}
           />
         </div>
       </div>

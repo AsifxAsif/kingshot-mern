@@ -65,7 +65,7 @@ function nextLvl(levels, from, order) {
 
 export default function GovCharmPage() {
   const { data, loading, error } = useGameData('gov_charms');
-  const { state, updateSection, setPageScore, vault } = useApp();
+  const { state, updateSection, setPageScore, vault, remainingVault } = useApp();
   const cState = state.govCharm || {};
   const rows = data?.['GOV Charm'] || [];
   const order = useMemo(() => buildOrder(rows), [rows]);
@@ -104,10 +104,10 @@ export default function GovCharmPage() {
         if (step.guides) costs.charm_guide = (costs.charm_guide || 0) + parseCost(step.guides);
         if (step.designs) costs.charm_design = (costs.charm_design || 0) + parseCost(step.designs);
       }
-      const { canAfford } = computeAffordability(costs, vault);
+      const { canAfford } = computeAffordability(costs, remainingVault);
       return { ...g, s, from, to, steps, points, costs, canAfford };
     });
-  }, [cState, rows, order, vault]);
+  }, [cState, rows, order, remainingVault]);
 
   const totalPoints = useMemo(() => {
     let t = 0;
@@ -162,7 +162,7 @@ export default function GovCharmPage() {
                 points={c.points}
                 stepsInfo={` (${c.steps.length} steps)`}
                 costs={c.costs}
-                vault={vault}
+                vault={remainingVault}
               />
             </div>
           </div>

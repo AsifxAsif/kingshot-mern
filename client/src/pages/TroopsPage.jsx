@@ -47,7 +47,7 @@ function getPromotionSteps(promotingData, type, from, to) {
 
 export default function TroopsPage() {
   const { data, loading, error } = useGameData('troops');
-  const { state, updateSection, vault, setPageScore } = useApp();
+  const { state, updateSection, vault, remainingVault, setPageScore } = useApp();
   const troopsState = state.troops || {};
   const trainBuffs = state.settings?.trainingBuffs || {};
 
@@ -73,7 +73,6 @@ export default function TroopsPage() {
     });
   };
 
-  // Generate training cards - always show 3 cards
   const trainingCards = useMemo(() => {
     const result = [];
     for (const type of TYPES) {
@@ -115,7 +114,7 @@ export default function TroopsPage() {
           const timeSec = parseTimeToSeconds(row.time) * qty;
           const buffedTime = applyTrainingSpeedupBuffs(timeSec, trainBuffs);
           
-          const availableSpeedups = getAvailableSpeedups(vault, 'training');
+          const availableSpeedups = getAvailableSpeedups(remainingVault, 'training');
           const hasSpeedups = availableSpeedups > 0;
           const canUseSpeedup = hasSpeedups && buffedTime > 0;
           
@@ -125,7 +124,7 @@ export default function TroopsPage() {
           
           if (s.speedup && canUseSpeedup) {
             const otherLocked = {};
-            speedupResult = calculateSpeedupUsage(buffedTime, vault, 'training', otherLocked);
+            speedupResult = calculateSpeedupUsage(buffedTime, remainingVault, 'training', otherLocked);
             if (speedupResult.totalUsed > 0) {
               if (speedupResult.usedTraining > 0) {
                 finalCosts.training_speedup = (finalCosts.training_speedup || 0) + speedupResult.usedTraining;
@@ -137,7 +136,7 @@ export default function TroopsPage() {
             }
           }
           
-          const { canAfford } = computeAffordability(finalCosts, vault);
+          const { canAfford } = computeAffordability(finalCosts, remainingVault);
           const canUpgrade = canAfford && hasSelection;
           const canSpeedup = canUseSpeedup && canAfford && hasSelection;
           
@@ -158,9 +157,8 @@ export default function TroopsPage() {
       result.push(cardData);
     }
     return result;
-  }, [troopsState, training, trainBuffs, vault]);
+  }, [troopsState, training, trainBuffs, remainingVault]);
 
-  // Generate promotion cards - always show 3 cards
   const promotionCards = useMemo(() => {
     const result = [];
     for (const type of TYPES) {
@@ -213,7 +211,7 @@ export default function TroopsPage() {
           const points = (toPoints - fromPoints) * qty;
           const buffedTime = applyTrainingSpeedupBuffs(timeSec, trainBuffs);
           
-          const availableSpeedups = getAvailableSpeedups(vault, 'training');
+          const availableSpeedups = getAvailableSpeedups(remainingVault, 'training');
           const hasSpeedups = availableSpeedups > 0;
           const canUseSpeedup = hasSpeedups && buffedTime > 0;
           
@@ -223,7 +221,7 @@ export default function TroopsPage() {
           
           if (s.speedup && canUseSpeedup) {
             const otherLocked = {};
-            speedupResult = calculateSpeedupUsage(buffedTime, vault, 'training', otherLocked);
+            speedupResult = calculateSpeedupUsage(buffedTime, remainingVault, 'training', otherLocked);
             if (speedupResult.totalUsed > 0) {
               if (speedupResult.usedTraining > 0) {
                 finalCosts.training_speedup = (finalCosts.training_speedup || 0) + speedupResult.usedTraining;
@@ -235,7 +233,7 @@ export default function TroopsPage() {
             }
           }
           
-          const { canAfford } = computeAffordability(finalCosts, vault);
+          const { canAfford } = computeAffordability(finalCosts, remainingVault);
           const canUpgrade = canAfford && hasSelection;
           const canSpeedup = canUseSpeedup && canAfford && hasSelection;
           
@@ -256,7 +254,7 @@ export default function TroopsPage() {
       result.push(cardData);
     }
     return result;
-  }, [troopsState, promoting, trainBuffs, vault]);
+  }, [troopsState, promoting, trainBuffs, remainingVault]);
 
   const totalActivePoints = useMemo(() => {
     let total = 0;
@@ -343,7 +341,7 @@ export default function TroopsPage() {
                   points={c.points}
                   stepsInfo=""
                   costs={c.costs}
-                  vault={vault}
+                  vault={remainingVault}
                   extra={
                     c.hasSelection ? (
                       <div>
@@ -462,7 +460,7 @@ export default function TroopsPage() {
                   points={c.points}
                   stepsInfo=""
                   costs={c.costs}
-                  vault={vault}
+                  vault={remainingVault}
                   extra={
                     c.hasSelection ? (
                       <div>

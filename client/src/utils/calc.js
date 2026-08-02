@@ -4,11 +4,11 @@ export function parseCost(val) {
 	if (typeof val === 'number') return val;
 	const str = String(val).trim();
 	if (!str) return 0;
-	// If it contains time units (d, h, m, s), parse to minutes
-	if (/[dhms]/i.test(str) && /\d/.test(str)) {
+	const isPureResourceSuffix = /^[\d.]+\s*[KMB]$/i.test(str);
+	const hasTimeUnits = /[dhs]/i.test(str) || (/\d+\s*m/i.test(str) && /[dhs]/i.test(str));
+	if (!isPureResourceSuffix && hasTimeUnits) {
 		return parseTimeToMinutes(str);
 	}
-	// Delegate K/M/B/number parsing to parseResourceValue
 	return parseResourceValue(str);
 }
 export function parseTimeToSeconds(timeStr) {
@@ -363,24 +363,11 @@ export function calcVaultScore(vault) {
  * Supports: K, M, B suffixes, time formats (d/h/m/s), plain numbers
  */
 export function parseResourceValue(str) {
-	// Handle null/undefined/empty
 	if (str == null || str === '') return 0;
-	// If it's already a number, return it
-	if (typeof str === 'number') {
-		return str;
-	}
-	// Convert to string and clean
+	if (typeof str === 'number') return str;
 	const s = String(str).trim();
 	if (!s) return 0;
-	// Handle time formats (contains d, h, m, s)
-	if (/[dhms]/i.test(s) && /[\d]/.test(s)) {
-		const minutes = parseTimeToMinutes(s);
-		if (minutes > 0) return minutes;
-	}
-	// Handle K/M/B suffix - works with or without decimal
-	// This handles: "470.29M", "470.29 M", "500K", "2.5K", "1.78B"
 	const upper = s.toUpperCase();
-	// Check if it ends with K, M, or B (with or without space)
 	const kbMatch = upper.match(/^([\d.]+)\s*([KMB])$/);
 	if (kbMatch) {
 		const num = parseFloat(kbMatch[1]);
@@ -391,10 +378,12 @@ export function parseResourceValue(str) {
 			if (suffix === 'B') return num * 1000000000;
 		}
 	}
-	// Try parsing as plain number (with commas)
+	if (/[dhms]/i.test(s) && /[\d]/.test(s)) {
+		const minutes = parseTimeToMinutes(s);
+		if (minutes > 0) return minutes;
+	}
 	const num = parseFloat(s.replace(/,/g, ''));
 	if (!isNaN(num)) return num;
-	// Fallback: extract any number from the string
 	const extracted = s.match(/(\d+(?:\.\d+)?)/);
 	if (extracted) {
 		return parseFloat(extracted[1]);

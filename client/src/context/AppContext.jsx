@@ -15,6 +15,7 @@ import {
   deletePreset as apiDelete,
 } from '../services/api';
 import { useAuth } from './AuthContext';
+import { parseResourceValue } from '../utils/calc';
 
 const AppContext = createContext(null);
 
@@ -110,7 +111,6 @@ export function AppProvider({ children }) {
       setState({ ...EMPTY_STATE });
       return;
     }
-    // Keep vault values as strings (they will be parsed when used)
     setState({
       ...EMPTY_STATE,
       vault: doc.vault || {},
@@ -150,7 +150,6 @@ export function AppProvider({ children }) {
     }
   }, [user]);
 
-  // Handle user login - load first available preset
   useEffect(() => {
     if (!user) return;
     
@@ -501,6 +500,39 @@ export function AppProvider({ children }) {
     });
   }, [scheduleSave, user]);
 
+  /**
+   * Calculate remaining resources after deducting locked upgrades from all pages
+   */
+  const getRemainingVault = useCallback(() => {
+    const vault = state.vault || {};
+    const locked = state.lockedUpgrades || {};
+    const remaining = { ...vault };
+    
+    // Sum all locked costs across all pages
+    const lockedCosts = {};
+    for (const [key, lockedData] of Object.entries(locked)) {
+      if (lockedData && lockedData.costTotals) {
+        for (const [resKey, amount] of Object.entries(lockedData.costTotals)) {
+          if (!resKey.startsWith('_')) {
+            lockedCosts[resKey] = (lockedCosts[resKey] || 0) + amount;
+          }
+        }
+      }
+    }
+    
+    // Subtract locked costs from vault
+    for (const [key, amount] of Object.entries(lockedCosts)) {
+      if (remaining[key] !== undefined) {
+        const current = parseResourceValue(remaining[key]);
+        remaining[key] = Math.max(0, current - amount);
+      }
+    }
+    
+    return remaining;
+  }, [state.vault, state.lockedUpgrades]);
+
+  const remainingVault = useMemo(() => getRemainingVault(), [getRemainingVault]);
+
   const globalScore = useMemo(() => {
     const pages = Object.values(state.pageScores || {}).reduce(
       (s, n) => s + (Number(n) || 0),
@@ -516,6 +548,7 @@ export function AppProvider({ children }) {
     currentName,
     state,
     globalScore,
+    remainingVault,
     switchPreset,
     createPreset,
     deletePreset,
@@ -527,6 +560,7 @@ export function AppProvider({ children }) {
     setVault: (v) => updateSection('vault', v),
     updateVaultField: (id, val) =>
       updateSection('vault', (prev) => ({ ...prev, [id]: val })),
+    getRemainingVault,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

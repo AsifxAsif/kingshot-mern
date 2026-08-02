@@ -26,7 +26,7 @@ const RES = ['bread', 'wood', 'stone', 'iron', 'truegold', 'truegold_dust', 'tem
 
 export default function WarAcademyPage() {
   const { data, loading, error } = useGameData('war_academy');
-  const { state, updateSection, setPageScore, vault } = useApp();
+  const { state, updateSection, setPageScore, vault, remainingVault } = useApp();
   const wa = state.warAcademy || {};
   const buffs = state.settings?.researchBuffs || {};
   const prevScoreRef = useRef(0);
@@ -76,21 +76,21 @@ export default function WarAcademyPage() {
       const buffedTime = applyResearchSpeedupBuffs(totalTime, buffs);
       const speedupMins = secondsToSpeedupMinutes(buffedTime);
       
-      const availableResearchSpeedups = getAvailableSpeedups(vault, 'research');
+      const availableResearchSpeedups = getAvailableSpeedups(remainingVault, 'research');
       const hasSpeedups = availableResearchSpeedups > 0;
       const canUseSpeedup = hasSpeedups && buffedTime > 0 && steps.length > 0;
       
       let speedupResult = null;
       if (s.speedup && canUseSpeedup) {
         const otherLocked = {};
-        speedupResult = calculateSpeedupUsage(buffedTime, vault, 'research', otherLocked);
+        speedupResult = calculateSpeedupUsage(buffedTime, remainingVault, 'research', otherLocked);
         if (speedupResult.usedSpeedup > 0) {
           costs.research_speedup = (costs.research_speedup || 0) + speedupResult.usedSpeedup;
           points += speedupResult.totalPoints;
         }
       }
       
-      const { canAfford } = computeAffordability(costs, vault);
+      const { canAfford } = computeAffordability(costs, remainingVault);
       const hasSelection = !!to && steps.length > 0;
       const levelsArray = levels || [];
       const maxLevel = levelsArray.length ? levelsArray[levelsArray.length - 1] : '';
@@ -122,7 +122,7 @@ export default function WarAcademyPage() {
       });
     }
     return result;
-  }, [techNames, root, wa, vault, buffs]);
+  }, [techNames, root, wa, remainingVault, buffs]);
 
   const totalActivePoints = useMemo(() => {
     let total = 0;
@@ -132,7 +132,6 @@ export default function WarAcademyPage() {
     return total;
   }, [cards]);
 
-  // Only update score when it actually changes
   useEffect(() => {
     if (prevScoreRef.current !== totalActivePoints) {
       prevScoreRef.current = totalActivePoints;
@@ -193,7 +192,7 @@ export default function WarAcademyPage() {
                 points={c.points}
                 stepsInfo={` (${c.steps.length} steps)`}
                 costs={c.costs}
-                vault={vault}
+                vault={remainingVault}
                 extra={
                   c.hasSelection ? (
                     <div>

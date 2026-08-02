@@ -71,7 +71,7 @@ function getLevelsFromRows(rows, order) {
 
 export default function GovGearPage() {
   const { data, loading, error } = useGameData('gov_gears');
-  const { state, updateSection, setPageScore, vault } = useApp();
+  const { state, updateSection, setPageScore, vault, remainingVault } = useApp();
   const gState = state.govGear || {};
   const rows = data?.['GOV Gear'] || [];
   const order = useMemo(() => buildOrder(rows), [rows]);
@@ -107,10 +107,10 @@ export default function GovGearPage() {
         costs.artisans_vision += parseCost(step.artisans);
       }
       Object.keys(costs).forEach((k) => { if (!costs[k]) delete costs[k]; });
-      const { canAfford } = computeAffordability(costs, vault);
+      const { canAfford } = computeAffordability(costs, remainingVault);
       return { piece, s, from, to, steps, points, costs, canAfford, levels };
     });
-  }, [gState, rows, order, vault, levels]);
+  }, [gState, rows, order, remainingVault, levels]);
 
   const totalPoints = useMemo(() => {
     let t = 0;
@@ -166,7 +166,7 @@ export default function GovGearPage() {
                 points={c.points}
                 stepsInfo={` (${c.steps.length} steps)`}
                 costs={c.costs}
-                vault={vault}
+                vault={remainingVault}
               />
             </div>
           </div>

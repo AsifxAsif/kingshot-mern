@@ -48,7 +48,7 @@ function getNextLevel(levels, from) {
 
 export default function BuildingsPage() {
   const { data, loading, error } = useGameData('buildings');
-  const { state, updateSection, setPageScore, vault } = useApp();
+  const { state, updateSection, setPageScore, vault, remainingVault } = useApp();
   const bState = state.buildings || {};
   const buffs = state.settings?.buildingBuffs || {};
   const prevScoreRef = useRef(0);
@@ -106,21 +106,21 @@ export default function BuildingsPage() {
       const buffedTime = applyBuildingSpeedupBuffs(totalTime, buffs);
       const speedupMins = secondsToSpeedupMinutes(buffedTime);
       
-      const availableBuildingSpeedups = getAvailableSpeedups(vault, 'building');
+      const availableBuildingSpeedups = getAvailableSpeedups(remainingVault, 'building');
       const hasSpeedups = availableBuildingSpeedups > 0;
       const canUseSpeedup = hasSpeedups && buffedTime > 0 && steps.length > 0;
       
       let speedupResult = null;
       if (s.speedup && canUseSpeedup) {
         const otherLocked = {};
-        speedupResult = calculateSpeedupUsage(buffedTime, vault, 'building', otherLocked);
+        speedupResult = calculateSpeedupUsage(buffedTime, remainingVault, 'building', otherLocked);
         if (speedupResult.usedSpeedup > 0) {
           costs.building_speedup = (costs.building_speedup || 0) + speedupResult.usedSpeedup;
           points += speedupResult.totalPoints;
         }
       }
       
-      const { canAfford } = computeAffordability(costs, vault);
+      const { canAfford } = computeAffordability(costs, remainingVault);
       const hasSelection = !!to && steps.length > 0;
       const levelsArray = levels || [];
       const maxLevel = levelsArray.length ? levelsArray[levelsArray.length - 1] : '';
@@ -135,7 +135,7 @@ export default function BuildingsPage() {
         availableBuildingSpeedups, speedupResult, maxLevel,
       };
     });
-  }, [data, buildingNames, bState, buffs, vault]);
+  }, [data, buildingNames, bState, buffs, remainingVault]);
 
   const totalActivePoints = useMemo(() => {
     let total = 0;
@@ -145,7 +145,6 @@ export default function BuildingsPage() {
     return total;
   }, [cards]);
 
-  // Only update score when it actually changes
   useEffect(() => {
     if (prevScoreRef.current !== totalActivePoints) {
       prevScoreRef.current = totalActivePoints;
@@ -208,7 +207,7 @@ export default function BuildingsPage() {
                 points={c.points}
                 stepsInfo={` (${c.steps.length} steps)`}
                 costs={c.costs}
-                vault={vault}
+                vault={remainingVault}
                 extra={
                   c.hasSelection ? (
                     <div>

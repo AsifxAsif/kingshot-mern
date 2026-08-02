@@ -33,7 +33,7 @@ function getAdvancementPoints(targetLevel) {
 
 export default function PetsPage() {
   const { data, loading, error } = useGameData('pets');
-  const { state, updateSection, setPageScore, vault } = useApp();
+  const { state, updateSection, setPageScore, vault, remainingVault } = useApp();
   const petsState = state.pets || {};
 
   const petNames = useMemo(() => {
@@ -71,7 +71,7 @@ export default function PetsPage() {
         advancementPoints += getAdvancementPoints(targetLvl);
       }
       const points = adv * SCORE_RULES.advanced_taming_mark + common * SCORE_RULES.common_taming_mark + advancementPoints;
-      const { canAfford } = computeAffordability(costs, vault);
+      const { canAfford } = computeAffordability(costs, remainingVault);
       const hasSteps = steps.length > 0;
       result.push({
         name,
@@ -87,7 +87,7 @@ export default function PetsPage() {
       });
     }
     return result;
-  }, [petNames, root, petsState, vault]);
+  }, [petNames, root, petsState, remainingVault]);
 
   const totalActivePoints = useMemo(() => {
     let total = 0;
@@ -136,7 +136,7 @@ export default function PetsPage() {
                 points={c.points}
                 stepsInfo={` (${c.steps.length} steps)`}
                 costs={c.costs}
-                vault={vault}
+                vault={remainingVault}
               />
             </div>
           </div>

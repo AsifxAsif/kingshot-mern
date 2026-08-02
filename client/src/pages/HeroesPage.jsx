@@ -57,7 +57,6 @@ function getHeroUpgradeSteps(dataArray, fromLevel, toLevel) {
   if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
     return dataArray.slice(startIndex, endIndex + 1);
   }
-  // walk next-map
   const nextMap = {};
   for (const item of dataArray) {
     const curr = item.current_lvl ?? item.current;
@@ -141,7 +140,7 @@ function FlowerRow({ maxIdx, onPetalClick, type }) {
 
 export default function HeroesPage() {
   const { data, loading, error } = useGameData('heroes');
-  const { state, updateSection, setPageScore, vault } = useApp();
+  const { state, updateSection, setPageScore, vault, remainingVault } = useApp();
   const maxGen = state.settings?.maxHeroGen ?? 7;
   const shards = state.heroShards || {};
   const heroesState = state.heroes || {};
@@ -186,7 +185,6 @@ export default function HeroesPage() {
           );
           return;
         }
-        // toggling off target only
         if (prevFs.targetMaxIdx === absIdx) {
           updateSection('heroFlowers', (prev) => ({
             ...prev,
@@ -202,12 +200,10 @@ export default function HeroesPage() {
 
         if (type === 'curr') {
           if (cur.currentMaxIdx === absIdx) {
-            // Unselect current → also clear target
             cur.currentMaxIdx = -1;
             cur.targetMaxIdx = -1;
           } else {
             cur.currentMaxIdx = absIdx;
-            // Auto next target
             if (absIdx >= MAX_ABS) {
               cur.targetMaxIdx = MAX_ABS;
             } else {
@@ -215,7 +211,6 @@ export default function HeroesPage() {
             }
           }
         } else {
-          // target
           if (cur.targetMaxIdx === absIdx) cur.targetMaxIdx = -1;
           else cur.targetMaxIdx = absIdx;
         }
@@ -231,11 +226,10 @@ export default function HeroesPage() {
     [flowerStates, updateSection]
   );
 
-  // ---- General shards + hero shards (matches original heroes.js) ----
   const calcForHero = useCallback(
     (hero, useGeneral, lockedGeneral = {}) => {
       const fs = flowerStates[hero.name] || { currentMaxIdx: -1, targetMaxIdx: -1 };
-      const currentIdx = fs.currentMaxIdx; // -1 = level 0
+      const currentIdx = fs.currentMaxIdx;
       const targetIdx = fs.targetMaxIdx;
       if (targetIdx < 0) return null;
       if (currentIdx >= 0 && targetIdx <= currentIdx) return null;
@@ -259,10 +253,9 @@ export default function HeroesPage() {
       const shortage = Math.max(0, heroShardsNeeded - availableHeroShards);
       const generalType = getGeneralShardType(hero.rarity);
       const generalPts = SCORE_RULES[generalType] || 0;
-      const vaultTotal = parseCost(vault?.[generalType]);
+      const vaultTotal = parseCost(remainingVault?.[generalType]);
       const vaultLeft = Math.max(0, vaultTotal - (lockedGeneral[generalType] || 0));
 
-      // Enough specific shards → no general needed
       if (shortage === 0) {
         const stepPoints = heroShardsUsed * generalPts;
         return {
@@ -281,7 +274,6 @@ export default function HeroesPage() {
         };
       }
 
-      // Shortage without general → error (user can enable general)
       if (!useGeneral) {
         return {
           error: true,
@@ -299,7 +291,6 @@ export default function HeroesPage() {
         };
       }
 
-      // Use general shards (capped by vault remaining)
       const generalUsed = Math.min(shortage, vaultLeft);
       if (generalUsed < shortage) {
         return {
@@ -335,10 +326,9 @@ export default function HeroesPage() {
         canEnableGeneral: true,
       };
     },
-    [flowerStates, shardTable, shards, vault]
+    [flowerStates, shardTable, shards, remainingVault]
   );
 
-  // Preview without locking (for checkbox enable state)
   const previewByHero = useMemo(() => {
     const map = {};
     for (const h of heroes) {
@@ -422,7 +412,7 @@ export default function HeroesPage() {
           const targVal = valueAtAbsIdx(fs.targetMaxIdx);
           const useGen = !!s.useGeneral;
           const generalType = getGeneralShardType(h.rarity);
-          const vaultTotal = parseCost(vault?.[generalType]);
+          const vaultTotal = parseCost(remainingVault?.[generalType]);
           const preview = previewByHero[h.name];
           const result = s.active
             ? activeResults[h.name]

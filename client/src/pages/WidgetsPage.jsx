@@ -11,7 +11,7 @@ import { heroWidgetImg } from '../utils/images';
 export default function WidgetsPage() {
   const { data: widgetsData, loading: lw } = useGameData('widgets');
   const { data: heroesData, loading: lh } = useGameData('heroes');
-  const { state, updateSection, setPageScore, vault } = useApp();
+  const { state, updateSection, setPageScore, vault, remainingVault } = useApp();
   const heroWidgets = state.heroWidgets || {};
   const wState = state.widgets || {};
   const prevScoreRef = useRef(0);
@@ -66,11 +66,11 @@ export default function WidgetsPage() {
       const inv = parseFloat(heroWidgets[h.name]) || 0;
       const points = widgetsNeeded * SCORE_RULES.widgets;
       const costs = { widgets: widgetsNeeded };
-      const { canAfford } = computeAffordability(costs, vault);
+      const { canAfford } = computeAffordability(costs, remainingVault);
       const hasSelection = toNum > fromNum && widgetsNeeded > 0;
       return { ...h, s, from, to, fromNum, toNum, widgetsNeeded, inv, points, costs, canAfford, hasSelection };
     });
-  }, [ssrHeroes, wState, widgetRows, heroWidgets, vault]);
+  }, [ssrHeroes, wState, widgetRows, heroWidgets, remainingVault]);
 
   const totalActivePoints = useMemo(() => {
     let total = 0;
@@ -80,7 +80,6 @@ export default function WidgetsPage() {
     return total;
   }, [cards]);
 
-  // Only update score when it actually changes
   useEffect(() => {
     if (prevScoreRef.current !== totalActivePoints) {
       prevScoreRef.current = totalActivePoints;
@@ -143,7 +142,7 @@ export default function WidgetsPage() {
                 points={c.points}
                 stepsInfo=""
                 costs={c.costs}
-                vault={vault}
+                vault={remainingVault}
               />
             </div>
           </div>

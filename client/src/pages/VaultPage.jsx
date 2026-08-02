@@ -4,7 +4,7 @@ import AssetImg from '../components/AssetImg';
 import { resourceImg, asset } from '../utils/images';
 
 export default function VaultPage() {
-  const { vault, updateVaultField, globalScore } = useApp();
+  const { vault, remainingVault, globalScore, updateVaultField } = useApp();
 
   return (
     <div className="vault-section">
@@ -13,12 +13,16 @@ export default function VaultPage() {
         RESOURCE VAULT
       </h2>
       <p className="hint">
-        Enter your available resources here. Supports K, M, B (e.g., 1.5M, 2.3B, 470.29M) and time formats (e.g., 2d 14h 35m).<br />
-        The <strong>Strongest Governor</strong> total score is calculated from all active upgrades across all pages, NOT from vault resources.
+        Enter your total available resources here. The <strong>remaining</strong> column shows what's left after locked upgrades from all pages.
+        <br />
+        Supports K, M, B (e.g., 1.5M, 2.3B, 470.29M) and time formats (e.g., 2d 14h 35m).
       </p>
       <div className="vault-grid">
         {RESOURCE_ITEMS.map((item) => {
-          const value = vault?.[item.id] ?? '';
+          const totalValue = vault?.[item.id] ?? '';
+          const remainingValue = remainingVault?.[item.id] ?? '';
+          const isSpeedup = item.id.includes('speedup');
+          
           return (
             <div className="vault-item" key={item.id}>
               <div className="vault-label">
@@ -29,9 +33,24 @@ export default function VaultPage() {
                 id={item.id}
                 type="text"
                 placeholder={item.placeholder}
-                value={value}
+                value={totalValue}
                 onChange={(e) => updateVaultField(item.id, e.target.value)}
               />
+              {remainingValue !== '' && totalValue !== '' && (
+                <div style={{ 
+                  marginTop: 4, 
+                  fontSize: '0.7rem', 
+                  color: 'var(--text-muted)',
+                  textAlign: 'center',
+                  borderTop: '1px solid rgba(0,0,0,0.05)',
+                  paddingTop: 4
+                }}>
+                  <span style={{ fontWeight: 700 }}>Remaining:</span>{' '}
+                  <span style={{ color: parseFloat(remainingValue) > 0 ? 'var(--color-success)' : 'var(--color-error)' }}>
+                    {remainingValue}
+                  </span>
+                </div>
+              )}
             </div>
           );
         })}

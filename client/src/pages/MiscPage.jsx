@@ -62,7 +62,7 @@ function calculateGatheringTime(nodeData, skillLevel, speedBuffPercent = 0) {
 
 export default function MiscPage() {
   const { data, loading, error } = useGameData('misc');
-  const { state, updateSection, setPageScore, vault } = useApp();
+  const { state, updateSection, setPageScore, vault, remainingVault } = useApp();
   const misc = state.misc || {};
   const gatherCards = misc.gatheringCards || {};
 
@@ -92,7 +92,7 @@ export default function MiscPage() {
     );
 
   const spins = parseCost(misc.roulette || 0);
-  const tokensInVault = parseCost(vault?.hero_roulette_token);
+  const tokensInVault = parseCost(remainingVault?.hero_roulette_token);
   const roulettePoints = spins * (SCORE_RULES.roulette || 8000);
 
   const bisonGrip = Math.min(parseInt(misc.bisonGrip || '0', 10) || 0, 2);
