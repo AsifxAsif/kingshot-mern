@@ -66,7 +66,7 @@ function getLevelsFromRows(rows, order) {
     if (r.current != null && r.current !== 'null') set.add(String(r.current));
     if (r.target != null && r.target !== 'null') set.add(String(r.target));
   }
-  return sortLevels(Array.from(set));
+  return Array.from(set).sort((a, b) => (order[a] ?? 0) - (order[b] ?? 0));
 }
 
 export default function GovGearPage() {

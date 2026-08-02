@@ -396,13 +396,13 @@ export function secondsToSpeedupMinutes(sec) {
 	return Math.ceil((sec || 0) / 60);
 }
 export function getAvailableSpeedups(vault, type) {
-	const training = parseFloat(vault?.training_speedup) || 0;
-	const general = parseFloat(vault?.general_speedup) || 0;
+	const training = parseResourceValue(vault?.training_speedup);
+	const general = parseResourceValue(vault?.general_speedup);
 	if (type === 'building') {
-		return parseFloat(vault?.building_speedup) || 0;
+		return parseResourceValue(vault?.building_speedup);
 	}
 	if (type === 'research') {
-		return parseFloat(vault?.research_speedup) || 0;
+		return parseResourceValue(vault?.research_speedup);
 	}
 	if (type === 'training') {
 		return training + general;
@@ -421,7 +421,7 @@ export function calculateSpeedupUsage(totalTimeSeconds, vault, type, otherLocked
 	const buffedTimeSeconds = totalTimeSeconds;
 	const totalSpeedupMinutesNeeded = secondsToSpeedupMinutes(buffedTimeSeconds);
 	if (type === 'building') {
-		const available = Math.max(0, (vault.building_speedup || 0) - (otherLocked.building_speedup || 0));
+		const available = Math.max(0, parseResourceValue(vault?.building_speedup) - parseResourceValue(otherLocked?.building_speedup));
 		const used = Math.min(available, totalSpeedupMinutesNeeded);
 		const remaining = totalSpeedupMinutesNeeded - used;
 		const partialNote = remaining > 0 ? `Only ${formatSecondsToTime(used * 60)} available (need ${formatSecondsToTime(totalSpeedupMinutesNeeded * 60)})` : '';
@@ -433,7 +433,7 @@ export function calculateSpeedupUsage(totalTimeSeconds, vault, type, otherLocked
 		};
 	}
 	if (type === 'research') {
-		const available = Math.max(0, (vault.research_speedup || 0) - (otherLocked.research_speedup || 0));
+		const available = Math.max(0, parseResourceValue(vault?.research_speedup) - parseResourceValue(otherLocked?.research_speedup));
 		const used = Math.min(available, totalSpeedupMinutesNeeded);
 		const remaining = totalSpeedupMinutesNeeded - used;
 		const partialNote = remaining > 0 ? `Only ${formatSecondsToTime(used * 60)} available (need ${formatSecondsToTime(totalSpeedupMinutesNeeded * 60)})` : '';
@@ -445,8 +445,8 @@ export function calculateSpeedupUsage(totalTimeSeconds, vault, type, otherLocked
 		};
 	}
 	if (type === 'training') {
-		const trainingAvailable = Math.max(0, (vault.training_speedup || 0) - (otherLocked.training_speedup || 0));
-		const generalAvailable = Math.max(0, (vault.general_speedup || 0) - (otherLocked.general_speedup || 0));
+		const trainingAvailable = Math.max(0, parseResourceValue(vault?.training_speedup) - parseResourceValue(otherLocked?.training_speedup));
+		const generalAvailable = Math.max(0, parseResourceValue(vault?.general_speedup) - parseResourceValue(otherLocked?.general_speedup));
 		let remaining = totalSpeedupMinutesNeeded;
 		let usedTraining = 0;
 		let usedGeneral = 0;
