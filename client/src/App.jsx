@@ -41,7 +41,7 @@ export default function App() {
     return (
       <div className="page-loading full">
         <div className="spinner" />
-        <p>Loading from MongoDB...</p>
+        <p>Loading...</p>
       </div>
     );
   }
