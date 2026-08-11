@@ -3,7 +3,7 @@
   "version": "2.1.0",
   "private": true,
   "type": "module",
-  "description": "Kingshot calculator — Vercel (frontend + serverless API)",
+  "description": "Kingshot calculator \u2014 Vercel (frontend + serverless API)",
   "scripts": {
     "install:all": "npm install && npm install --prefix client && npm install --prefix server",
     "dev:server": "npm run dev --prefix server",

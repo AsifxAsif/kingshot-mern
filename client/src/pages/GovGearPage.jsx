@@ -1,8 +1,8 @@
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
-import { parseCost, formatNumber, SCORE_RULES, sortLevels, convertLevelToNumeric } from '../utils/calc';
-import { computeAffordability } from '../utils/resources';
+import { parseCost, formatNumber, SCORE_RULES } from '../utils/calc';
+import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
 import { LevelSelects } from '../components/LevelSelects';
@@ -28,8 +28,7 @@ function govGearImg(piece, levelName) {
     else if (lower.includes('red')) color = 'red';
     const tm = s.match(/T([0-9])/i);
     if (tm) tier = tm[1];
-    const starCount = (s.match(/★/g) || []).length;
-    stars = String(starCount);
+    stars = String((s.match(/⭐/g) || []).length);
   }
   return asset(`gov_gears/${prefix}_${color}_t${tier}_s${stars}.webp`);
 }
@@ -60,22 +59,24 @@ function getSteps(rows, from, to, order) {
   });
 }
 
-function getLevelsFromRows(rows, order) {
-  const set = new Set(['0']);
-  for (const r of rows) {
-    if (r.current != null && r.current !== 'null') set.add(String(r.current));
-    if (r.target != null && r.target !== 'null') set.add(String(r.target));
-  }
-  return Array.from(set).sort((a, b) => (order[a] ?? 0) - (order[b] ?? 0));
-}
-
 export default function GovGearPage() {
   const { data, loading, error } = useGameData('gov_gears');
-  const { state, updateSection, setPageScore, vault, remainingVault } = useApp();
+  const { state, updateSection, setPageScore, setPageLockedCosts, remainingVaultExcluding } = useApp();
+  const vault = useMemo(
+    () => remainingVaultExcluding('govGear'),
+    [state.vault, state.lockedUpgrades, remainingVaultExcluding]
+  );
   const gState = state.govGear || {};
   const rows = data?.['GOV Gear'] || [];
   const order = useMemo(() => buildOrder(rows), [rows]);
-  const levels = useMemo(() => getLevelsFromRows(rows, order), [rows, order]);
+  const levels = useMemo(() => {
+    const set = new Set(['0']);
+    for (const r of rows) {
+      if (r.current != null && r.current !== 'null') set.add(String(r.current));
+      if (r.target != null && r.target !== 'null') set.add(String(r.target));
+    }
+    return Array.from(set).sort((a, b) => (order[a] ?? 0) - (order[b] ?? 0));
+  }, [rows, order]);
 
   const setPiece = (piece, field, value) => {
     updateSection('govGear', (prev) => {
@@ -93,7 +94,7 @@ export default function GovGearPage() {
   };
 
   const cards = useMemo(() => {
-    return GEAR_PIECES.map((piece) => {
+    const raw = GEAR_PIECES.map((piece) => {
       const s = gState[piece] || {};
       const from = s.from ?? '0';
       const to = s.to || '';
@@ -107,18 +108,35 @@ export default function GovGearPage() {
         costs.artisans_vision += parseCost(step.artisans);
       }
       Object.keys(costs).forEach((k) => { if (!costs[k]) delete costs[k]; });
-      const { canAfford } = computeAffordability(costs, remainingVault);
-      return { piece, s, from, to, steps, points, costs, canAfford, levels };
+      return { id: piece, piece, s, from, to, steps, points, costs, active: !!s.active };
     });
-  }, [gState, rows, order, remainingVault, levels]);
+    const afford = sequentialAfford(
+      raw.map((c) => ({ id: c.id, costs: c.costs, active: c.active })),
+      vault
+    );
+    return raw.map((c) => {
+      const a = afford.get(c.id) || { canAfford: true, vaultBefore: vault };
+      return { ...c, canAfford: a.canAfford, vaultBefore: a.vaultBefore };
+    });
+  }, [gState, rows, order, vault]);
 
   const totalPoints = useMemo(() => {
     let t = 0;
     for (const c of cards) {
-      if (c.s.active && c.canAfford) t += c.points;
+      if (c.active && c.canAfford) t += c.points;
     }
     return t;
   }, [cards]);
+
+  useEffect(() => {
+    setPageLockedCosts(
+      'govGear',
+      sumActiveCosts(
+        cards.map((c) => ({ id: c.id, costs: c.costs, active: c.active })),
+        new Map(cards.map((c) => [c.id, { canAfford: c.canAfford }]))
+      )
+    );
+  }, [cards, setPageLockedCosts]);
 
   useEffect(() => { setPageScore('govGear', totalPoints); }, [totalPoints, setPageScore]);
 
@@ -154,19 +172,19 @@ export default function GovGearPage() {
                 <input
                   className="checkbox"
                   type="checkbox"
-                  checked={!!c.s.active && c.canAfford}
+                  checked={!!c.active && c.canAfford}
                   disabled={!c.to || !c.canAfford}
                   onChange={(e) => setPiece(c.piece, 'active', e.target.checked)}
-                />
+                />{' '}
                 Upgrade
               </label>
               <CostStatus
-                active={!!c.s.active && c.canAfford}
-                hasSelection={!!c.to && c.steps.length > 0}
+                active={!!c.active && c.canAfford}
+                hasSelection={!!c.to}
                 points={c.points}
                 stepsInfo={` (${c.steps.length} steps)`}
                 costs={c.costs}
-                vault={remainingVault}
+                vault={c.vaultBefore || vault}
               />
             </div>
           </div>

@@ -413,6 +413,8 @@ body {
 	border-radius: var(--radius-lg);
 	box-shadow: var(--shadow-extruded-lg);
 	transition: box-shadow var(--transition-normal), transform var(--transition-normal);
+	
+	
 }
 .item-card:hover {
 	box-shadow: var(--shadow-extruded);

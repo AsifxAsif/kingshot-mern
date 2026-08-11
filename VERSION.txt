@@ -1,1 +1,1 @@
-BUILD 2026-08-02-original-parity-v4
+BUILD 2026-08-12-widget-hero-resource-ui-v8

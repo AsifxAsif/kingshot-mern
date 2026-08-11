@@ -1,7 +1,8 @@
 node_modules/
-server/node_modules/
-client/node_modules/
-client/dist/
+dist/
+.env
 server/.env
-.DS_Store
+client/.env
 *.log
+.DS_Store
+.vercel

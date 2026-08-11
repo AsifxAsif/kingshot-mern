@@ -14,8 +14,8 @@ import {
   updatePreset as apiUpdate,
   deletePreset as apiDelete,
 } from '../services/api';
+import { buildRemainingVault } from '../utils/resources';
 import { useAuth } from './AuthContext';
-import { parseResourceValue } from '../utils/calc';
 
 const AppContext = createContext(null);
 
@@ -70,25 +70,23 @@ function saveLocalDefault(state) {
   try {
     localStorage.setItem(DEFAULT_LOCAL_KEY, JSON.stringify(state));
   } catch {
+    /* ignore quota */
   }
 }
 
 function getSavedActiveName() {
   try {
-    return localStorage.getItem(ACTIVE_KEY) || '';
+    return localStorage.getItem(ACTIVE_KEY) || 'default';
   } catch {
-    return '';
+    return 'default';
   }
 }
 
 function setSavedActiveName(name) {
   try {
-    if (name) {
-      localStorage.setItem(ACTIVE_KEY, name);
-    } else {
-      localStorage.removeItem(ACTIVE_KEY);
-    }
+    localStorage.setItem(ACTIVE_KEY, name);
   } catch {
+    /* */
   }
 }
 
@@ -97,14 +95,18 @@ export function AppProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [presetList, setPresetList] = useState([]);
-  const [currentName, setCurrentName] = useState(() => getSavedActiveName() || '');
-  const [state, setState] = useState(() => {
-    const saved = getSavedActiveName();
-    return saved ? loadLocalDefault() : { ...EMPTY_STATE };
-  });
+  const [currentName, setCurrentName] = useState(() => getSavedActiveName());
+  const [state, setState] = useState(() =>
+    getSavedActiveName() === 'default' ? loadLocalDefault() : { ...EMPTY_STATE }
+  );
   const saveTimer = useRef(null);
+  const pendingPatch = useRef({});
+  const stateRef = useRef(state);
+  stateRef.current = state;
   const currentNameRef = useRef(currentName);
   currentNameRef.current = currentName;
+  const userRef = useRef(user);
+  userRef.current = user;
 
   const applyPresetDoc = (doc) => {
     if (!doc) {
@@ -133,6 +135,32 @@ export function AppProvider({ children }) {
     });
   };
 
+  /** Full snapshot of calculator state for MongoDB */
+  const buildFullPayload = useCallback((s, u) => {
+    const st = s || EMPTY_STATE;
+    return {
+      vault: st.vault || {},
+      troops: st.troops || {},
+      buildings: st.buildings || {},
+      heroes: st.heroes || {},
+      heroGear: st.heroGear || {},
+      govGear: st.govGear || {},
+      govCharm: st.govCharm || {},
+      pets: st.pets || {},
+      warAcademy: st.warAcademy || {},
+      widgets: st.widgets || {},
+      misc: st.misc || {},
+      heroShards: st.heroShards || {},
+      heroWidgets: st.heroWidgets || {},
+      heroFlowers: st.heroFlowers || {},
+      lockedUpgrades: st.lockedUpgrades || {},
+      settings: st.settings || {},
+      pageScores: st.pageScores || {},
+      username: u?.username || '',
+      gameId: u?.gameId || '',
+    };
+  }, []);
+
   const refreshList = useCallback(async () => {
     if (!user) {
       setPresetList([{ name: 'default' }]);
@@ -141,147 +169,134 @@ export function AppProvider({ children }) {
     try {
       const list = await listPresets();
       const cleaned = (list || []).filter((p) => p.name);
-      setPresetList(cleaned);
-      return cleaned;
+      // Always show default first
+      const hasDefault = cleaned.some((p) => p.name === 'default');
+      const withDefault = hasDefault
+        ? cleaned
+        : [{ name: 'default' }, ...cleaned];
+      // sort default first
+      withDefault.sort((a, b) => {
+        if (a.name === 'default') return -1;
+        if (b.name === 'default') return 1;
+        return String(a.name).localeCompare(String(b.name));
+      });
+      setPresetList(withDefault);
+      return withDefault;
     } catch (err) {
       console.error('Failed to load presets:', err);
-      setPresetList([]);
-      return [];
+      setPresetList([{ name: 'default' }]);
+      return [{ name: 'default' }];
     }
   }, [user]);
 
-  useEffect(() => {
-    if (!user) return;
-    
-    let cancelled = false;
-    (async () => {
-      const list = await refreshList();
-      const savedName = getSavedActiveName();
-      
-      const exists = list.some((p) => p.name === savedName);
-      if (!exists || !savedName) {
-        const firstPreset = list.length > 0 ? list[0] : null;
-        if (firstPreset && !cancelled) {
-          try {
-            const doc = await getPreset(firstPreset.name);
-            if (!cancelled) {
-              setCurrentName(firstPreset.name);
-              setSavedActiveName(firstPreset.name);
-              applyPresetDoc(doc);
-            }
-          } catch (e) {
-            console.error('Failed to load preset after login:', e);
-          }
-        } else if (!cancelled) {
-          setCurrentName('');
-          setSavedActiveName('');
-          setState({ ...EMPTY_STATE });
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [user, refreshList]);
+  /**
+   * Flush pending patches to Mongo when logged in.
+   * Merges all section updates so rapid clicks don't drop fields.
+   * Also always localStorage-mirrors so nothing is lost offline.
+   */
+  const flushSave = useCallback(async () => {
+    const name = currentNameRef.current;
+    const u = userRef.current;
+    const st = stateRef.current;
+    const patch = { ...pendingPatch.current };
+    pendingPatch.current = {};
 
+    // Always keep local backup
+    try {
+      localStorage.setItem(
+        `${DEFAULT_LOCAL_KEY}:${name}`,
+        JSON.stringify(st)
+      );
+      if (name === 'default') saveLocalDefault(st);
+    } catch {
+      /* ignore */
+    }
+
+    if (!u) return; // guest → local only
+
+    setSaving(true);
+    try {
+      // Send full payload so every page field is always in Mongo
+      const full = buildFullPayload(st, u);
+      await apiUpdate(name, { ...full, ...patch });
+    } catch (e) {
+      console.error('Save failed', e);
+      // put patch back so next flush retries
+      pendingPatch.current = { ...patch, ...pendingPatch.current };
+    } finally {
+      setSaving(false);
+    }
+  }, [buildFullPayload]);
+
+  const scheduleSave = useCallback(
+    (name, patch) => {
+      pendingPatch.current = { ...pendingPatch.current, ...(patch || {}) };
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      saveTimer.current = setTimeout(() => {
+        flushSave();
+      }, 300);
+    },
+    [flushSave]
+  );
+
+  // Flush on tab hide / unload so last clicks are not lost
+  useEffect(() => {
+    const onHide = () => {
+      if (saveTimer.current) {
+        clearTimeout(saveTimer.current);
+        saveTimer.current = null;
+      }
+      flushSave();
+    };
+    window.addEventListener('beforeunload', onHide);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') onHide();
+    });
+    return () => {
+      window.removeEventListener('beforeunload', onHide);
+    };
+  }, [flushSave]);
+
+  // Initial load — prefer Mongo when logged in (including "default")
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
       const list = await refreshList();
-      
-      if (user) {
-        const savedName = getSavedActiveName();
-        const exists = list.some((p) => p.name === savedName);
-        
-        if (savedName && exists) {
-          try {
-            const doc = await getPreset(savedName);
-            if (!cancelled) {
-              setCurrentName(savedName);
-              setSavedActiveName(savedName);
-              applyPresetDoc(doc);
-            }
-          } catch (e) {
-            console.error('Failed to load saved preset:', e);
-            const firstPreset = list.length > 0 ? list[0] : null;
-            if (firstPreset && !cancelled) {
-              try {
-                const doc = await getPreset(firstPreset.name);
-                setCurrentName(firstPreset.name);
-                setSavedActiveName(firstPreset.name);
-                applyPresetDoc(doc);
-              } catch (err) {
-                setCurrentName('');
-                setSavedActiveName('');
-                setState({ ...EMPTY_STATE });
-              }
-            } else if (!cancelled) {
-              setCurrentName('');
-              setSavedActiveName('');
-              setState({ ...EMPTY_STATE });
-            }
-          }
-        } else if (list.length > 0 && !cancelled) {
-          try {
-            const doc = await getPreset(list[0].name);
-            setCurrentName(list[0].name);
-            setSavedActiveName(list[0].name);
-            applyPresetDoc(doc);
-          } catch (e) {
-            setCurrentName('');
-            setSavedActiveName('');
-            setState({ ...EMPTY_STATE });
-          }
-        } else if (!cancelled) {
-          setCurrentName('');
-          setSavedActiveName('');
-          setState({ ...EMPTY_STATE });
-        }
-      } else {
-        const savedName = getSavedActiveName();
-        if (savedName) {
-          setCurrentName(savedName);
-          setSavedActiveName(savedName);
+      const wanted = getSavedActiveName() || 'default';
+
+      if (!cancelled) {
+        if (!user) {
+          setCurrentName('default');
+          setSavedActiveName('default');
           setState(loadLocalDefault());
         } else {
-          setCurrentName('');
-          setSavedActiveName('');
-          setState({ ...EMPTY_STATE });
+          try {
+            const doc = await getPreset(wanted);
+            setCurrentName(wanted);
+            setSavedActiveName(wanted);
+            applyPresetDoc(doc);
+          } catch {
+            // First login: seed Mongo "default" from localStorage if any
+            const local = loadLocalDefault();
+            setCurrentName('default');
+            setSavedActiveName('default');
+            setState(local);
+            try {
+              await apiUpdate('default', buildFullPayload(local, user));
+              await refreshList();
+            } catch (e) {
+              console.warn('Could not seed default preset', e);
+            }
+          }
         }
+        setLoading(false);
       }
-      setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [user, refreshList]);
-
-  const scheduleSave = useCallback(
-    (name, patch) => {
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-      saveTimer.current = setTimeout(async () => {
-        if (!name) return;
-        if (!user) {
-          saveLocalDefault({ ...state, ...patch });
-          return;
-        }
-        setSaving(true);
-        try {
-          await apiUpdate(name, {
-            ...patch,
-            username: user.username || '',
-            gameId: user.gameId || '',
-          });
-        } catch (e) {
-          console.error('Save failed', e);
-        } finally {
-          setSaving(false);
-        }
-      }, 400);
-    },
-    [user, state]
-  );
+  }, [user, refreshList, buildFullPayload]);
 
   const updateSection = useCallback(
     (section, valueOrFn) => {
@@ -290,62 +305,66 @@ export function AppProvider({ children }) {
         const nextSec =
           typeof valueOrFn === 'function' ? valueOrFn(prevSec) : valueOrFn;
         const next = { ...prev, [section]: nextSec };
-        if (!currentNameRef.current || currentNameRef.current === '') {
-          saveLocalDefault(next);
-        } else if (!user) {
-          saveLocalDefault(next);
-        } else {
-          scheduleSave(currentNameRef.current, { [section]: nextSec });
+        stateRef.current = next;
+        // local mirror immediately
+        try {
+          if (currentNameRef.current === 'default') saveLocalDefault(next);
+          localStorage.setItem(
+            `${DEFAULT_LOCAL_KEY}:${currentNameRef.current}`,
+            JSON.stringify(next)
+          );
+        } catch {
+          /* */
         }
+        // Mongo when logged in (any preset including default)
+        scheduleSave(currentNameRef.current, { [section]: nextSec });
         return next;
       });
     },
-    [scheduleSave, user]
+    [scheduleSave]
   );
 
   const setPageScore = useCallback(
     (key, score) => {
+      const n = Number(score) || 0;
       setState((prev) => {
-        const pageScores = { ...(prev.pageScores || {}), [key]: score };
+        const prevScore = Number(prev.pageScores?.[key]) || 0;
+        if (prevScore === n) return prev;
+        const pageScores = { ...(prev.pageScores || {}), [key]: n };
         const next = { ...prev, pageScores };
-        if (!currentNameRef.current || currentNameRef.current === '') {
-          saveLocalDefault(next);
-        } else if (!user) {
-          saveLocalDefault(next);
-        } else {
-          scheduleSave(currentNameRef.current, { pageScores });
-        }
+        stateRef.current = next;
+        if (currentNameRef.current === 'default') saveLocalDefault(next);
+        scheduleSave(currentNameRef.current, { pageScores });
         return next;
       });
     },
-    [scheduleSave, user]
+    [scheduleSave]
   );
 
   const switchPreset = useCallback(
     async (name) => {
+      // flush current before switch
+      if (saveTimer.current) {
+        clearTimeout(saveTimer.current);
+        saveTimer.current = null;
+      }
+      await flushSave();
+
       setLoading(true);
       try {
-        if (!name) {
-          setCurrentName('');
-          setSavedActiveName('');
-          setState({ ...EMPTY_STATE });
-          setLoading(false);
-          return;
-        }
         setSavedActiveName(name);
         setCurrentName(name);
-        if (name === 'default' && !user) {
+        if (!user) {
           setState(loadLocalDefault());
-        } else if (name === 'default' && user) {
+        } else {
           try {
             const doc = await getPreset(name);
             applyPresetDoc(doc);
           } catch {
+            // create empty in mongo via next save
             setState({ ...EMPTY_STATE });
+            await apiUpdate(name, buildFullPayload(EMPTY_STATE, user));
           }
-        } else {
-          const doc = await getPreset(name);
-          applyPresetDoc(doc);
         }
       } catch (e) {
         console.error(e);
@@ -354,9 +373,8 @@ export function AppProvider({ children }) {
         setLoading(false);
       }
     },
-    [user]
+    [user, flushSave, buildFullPayload]
   );
-
   const createPreset = useCallback(
     async (name) => {
       if (!user) {
@@ -364,17 +382,12 @@ export function AppProvider({ children }) {
         return;
       }
       const n = String(name || '').trim();
-      if (!n) {
-        alert('Please enter a preset name');
+      if (!n || n === 'default') {
+        alert('Choose a different preset name');
         return;
       }
       try {
-        const existing = presetList.find((p) => p.name === n);
-        if (existing) {
-          alert(`Preset "${n}" already exists`);
-          return;
-        }
-        
+        // Snapshot current calculator state into the new preset
         const body = {
           name: n,
           username: user.username || '',
@@ -393,6 +406,7 @@ export function AppProvider({ children }) {
           heroShards: state.heroShards,
           heroWidgets: state.heroWidgets,
           heroFlowers: state.heroFlowers,
+          lockedUpgrades: state.lockedUpgrades,
           settings: state.settings,
           pageScores: state.pageScores,
         };
@@ -400,53 +414,31 @@ export function AppProvider({ children }) {
         await refreshList();
         setSavedActiveName(n);
         setCurrentName(n);
+        // stay on same state (already copied)
       } catch (e) {
         alert(e.message || 'Create failed');
       }
     },
-    [user, state, refreshList, presetList]
+    [user, state, refreshList]
   );
 
   const deletePreset = useCallback(
     async (name) => {
-      if (!name) {
-        alert('No preset selected to delete');
-        return;
-      }
-      
-      if (!user && name === 'default') {
-        if (!confirm(`Delete preset "${name}" from local storage?`)) return;
+      if (name === 'default') {
+        if (!confirm('Clear local default preset data?')) return;
         saveLocalDefault({ ...EMPTY_STATE });
-        setState({ ...EMPTY_STATE });
-        setCurrentName('');
-        setSavedActiveName('');
-        await refreshList();
+        if (currentNameRef.current === 'default') setState({ ...EMPTY_STATE });
         return;
       }
-      
-      if (!user) {
-        alert('Login required to delete presets');
-        return;
-      }
-      
+      if (!user) return;
       if (!confirm(`Delete preset "${name}"?`)) return;
-      
       try {
         await apiDelete(name);
         const list = await refreshList();
-        
         if (currentNameRef.current === name) {
-          const firstPreset = list.length > 0 ? list[0] : null;
-          if (firstPreset) {
-            const doc = await getPreset(firstPreset.name);
-            setSavedActiveName(firstPreset.name);
-            setCurrentName(firstPreset.name);
-            applyPresetDoc(doc);
-          } else {
-            setSavedActiveName('');
-            setCurrentName('');
-            setState({ ...EMPTY_STATE });
-          }
+          setSavedActiveName('default');
+          setCurrentName('default');
+          setState(loadLocalDefault());
         }
       } catch (e) {
         alert(e.message || 'Delete failed');
@@ -457,6 +449,7 @@ export function AppProvider({ children }) {
 
   const resetCurrentPage = useCallback(() => {
     const path = window.location.pathname || '/';
+    const scoreKey = PAGE_SCORE_RESET[path];
     let keys = [];
     if (path === '/' || path === '') keys = ['vault'];
     else if (path.includes('building')) keys = ['buildings'];
@@ -480,66 +473,70 @@ export function AppProvider({ children }) {
         if (k === 'vault') next.vault = {};
         else next[k] = {};
       }
-      const scoreKey = PAGE_SCORE_RESET[path];
       if (scoreKey) {
         next.pageScores = { ...(prev.pageScores || {}), [scoreKey]: 0 };
       }
-      
-      const currentName = currentNameRef.current;
-      if (!currentName || currentName === '') {
-        saveLocalDefault(next);
-      } else if (!user) {
-        saveLocalDefault(next);
-      } else {
-        const patch = {};
-        for (const k of keys) patch[k] = next[k];
-        if (scoreKey) patch.pageScores = next.pageScores;
-        scheduleSave(currentName, patch);
-      }
+      stateRef.current = next;
+      if (currentNameRef.current === 'default') saveLocalDefault(next);
+      const patch = {};
+      for (const k of keys) patch[k] = next[k];
+      if (scoreKey) patch.pageScores = next.pageScores;
+      scheduleSave(currentNameRef.current, patch);
       return next;
     });
-  }, [scheduleSave, user]);
+  }, [scheduleSave]);
 
-  /**
-   * Calculate remaining resources after deducting locked upgrades from all pages
-   */
-  const getRemainingVault = useCallback(() => {
-    const vault = state.vault || {};
-    const locked = state.lockedUpgrades || {};
-    const remaining = { ...vault };
-    
-    // Sum all locked costs across all pages
-    const lockedCosts = {};
-    for (const [key, lockedData] of Object.entries(locked)) {
-      if (lockedData && lockedData.costTotals) {
-        for (const [resKey, amount] of Object.entries(lockedData.costTotals)) {
-          if (!resKey.startsWith('_')) {
-            lockedCosts[resKey] = (lockedCosts[resKey] || 0) + amount;
-          }
-        }
-      }
-    }
-    
-    // Subtract locked costs from vault
-    for (const [key, amount] of Object.entries(lockedCosts)) {
-      if (remaining[key] !== undefined) {
-        const current = parseResourceValue(remaining[key]);
-        remaining[key] = Math.max(0, current - amount);
-      }
-    }
-    
-    return remaining;
-  }, [state.vault, state.lockedUpgrades]);
-
-  const remainingVault = useMemo(() => getRemainingVault(), [getRemainingVault]);
-
+  // Strongest Governor = sum of page scores only (matches old site)
   const globalScore = useMemo(() => {
-    const pages = Object.values(state.pageScores || {}).reduce(
+    return Object.values(state.pageScores || {}).reduce(
       (s, n) => s + (Number(n) || 0),
       0
     );
-    return pages;
   }, [state.pageScores]);
+
+  /**
+   * Register locked resource costs for a page so other pages see reduced vault.
+   * costs: flat { resourceId: amount } for all Active upgrades on that page.
+   * Skips setState when unchanged to avoid infinite re-render loops.
+   */
+  const setPageLockedCosts = useCallback((pageKey, costs) => {
+    const clean = {};
+    for (const [k, v] of Object.entries(costs || {})) {
+      const n = Number(v) || 0;
+      if (n > 0) clean[k] = n;
+    }
+    setState((prev) => {
+      const prevPage = prev.lockedUpgrades?.[pageKey] || {};
+      const prevKeys = Object.keys(prevPage);
+      const nextKeys = Object.keys(clean);
+      if (
+        prevKeys.length === nextKeys.length &&
+        nextKeys.every((k) => Number(prevPage[k]) === Number(clean[k]))
+      ) {
+        return prev;
+      }
+      const lockedUpgrades = { ...(prev.lockedUpgrades || {}) };
+      if (nextKeys.length === 0) delete lockedUpgrades[pageKey];
+      else lockedUpgrades[pageKey] = clean;
+      const next = { ...prev, lockedUpgrades };
+      stateRef.current = next;
+      if (currentNameRef.current === 'default') saveLocalDefault(next);
+      scheduleSave(currentNameRef.current, { lockedUpgrades });
+      return next;
+    });
+  }, [scheduleSave]);
+
+  /** Vault after other pages' Active costs are reserved (exclude current page when checking itself) */
+  const remainingVault = useMemo(
+    () => buildRemainingVault(state.vault || {}, state.lockedUpgrades || {}, null),
+    [state.vault, state.lockedUpgrades]
+  );
+
+  /** remaining vault excluding one page's own locks (use when that page recomputes affordability) */
+  const remainingVaultExcluding = useCallback(
+    (pageKey) => buildRemainingVault(state.vault || {}, state.lockedUpgrades || {}, pageKey),
+    [state.vault, state.lockedUpgrades]
+  );
 
   const value = {
     loading,
@@ -548,7 +545,6 @@ export function AppProvider({ children }) {
     currentName,
     state,
     globalScore,
-    remainingVault,
     switchPreset,
     createPreset,
     deletePreset,
@@ -556,11 +552,13 @@ export function AppProvider({ children }) {
     resetCurrentPage,
     updateSection,
     setPageScore,
+    setPageLockedCosts,
+    remainingVault,
+    remainingVaultExcluding,
     vault: state.vault,
     setVault: (v) => updateSection('vault', v),
     updateVaultField: (id, val) =>
       updateSection('vault', (prev) => ({ ...prev, [id]: val })),
-    getRemainingVault,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

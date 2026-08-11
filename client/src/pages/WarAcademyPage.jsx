@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useRef } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
 import {
@@ -7,98 +7,67 @@ import {
   getUpgradeSteps,
   getLevelsFromArray,
   SCORE_RULES,
-  parseTimeToSeconds,
-  formatSecondsToTime,
-  applyResearchSpeedupBuffs,
-  secondsToSpeedupMinutes,
-  getAvailableSpeedups,
-  calculateSpeedupUsage,
-  convertLevelToNumeric,
 } from '../utils/calc';
-import { computeAffordability } from '../utils/resources';
+import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import { ResearchBuffPanel } from '../components/BuffPanel';
-import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
+import CostStatus from '../components/CostStatus';
 import { LevelSelects } from '../components/LevelSelects';
-import { warAcademyImg, resourceImg } from '../utils/images';
+import { warAcademyImg } from '../utils/images';
 
-const RES = ['bread', 'wood', 'stone', 'iron', 'truegold', 'truegold_dust', 'tempered_truegold'];
+const RES = ['bread', 'wood', 'stone', 'iron', 'gold', 'truegold', 'truegold_dust', 'tempered_truegold'];
 
 export default function WarAcademyPage() {
   const { data, loading, error } = useGameData('war_academy');
-  const { state, updateSection, setPageScore, vault, remainingVault } = useApp();
+  const {
+    state,
+    updateSection,
+    setPageScore,
+    setPageLockedCosts,
+    remainingVaultExcluding,
+  } = useApp();
+  const vault = useMemo(
+    () => remainingVaultExcluding('warAcademy'),
+    [state.vault, state.lockedUpgrades, remainingVaultExcluding]
+  );
   const wa = state.warAcademy || {};
-  const buffs = state.settings?.researchBuffs || {};
-  const prevScoreRef = useRef(0);
-
-  const techNames = useMemo(() => {
-    const root = data?.['War Academy'] || data || {};
-    return Object.keys(root).filter((k) => Array.isArray(root[k]));
-  }, [data]);
 
   const root = data?.['War Academy'] || data || {};
+  const techNames = useMemo(
+    () => Object.keys(root).filter((k) => Array.isArray(root[k])),
+    [root]
+  );
 
   const setField = (name, field, value) => {
     updateSection('warAcademy', (prev) => {
       const cur = { ...(prev[name] || {}), [field]: value };
-      if (field === 'from') {
-        cur.active = false;
-        cur.speedup = false;
-      }
-      if (field === 'to') {
-        cur.active = false;
-        cur.speedup = false;
-      }
+      if (field === 'from' || field === 'to') cur.active = false;
       return { ...prev, [name]: cur };
     });
   };
 
   const cards = useMemo(() => {
-    const result = [];
-    for (const name of techNames) {
+    const raw = techNames.map((name) => {
       const rows = root[name] || [];
       const levels = getLevelsFromArray(rows);
       const s = wa[name] || {};
-      const from = s.from ?? '';
+      const from = s.from ?? '0';
       const to = s.to || '';
-      const steps = to ? getUpgradeSteps(rows, from, to) : [];
+      const steps = to ? getUpgradeSteps(rows, from || '0', to) : [];
       const costs = {};
       let dust = 0;
-      let totalTime = 0;
       for (const step of steps) {
         for (const k of RES) {
           if (step[k] != null) costs[k] = (costs[k] || 0) + parseCost(step[k]);
         }
         dust += parseCost(step.truegold_dust);
-        totalTime += parseTimeToSeconds(step.time || step.duration || '0');
       }
-      let points = dust * SCORE_RULES.truegold_dust;
-      const buffedTime = applyResearchSpeedupBuffs(totalTime, buffs);
-      const speedupMins = secondsToSpeedupMinutes(buffedTime);
-      
-      const availableResearchSpeedups = getAvailableSpeedups(remainingVault, 'research');
-      const hasSpeedups = availableResearchSpeedups > 0;
-      const canUseSpeedup = hasSpeedups && buffedTime > 0 && steps.length > 0;
-      
-      let speedupResult = null;
-      if (s.speedup && canUseSpeedup) {
-        const otherLocked = {};
-        speedupResult = calculateSpeedupUsage(buffedTime, remainingVault, 'research', otherLocked);
-        if (speedupResult.usedSpeedup > 0) {
-          costs.research_speedup = (costs.research_speedup || 0) + speedupResult.usedSpeedup;
-          points += speedupResult.totalPoints;
-        }
-      }
-      
-      const { canAfford } = computeAffordability(costs, remainingVault);
-      const hasSelection = !!to && steps.length > 0;
-      const levelsArray = levels || [];
-      const maxLevel = levelsArray.length ? levelsArray[levelsArray.length - 1] : '';
-      const isMaxed = from && maxLevel && convertLevelToNumeric(from) === convertLevelToNumeric(maxLevel);
-      const canUpgrade = canAfford && hasSelection && !isMaxed;
-      const canSpeedup = canUseSpeedup && canAfford && hasSelection && !isMaxed;
-
-      result.push({
+      Object.keys(costs).forEach((k) => {
+        if (!costs[k]) delete costs[k];
+      });
+      const points = dust * SCORE_RULES.truegold_dust;
+      return {
+        id: name,
         name,
         levels,
         s,
@@ -107,45 +76,56 @@ export default function WarAcademyPage() {
         steps,
         costs,
         points,
-        totalTime,
-        buffedTime,
-        speedupMins,
-        canAfford,
-        hasSelection,
-        isMaxed,
-        canUpgrade,
-        canSpeedup,
-        hasSpeedups,
-        availableResearchSpeedups,
-        speedupResult,
-        maxLevel,
-      });
-    }
-    return result;
-  }, [techNames, root, wa, remainingVault, buffs]);
+        active: !!s.active,
+      };
+    });
+    const afford = sequentialAfford(
+      raw.map((c) => ({ id: c.id, costs: c.costs, active: c.active })),
+      vault
+    );
+    return raw.map((c) => {
+      const a = afford.get(c.id) || { canAfford: true, vaultBefore: vault };
+      return { ...c, canAfford: a.canAfford, vaultBefore: a.vaultBefore };
+    });
+  }, [techNames, root, wa, vault]);
 
-  const totalActivePoints = useMemo(() => {
-    let total = 0;
-    for (const c of cards) {
-      if (c.s.active && c.canAfford && c.steps.length) total += c.points;
-    }
-    return total;
-  }, [cards]);
+  const totalActivePoints = useMemo(
+    () => cards.reduce((s, c) => s + (c.active && c.canAfford ? c.points : 0), 0),
+    [cards]
+  );
 
   useEffect(() => {
-    if (prevScoreRef.current !== totalActivePoints) {
-      prevScoreRef.current = totalActivePoints;
-      setPageScore('warAcademy', totalActivePoints);
-    }
+    setPageLockedCosts(
+      'warAcademy',
+      sumActiveCosts(
+        cards.map((c) => ({ id: c.id, costs: c.costs, active: c.active })),
+        new Map(cards.map((c) => [c.id, { canAfford: c.canAfford }]))
+      )
+    );
+  }, [cards, setPageLockedCosts]);
+
+  useEffect(() => {
+    setPageScore('warAcademy', totalActivePoints);
   }, [totalActivePoints, setPageScore]);
 
-  if (loading) return <div className="page-loading"><div className="spinner" /><p>Loading…</p></div>;
-  if (error) return <div className="page-error"><p>{error}</p></div>;
+  if (loading)
+    return (
+      <div className="page-loading">
+        <div className="spinner" />
+        <p>Loading…</p>
+      </div>
+    );
+  if (error)
+    return (
+      <div className="page-error">
+        <p>{error}</p>
+      </div>
+    );
 
   return (
-    <div className="app-container">
+    <div className="calculator-page">
       <ResearchBuffPanel />
-      <div className="items-grid cards-grid">
+      <div className="cards-grid">
         {cards.map((c) => (
           <div className="item-card" key={c.name}>
             <div className="item-card-header">
@@ -155,69 +135,30 @@ export default function WarAcademyPage() {
             <div className="item-card-body">
               <LevelSelects
                 levels={c.levels}
-                from={c.from}
-                to={c.to}
+                from={c.from ?? ''}
+                to={c.to ?? ''}
                 onFrom={(v) => setField(c.name, 'from', v)}
                 onTo={(v) => setField(c.name, 'to', v)}
-                highest={c.maxLevel}
               />
-              <div className="checkbox-group">
-                <label className="checkbox-label" style={{ opacity: c.canUpgrade ? 1 : 0.5 }}>
-                  <input
-                    type="checkbox"
-                    checked={!!c.s.active && c.canAfford}
-                    disabled={!c.canUpgrade}
-                    onChange={(e) => setField(c.name, 'active', e.target.checked)}
-                  />
-                  Upgrade
-                </label>
-                <label className="checkbox-label" style={{ opacity: c.canSpeedup ? 1 : 0.5 }}>
-                  <input
-                    type="checkbox"
-                    checked={!!c.s.speedup && c.canSpeedup}
-                    disabled={!c.canSpeedup}
-                    onChange={(e) => setField(c.name, 'speedup', e.target.checked)}
-                  />
-                  <AssetImg src={resourceImg('research_speedup')} size={18} /> +Speedups
-                  {!c.hasSpeedups && c.steps.length > 0 && (
-                    <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', marginLeft: 4 }}>
-                      (no research speedups)
-                    </span>
-                  )}
-                </label>
-              </div>
+              <label
+                className="checkbox-label"
+                style={{ opacity: c.canAfford || !c.to ? 1 : 0.5 }}
+              >
+                <input
+                  type="checkbox"
+                  checked={!!c.active && c.canAfford}
+                  disabled={!c.to || (!c.canAfford && !c.active)}
+                  onChange={(e) => setField(c.name, 'active', e.target.checked)}
+                />{' '}
+                Active
+              </label>
               <CostStatus
-                active={!!c.s.active && c.canAfford}
-                hasSelection={c.hasSelection}
+                active={!!c.active && c.canAfford}
+                hasSelection={!!c.to}
                 points={c.points}
-                stepsInfo={` (${c.steps.length} steps)`}
+                stepsInfo={c.steps.length ? ` (${c.steps.length} steps)` : ''}
                 costs={c.costs}
-                vault={remainingVault}
-                extra={
-                  c.hasSelection ? (
-                    <div>
-                      <AssetImg src={resourceImg('research_speedup')} size={18} /> Time: {formatSecondsToTime(c.buffedTime)}
-                      {c.buffedTime !== c.totalTime && (
-                        <span style={{ opacity: 0.7 }}> (base {formatSecondsToTime(c.totalTime)})</span>
-                      )}
-                      {c.s.speedup && c.canSpeedup && c.speedupResult && (
-                        <div>
-                          <AssetImg src={resourceImg('research_speedup')} size={18} /> Speedup: {formatSecondsToTime(c.speedupResult.usedSpeedup * 60)}
-                          {c.speedupResult.partialNote && (
-                            <span style={{ color: 'var(--color-warning)', fontSize: '0.65rem', display: 'block' }}>
-                              {c.speedupResult.partialNote}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                      {c.s.speedup && !c.canSpeedup && c.hasSelection && (
-                        <div style={{ color: 'var(--color-warning)', fontSize: '0.65rem' }}>
-                          <AssetImg src={resourceImg('research_speedup')} size={18} /> No research speedups available in vault
-                        </div>
-                      )}
-                    </div>
-                  ) : null
-                }
+                vault={c.vaultBefore || vault}
               />
             </div>
           </div>

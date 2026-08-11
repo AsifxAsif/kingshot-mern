@@ -1,61 +1,52 @@
-# Kingshot MERN — Vercel full-stack (free)
+# Kingshot MERN Event Calculator
 
-Frontend + API both on **Vercel Hobby (free)**. No Railway/Render required.
+MERN port of the Kingshot Strongest Governor calculator.
 
-## Local development
+## Fixes in this build (2026-08-12)
+
+- Navbar page scores use the same keys as `setPageScore` (no more stuck at 0)
+- Cross-page **remaining vault**: Active upgrades on one page reduce resources on others
+- Widgets: Active points only when page inventory covers needed widgets
+- Preset schema includes `heroFlowers` so Heroes flower state saves to MongoDB
+- Global score = sum of page scores only (matches original site)
+- Sample `.env` has no real credentials
+
+## Local setup
 
 ```bash
-# Terminal 1 — API
+# 1) Server
 cd server
-cp .env.example .env   # set MONGODB_URI, JWT_SECRET
+cp .env.example .env   # or edit .env — set MONGODB_URI + JWT_SECRET
 npm install
 npm run seed
-npm run dev            # :5000
+npm run dev            # http://localhost:5000
 
-# Terminal 2 — UI
+# 2) Client (another terminal)
 cd client
-# leave VITE_API_URL empty (Vite proxies /api → :5000)
 npm install
-npm run dev            # :3000
+npm run dev            # http://localhost:3000
 ```
 
-## Deploy everything on Vercel (free)
+## Assets
 
-1. Push this repo to **GitHub**.
-2. [vercel.com](https://vercel.com) → **Add New Project** → import repo.
-3. **Root Directory**: leave **empty** (project root, not `client`).
-4. Vercel will use root `vercel.json` (builds `client`, serves `api/`).
-5. **Environment Variables** (Production + Preview):
+Place game images in:
 
-| Name | Value |
-|------|--------|
-| `MONGODB_URI` | your Atlas connection string |
-| `JWT_SECRET` | long random string (32+ chars) |
-| `NODE_ENV` | `production` |
-| `JWT_DAYS` | `7d` |
-| `CORS_ORIGINS` | `https://your-project.vercel.app` (add after first deploy if needed) |
-| `ALLOW_VERCEL_PREVIEWS` | `true` |
-
-6. **Do not set** `VITE_API_URL` (browser calls same-origin `/api`).
-7. Deploy.
-8. Seed database once (local against Atlas is fine):
-
-```bash
-cd server
-# .env with same MONGODB_URI as Vercel
-npm run seed
+```
+client/public/assets/
 ```
 
-9. Open `https://your-project.vercel.app`.
+Copy from the original HTML site `assets/` folder (webp icons for resources, buildings, heroes, pets, widgets).
 
-### Custom domain later
+## Vercel
 
-Add domain in Vercel → update `CORS_ORIGINS` to include it.
+Root = repo root. Env vars:
 
-### Images
+- `MONGODB_URI`
+- `JWT_SECRET`
+- `CORS_ORIGINS` (your production domain)
+- `NODE_ENV=production`
 
-Put files in `client/public/assets/` before deploy.
+## Presets
 
-## Security
-
-See `SECURITY.md`. Rate limits and Helmet still apply on the serverless function.
+- **default** (guest): localStorage only
+- **Named presets**: require login; saved to MongoDB including vault, all page state, heroFlowers, pageScores, lockedUpgrades

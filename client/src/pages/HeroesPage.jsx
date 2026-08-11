@@ -3,7 +3,8 @@ import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
 import { parseCost, formatNumber, SCORE_RULES } from '../utils/calc';
 import AssetImg from '../components/AssetImg';
-import { heroImg } from '../utils/images';
+import ResourceLines from '../components/ResourceLines';
+import { heroImg, resourceImg } from '../utils/images';
 
 const FLOWERS_CONFIG = [
   { id: 0, values: ['0.1', '0.2', '0.3', '0.4', '0.5', '1.0'] },
@@ -57,6 +58,7 @@ function getHeroUpgradeSteps(dataArray, fromLevel, toLevel) {
   if (startIndex !== -1 && endIndex !== -1 && startIndex <= endIndex) {
     return dataArray.slice(startIndex, endIndex + 1);
   }
+  // walk next-map
   const nextMap = {};
   for (const item of dataArray) {
     const curr = item.current_lvl ?? item.current;
@@ -140,7 +142,7 @@ function FlowerRow({ maxIdx, onPetalClick, type }) {
 
 export default function HeroesPage() {
   const { data, loading, error } = useGameData('heroes');
-  const { state, updateSection, setPageScore, vault, remainingVault } = useApp();
+  const { state, updateSection, setPageScore, vault } = useApp();
   const maxGen = state.settings?.maxHeroGen ?? 7;
   const shards = state.heroShards || {};
   const heroesState = state.heroes || {};
@@ -185,6 +187,7 @@ export default function HeroesPage() {
           );
           return;
         }
+        // toggling off target only
         if (prevFs.targetMaxIdx === absIdx) {
           updateSection('heroFlowers', (prev) => ({
             ...prev,
@@ -200,10 +203,12 @@ export default function HeroesPage() {
 
         if (type === 'curr') {
           if (cur.currentMaxIdx === absIdx) {
+            // Unselect current → also clear target
             cur.currentMaxIdx = -1;
             cur.targetMaxIdx = -1;
           } else {
             cur.currentMaxIdx = absIdx;
+            // Auto next target
             if (absIdx >= MAX_ABS) {
               cur.targetMaxIdx = MAX_ABS;
             } else {
@@ -211,6 +216,7 @@ export default function HeroesPage() {
             }
           }
         } else {
+          // target
           if (cur.targetMaxIdx === absIdx) cur.targetMaxIdx = -1;
           else cur.targetMaxIdx = absIdx;
         }
@@ -226,10 +232,11 @@ export default function HeroesPage() {
     [flowerStates, updateSection]
   );
 
+  // ---- General shards + hero shards (matches original heroes.js) ----
   const calcForHero = useCallback(
     (hero, useGeneral, lockedGeneral = {}) => {
       const fs = flowerStates[hero.name] || { currentMaxIdx: -1, targetMaxIdx: -1 };
-      const currentIdx = fs.currentMaxIdx;
+      const currentIdx = fs.currentMaxIdx; // -1 = level 0
       const targetIdx = fs.targetMaxIdx;
       if (targetIdx < 0) return null;
       if (currentIdx >= 0 && targetIdx <= currentIdx) return null;
@@ -253,9 +260,10 @@ export default function HeroesPage() {
       const shortage = Math.max(0, heroShardsNeeded - availableHeroShards);
       const generalType = getGeneralShardType(hero.rarity);
       const generalPts = SCORE_RULES[generalType] || 0;
-      const vaultTotal = parseCost(remainingVault?.[generalType]);
+      const vaultTotal = parseCost(vault?.[generalType]);
       const vaultLeft = Math.max(0, vaultTotal - (lockedGeneral[generalType] || 0));
 
+      // Enough specific shards → no general needed
       if (shortage === 0) {
         const stepPoints = heroShardsUsed * generalPts;
         return {
@@ -274,6 +282,7 @@ export default function HeroesPage() {
         };
       }
 
+      // Shortage without general → error (user can enable general)
       if (!useGeneral) {
         return {
           error: true,
@@ -291,6 +300,7 @@ export default function HeroesPage() {
         };
       }
 
+      // Use general shards (capped by vault remaining)
       const generalUsed = Math.min(shortage, vaultLeft);
       if (generalUsed < shortage) {
         return {
@@ -326,9 +336,10 @@ export default function HeroesPage() {
         canEnableGeneral: true,
       };
     },
-    [flowerStates, shardTable, shards, remainingVault]
+    [flowerStates, shardTable, shards, vault]
   );
 
+  // Preview without locking (for checkbox enable state)
   const previewByHero = useMemo(() => {
     const map = {};
     for (const h of heroes) {
@@ -412,7 +423,7 @@ export default function HeroesPage() {
           const targVal = valueAtAbsIdx(fs.targetMaxIdx);
           const useGen = !!s.useGeneral;
           const generalType = getGeneralShardType(h.rarity);
-          const vaultTotal = parseCost(remainingVault?.[generalType]);
+          const vaultTotal = parseCost(vault?.[generalType]);
           const preview = previewByHero[h.name];
           const result = s.active
             ? activeResults[h.name]
@@ -519,15 +530,61 @@ export default function HeroesPage() {
                       ? 'status-ok'
                       : result?.error
                         ? 'status-error'
-                        : ''
+                        : result
+                          ? 'status-info'
+                          : ''
                   }`}
                 >
-                  {status}
-                  {result && !result.error && (
-                    <div style={{ marginTop: 4, fontSize: '0.72rem', opacity: 0.85 }}>
-                      Vault {generalType.replace(/_/g, ' ')}: {formatNumber(vaultTotal)}
-                      {result.generalUsed ? ` · using ${result.generalUsed}` : ''}
-                    </div>
+                  <div>
+                    <strong>
+                      {s.active && result && !result.error
+                        ? 'ACTIVE'
+                        : result?.error
+                          ? 'INSUFFICIENT'
+                          : result
+                            ? 'ESTIMATED'
+                            : 'READY'}
+                    </strong>
+                    {result && !result.error && result.stepPoints
+                      ? ` +${formatNumber(result.stepPoints)} pts`
+                      : ''}
+                  </div>
+                  <div style={{ marginBottom: 4 }}>{status}</div>
+                  {result && (result.heroShardsNeeded > 0 || result.shortage > 0 || result.generalUsed > 0) && (
+                    <ResourceLines
+                      lines={[
+                        {
+                          key: 'hero_shards',
+                          label: `${h.name} shards`,
+                          need: result.heroShardsNeeded ?? 0,
+                          left:
+                            parseCost(shards[h.name]) - (result.heroShardsNeeded ?? 0),
+                          deficit:
+                            parseCost(shards[h.name]) < (result.heroShardsNeeded ?? 0) &&
+                            !(result.generalUsed > 0),
+                          img: heroImg(h.name),
+                          fallbacks: [
+                            resourceImg('mythic_general_shard'),
+                            resourceImg('epic_general_shard'),
+                            resourceImg('rare_general_shard'),
+                          ],
+                        },
+                        ...(result.shortage > 0 || result.generalUsed > 0
+                          ? [
+                              {
+                                key: generalType,
+                                label: generalType.replace(/_/g, ' '),
+                                need: result.generalUsed || result.shortage || 0,
+                                left:
+                                  vaultTotal - (result.generalUsed || result.shortage || 0),
+                                deficit:
+                                  (result.generalUsed || result.shortage || 0) > vaultTotal,
+                                img: resourceImg(generalType),
+                              },
+                            ]
+                          : []),
+                      ]}
+                    />
                   )}
                 </div>
               </div>

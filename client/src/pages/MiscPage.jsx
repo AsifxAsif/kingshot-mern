@@ -14,6 +14,7 @@ const GATHER_RATES = {
   iron: { rate: 3, per: 100 },
 };
 
+/** Original getSkillTitle — changes with selected resource */
 function getSkillTitle(resourceType) {
   const titles = {
     bread: "Olive's Forager's Luck",
@@ -24,6 +25,7 @@ function getSkillTitle(resourceType) {
   return titles[resourceType] || 'Skill Level';
 }
 
+/** Original skill skill images */
 function getSkillImage(resourceType) {
   const map = {
     bread: 'olive_foragers_luck.webp',
@@ -48,6 +50,7 @@ function gatheringPoints(resourceAmount, resourceType) {
   return Math.floor(resourceAmount / rate.per) * rate.rate;
 }
 
+/** Original: resource amount NOT buffed; only time reduced */
 function calculateGatheringTime(nodeData, skillLevel, speedBuffPercent = 0) {
   if (!nodeData) return { timeSeconds: 0, resourceAmount: 0, originalTime: 0, totalBonus: 0 };
   const originalTime = parseTimeToSeconds(nodeData.time);
@@ -62,7 +65,7 @@ function calculateGatheringTime(nodeData, skillLevel, speedBuffPercent = 0) {
 
 export default function MiscPage() {
   const { data, loading, error } = useGameData('misc');
-  const { state, updateSection, setPageScore, vault, remainingVault } = useApp();
+  const { state, updateSection, setPageScore, vault } = useApp();
   const misc = state.misc || {};
   const gatherCards = misc.gatheringCards || {};
 
@@ -82,7 +85,7 @@ export default function MiscPage() {
 
   const gathering = data?.Gathering || [];
   const marches = Math.min(Math.max(parseInt(misc.marchUnits || '1', 10) || 1, 1), 6);
-  const cardIds = useMemo(() => Array.from({ length: marches }, (_, i) => String(i + 1)), [marches]);
+  const cardIds = useMemo(() => Array.from({ length: marches }, (_, i) => String(i)), [marches]);
 
   const getNodeData = (nodeLevel, resourceType) =>
     gathering.find(
@@ -92,10 +95,10 @@ export default function MiscPage() {
     );
 
   const spins = parseCost(misc.roulette || 0);
-  const tokensInVault = parseCost(remainingVault?.hero_roulette_token);
+  const tokensInVault = parseCost(vault?.hero_roulette_token);
   const roulettePoints = spins * (SCORE_RULES.roulette || 8000);
 
-  const bisonGrip = Math.min(parseInt(misc.bisonGrip || '0', 10) || 0, 2);
+  const bisonGrip = parseInt(misc.bisonGrip || '0', 10) || 0;
   const bisonResource = misc.bisonResource || 'bread';
   const bisonNode = misc.bisonNode || '1';
   const bisonNodeData = bisonGrip > 0 ? getNodeData(bisonNode, bisonResource) : null;
@@ -145,6 +148,7 @@ export default function MiscPage() {
 
   return (
     <div className="app-container">
+      {/* Roulette */}
       <div className="item-card" style={{ marginBottom: 16 }}>
         <div className="item-card-header">
           <AssetImg src={asset('hero_roulette.webp')} size={40} />
@@ -194,12 +198,13 @@ export default function MiscPage() {
               type="checkbox"
               checked={!!misc.rouletteActive}
               onChange={(e) => setField('rouletteActive', e.target.checked)}
-            />
+            />{' '}
             Count roulette points
           </label>
         </div>
       </div>
 
+      {/* Gathering settings — NO default global gather buff */}
       <div className="item-card" style={{ marginBottom: 16 }}>
         <div className="item-card-header">
           <AssetImg src={asset('gathering_speed.webp')} size={40} />
@@ -224,11 +229,11 @@ export default function MiscPage() {
               <AssetImg src={asset('grip_of_the_titan.webp')} size={22} /> Bison Grip (uses)
             </label>
             <select value={String(bisonGrip)} onChange={(e) => setField('bisonGrip', e.target.value)}>
-              <option value="0">0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
+              {[0, 1, 2].map((n) => (
+                <option key={n} value={n}>{n === 0 ? 'Off' : n}</option>
+              ))}
             </select>
-            <small>Daily max 2 rotations</small>
+            <small>Instant full-node gather × uses</small>
           </div>
 
           {bisonGrip > 0 && (
@@ -282,7 +287,7 @@ export default function MiscPage() {
               type="checkbox"
               checked={!!misc.gatherActive}
               onChange={(e) => setField('gatherActive', e.target.checked)}
-            />
+            />{' '}
             Count gathering + bison points
           </label>
           <div className="status-pane" style={{ marginTop: 8 }}>
@@ -292,12 +297,13 @@ export default function MiscPage() {
         </div>
       </div>
 
+      {/* Per-march cards */}
       <div className="items-grid cards-grid">
         {cardsCalc.map((c) => (
           <div className="item-card gathering-card" key={c.id} data-card-id={c.id}>
             <div className="item-card-header">
               <AssetImg src={c.nodeImg} size={40} />
-              <span>Gathering March {parseInt(c.id, 10)}</span>
+              <span>Gathering March {parseInt(c.id, 10) + 1}</span>
             </div>
             <div className="item-card-body">
               <div className="buff-field">
@@ -332,6 +338,7 @@ export default function MiscPage() {
                 </select>
               </div>
 
+              {/* Skill — character name changes with resource (Olive / Forrest / Edwin / Seth) */}
               <div className="buff-field">
                 <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <AssetImg src={c.skillImg} size={28} />

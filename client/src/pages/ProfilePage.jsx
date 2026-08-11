@@ -9,20 +9,6 @@ function levelProgress(from, to, maxHint) {
   return { current: a, target: b, max: maxHint || '—' };
 }
 
-const SCORE_KEY_LABELS = {
-  vault: 'Vault',
-  buildings: 'Buildings',
-  warAcademy: 'War Academy',
-  widgets: 'Widgets',
-  heroes: 'Heroes',
-  heroGear: 'Hero Gear',
-  govGear: 'Gov Gear',
-  govCharm: 'Gov Charm',
-  pets: 'Pets',
-  troops: 'Troops',
-  misc: 'Misc',
-};
-
 export default function ProfilePage() {
   const { user, setAuthOpen, setAuthMode, logout } = useAuth();
   const { state, currentName, globalScore, presetList } = useApp();
@@ -112,7 +98,7 @@ export default function ProfilePage() {
           ) : (
             Object.entries(pageScores).map(([k, v]) => (
               <div key={k} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>{SCORE_KEY_LABELS[k] || k.replace('score_', '')}</span>
+                <span>{k.replace('score_', '')}</span>
                 <strong>{formatNumber(v)}</strong>
               </div>
             ))

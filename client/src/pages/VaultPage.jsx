@@ -4,7 +4,7 @@ import AssetImg from '../components/AssetImg';
 import { resourceImg, asset } from '../utils/images';
 
 export default function VaultPage() {
-  const { vault, remainingVault, globalScore, updateVaultField } = useApp();
+  const { vault, updateVaultField } = useApp();
 
   return (
     <div className="vault-section">
@@ -13,53 +13,24 @@ export default function VaultPage() {
         RESOURCE VAULT
       </h2>
       <p className="hint">
-        Enter your total available resources here. The <strong>remaining</strong> column shows what's left after locked upgrades from all pages.
-        <br />
-        Supports K, M, B (e.g., 1.5M, 2.3B, 470.29M) and time formats (e.g., 2d 14h 35m).
+        Inventory saved to MongoDB. Global score comes from <strong>Active</strong> upgrades on other pages.
       </p>
       <div className="vault-grid">
-        {RESOURCE_ITEMS.map((item) => {
-          const totalValue = vault?.[item.id] ?? '';
-          const remainingValue = remainingVault?.[item.id] ?? '';
-          const isSpeedup = item.id.includes('speedup');
-          
-          return (
-            <div className="vault-item" key={item.id}>
-              <div className="vault-label">
-                <AssetImg src={resourceImg(item.id)} size={36} />
-                <label htmlFor={item.id}>{item.label}</label>
-              </div>
-              <input
-                id={item.id}
-                type="text"
-                placeholder={item.placeholder}
-                value={totalValue}
-                onChange={(e) => updateVaultField(item.id, e.target.value)}
-              />
-              {remainingValue !== '' && totalValue !== '' && (
-                <div style={{ 
-                  marginTop: 4, 
-                  fontSize: '0.7rem', 
-                  color: 'var(--text-muted)',
-                  textAlign: 'center',
-                  borderTop: '1px solid rgba(0,0,0,0.05)',
-                  paddingTop: 4
-                }}>
-                  <span style={{ fontWeight: 700 }}>Remaining:</span>{' '}
-                  <span style={{ color: parseFloat(remainingValue) > 0 ? 'var(--color-success)' : 'var(--color-error)' }}>
-                    {remainingValue}
-                  </span>
-                </div>
-              )}
+        {RESOURCE_ITEMS.map((item) => (
+          <div className="vault-item" key={item.id}>
+            <div className="vault-label">
+              <AssetImg src={resourceImg(item.id)} size={36} />
+              <label htmlFor={item.id}>{item.label}</label>
             </div>
-          );
-        })}
-      </div>
-      <div className="totals-bar">
-        <strong>Strongest Governor Total Score:</strong>{' '}
-        <span style={{ color: 'var(--lcd-glow, #4af205)', fontWeight: 700 }}>
-          {globalScore.toLocaleString()}
-        </span>
+            <input
+              id={item.id}
+              type="text"
+              placeholder={item.placeholder}
+              value={vault?.[item.id] ?? ''}
+              onChange={(e) => updateVaultField(item.id, e.target.value)}
+            />
+          </div>
+        ))}
       </div>
     </div>
   );

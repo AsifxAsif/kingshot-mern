@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -32,6 +32,7 @@ const PAGE_LABELS = {
   '/misc': 'MISC SCORE',
 };
 
+// Must match keys used by pages in setPageScore(...)
 const PATH_TO_SCORE_KEY = {
   '/buildings': 'buildings',
   '/war-academy': 'warAcademy',
@@ -53,7 +54,14 @@ export default function Navbar() {
   } = useApp();
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
-  const pageLabel = PAGE_LABELS[location.pathname];
+  const navigate = useNavigate();
+
+  // Close mobile menu on every route change
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
+  const pageLabel = PAGE_LABELS[location.pathname] ?? null;
   const pageScoreKey = PATH_TO_SCORE_KEY[location.pathname];
   const pageScore = pageScoreKey
     ? parseInt(state.pageScores?.[pageScoreKey] || 0, 10) || 0
@@ -74,25 +82,9 @@ export default function Navbar() {
       }
     }
   };
-  
   const handleDelete = () => {
-    if (!currentName) {
-      alert('No preset selected to delete');
-      return;
-    }
-    deletePreset(currentName);
-  };
-
-  const handleSwitchPreset = (e) => {
-    const value = e.target.value;
-    if (value === '') {
-      return;
-    }
-    switchPreset(value);
-  };
-
-  const closeMenu = () => {
-    setMenuOpen(false);
+    if (currentName === 'default') return alert('Cannot delete default');
+    if (confirm(`Delete preset "${currentName}" from database?`)) deletePreset(currentName);
   };
 
   return (
@@ -119,9 +111,14 @@ export default function Navbar() {
               key={l.to}
               to={l.to}
               end={l.to === '/'}
-              onClick={closeMenu}
-              className={({ isActive }) => {
-                return `nav-link${isActive ? ' active' : ''}`;
+              className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+              onClick={(e) => {
+                setMenuOpen(false);
+                // Force client navigation even if something blocks default
+                if (location.pathname !== l.to) {
+                  e.preventDefault();
+                  navigate(l.to);
+                }
               }}
             >
               {l.label}
@@ -149,16 +146,12 @@ export default function Navbar() {
             <select
               id="presetSelect"
               className="preset-select"
-              value={currentName || ''}
-              onChange={handleSwitchPreset}
+              value={currentName}
+              onChange={(e) => switchPreset(e.target.value)}
             >
-              {presetList.length === 0 ? (
-                <option value="">No presets</option>
-              ) : (
-                presetList.map((p) => (
-                  <option key={p.name} value={p.name}>{p.name}</option>
-                ))
-              )}
+              {presetList.map((p) => (
+                <option key={p.name} value={p.name}>{p.name}</option>
+              ))}
             </select>
             <button type="button" className="preset-btn" onClick={handleNew} title="Create New Preset">
               <i className="fas fa-plus" /> New

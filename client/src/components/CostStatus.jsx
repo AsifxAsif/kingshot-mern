@@ -1,8 +1,11 @@
-import { formatNumber, formatSecondsToTime, parseResourceValue } from '../utils/calc';
-import { computeAffordability } from '../utils/resources';
-import AssetImg from './AssetImg';
-import { resourceImg } from '../utils/images';
+import { formatNumber } from '../utils/calc';
+import { formatCostLines, computeAffordability } from '../utils/resources';
+import ResourceLines from './ResourceLines';
 
+/**
+ * Status pane matching original: ESTIMATED / ACTIVE / INSUFFICIENT
+ * with shared ResourceLines styling on every page.
+ */
 export default function CostStatus({
   active,
   hasSelection,
@@ -11,12 +14,29 @@ export default function CostStatus({
   costs = {},
   vault = {},
   extra = null,
+  /** optional prebuilt lines (overrides costs/vault formatting) */
+  lines: linesProp = null,
+  emptyHint = 'Select current & target level',
 }) {
   if (!hasSelection) {
-    return <div className="status-pane">Select current & target level</div>;
+    return <div className="status-pane">{emptyHint}</div>;
   }
 
-  const { remaining, canAfford } = computeAffordability(costs, vault);
+  const { canAfford } = linesProp
+    ? {
+        canAfford: !linesProp.some((l) => l.deficit),
+      }
+    : computeAffordability(costs, vault);
+
+  const lines = linesProp || formatCostLines(costs, vault);
+
+  if ((!lines || lines.length === 0) && (points == null || points === 0)) {
+    return (
+      <div className="status-pane status-info">
+        Levels selected — no cost rows found for this range (try different levels)
+      </div>
+    );
+  }
 
   let label;
   let cls = 'status-pane';
@@ -31,8 +51,6 @@ export default function CostStatus({
     cls += ' status-info';
   }
 
-  const hasCosts = Object.keys(costs || {}).filter(k => !k.startsWith('_')).length > 0;
-
   return (
     <div className={cls}>
       <div>
@@ -43,37 +61,12 @@ export default function CostStatus({
         )}
       </div>
       {extra}
-      {hasCosts && (
-        <div className="cost-grid">
-          {Object.entries(costs || {}).map(([key, amt]) => {
-            if (key.startsWith('_')) return null;
-            const have = parseResourceValue(vault?.[key]);
-            const need = parseFloat(amt) || 0;
-            const left = have - need;
-            const deficit = left < 0;
-            const isSpeedup = key.includes('speedup');
-            const displayNeed = isSpeedup ? formatSecondsToTime(need * 60) : formatNumber(need);
-            const displayLeft = isSpeedup ? formatSecondsToTime(Math.abs(left) * 60) : formatNumber(Math.abs(left));
-            const displayRemaining = isSpeedup ? formatSecondsToTime(left * 60) : formatNumber(left);
-            return (
-              <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-                <AssetImg src={resourceImg(key)} size={18} />
-                <span>
-                  {key.replace(/_/g, ' ')}: {displayNeed}
-                </span>
-                <span className={deficit ? 'text-deficit' : 'text-remaining'}>
-                  ({left >= 0 ? displayRemaining + ' left' : displayLeft + ' short'})
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <ResourceLines lines={lines} />
       {!active && canAfford && (
         <span className="text-remaining">Check Upgrade to lock points</span>
       )}
       {!canAfford && (
-        <span className="text-deficit">Add resources in Vault or lower target</span>
+        <span className="text-deficit">Add resources in Vault / inventory or lower target</span>
       )}
     </div>
   );

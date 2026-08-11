@@ -2,11 +2,11 @@ import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
 import { parseCost, formatNumber, SCORE_RULES } from '../utils/calc';
-import { computeAffordability } from '../utils/resources';
+import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
 import { LevelSelects } from '../components/LevelSelects';
-import { asset } from '../utils/images';
+import {asset, resourceImg} from '../utils/images';
 
 const CHARM_GROUPS = [
   { name: 'Helmet', type: 'cavalry' },
@@ -65,7 +65,11 @@ function nextLvl(levels, from, order) {
 
 export default function GovCharmPage() {
   const { data, loading, error } = useGameData('gov_charms');
-  const { state, updateSection, setPageScore, vault, remainingVault } = useApp();
+  const { state, updateSection, setPageScore, setPageLockedCosts, remainingVaultExcluding } = useApp();
+  const vault = useMemo(
+    () => remainingVaultExcluding('govCharm'),
+    [state.vault, state.lockedUpgrades, remainingVaultExcluding]
+  );
   const cState = state.govCharm || {};
   const rows = data?.['GOV Charm'] || [];
   const order = useMemo(() => buildOrder(rows), [rows]);
@@ -92,7 +96,7 @@ export default function GovCharmPage() {
   };
 
   const cards = useMemo(() => {
-    return CHARM_GROUPS.map((g) => {
+    const raw = CHARM_GROUPS.map((g) => {
       const s = cState[g.name] || {};
       const from = s.from ?? '0';
       const to = s.to || '';
@@ -104,18 +108,35 @@ export default function GovCharmPage() {
         if (step.guides) costs.charm_guide = (costs.charm_guide || 0) + parseCost(step.guides);
         if (step.designs) costs.charm_design = (costs.charm_design || 0) + parseCost(step.designs);
       }
-      const { canAfford } = computeAffordability(costs, remainingVault);
-      return { ...g, s, from, to, steps, points, costs, canAfford };
+      return { ...g, id: g.name, s, from, to, steps, points, costs, active: !!s.active };
     });
-  }, [cState, rows, order, remainingVault]);
+    const afford = sequentialAfford(
+      raw.map((c) => ({ id: c.id, costs: c.costs, active: c.active })),
+      vault
+    );
+    return raw.map((c) => {
+      const a = afford.get(c.id) || { canAfford: true, vaultBefore: vault };
+      return { ...c, canAfford: a.canAfford, vaultBefore: a.vaultBefore };
+    });
+  }, [cState, rows, order, vault]);
 
   const totalPoints = useMemo(() => {
     let t = 0;
     for (const c of cards) {
-      if (c.s.active && c.canAfford) t += c.points;
+      if (c.active && c.canAfford) t += c.points;
     }
     return t;
   }, [cards]);
+
+  useEffect(() => {
+    setPageLockedCosts(
+      'govCharm',
+      sumActiveCosts(
+        cards.map((c) => ({ id: c.id, costs: c.costs, active: c.active })),
+        new Map(cards.map((c) => [c.id, { canAfford: c.canAfford }]))
+      )
+    );
+  }, [cards, setPageLockedCosts]);
 
   useEffect(() => { setPageScore('govCharm', totalPoints); }, [totalPoints, setPageScore]);
 
@@ -150,19 +171,19 @@ export default function GovCharmPage() {
                 <input
                   className="checkbox"
                   type="checkbox"
-                  checked={!!c.s.active && c.canAfford}
+                  checked={!!c.active && c.canAfford}
                   disabled={!c.to || !c.canAfford}
                   onChange={(e) => setPiece(c.name, 'active', e.target.checked)}
                 />{' '}
                 Upgrade
               </label>
               <CostStatus
-                active={!!c.s.active && c.canAfford}
-                hasSelection={!!c.to && c.steps.length > 0}
+                active={!!c.active && c.canAfford}
+                hasSelection={!!c.to}
                 points={c.points}
                 stepsInfo={` (${c.steps.length} steps)`}
                 costs={c.costs}
-                vault={remainingVault}
+                vault={c.vaultBefore || vault}
               />
             </div>
           </div>

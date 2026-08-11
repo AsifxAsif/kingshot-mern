@@ -8,100 +8,145 @@ import {
   getLevelsFromArray,
   SCORE_RULES,
 } from '../utils/calc';
-import { computeAffordability } from '../utils/resources';
+import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
 import { LevelSelects } from '../components/LevelSelects';
 import { petImg } from '../utils/images';
 
 const RES = [
-  'pet_food', 'common_taming_mark', 'advanced_taming_mark',
-  'growth_manual', 'nutrient_potion', 'promotion_medallion',
+  'pet_food',
+  'growth_manual',
+  'nutrient_potion',
+  'promotion_medallion',
+  'bread',
+  'wood',
+  'stone',
+  'iron',
+  'gold',
 ];
 
-function getAdvancementPoints(targetLevel) {
-  if (!targetLevel) return 0;
-  const match = String(targetLevel).match(/^(\d+)_Advancement$/i);
+/** Original pets.js getPetAdvancementPoints */
+function getPetAdvancementPoints(targetLevelStr) {
+  const levelStr = String(targetLevelStr).toLowerCase().trim();
+  const match = levelStr.match(/^(\d+)_[Aa]dvancement$/);
   if (!match) return 0;
-  const milestone = parseInt(match[1], 10);
+  const baseMilestone = parseInt(match[1], 10);
   const milestoneMap = {
-    10: 500, 20: 1000, 30: 2000, 40: 3000, 50: 4500,
-    60: 6750, 70: 10000, 80: 12000, 90: 14500, 100: 17500
+    10: 500,
+    20: 1000,
+    30: 2000,
+    40: 3000,
+    50: 4500,
+    60: 6750,
+    70: 10000,
+    80: 12000,
+    90: 14500,
+    100: 17500,
   };
-  return (milestoneMap[milestone] || 0) * 50;
+  const basePoints = milestoneMap[baseMilestone] || 0;
+  return basePoints * 50;
 }
 
 export default function PetsPage() {
   const { data, loading, error } = useGameData('pets');
-  const { state, updateSection, setPageScore, vault, remainingVault } = useApp();
+  const { state, updateSection, setPageScore, setPageLockedCosts, remainingVaultExcluding } = useApp();
+  const vault = useMemo(
+    () => remainingVaultExcluding('pets'),
+    [state.vault, state.lockedUpgrades, remainingVaultExcluding]
+  );
   const petsState = state.pets || {};
-
-  const petNames = useMemo(() => {
-    const root = data?.Pet || data || {};
-    return Object.keys(root).filter((k) => Array.isArray(root[k]));
-  }, [data]);
-
   const root = data?.Pet || data || {};
+  const petNames = useMemo(
+    () => Object.keys(root).filter((k) => Array.isArray(root[k])),
+    [root]
+  );
 
   const setField = (name, field, value) => {
-    updateSection('pets', (prev) => ({
-      ...prev,
-      [name]: { ...(prev[name] || {}), [field]: value },
-    }));
+    updateSection('pets', (prev) => {
+      const cur = { ...(prev[name] || {}), [field]: value };
+      if (field === 'from' || field === 'to') cur.active = false;
+      return { ...prev, [name]: cur };
+    });
   };
 
   const cards = useMemo(() => {
-    const result = [];
-    for (const name of petNames) {
+    const raw = petNames.map((name) => {
       const rows = root[name] || [];
-      const levels = getLevelsFromArray(rows, ['level', 'current_lvl', 'current', 'target_lvl', 'target'], { includeZero: true });
+      const levels = getLevelsFromArray(
+        rows,
+        ['level', 'current_lvl', 'current', 'target_lvl', 'target'],
+        { includeZero: true }
+      );
       const s = petsState[name] || {};
-      const from = s.from ?? '';
+      const from = s.from ?? '0';
       const to = s.to || '';
-      const steps = to ? getUpgradeSteps(rows, from, to) : [];
+      const steps = to ? getUpgradeSteps(rows, from || '0', to) : [];
       const costs = {};
-      let adv = 0, common = 0, advancementPoints = 0;
+      let points = 0;
       for (const step of steps) {
         for (const k of RES) {
           if (step[k] != null) costs[k] = (costs[k] || 0) + parseCost(step[k]);
         }
-        adv += parseCost(step.advanced_taming_mark);
-        common += parseCost(step.common_taming_mark);
         const targetLvl = step.target_lvl || step.target || step.level;
-        advancementPoints += getAdvancementPoints(targetLvl);
+        const advPts = getPetAdvancementPoints(targetLvl);
+        if (advPts > 0) {
+          points += advPts;
+        } else {
+          points += parseCost(step.point ?? step.points ?? step.score ?? 0);
+        }
+        const adv = parseCost(step.advanced_taming_mark);
+        const common = parseCost(step.common_taming_mark);
+        if (adv) {
+          costs.advanced_taming_mark = (costs.advanced_taming_mark || 0) + adv;
+          points += adv * (SCORE_RULES.advanced_taming_mark || 0);
+        }
+        if (common) {
+          costs.common_taming_mark = (costs.common_taming_mark || 0) + common;
+          points += common * (SCORE_RULES.common_taming_mark || 0);
+        }
       }
-      const points = adv * SCORE_RULES.advanced_taming_mark + common * SCORE_RULES.common_taming_mark + advancementPoints;
-      const { canAfford } = computeAffordability(costs, remainingVault);
-      const hasSteps = steps.length > 0;
-      result.push({
-        name,
-        levels,
-        s,
-        from,
-        to,
-        steps,
-        costs,
-        points,
-        canAfford,
-        hasSteps,
+      Object.keys(costs).forEach((k) => {
+        if (!costs[k]) delete costs[k];
       });
-    }
-    return result;
-  }, [petNames, root, petsState, remainingVault]);
+      return { id: name, name, levels, s, from, to, steps, costs, points, active: !!s.active };
+    });
+    const afford = sequentialAfford(
+      raw.map((c) => ({ id: c.id, costs: c.costs, active: c.active })),
+      vault
+    );
+    return raw.map((c) => {
+      const a = afford.get(c.id) || { canAfford: true, vaultBefore: vault };
+      return { ...c, canAfford: a.canAfford, vaultBefore: a.vaultBefore };
+    });
+  }, [petNames, root, petsState, vault]);
 
-  const totalActivePoints = useMemo(() => {
-    let total = 0;
-    for (const c of cards) {
-      if (c.s.active && c.canAfford) total += c.points;
-    }
-    return total;
-  }, [cards]);
+  const total = useMemo(
+    () => cards.reduce((s, c) => s + (c.active && c.canAfford ? c.points : 0), 0),
+    [cards]
+  );
 
   useEffect(() => {
-    setPageScore('pets', totalActivePoints);
-  }, [totalActivePoints, setPageScore]);
+    setPageLockedCosts(
+      'pets',
+      sumActiveCosts(
+        cards.map((c) => ({ id: c.id, costs: c.costs, active: c.active })),
+        new Map(cards.map((c) => [c.id, { canAfford: c.canAfford }]))
+      )
+    );
+  }, [cards, setPageLockedCosts]);
 
-  if (loading) return <div className="page-loading"><div className="spinner" /><p>Loading…</p></div>;
+  useEffect(() => {
+    setPageScore('pets', total);
+  }, [total, setPageScore]);
+
+  if (loading)
+    return (
+      <div className="page-loading">
+        <div className="spinner" />
+        <p>Loading…</p>
+      </div>
+    );
   if (error) return <div className="page-error"><p>{error}</p></div>;
 
   return (
@@ -116,27 +161,28 @@ export default function PetsPage() {
             <div className="item-card-body">
               <LevelSelects
                 levels={c.levels}
-                from={c.from}
-                to={c.to}
+                from={c.s.from ?? ''}
+                to={c.s.to ?? ''}
                 onFrom={(v) => setField(c.name, 'from', v)}
                 onTo={(v) => setField(c.name, 'to', v)}
               />
-              <label className="checkbox-label" style={{ opacity: c.canAfford && c.to ? 1 : 0.5 }}>
+              <label className="checkbox-label">
                 <input
                   type="checkbox"
-                  checked={!!c.s.active && c.canAfford}
-                  disabled={!c.to || !c.canAfford}
+                  className="checkbox"
+                  checked={!!c.active && c.canAfford}
+                  disabled={!c.to || c.steps.length === 0 || !c.canAfford}
                   onChange={(e) => setField(c.name, 'active', e.target.checked)}
-                />
+                />{' '}
                 Upgrade
               </label>
               <CostStatus
-                active={!!c.s.active && c.canAfford}
-                hasSelection={!!c.to && c.hasSteps}
+                active={!!c.active && c.canAfford}
+                hasSelection={!!c.to}
                 points={c.points}
                 stepsInfo={` (${c.steps.length} steps)`}
                 costs={c.costs}
-                vault={remainingVault}
+                vault={c.vaultBefore || vault}
               />
             </div>
           </div>
