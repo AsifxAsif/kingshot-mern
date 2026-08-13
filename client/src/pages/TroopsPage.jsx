@@ -14,6 +14,7 @@ import {
 import { TrainingBuffPanel } from '../components/BuffPanel';
 import AssetImg from '../components/AssetImg';
 import CostStatus from '../components/CostStatus';
+import GroupCard from '../components/GroupCard';
 import { LevelSelects } from '../components/LevelSelects';
 import { troopImg, resourceImg } from '../utils/images';
 
@@ -57,8 +58,9 @@ export default function TroopsPage() {
           }
           let points = (row.point || SCORE_RULES.troops[level] || 0) * qty;
           const timeSec = parseTimeToSeconds(row.time) * qty;
-          if (t.speedup && timeSec > 0) {
-            const mins = Math.ceil(timeSec / 60);
+          const buffedTrain = applyTrainingSpeedupBuffs(timeSec, trainBuffs);
+          if (t.speedup && buffedTrain > 0) {
+            const mins = Math.ceil(buffedTrain / 60);
             costs.training_speedup = (costs.training_speedup || 0) + mins;
             points += mins * SCORE_RULES.speedup_min;
           }
@@ -101,8 +103,9 @@ export default function TroopsPage() {
           let points =
             ((SCORE_RULES.troops?.[to] || 0) - (SCORE_RULES.troops?.[from] || 0)) * pQty;
           points = Math.max(0, points);
-          if (p.speedup && timeSec > 0) {
-            const mins = Math.ceil(timeSec / 60);
+          const buffedTime = applyTrainingSpeedupBuffs(timeSec, trainBuffs);
+          if (p.speedup && buffedTime > 0) {
+            const mins = Math.ceil(buffedTime / 60);
             costs.training_speedup = (costs.training_speedup || 0) + mins;
             points += mins * (SCORE_RULES.speedup_min || 0);
           }
@@ -110,6 +113,7 @@ export default function TroopsPage() {
             costs,
             points,
             timeSec,
+            buffedTime,
             label: `${type} T${from}→T${to} ×${pQty} (${chain.length} steps)`,
             active: !!p.active,
           };
@@ -136,7 +140,7 @@ export default function TroopsPage() {
       }
     }
     return out;
-  }, [data, troopsState, training, promoting, vault]);
+  }, [data, troopsState, training, promoting, vault, trainBuffs]);
 
   useEffect(() => {
     const items = (results.order || []).map((id) => ({
@@ -159,12 +163,10 @@ export default function TroopsPage() {
 
   return (
     <div className="calculator-page">
-      <h2>Troops</h2>
-      <p className="hint">Training & promotion costs/points. Toggle Active to lock into score. Saved to MongoDB.</p>
-
       <TrainingBuffPanel />
-      <div className="section-title">Training</div>
-      <div className="cards-grid">
+      <div className="group-columns group-columns-1">
+      <GroupCard title="Training" iconSrc={troopImg('Infantry')} iconAlt="Training">
+      <div className="cards-grid cards-grid-3">
         {TYPES.map((type) => {
           const key = `train_${type}`;
           const s = troopsState[key] || {};
@@ -212,47 +214,33 @@ export default function TroopsPage() {
                     +Speedups
                   </label>
                 </div>
-                <div className="status-pane">
-                  {card ? (
-                    <>
-                      <div><strong>{s.active ? 'ACTIVE' : 'ESTIMATED'}</strong> Points: {formatNumber(card.points)}</div>
-                      <div>Time: {formatSecondsToTime(applyTrainingSpeedupBuffs(card.timeSec, trainBuffs))}
-                        {applyTrainingSpeedupBuffs(card.timeSec, trainBuffs) !== card.timeSec && (
-                          <span style={{ opacity: 0.7 }}> (base {formatSecondsToTime(card.timeSec)})</span>
-                        )}
-                      </div>
-                      {s.speedup && (
-                        <div>Speedup: {formatNumber(secondsToSpeedupMinutes(applyTrainingSpeedupBuffs(card.timeSec, trainBuffs)))} min</div>
+                <CostStatus
+                  active={!!s.active && !!card?.canAfford}
+                  hasSelection={!!card}
+                  points={card?.points}
+                  costs={card?.costs || {}}
+                  vault={card?.vaultBefore || vault}
+                  emptyHint="Select tier & quantity"
+                  extra={card ? (
+                    <div>
+                      Time: {formatSecondsToTime(applyTrainingSpeedupBuffs(card.timeSec, trainBuffs))}
+                      {applyTrainingSpeedupBuffs(card.timeSec, trainBuffs) !== card.timeSec && (
+                        <span style={{ opacity: 0.7 }}> (base {formatSecondsToTime(card.timeSec)})</span>
                       )}
-                      {Object.entries(card.costs).map(([k, v]) => (
-                        <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <AssetImg src={resourceImg(k)} size={18} />
-                          <span>{k.replace(/_/g, ' ')}: {formatNumber(v)}</span>
-                          {(() => {
-                            const vlt = card.vaultBefore || vault;
-                            const left = parseCost(vlt?.[k]) - parseCost(v);
-                            return (
-                              <span className={left >= 0 ? 'text-remaining' : 'text-deficit'}>
-                                {' '}({formatNumber(Math.abs(left))} {left >= 0 ? 'left' : 'short'})
-                              </span>
-                            );
-                          })()}
-
-                        </div>
-                      ))}
-                    </>
-                  ) : (
-                    'Select tier & quantity'
-                  )}
-                </div>
+                    </div>
+                  ) : null}
+                />
               </div>
             </div>
           );
         })}
       </div>
+      </GroupCard>
+      </div>
 
-      <div className="section-title">Promotion</div>
-      <div className="cards-grid">
+      <div className="group-columns group-columns-1" style={{ marginTop: 16 }}>
+      <GroupCard title="Promotion" iconSrc={troopImg('Cavalry')} iconAlt="Promotion">
+      <div className="cards-grid cards-grid-3">
         {TYPES.map((type) => {
           const key = `promo_${type}`;
           const s = troopsState[key] || {};
@@ -320,25 +308,28 @@ export default function TroopsPage() {
                     +Speedups
                   </label>
                 </div>
-                <div className="status-pane">
-                  {card ? (
-                    <>
-                      <div>Points: {formatNumber(card.points)}</div>
-                      <div>Time: {formatSecondsToTime(card.timeSec)}</div>
-                      {Object.entries(card.costs).map(([k, v]) => (
-                        <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <AssetImg src={resourceImg(k)} size={18} />
-                          <span>{k.replace(/_/g, ' ')}: {formatNumber(v)}</span></div>
-                      ))}
-                    </>
-                  ) : (
-                    'Select from → to & quantity'
-                  )}
-                </div>
+                <CostStatus
+                  active={!!s.active && !!card?.canAfford}
+                  hasSelection={!!card}
+                  points={card?.points}
+                  costs={card?.costs || {}}
+                  vault={card?.vaultBefore || vault}
+                  emptyHint="Select from → to & quantity"
+                  extra={card ? (
+                    <div>
+                      Time: {formatSecondsToTime(card.buffedTime ?? applyTrainingSpeedupBuffs(card.timeSec, trainBuffs))}
+                      {(card.buffedTime ?? applyTrainingSpeedupBuffs(card.timeSec, trainBuffs)) !== card.timeSec && (
+                        <span style={{ opacity: 0.7 }}> (base {formatSecondsToTime(card.timeSec)})</span>
+                      )}
+                    </div>
+                  ) : null}
+                />
               </div>
             </div>
           );
         })}
+      </div>
+      </GroupCard>
       </div>
     </div>
   );

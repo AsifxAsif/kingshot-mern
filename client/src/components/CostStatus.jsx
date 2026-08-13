@@ -1,11 +1,7 @@
 import { formatNumber } from '../utils/calc';
-import { formatCostLines, computeAffordability } from '../utils/resources';
+import { formatCostLines, computeAffordability, vaultAmount } from '../utils/resources';
 import ResourceLines from './ResourceLines';
 
-/**
- * Status pane matching original: ESTIMATED / ACTIVE / INSUFFICIENT
- * with shared ResourceLines styling on every page.
- */
 export default function CostStatus({
   active,
   hasSelection,
@@ -14,7 +10,6 @@ export default function CostStatus({
   costs = {},
   vault = {},
   extra = null,
-  /** optional prebuilt lines (overrides costs/vault formatting) */
   lines: linesProp = null,
   emptyHint = 'Select current & target level',
 }) {
@@ -23,17 +18,22 @@ export default function CostStatus({
   }
 
   const { canAfford } = linesProp
-    ? {
-        canAfford: !linesProp.some((l) => l.deficit),
-      }
+    ? { canAfford: !linesProp.some((l) => l.deficit) }
     : computeAffordability(costs, vault);
 
-  const lines = linesProp || formatCostLines(costs, vault);
+  let lines = linesProp;
+  if (!lines) {
+    lines = formatCostLines(costs, vault).map((row) => ({
+      ...row,
+      have: vaultAmount(vault, row.key),
+      left: vaultAmount(vault, row.key) - (Number(row.need) || 0),
+    }));
+  }
 
   if ((!lines || lines.length === 0) && (points == null || points === 0)) {
     return (
       <div className="status-pane status-info">
-        Levels selected — no cost rows found for this range (try different levels)
+        Levels selected — no cost rows found for this range
       </div>
     );
   }
@@ -61,12 +61,12 @@ export default function CostStatus({
         )}
       </div>
       {extra}
-      <ResourceLines lines={lines} />
+      <ResourceLines lines={lines} active={!!active && canAfford} />
       {!active && canAfford && (
         <span className="text-remaining">Check Upgrade to lock points</span>
       )}
       {!canAfford && (
-        <span className="text-deficit">Add resources in Vault / inventory or lower target</span>
+        <span className="text-deficit">Add resources in Vault or lower target</span>
       )}
     </div>
   );

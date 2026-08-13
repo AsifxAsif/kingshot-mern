@@ -32,7 +32,6 @@ const PAGE_LABELS = {
   '/misc': 'MISC SCORE',
 };
 
-// Must match keys used by pages in setPageScore(...)
 const PATH_TO_SCORE_KEY = {
   '/buildings': 'buildings',
   '/war-academy': 'warAcademy',
@@ -49,16 +48,25 @@ const PATH_TO_SCORE_KEY = {
 export default function Navbar() {
   const { user, logout, requireAuth, setAuthOpen, setAuthMode } = useAuth();
   const {
-    presetList, currentName, globalScore, state, saving,
-    switchPreset, createPreset, deletePreset, resetCurrentPage,
+    presetList,
+    currentName,
+    globalScore,
+    state,
+    saving,
+    switchPreset,
+    createPreset,
+    deletePreset,
+    resetCurrentPage,
+    resetPresetFull,
   } = useApp();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [presetOpen, setPresetOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Close mobile menu on every route change
   useEffect(() => {
     setMenuOpen(false);
+    setPresetOpen(false);
   }, [location.pathname]);
 
   const pageLabel = PAGE_LABELS[location.pathname] ?? null;
@@ -69,22 +77,45 @@ export default function Navbar() {
 
   const handleNew = async () => {
     if (!user) {
-      requireAuth('Register or login to create a new preset. Guests can only use the default preset.');
+      requireAuth('Register or login to create a new preset.');
       return;
     }
     const name = prompt('New preset name:');
     if (name?.trim()) {
       try {
         await createPreset(name.trim());
+        setPresetOpen(false);
       } catch (err) {
         if (err.code === 'AUTH_REQUIRED') requireAuth(err.message);
         else alert(err.message);
       }
     }
   };
-  const handleDelete = () => {
-    if (currentName === 'default') return alert('Cannot delete default');
-    if (confirm(`Delete preset "${currentName}" from database?`)) deletePreset(currentName);
+
+  const handleDelete = async () => {
+    if (!user) {
+      requireAuth('Login required to manage presets.');
+      return;
+    }
+    if (!currentName) return;
+    if (!confirm(`Delete preset "${currentName}" from database?`)) return;
+    try {
+      await deletePreset(currentName);
+      setPresetOpen(false);
+    } catch (e) {
+      alert(e.message || 'Delete failed');
+    }
+  };
+
+  const handleResetFull = async () => {
+    if (!confirm(`Reset ALL data on preset "${currentName}"?`)) return;
+    try {
+      if (resetPresetFull) await resetPresetFull();
+      else resetCurrentPage(location.pathname);
+      setPresetOpen(false);
+    } catch (e) {
+      alert(e.message || 'Reset failed');
+    }
   };
 
   return (
@@ -95,7 +126,10 @@ export default function Navbar() {
             type="checkbox"
             id="hamburgerCheckbox"
             checked={menuOpen}
-            onChange={() => setMenuOpen((v) => !v)}
+            onChange={() => {
+              setMenuOpen((v) => !v);
+              setPresetOpen(false);
+            }}
           />
           <svg viewBox="0 0 32 32">
             <path
@@ -105,6 +139,7 @@ export default function Navbar() {
             <path className="line" d="M7 16 27 16" />
           </svg>
         </label>
+
         <div className={`nav-links${menuOpen ? ' show' : ''}`} id="navLinks">
           {LINKS.map((l) => (
             <NavLink
@@ -114,7 +149,6 @@ export default function Navbar() {
               className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
               onClick={(e) => {
                 setMenuOpen(false);
-                // Force client navigation even if something blocks default
                 if (location.pathname !== l.to) {
                   e.preventDefault();
                   navigate(l.to);
@@ -125,7 +159,24 @@ export default function Navbar() {
             </NavLink>
           ))}
         </div>
+
+        {/* Mobile preset menu toggle */}
+        <button
+          type="button"
+          className={`preset-hamburger${presetOpen ? ' active' : ''}`}
+          aria-label="Preset menu"
+          title="Presets"
+          onClick={() => {
+            setPresetOpen((v) => !v);
+            setMenuOpen(false);
+          }}
+        >
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden>
+            <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.2 7.2 0 00-1.62-.94l-.36-2.54A.48.48 0 0014 2h-4a.48.48 0 00-.48.41l-.36 2.54c-.59.24-1.13.55-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.65 8.87a.49.49 0 00.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.77 14.5a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.3.59.22l2.39-.96c.5.39 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h4c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.55 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 00-.12-.61l-2.03-1.58zM12 15.5A3.5 3.5 0 1112 8.5a3.5 3.5 0 010 7z"/>
+          </svg>
+        </button>
       </div>
+
       <div className="navbar-row-2">
         <div className="scoreboard-total">
           {pageLabel != null && (
@@ -135,14 +186,13 @@ export default function Navbar() {
             </div>
           )}
           <div className="scoreboard">
-            <div className="lcd-label">
-              Strongest Governor
-            </div>
+            <div className="lcd-label">Strongest Governor{saving ? '…' : ''}</div>
             <div className="lcd-value">{globalScore.toLocaleString()}</div>
           </div>
         </div>
+
         <div className="preset-controls">
-          <div className="preset-dropdown" id="presetDropdown">
+          <div className={`preset-dropdown${presetOpen ? ' show' : ''}`} id="presetDropdown">
             <select
               id="presetSelect"
               className="preset-select"
@@ -150,17 +200,27 @@ export default function Navbar() {
               onChange={(e) => switchPreset(e.target.value)}
             >
               {presetList.map((p) => (
-                <option key={p.name} value={p.name}>{p.name}</option>
+                <option key={p.name} value={p.name}>
+                  {p.name}
+                </option>
               ))}
             </select>
             <button type="button" className="preset-btn" onClick={handleNew} title="Create New Preset">
-              <i className="fas fa-plus" /> New
+              New
             </button>
             <button type="button" className="preset-btn btn-delete" onClick={handleDelete} title="Delete Preset">
-              <i className="fa-regular fa-trash-can" /> Delete
+              Delete
             </button>
-            <button type="button" className="btn-reset" onClick={() => resetCurrentPage(location.pathname)}>
-              <i className="fa-solid fa-rotate-left" /> Reset
+            <button
+              type="button"
+              className="btn-reset"
+              onClick={() => resetCurrentPage(location.pathname)}
+              title="Reset this page only"
+            >
+              Reset page
+            </button>
+            <button type="button" className="btn-reset" onClick={handleResetFull} title="Reset entire preset">
+              Reset all
             </button>
             {user ? (
               <button type="button" className="preset-btn" onClick={logout} title={user.email}>
@@ -170,7 +230,10 @@ export default function Navbar() {
               <button
                 type="button"
                 className="preset-btn"
-                onClick={() => { setAuthMode('login'); setAuthOpen(true); }}
+                onClick={() => {
+                  setAuthMode('login');
+                  setAuthOpen(true);
+                }}
               >
                 Login
               </button>

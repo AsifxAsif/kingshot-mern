@@ -6,6 +6,7 @@ import { AppProvider } from './context/AppContext';
 import { AuthProvider } from './context/AuthContext';
 import './original-style.css';
 import './index.css';
+import './misc-align.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

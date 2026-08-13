@@ -1,7 +1,7 @@
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
-import { formatNumber, SCORE_RULES } from '../utils/calc';
+import { SCORE_RULES } from '../utils/calc';
 import AssetImg from '../components/AssetImg';
 import CostStatus from '../components/CostStatus';
 import { LevelSelects } from '../components/LevelSelects';
@@ -13,11 +13,22 @@ export default function WidgetsPage() {
   const { state, updateSection, setPageScore } = useApp();
   const heroWidgets = state.heroWidgets || {};
   const wState = state.widgets || {};
+  // Same filter as Heroes: only show gens up to server's latest
+  const maxGen = Number(state.settings?.maxHeroGen ?? 7) || 7;
+
+  const setMaxGen = (val) => {
+    updateSection('settings', (prev) => ({
+      ...prev,
+      maxHeroGen: Number(val) || 7,
+    }));
+  };
 
   const ssrHeroes = useMemo(() => {
     const list = heroesData?.Hero?.Heroes || [];
-    return list.filter((h) => h.rarity === 'SSR');
-  }, [heroesData]);
+    return list.filter(
+      (h) => h.rarity === 'SSR' && (h.generation || 1) <= maxGen
+    );
+  }, [heroesData, maxGen]);
 
   const widgetRows = widgetsData?.Widgets || [];
   const levels = useMemo(() => {
@@ -29,6 +40,12 @@ export default function WidgetsPage() {
     if (set.size <= 1) for (let i = 0; i <= 10; i++) set.add(i);
     return Array.from(set).sort((a, b) => a - b);
   }, [widgetRows]);
+
+  const genOptions = useMemo(() => {
+    const list = heroesData?.Hero?.Heroes || [];
+    const max = Math.max(7, ...list.map((h) => Number(h.generation) || 1));
+    return Array.from({ length: max }, (_, i) => i + 1);
+  }, [heroesData]);
 
   const setWidgetInv = (name, val) => {
     updateSection('heroWidgets', (prev) => ({ ...prev, [name]: val }));
@@ -82,7 +99,16 @@ export default function WidgetsPage() {
   return (
     <div className="calculator-page">
       <div className="inventory-card">
-        <div className="inventory-card-header">Hero widget inventory</div>
+        <div className="buff-field" style={{ marginBottom: 12 }}>
+          <label>Latest Hero Generation</label>
+          <select value={maxGen} onChange={(e) => setMaxGen(e.target.value)}>
+            {genOptions.map((g) => (
+              <option key={g} value={g}>
+                Gen {g}
+              </option>
+            ))}
+          </select>
+        </div>
         <div className="hero-shards-grid">
           {ssrHeroes.map((h) => (
             <div className="hero-shard-item" key={h.name}>
@@ -92,7 +118,9 @@ export default function WidgetsPage() {
                 size={48}
                 alt={h.name}
               />
-              <span className="hero-shard-name">{h.name}</span>
+              <span className="hero-shard-name" title={h.name}>
+                {h.name}
+              </span>
               <input
                 type="text"
                 className="hero-shard-input"
@@ -133,7 +161,12 @@ export default function WidgetsPage() {
                   size={48}
                   alt={h.name}
                 />
-                <span>{h.name}</span>
+                <span>
+                  {h.name}{' '}
+                  <span style={{ opacity: 0.65, fontSize: '0.75rem' }}>
+                    Gen {h.generation || 1}
+                  </span>
+                </span>
               </div>
               <div className="item-card-body">
                 <LevelSelects
@@ -165,13 +198,11 @@ export default function WidgetsPage() {
                       key: 'widgets',
                       label: 'widgets',
                       need: widgetsNeeded,
+                      have: inv,
                       left,
                       deficit: left < 0,
                       img: resourceImg('widgets'),
-                      fallbacks: [
-                        heroWidgetImg(h.name),
-                        ...heroWidgetFallbacks(h.name),
-                      ],
+                      fallbacks: [heroWidgetImg(h.name), ...heroWidgetFallbacks(h.name)],
                     },
                   ]}
                 />

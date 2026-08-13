@@ -22,6 +22,15 @@ const AppContext = createContext(null);
 const ACTIVE_KEY = 'kingshot_active_preset';
 const DEFAULT_LOCAL_KEY = 'kingshot_default_state';
 
+
+/** Primary cloud preset name: Username_gameId */
+export function primaryPresetName(user) {
+  if (!user) return null;
+  const u = String(user.username || 'user').replace(/[^a-zA-Z0-9_\-.]/g, '_').slice(0, 32);
+  const g = String(user.gameId || '0').replace(/[^a-zA-Z0-9_\-]/g, '_').slice(0, 32);
+  return `${u}_${g}`;
+}
+
 const EMPTY_STATE = {
   vault: {},
   troops: {},
@@ -168,24 +177,20 @@ export function AppProvider({ children }) {
     }
     try {
       const list = await listPresets();
-      const cleaned = (list || []).filter((p) => p.name);
-      // Always show default first
-      const hasDefault = cleaned.some((p) => p.name === 'default');
-      const withDefault = hasDefault
-        ? cleaned
-        : [{ name: 'default' }, ...cleaned];
-      // sort default first
-      withDefault.sort((a, b) => {
-        if (a.name === 'default') return -1;
-        if (b.name === 'default') return 1;
+      const primary = primaryPresetName(user);
+      // Never show legacy "default" for logged-in users
+      let cleaned = (list || []).filter((p) => p.name && p.name !== 'default');
+      cleaned.sort((a, b) => {
+        if (primary && a.name === primary) return -1;
+        if (primary && b.name === primary) return 1;
         return String(a.name).localeCompare(String(b.name));
       });
-      setPresetList(withDefault);
-      return withDefault;
+      setPresetList(cleaned);
+      return cleaned;
     } catch (err) {
       console.error('Failed to load presets:', err);
-      setPresetList([{ name: 'default' }]);
-      return [{ name: 'default' }];
+      setPresetList([]);
+      return [];
     }
   }, [user]);
 
@@ -257,46 +262,113 @@ export function AppProvider({ children }) {
     };
   }, [flushSave]);
 
-  // Initial load — prefer Mongo when logged in (including "default")
+  // Guests → local default. Logged-in → load existing presets only (no auto-create on login).
+  // Username_gameId is created only for newly registered users via createPrimaryForNewUser().
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const list = await refreshList();
-      const wanted = getSavedActiveName() || 'default';
-
-      if (!cancelled) {
-        if (!user) {
+      if (!user) {
+        if (!cancelled) {
           setCurrentName('default');
           setSavedActiveName('default');
           setState(loadLocalDefault());
-        } else {
-          try {
-            const doc = await getPreset(wanted);
+          await refreshList();
+          setLoading(false);
+        }
+        return;
+      }
+
+      try {
+        // Optional cleanup of legacy cloud "default"
+        const list0 = await listPresets().catch(() => []);
+        if ((list0 || []).some((p) => p.name === 'default')) {
+          try { await apiDelete('default'); } catch { /* ignore */ }
+        }
+
+        const list = await refreshList();
+        const saved = getSavedActiveName();
+        let wanted =
+          saved && saved !== 'default' && list.some((p) => p.name === saved)
+            ? saved
+            : list[0]?.name || null;
+
+        if (wanted) {
+          const doc = await getPreset(wanted);
+          if (!cancelled) {
             setCurrentName(wanted);
             setSavedActiveName(wanted);
             applyPresetDoc(doc);
-          } catch {
-            // First login: seed Mongo "default" from localStorage if any
-            const local = loadLocalDefault();
-            setCurrentName('default');
-            setSavedActiveName('default');
-            setState(local);
+          }
+        } else if (!cancelled) {
+          // Existing user with no presets yet — empty state until they create one
+          setCurrentName('');
+          setSavedActiveName('');
+          setState({ ...EMPTY_STATE });
+        }
+      } catch (e) {
+        console.error('Preset load failed', e);
+        if (!cancelled) {
+          const list = await refreshList().catch(() => []);
+          if (list[0]?.name) {
             try {
-              await apiUpdate('default', buildFullPayload(local, user));
-              await refreshList();
-            } catch (e) {
-              console.warn('Could not seed default preset', e);
+              const doc = await getPreset(list[0].name);
+              setCurrentName(list[0].name);
+              setSavedActiveName(list[0].name);
+              applyPresetDoc(doc);
+            } catch {
+              setCurrentName('');
+              setState({ ...EMPTY_STATE });
             }
+          } else {
+            setCurrentName('');
+            setState({ ...EMPTY_STATE });
           }
         }
-        setLoading(false);
       }
+      if (!cancelled) setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [user, refreshList, buildFullPayload]);
+  }, [user, refreshList]);
+
+  /**
+   * Only for NEW registrations: create Username_gameId preset once.
+   * Do not call this on normal login.
+   */
+  const createPrimaryForNewUser = useCallback(
+    async (userObj) => {
+      const u = userObj || user;
+      if (!u) return null;
+      const primary = primaryPresetName(u);
+      if (!primary) return null;
+      const local = loadLocalDefault();
+      const body = { name: primary, ...buildFullPayload(local, u) };
+      try {
+        await apiCreate(body);
+      } catch {
+        // already exists (re-register edge) — load it
+        try {
+          await apiUpdate(primary, buildFullPayload(local, u));
+        } catch {
+          /* */
+        }
+      }
+      await refreshList();
+      try {
+        const doc = await getPreset(primary);
+        setCurrentName(primary);
+        setSavedActiveName(primary);
+        applyPresetDoc(doc);
+        return primary;
+      } catch (e) {
+        console.error('Could not open primary preset', e);
+        return null;
+      }
+    },
+    [user, refreshList, buildFullPayload]
+  );
 
   const updateSection = useCallback(
     (section, valueOrFn) => {
@@ -382,8 +454,8 @@ export function AppProvider({ children }) {
         return;
       }
       const n = String(name || '').trim();
-      if (!n || n === 'default') {
-        alert('Choose a different preset name');
+      if (!n || n.toLowerCase() === 'default') {
+        alert('Choose a different preset name (default is not allowed when logged in)');
         return;
       }
       try {
@@ -424,28 +496,59 @@ export function AppProvider({ children }) {
 
   const deletePreset = useCallback(
     async (name) => {
-      if (name === 'default') {
-        if (!confirm('Clear local default preset data?')) return;
-        saveLocalDefault({ ...EMPTY_STATE });
-        if (currentNameRef.current === 'default') setState({ ...EMPTY_STATE });
+      if (!name) return;
+      // Guest local default
+      if (!user) {
+        if (name === 'default') {
+          saveLocalDefault({ ...EMPTY_STATE });
+          setState({ ...EMPTY_STATE });
+        }
         return;
       }
-      if (!user) return;
-      if (!confirm(`Delete preset "${name}"?`)) return;
+      const primary = primaryPresetName(user);
       try {
         await apiDelete(name);
         const list = await refreshList();
         if (currentNameRef.current === name) {
-          setSavedActiveName('default');
-          setCurrentName('default');
-          setState(loadLocalDefault());
+          const next = list[0];
+          if (next?.name) {
+            setSavedActiveName(next.name);
+            setCurrentName(next.name);
+            try {
+              const doc = await getPreset(next.name);
+              applyPresetDoc(doc);
+            } catch {
+              setState({ ...EMPTY_STATE });
+            }
+          } else {
+            setSavedActiveName('');
+            setCurrentName('');
+            setState({ ...EMPTY_STATE });
+          }
         }
       } catch (e) {
         alert(e.message || 'Delete failed');
       }
     },
-    [user, refreshList]
+    [user, refreshList, buildFullPayload]
   );
+
+  /** Reset entire active preset (all pages) */
+  const resetPresetFull = useCallback(async () => {
+    const empty = { ...EMPTY_STATE };
+    setState(empty);
+    stateRef.current = empty;
+    if (!user || currentNameRef.current === 'default') {
+      saveLocalDefault(empty);
+      return;
+    }
+    try {
+      await apiUpdate(currentNameRef.current, buildFullPayload(empty, user));
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  }, [user, buildFullPayload]);
 
   const resetCurrentPage = useCallback(() => {
     const path = window.location.pathname || '/';
@@ -547,7 +650,9 @@ export function AppProvider({ children }) {
     globalScore,
     switchPreset,
     createPreset,
+    createPrimaryForNewUser,
     deletePreset,
+    resetPresetFull,
     resetCurrent: resetCurrentPage,
     resetCurrentPage,
     updateSection,

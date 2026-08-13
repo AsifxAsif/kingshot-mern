@@ -117,9 +117,9 @@ export function BuildingBuffPanel() {
             </label>
           </div>
           <div className="buff-total">
-            <strong>Total Speedup Buff:</strong> {speedPct}%
+            <strong>Total Speedup Buff:</strong> <span>{speedPct}%</span>
             &nbsp;|&nbsp;
-            <strong>Resource Cost Reduction:</strong> {resourcePct}%
+            <strong>Resource Cost Reduction:</strong> <span>{resourcePct}%</span>
           </div>
         </div>
       )}
@@ -198,7 +198,7 @@ export function TrainingBuffPanel() {
             </label>
           </div>
           <div className="buff-total">
-            <strong>Total Speedup Buff:</strong> {total}%
+            <strong>Total Speedup Buff:</strong> <span>{total}%</span>
           </div>
         </div>
       )}
@@ -268,7 +268,7 @@ export function ResearchBuffPanel() {
             </label>
           </div>
           <div className="buff-total">
-            <strong>Total Speedup Buff:</strong> {total}%
+            <strong>Total Speedup Buff:</strong> <span>{total}%</span>
           </div>
         </div>
       )}

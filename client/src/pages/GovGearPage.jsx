@@ -6,9 +6,15 @@ import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
 import { LevelSelects } from '../components/LevelSelects';
-import { asset } from '../utils/images';
+import GroupCard from '../components/GroupCard';
+import { asset, troopImg } from '../utils/images';
 
 const GEAR_PIECES = ['Helmet', 'Watch', 'Armor', 'Pant', 'Belt', 'Weapon'];
+const GEAR_GROUPS = [
+  { troop: 'Cavalry', pieces: ['Helmet', 'Watch'] },
+  { troop: 'Infantry', pieces: ['Armor', 'Pant'] },
+  { troop: 'Archer', pieces: ['Belt', 'Weapon'] },
+];
 const GEAR_PREFIX = {
   Helmet: 'cavalry_gear_1', Watch: 'cavalry_gear_2',
   Armor: 'infantry_gear_1', Pant: 'infantry_gear_2',
@@ -108,7 +114,7 @@ export default function GovGearPage() {
         costs.artisans_vision += parseCost(step.artisans);
       }
       Object.keys(costs).forEach((k) => { if (!costs[k]) delete costs[k]; });
-      return { id: piece, piece, s, from, to, steps, points, costs, active: !!s.active };
+      return { id: piece, name: piece, piece, s, from, to, steps, points, costs, active: !!s.active };
     });
     const afford = sequentialAfford(
       raw.map((c) => ({ id: c.id, costs: c.costs, active: c.active })),
@@ -144,50 +150,64 @@ export default function GovGearPage() {
   if (error) return <div className="page-error"><p>{error}</p></div>;
 
   return (
-    <div className="app-container">
-      <div className="items-grid cards-grid">
-        {cards.map((c) => (
-          <div className="item-card" key={c.piece}>
-            <div className="item-card-header" style={{ justifyContent: 'space-evenly' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: '0.65rem', color: '#888' }}>Current</span>
-                <AssetImg src={govGearImg(c.piece, c.from === '0' ? 'Green' : c.from)} size={48} />
-              </div>
-              <span style={{ fontWeight: 700 }}>{c.piece}</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: '0.65rem', color: '#888' }}>Target</span>
-                <AssetImg src={govGearImg(c.piece, c.to || 'Green')} size={48} />
-              </div>
-            </div>
-            <div className="item-card-body">
-              <LevelSelects
-                preserveOrder
-                levels={levels}
-                from={c.from ?? ''}
-                to={c.to ?? ''}
-                onFrom={(v) => setPiece(c.piece, 'from', v)}
-                onTo={(v) => setPiece(c.piece, 'to', v)}
-              />
-              <label className="checkbox-label" style={{ opacity: c.canAfford || !c.to ? 1 : 0.5 }}>
-                <input
-                  className="checkbox"
-                  type="checkbox"
-                  checked={!!c.active && c.canAfford}
-                  disabled={!c.to || !c.canAfford}
-                  onChange={(e) => setPiece(c.piece, 'active', e.target.checked)}
-                />{' '}
-                Upgrade
-              </label>
-              <CostStatus
-                active={!!c.active && c.canAfford}
-                hasSelection={!!c.to}
-                points={c.points}
-                stepsInfo={` (${c.steps.length} steps)`}
-                costs={c.costs}
-                vault={c.vaultBefore || vault}
-              />
-            </div>
-          </div>
+    <div className="calculator-page">
+      <div className="group-columns group-columns-1 gov-group-rows">
+        {GEAR_GROUPS.map((group) => (
+          <GroupCard
+            key={group.troop}
+            title={`${group.troop} Gear`}
+            iconSrc={troopImg(group.troop)}
+            iconAlt={group.troop}
+            bodyClassName="group-card-body-items-row"
+          >
+            {group.pieces.map((piece) => {
+              const c = cards.find((x) => x.piece === piece || x.id === piece || x.name === piece);
+              if (!c) return null;
+              const name = c.piece || c.id || c.name || piece;
+              return (
+                <div className="item-card group-card-item" key={name}>
+                  <div className="item-card-header" style={{ justifyContent: 'space-evenly' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: '0.65rem', color: '#888' }}>Current</span>
+                      <AssetImg src={govGearImg(name, c.from === '0' ? null : c.from)} size={48} />
+                    </div>
+                    <span style={{ fontWeight: 700 }}>{name}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: '0.65rem', color: '#888' }}>Target</span>
+                      <AssetImg src={govGearImg(name, c.to || null)} size={48} />
+                    </div>
+                  </div>
+                  <div className="item-card-body">
+                    <LevelSelects
+                      levels={levels}
+                      from={c.from ?? ''}
+                      to={c.to ?? ''}
+                      onFrom={(v) => setPiece(name, 'from', v)}
+                      onTo={(v) => setPiece(name, 'to', v)}
+                    />
+                    <label className="checkbox-label" style={{ opacity: c.canAfford || !c.to ? 1 : 0.5 }}>
+                      <input
+                        className="checkbox"
+                        type="checkbox"
+                        checked={!!c.active && c.canAfford}
+                        disabled={!c.to || (!c.canAfford && !c.active)}
+                        onChange={(e) => setPiece(name, 'active', e.target.checked)}
+                      />{' '}
+                      Upgrade
+                    </label>
+                    <CostStatus
+                      active={!!c.active && c.canAfford}
+                      hasSelection={!!c.to}
+                      points={c.points}
+                      stepsInfo={c.steps?.length ? ` (${c.steps.length} steps)` : ''}
+                      costs={c.costs}
+                      vault={c.vaultBefore || vault}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </GroupCard>
         ))}
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { parseCost } from './calc';
+import { parseCost, parseResourceValue } from './calc';
 
 /**
  * Map alternate keys from game JSON → Vault / SCORE_RULES ids.
@@ -57,6 +57,25 @@ export function normalizeResourceKey(key) {
 }
 
 /** Merge a cost map onto canonical keys */
+
+const SPEEDUP_KEYS = new Set([
+  'training_speedup',
+  'building_speedup',
+  'research_speedup',
+  'master_speedup',
+  'general_speedup',
+]);
+
+export function parseVaultField(key, val) {
+  if (val == null || val === '') return 0;
+  const nk = normalizeResourceKey(key);
+  if (SPEEDUP_KEYS.has(nk)) {
+    if (typeof val === 'number') return val;
+    return parseResourceValue(String(val));
+  }
+  return parseCost(val);
+}
+
 export function normalizeCostMap(costs = {}) {
   const out = {};
   for (const [k, v] of Object.entries(costs || {})) {
@@ -69,15 +88,14 @@ export function normalizeCostMap(costs = {}) {
   return out;
 }
 
-/** Read vault amount trying canonical + aliases */
+/** Read vault amount trying canonical + aliases (speedups as minutes) */
 export function vaultAmount(vault = {}, key) {
   if (!vault) return 0;
   const nk = normalizeResourceKey(key);
-  if (vault[nk] != null && vault[nk] !== '') return parseCost(vault[nk]);
-  if (vault[key] != null && vault[key] !== '') return parseCost(vault[key]);
-  // try reverse: any vault key that normalizes to nk
+  if (vault[nk] != null && vault[nk] !== '') return parseVaultField(nk, vault[nk]);
+  if (vault[key] != null && vault[key] !== '') return parseVaultField(nk, vault[key]);
   for (const [vk, vv] of Object.entries(vault)) {
-    if (normalizeResourceKey(vk) === nk) return parseCost(vv);
+    if (normalizeResourceKey(vk) === nk) return parseVaultField(nk, vv);
   }
   return 0;
 }

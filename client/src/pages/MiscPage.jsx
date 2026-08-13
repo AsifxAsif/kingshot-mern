@@ -14,7 +14,6 @@ const GATHER_RATES = {
   iron: { rate: 3, per: 100 },
 };
 
-/** Original getSkillTitle — changes with selected resource */
 function getSkillTitle(resourceType) {
   const titles = {
     bread: "Olive's Forager's Luck",
@@ -25,7 +24,6 @@ function getSkillTitle(resourceType) {
   return titles[resourceType] || 'Skill Level';
 }
 
-/** Original skill skill images */
 function getSkillImage(resourceType) {
   const map = {
     bread: 'olive_foragers_luck.webp',
@@ -61,6 +59,16 @@ function calculateGatheringTime(nodeData, skillLevel, speedBuffPercent = 0) {
     timeSeconds = Math.max(1, Math.ceil(originalTime / (1 + totalBonus / 100)));
   }
   return { timeSeconds, resourceAmount, originalTime, totalBonus };
+}
+
+/** Inline row: image + text vertically centered */
+function ImgLabel({ src, size = 22, children }) {
+  return (
+    <span className="img-label">
+      {src ? <AssetImg src={src} size={size} /> : null}
+      <span className="img-label-text">{children}</span>
+    </span>
+  );
 }
 
 export default function MiscPage() {
@@ -143,11 +151,22 @@ export default function MiscPage() {
     setPageScore('misc', totalMiscPoints);
   }, [totalMiscPoints, setPageScore]);
 
-  if (loading) return <div className="page-loading"><div className="spinner" /><p>Loading…</p></div>;
-  if (error) return <div className="page-error"><p>{error}</p></div>;
+  if (loading)
+    return (
+      <div className="page-loading">
+        <div className="spinner" />
+        <p>Loading…</p>
+      </div>
+    );
+  if (error)
+    return (
+      <div className="page-error">
+        <p>{error}</p>
+      </div>
+    );
 
   return (
-    <div className="app-container">
+    <div className="app-container misc-page">
       {/* Roulette */}
       <div className="item-card" style={{ marginBottom: 16 }}>
         <div className="item-card-header">
@@ -165,32 +184,18 @@ export default function MiscPage() {
               style={{ textAlign: 'center' }}
             />
           </div>
-          <div
-            style={{
-              padding: 12,
-              background: 'var(--lcd-bg, #1a1a1a)',
-              borderRadius: 8,
-              color: '#fff',
-              marginBottom: 12,
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div className="misc-lcd">
+            <div className="misc-lcd-row">
               <span>Tokens used:</span>
-              <span style={{ color: 'var(--lcd-glow, #4af205)', fontWeight: 700 }}>
-                {formatNumber(spins)}
-              </span>
+              <span className="misc-lcd-value">{formatNumber(spins)}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div className="misc-lcd-row">
               <span>Vault tokens:</span>
-              <span style={{ color: 'var(--lcd-glow, #4af205)', fontWeight: 700 }}>
-                {formatNumber(tokensInVault)}
-              </span>
+              <span className="misc-lcd-value">{formatNumber(tokensInVault)}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div className="misc-lcd-row">
               <span>Points:</span>
-              <span style={{ color: 'var(--lcd-glow, #4af205)', fontWeight: 700 }}>
-                {formatNumber(roulettePoints)}
-              </span>
+              <span className="misc-lcd-value">{formatNumber(roulettePoints)}</span>
             </div>
           </div>
           <label className="checkbox-label">
@@ -198,42 +203,53 @@ export default function MiscPage() {
               type="checkbox"
               checked={!!misc.rouletteActive}
               onChange={(e) => setField('rouletteActive', e.target.checked)}
-            />{' '}
-            Count roulette points
+            />
+            <span>Count roulette points</span>
           </label>
         </div>
       </div>
 
-      {/* Gathering settings — NO default global gather buff */}
+      {/* Gathering settings */}
       <div className="item-card" style={{ marginBottom: 16 }}>
         <div className="item-card-header">
           <AssetImg src={asset('gathering_speed.webp')} size={40} />
           <span>GATHERING SETTINGS</span>
         </div>
         <div className="item-card-body">
-          <div className="buff-field">
-            <label>March Units</label>
-            <select
-              value={misc.marchUnits || '1'}
-              onChange={(e) => setField('marchUnits', e.target.value)}
-            >
-              {[1, 2, 3, 4, 5, 6].map((n) => (
-                <option key={n} value={n}>{n}</option>
-              ))}
-            </select>
-            <small>Number of gathering marches</small>
-          </div>
+          <div className="buff-row" style={{ marginTop: 10 }}>
+            <div className="buff-field">
+              <label>March Units</label>
+              <select
+                value={misc.marchUnits || '1'}
+                onChange={(e) => setField('marchUnits', e.target.value)}
+              >
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+              <small>Number of gathering marches</small>
+            </div>
 
-          <div className="buff-field" style={{ marginTop: 12 }}>
-            <label>
-              <AssetImg src={asset('grip_of_the_titan.webp')} size={22} /> Bison Grip (uses)
-            </label>
-            <select value={String(bisonGrip)} onChange={(e) => setField('bisonGrip', e.target.value)}>
-              {[0, 1, 2].map((n) => (
-                <option key={n} value={n}>{n === 0 ? 'Off' : n}</option>
-              ))}
-            </select>
-            <small>Instant full-node gather × uses</small>
+            <div className="buff-field">
+              <label>
+                <ImgLabel src={asset('grip_of_the_titan.webp')} size={22}>
+                  Bison Grip (uses)
+                </ImgLabel>
+              </label>
+              <select
+                value={String(bisonGrip)}
+                onChange={(e) => setField('bisonGrip', e.target.value)}
+              >
+                {[0, 1, 2].map((n) => (
+                  <option key={n} value={n}>
+                    {n === 0 ? 'Off' : n}
+                  </option>
+                ))}
+              </select>
+              <small>Instant full-node gather × uses</small>
+            </div>
           </div>
 
           {bisonGrip > 0 && (
@@ -255,7 +271,9 @@ export default function MiscPage() {
                 <label>Bison Grip Node</label>
                 <select value={bisonNode} onChange={(e) => setField('bisonNode', e.target.value)}>
                   {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                    <option key={n} value={n}>{n}</option>
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -263,32 +281,21 @@ export default function MiscPage() {
           )}
 
           {bisonGrip > 0 && (
-            <div
-              style={{
-                marginTop: 10,
-                padding: '8px 14px',
-                background: 'var(--lcd-bg, #1a1a1a)',
-                borderRadius: 8,
-                textAlign: 'center',
-                color: '#fff',
-              }}
-            >
-              <strong>
-                <AssetImg src={asset('grip_of_the_titan.webp')} size={24} /> Bison Grip Points:{' '}
-              </strong>
-              <span style={{ color: 'var(--lcd-glow, #4af205)', fontWeight: 700 }}>
-                {formatNumber(bisonPoints)}
+            <div className="misc-lcd misc-lcd-center" style={{ marginTop: 10 }}>
+              <span className="img-label" style={{ justifyContent: 'center' }}>
+                <strong style={{ color: '#fff' }}>Bison Grip Points:</strong>
+                <span className="misc-lcd-value">{formatNumber(bisonPoints)}</span>
               </span>
             </div>
           )}
 
-          <label className="checkbox-label" style={{ marginTop: 12, display: 'block' }}>
+          <label className="checkbox-label" style={{ marginTop: 12 }}>
             <input
               type="checkbox"
               checked={!!misc.gatherActive}
               onChange={(e) => setField('gatherActive', e.target.checked)}
-            />{' '}
-            Count gathering + bison points
+            />
+            <span>Count gathering + bison points</span>
           </label>
           <div className="status-pane" style={{ marginTop: 8 }}>
             March points: {formatNumber(gatherCardsPoints)} · Bison: {formatNumber(bisonPoints)} ·
@@ -306,85 +313,101 @@ export default function MiscPage() {
               <span>Gathering March {parseInt(c.id, 10) + 1}</span>
             </div>
             <div className="item-card-body">
-              <div className="buff-field">
-                <label>
-                  <AssetImg src={resourceImg(c.resource || 'bread')} size={22} /> Resource Type
-                </label>
-                <select
-                  value={c.resource}
-                  onChange={(e) => setGatherCard(c.id, 'resource', e.target.value)}
-                >
-                  <option value="">Resource Type</option>
-                  {RESOURCES.map((r) => (
-                    <option key={r} value={r}>
-                      {r.charAt(0).toUpperCase() + r.slice(1)}
-                    </option>
-                  ))}
-                </select>
+              <div className="buff-row">
+                <div className="buff-field">
+                  <label>
+                    <ImgLabel src={resourceImg(c.resource || 'bread')} size={22}>
+                      Resource Type
+                    </ImgLabel>
+                  </label>
+                  <select
+                    value={c.resource}
+                    onChange={(e) => setGatherCard(c.id, 'resource', e.target.value)}
+                  >
+                    <option value="">Resource Type</option>
+                    {RESOURCES.map((r) => (
+                      <option key={r} value={r}>
+                        {r.charAt(0).toUpperCase() + r.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="buff-field">
+                  <label>
+                    <ImgLabel src={c.nodeImg} size={22}>
+                      Node Level
+                    </ImgLabel>
+                  </label>
+                  <select
+                    value={c.node}
+                    onChange={(e) => setGatherCard(c.id, 'node', e.target.value)}
+                  >
+                    <option value="">Node Level</option>
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              <div className="buff-field">
-                <label>
-                  <AssetImg src={c.nodeImg} size={22} /> Node Level
-                </label>
-                <select
-                  value={c.node}
-                  onChange={(e) => setGatherCard(c.id, 'node', e.target.value)}
-                >
-                  <option value="">Node Level</option>
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                </select>
-              </div>
+              <div className="buff-row">
+                <div className="buff-field">
+                  <label>
+                    <ImgLabel src={c.skillImg} size={28}>
+                      {c.skillTitle}
+                    </ImgLabel>
+                  </label>
+                  <select
+                    value={String(c.skill)}
+                    onChange={(e) => setGatherCard(c.id, 'skill', e.target.value)}
+                  >
+                    {[0, 1, 2, 3, 4, 5].map((n) => (
+                      <option key={n} value={n}>
+                        Level {n} (+{getSkillBonus(n)}%)
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              {/* Skill — character name changes with resource (Olive / Forrest / Edwin / Seth) */}
-              <div className="buff-field">
-                <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <AssetImg src={c.skillImg} size={28} />
-                  {c.skillTitle}
-                </label>
-                <select
-                  value={String(c.skill)}
-                  onChange={(e) => setGatherCard(c.id, 'skill', e.target.value)}
-                >
-                  {[0, 1, 2, 3, 4, 5].map((n) => (
-                    <option key={n} value={n}>
-                      Level {n} (+{getSkillBonus(n)}%)
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="buff-field">
-                <label>
-                  <AssetImg src={asset('gathering_speed.webp')} size={22} /> Gathering Speedup (%)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. 50"
-                  value={c.card.speed ?? ''}
-                  onChange={(e) => setGatherCard(c.id, 'speed', e.target.value)}
-                  style={{ textAlign: 'center' }}
-                />
-                <small>Resource-specific speed buff %</small>
+                <div className="buff-field">
+                  <label>
+                    <ImgLabel src={asset('gathering_speed.webp')} size={22}>
+                      Gathering Speedup (%)
+                    </ImgLabel>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 50"
+                    value={c.card.speed ?? ''}
+                    onChange={(e) => setGatherCard(c.id, 'speed', e.target.value)}
+                    style={{ textAlign: 'center' }}
+                  />
+                  <small>Resource-specific speed buff %</small>
+                </div>
               </div>
 
               <div className={`status-pane ${c.points > 0 ? 'status-ok' : ''}`}>
                 {!c.nodeData ? (
                   'Select resource type, node level, and skill level'
                 ) : (
-                  <>
-                    <strong>
-                      <AssetImg src={resourceImg(c.resource)} size={22} />{' '}
-                      {c.resource.charAt(0).toUpperCase() + c.resource.slice(1)} - Level {c.node}
-                    </strong>
+                  <div className="misc-status-stack">
+                    <div className="img-label">
+                      <AssetImg src={resourceImg(c.resource)} size={22} />
+                      <strong>
+                        {c.resource.charAt(0).toUpperCase() + c.resource.slice(1)} - Level {c.node}
+                      </strong>
+                    </div>
                     <div>
                       Resource: <strong>{formatNumber(c.resourceAmount)}</strong>
                     </div>
-                    <div>
-                      <AssetImg src={c.skillImg} size={20} /> {c.skillTitle}: Level {c.skill} (+
-                      {c.skillBonus}%)
+                    <div className="img-label">
+                      <AssetImg src={c.skillImg} size={20} />
+                      <span>
+                        {c.skillTitle}: Level {c.skill} (+{c.skillBonus}%)
+                      </span>
                     </div>
                     <div>Speed Buff: +{c.speed}%</div>
                     <div>Total Bonus: +{c.totalBonus}%</div>
@@ -400,7 +423,7 @@ export default function MiscPage() {
                     <div>
                       Points: <strong>+{formatNumber(c.points)}</strong>
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             </div>

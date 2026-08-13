@@ -430,13 +430,25 @@ body {
 	background: var(--surface-dark);
 	border-bottom: 2px solid rgba(0, 0, 0, 0.06);
 }
-.item-card-header img {
+.item-card-header > * {
+	align-self: center;
+}
+.item-card-header img,
+.item-card-header .asset-img,
+.item-card-header .asset-img-fallback {
 	width: 50px;
 	height: 50px;
 	object-fit: contain;
 	border-radius: var(--radius-sm);
 	background: rgba(255, 255, 255, 0.5);
 	padding: 4px;
+	display: block;
+	flex-shrink: 0;
+}
+.item-card-header span {
+	display: flex;
+	align-items: center;
+	line-height: 1.2;
 }
 .item-card-body {
 	display: flex;
@@ -477,6 +489,7 @@ body {
 	justify-content: flex-start;
 }
 .checkbox-label {
+	/* image + text vertically centered */
 	display: inline-flex;
 	gap: 8px;
 	padding: 8px 14px;
@@ -647,11 +660,20 @@ body {
 	min-width: 200px;
 }
 .buff-field label {
-	display: block;
+	display: flex;
+	align-items: center;
+	gap: 6px;
 	font-size: 0.75rem;
 	font-weight: 700;
 	margin-bottom: 4px;
 	color: var(--text-secondary);
+	line-height: 1.2;
+}
+.buff-field label img,
+.buff-field label .asset-img {
+	display: block;
+	flex-shrink: 0;
+	align-self: center;
 }
 .buff-field input,
 .buff-field select {
@@ -684,9 +706,13 @@ body {
 	background: var(--lcd-bg);
 	border: 1px solid var(--text-muted);
 	font-size: 1rem;
+	color: var(--lcd-glow);
+	font-weight: 700;
+	text-shadow: 0 0 12px var(--lcd-glow-dim);
 }
 .buff-total strong {
 	color: #fff;
+	text-shadow: none;
 }
 .buff-total span {
 	font-weight: 700;
@@ -1123,7 +1149,9 @@ body {
 		flex-wrap: wrap;
 	}
 	.nav-links.show {
-		display: grid;
+		display: grid !important;
+		grid-template-columns: 1fr 1fr !important;
+		gap: 8px;
 	}
 	@keyframes menuSlideIn {
 		from {
@@ -1324,6 +1352,7 @@ body {
 		width: 70px;
 	}
 	.checkbox-label {
+	/* image + text vertically centered */
 		font-size: 0.7rem;
 		padding: 6px 12px;
 	}

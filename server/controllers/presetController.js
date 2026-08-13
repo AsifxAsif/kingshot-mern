@@ -131,8 +131,8 @@ export const updatePreset = async (req, res) => {
 export const deletePreset = async (req, res) => {
   try {
     const name = sanitizePresetName(req.params.name);
-    if (!name || name === 'default') {
-      return res.status(400).json({ message: 'Cannot delete default' });
+    if (!name) {
+      return res.status(400).json({ message: 'Invalid preset name' });
     }
     if (!req.user) return res.status(401).json({ message: 'Login required', code: 'AUTH_REQUIRED' });
     const result = await Preset.findOneAndDelete({ userId: req.user.id, name });

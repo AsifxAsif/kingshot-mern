@@ -205,9 +205,6 @@ export default function BuildingsPage() {
                       {c.buffedTime !== c.totalTime && (
                         <span style={{ opacity: 0.7 }}> (base {formatSecondsToTime(c.totalTime)})</span>
                       )}
-                      {c.s.speedup && (
-                        <div>Speedup: {formatNumber(c.speedupMins)} min</div>
-                      )}
                     </div>
                   ) : null
                 }

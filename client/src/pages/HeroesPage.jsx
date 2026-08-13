@@ -381,19 +381,19 @@ export default function HeroesPage() {
   return (
     <div className="app-container">
       {toast && <div className="hero-toast hero-toast-error">{toast}</div>}
-      <div className="buff-row" style={{ marginBottom: 12 }}>
-        <div className="buff-field">
-          <label>Latest generation</label>
-          <select value={maxGen} onChange={(e) => setMaxGen(e.target.value)}>
-            {[1, 2, 3, 4, 5, 6, 7].map((g) => (
-              <option key={g} value={g}>{g}</option>
-            ))}
-          </select>
-        </div>
-      </div>
+
 
       <div className="inventory-card">
-        <div className="inventory-card-header">Hero-specific shards</div>
+        <div className="buff-row" style={{ marginBottom: 12 }}>
+          <div className="buff-field">
+            <label>Latest Hero Generation</label>
+            <select value={maxGen} onChange={(e) => setMaxGen(e.target.value)}>
+              {[1, 2, 3, 4, 5, 6, 7].map((g) => (
+                <option key={g} value={g}>Gen {g}</option>
+              ))}
+            </select>
+          </div>
+        </div>
         <div className="hero-shards-grid">
           {heroes.map((h) => (
             <div className={`hero-shard-item ${rarityClass(h.rarity)}`} key={h.name}>
@@ -411,10 +411,6 @@ export default function HeroesPage() {
         </div>
       </div>
 
-      <p className="hint">
-        Hero-specific shards are used first. If short, enable <strong>General Shards</strong> to spend
-        Rare / Epic / Mythic general shards from the Vault (by rarity: R→rare, SR→epic, SSR→mythic).
-      </p>
       <div className="items-grid cards-grid">
         {heroes.map((h) => {
           const s = heroesState[h.name] || {};
@@ -525,15 +521,14 @@ export default function HeroesPage() {
                   </label>
                 </div>
                 <div
-                  className={`status-pane ${
-                    s.active && result && !result.error
-                      ? 'status-ok'
-                      : result?.error
-                        ? 'status-error'
-                        : result
-                          ? 'status-info'
-                          : ''
-                  }`}
+                  className={`status-pane ${s.active && result && !result.error
+                    ? 'status-ok'
+                    : result?.error
+                      ? 'status-error'
+                      : result
+                        ? 'status-info'
+                        : ''
+                    }`}
                 >
                   <div>
                     <strong>
@@ -552,6 +547,7 @@ export default function HeroesPage() {
                   <div style={{ marginBottom: 4 }}>{status}</div>
                   {result && (result.heroShardsNeeded > 0 || result.shortage > 0 || result.generalUsed > 0) && (
                     <ResourceLines
+                      active={!!s.active && result && !result.error}
                       lines={[
                         {
                           key: 'hero_shards',
@@ -571,17 +567,17 @@ export default function HeroesPage() {
                         },
                         ...(result.shortage > 0 || result.generalUsed > 0
                           ? [
-                              {
-                                key: generalType,
-                                label: generalType.replace(/_/g, ' '),
-                                need: result.generalUsed || result.shortage || 0,
-                                left:
-                                  vaultTotal - (result.generalUsed || result.shortage || 0),
-                                deficit:
-                                  (result.generalUsed || result.shortage || 0) > vaultTotal,
-                                img: resourceImg(generalType),
-                              },
-                            ]
+                            {
+                              key: generalType,
+                              label: generalType.replace(/_/g, ' '),
+                              need: result.generalUsed || result.shortage || 0,
+                              left:
+                                vaultTotal - (result.generalUsed || result.shortage || 0),
+                              deficit:
+                                (result.generalUsed || result.shortage || 0) > vaultTotal,
+                              img: resourceImg(generalType),
+                            },
+                          ]
                           : []),
                       ]}
                     />

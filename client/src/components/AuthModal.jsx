@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useApp } from '../context/AppContext';
 
 export default function AuthModal() {
   const { authOpen, setAuthOpen, authMode, setAuthMode, authMessage, login, register } = useAuth();
+  const { createPrimaryForNewUser } = useApp();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,7 +25,11 @@ export default function AuthModal() {
           setBusy(false);
           return;
         }
-        await register(username, email, password, gameId.trim());
+        const data = await register(username, email, password, gameId.trim());
+        // Only new accounts get Username_gameId preset
+        if (data?.user && createPrimaryForNewUser) {
+          await createPrimaryForNewUser(data.user);
+        }
       } else {
         await login(email, password);
       }
