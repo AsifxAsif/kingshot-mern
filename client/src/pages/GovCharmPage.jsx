@@ -127,14 +127,11 @@ export default function GovCharmPage() {
 
   const [groupSet, setGroupSet] = useState({});
 
-<<<<<<< HEAD
   const allCharmNames = useMemo(
     () => CHARM_GROUPS.flatMap((g) => g.charms),
     []
   );
 
-=======
->>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
   const setPiece = (piece, field, value) => {
     if (!piece || !allCharmNames.includes(piece)) return;
     updateSection('govCharm', (prev) => {
@@ -162,7 +159,6 @@ export default function GovCharmPage() {
     });
   };
 
-<<<<<<< HEAD
   // Prune invalid keys left from older builds
   useEffect(() => {
     const c = state.govCharm || {};
@@ -177,8 +173,6 @@ export default function GovCharmPage() {
     });
   }, [state.govCharm, allCharmNames, updateSection]);
 
-=======
->>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
   const applyGroupLevel = (group, field, raw) => {
     const clean = String(raw || '').trim();
     if (!clean) return;
@@ -191,14 +185,6 @@ export default function GovCharmPage() {
     }
   };
 
-<<<<<<< HEAD
-=======
-  const allCharmNames = useMemo(
-    () => CHARM_GROUPS.flatMap((g) => g.charms),
-    []
-  );
-
->>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
   const cards = useMemo(() => {
     const raw = allCharmNames.map((name) => {
       const group = CHARM_GROUPS.find((g) => g.charms.includes(name));

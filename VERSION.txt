@@ -1,6 +1,7 @@
-BUILD 2026-08-13-profile-active-filter-v24
-Profile ACTIVE only when:
-  - real level/qty selection exists on that page shape
-  - AND active checkbox is true
-Phantom / empty / active-without-levels entries are hidden.
+BUILD 2026-08-23-pets-taming-marks-points
+- Taming Marks Points card on PETS page (not Vault)
+- settings.tamingMarks {advanced, common, active} → Mongo
+- Points added to pageScores.pets
+- Marks locked via lockedUpgrades.pets when Active
+- Pet upgrade steps no longer double-count mark points
 
