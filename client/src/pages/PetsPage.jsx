@@ -304,6 +304,11 @@ export default function PetsPage() {
                 onFrom={(v) => setField(c.name, 'from', v)}
                 onTo={(v) => setField(c.name, 'to', v)}
               />
+              {(() => {
+                const atMax = c.levels.length > 0 && String(c.from) === String(c.levels[c.levels.length - 1]);
+                return (
+              <>
+              {!atMax && (
               <label className="checkbox-label">
                 <input
                   type="checkbox"
@@ -314,14 +319,19 @@ export default function PetsPage() {
                 />{' '}
                 Upgrade
               </label>
+              )}
               <CostStatus
                 active={!!c.active && c.canAfford}
                 hasSelection={!!c.to}
+                atMax={atMax}
                 points={c.points}
                 stepsInfo={` (${c.steps.length} steps)`}
                 costs={c.costs}
                 vault={c.vaultBefore || vault}
               />
+              </>
+                );
+              })()}
             </div>
           </div>
         ))}

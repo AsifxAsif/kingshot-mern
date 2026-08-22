@@ -483,6 +483,7 @@ export default function HeroesPage() {
                     />
                   </div>
                 </div>
+                {fs.currentMaxIdx >= MAX_ABS ? null : (
                 <div className="checkbox-group">
                   <label className="checkbox-label">
                     <input
@@ -520,6 +521,8 @@ export default function HeroesPage() {
                     General Shards
                   </label>
                 </div>
+                )}
+                {fs.currentMaxIdx < MAX_ABS && (
                 <div
                   className={`status-pane ${s.active && result && !result.error
                     ? 'status-ok'
@@ -583,6 +586,7 @@ export default function HeroesPage() {
                     />
                   )}
                 </div>
+                )}
               </div>
             </div>
           );

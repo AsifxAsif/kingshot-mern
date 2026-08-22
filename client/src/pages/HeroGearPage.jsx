@@ -299,6 +299,11 @@ export default function HeroGearPage() {
                     onTo={(v) => setListItem('items', c.id, 'to', v)}
                     highest={levels[levels.length - 1]}
                   />
+                  {(() => {
+                    const atMax = levels.length > 0 && String(c.from ?? '') === String(levels[levels.length - 1]);
+                    return (
+                  <>
+                  {!atMax && (
                   <div className="checkbox-group">
                     <label className="checkbox-label">
                       <input
@@ -311,14 +316,19 @@ export default function HeroGearPage() {
                       Upgrade
                     </label>
                   </div>
+                  )}
                   <CostStatus
                     active={!!c.active && canAfford}
                     hasSelection={!!c.to && c.steps.length > 0}
+                    atMax={atMax}
                     points={c.points}
                     stepsInfo={` (${c.steps.length} steps)`}
                     costs={c.costs}
                     vault={gearVault}
                   />
+                  </>
+                    );
+                  })()}
                 </div>
               </div>
             );
@@ -364,6 +374,11 @@ export default function HeroGearPage() {
                     onTo={(v) => setListItem('forgeItems', c.id, 'to', v)}
                     highest={forgeLevels[forgeLevels.length - 1]}
                   />
+                  {(() => {
+                    const atMax = forgeLevels.length > 0 && String(c.from ?? '') === String(forgeLevels[forgeLevels.length - 1]);
+                    return (
+                  <>
+                  {!atMax && (
                   <div className="checkbox-group">
                     <label className="checkbox-label">
                       <input
@@ -378,14 +393,19 @@ export default function HeroGearPage() {
                       Upgrade
                     </label>
                   </div>
+                  )}
                   <CostStatus
                     active={!!c.active && canAfford}
                     hasSelection={!!c.to && c.steps.length > 0}
+                    atMax={atMax}
                     points={c.points}
                     stepsInfo={` (${c.steps.length} steps)`}
                     costs={c.costs}
                     vault={forgeVault}
                   />
+                  </>
+                    );
+                  })()}
                 </div>
               </div>
             );

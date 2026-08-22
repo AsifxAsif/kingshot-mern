@@ -177,6 +177,11 @@ export default function WarAcademyPage() {
                       onFrom={(v) => setField(c.name, 'from', v)}
                       onTo={(v) => setField(c.name, 'to', v)}
                     />
+                    {(() => {
+                      const atMax = c.levels.length > 0 && String(c.from ?? '0') === String(c.levels[c.levels.length - 1]);
+                      return (
+                    <>
+                    {!atMax && (
                     <div className="checkbox-group">
                       <label className="checkbox-label" style={{ opacity: c.canAfford || !c.to ? 1 : 0.5 }}>
                         <input
@@ -196,9 +201,11 @@ export default function WarAcademyPage() {
                         +Speedups
                       </label>
                     </div>
+                    )}
                     <CostStatus
                       active={!!c.active && c.canAfford}
                       hasSelection={!!c.to}
+                      atMax={atMax}
                       points={c.points}
                       stepsInfo={c.steps.length ? ` (${c.steps.length} steps)` : ''}
                       costs={c.costs}
@@ -214,6 +221,9 @@ export default function WarAcademyPage() {
                         ) : null
                       }
                     />
+                    </>
+                      );
+                    })()}
                   </div>
                 </div>
               ))}
@@ -238,6 +248,11 @@ export default function WarAcademyPage() {
                     onFrom={(v) => setField(c.name, 'from', v)}
                     onTo={(v) => setField(c.name, 'to', v)}
                   />
+                  {(() => {
+                    const atMax = c.levels.length > 0 && String(c.from ?? '0') === String(c.levels[c.levels.length - 1]);
+                    return (
+                  <>
+                  {!atMax && (
                   <div className="checkbox-group">
                     <label className="checkbox-label">
                       <input
@@ -257,13 +272,18 @@ export default function WarAcademyPage() {
                       +Speedups
                     </label>
                   </div>
+                  )}
                   <CostStatus
                     active={!!c.active && c.canAfford}
                     hasSelection={!!c.to}
+                    atMax={atMax}
                     points={c.points}
                     costs={c.costs}
                     vault={c.vaultBefore || vault}
                   />
+                  </>
+                    );
+                  })()}
                 </div>
               </div>
             ))}

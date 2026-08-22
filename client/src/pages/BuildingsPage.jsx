@@ -170,6 +170,11 @@ export default function BuildingsPage() {
                 onFrom={(v) => setField(c.name, 'from', v)}
                 onTo={(v) => setField(c.name, 'to', v)}
               />
+              {(() => {
+                const atMax = c.levels.length > 0 && convertLevelToNumeric(c.from) >= convertLevelToNumeric(c.levels[c.levels.length - 1]);
+                return (
+              <>
+              {!atMax && (
               <div className="checkbox-group">
                 <label className="checkbox-label" style={{ opacity: c.canAfford || !c.to ? 1 : 0.5 }}>
                   <input
@@ -191,9 +196,11 @@ export default function BuildingsPage() {
                   +Speedups
                 </label>
               </div>
+              )}
               <CostStatus
                 active={!!c.active && c.canAfford}
                 hasSelection={!!c.to}
+                atMax={atMax}
                 points={c.points}
                 stepsInfo={c.steps.length ? ` (${c.steps.length} steps)` : ''}
                 costs={c.costs}
@@ -209,6 +216,9 @@ export default function BuildingsPage() {
                   ) : null
                 }
               />
+              </>
+                );
+              })()}
             </div>
           </div>
         ))}

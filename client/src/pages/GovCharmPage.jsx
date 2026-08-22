@@ -339,6 +339,11 @@ export default function GovCharmPage() {
                             onFrom={(v) => setPiece(c.name, 'from', v)}
                             onTo={(v) => setPiece(c.name, 'to', v)}
                           />
+                          {(() => {
+                            const atMax = levels.length > 0 && String(c.from ?? '0') === String(levels[levels.length - 1]);
+                            return (
+                          <>
+                          {!atMax && (
                           <label
                             className="checkbox-label"
                             style={{ opacity: c.canAfford || !c.to ? 1 : 0.5 }}
@@ -352,14 +357,19 @@ export default function GovCharmPage() {
                             />{' '}
                             Upgrade
                           </label>
+                          )}
                           <CostStatus
                             active={!!c.active && c.canAfford}
                             hasSelection={!!c.to}
+                            atMax={atMax}
                             points={c.points}
                             stepsInfo={` (${c.steps.length} steps)`}
                             costs={c.costs}
                             vault={c.vaultBefore || vault}
                           />
+                          </>
+                            );
+                          })()}
                         </div>
                       </div>
                     );

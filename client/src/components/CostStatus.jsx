@@ -12,7 +12,13 @@ export default function CostStatus({
   extra = null,
   lines: linesProp = null,
   emptyHint = 'Select current & target level',
+  atMax = false,
 }) {
+  // Already at max — LevelSelects already shows "Maxed — no further upgrades"
+  if (atMax) {
+    return null;
+  }
+
   if (!hasSelection) {
     return <div className="status-pane">{emptyHint}</div>;
   }

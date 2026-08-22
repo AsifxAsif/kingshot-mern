@@ -215,6 +215,11 @@ export default function GovGearPage() {
                       onFrom={(v) => setPiece(name, 'from', v)}
                       onTo={(v) => setPiece(name, 'to', v)}
                     />
+                    {(() => {
+                      const atMax = levels.length > 0 && String(c.from ?? '0') === String(levels[levels.length - 1]);
+                      return (
+                    <>
+                    {!atMax && (
                     <label className="checkbox-label" style={{ opacity: c.canAfford || !c.to ? 1 : 0.5 }}>
                       <input
                         className="checkbox"
@@ -225,14 +230,19 @@ export default function GovGearPage() {
                       />{' '}
                       Upgrade
                     </label>
+                    )}
                     <CostStatus
                       active={!!c.active && c.canAfford}
                       hasSelection={!!c.to}
+                      atMax={atMax}
                       points={c.points}
                       stepsInfo={c.steps?.length ? ` (${c.steps.length} steps)` : ''}
                       costs={c.costs}
                       vault={c.vaultBefore || vault}
                     />
+                    </>
+                      );
+                    })()}
                   </div>
                 </div>
               );

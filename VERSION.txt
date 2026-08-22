@@ -1,7 +1,4 @@
-BUILD 2026-08-23-pets-taming-marks-points
-- Taming Marks Points card on PETS page (not Vault)
-- settings.tamingMarks {advanced, common, active} → Mongo
-- Points added to pageScores.pets
-- Marks locked via lockedUpgrades.pets when Active
-- Pet upgrade steps no longer double-count mark points
+BUILD 2026-08-23-max-level-hide-speedup-and-message
+- At max: hide Upgrade + Speedups
+- CostStatus atMax → 'Max level reached' (no 'no cost rows' text)
 

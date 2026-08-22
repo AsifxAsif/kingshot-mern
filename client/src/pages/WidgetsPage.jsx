@@ -176,21 +176,24 @@ export default function WidgetsPage() {
                   onFrom={(v) => setUpgrade(h.name, 'from', v)}
                   onTo={(v) => setUpgrade(h.name, 'to', v)}
                 />
-                <label
-                  className="checkbox-label"
-                  style={{ opacity: canAfford || !widgetsNeeded ? 1 : 0.5 }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={!!s.active && canAfford}
-                    disabled={widgetsNeeded > 0 && !canAfford}
-                    onChange={(e) => setUpgrade(h.name, 'active', e.target.checked)}
-                  />{' '}
-                  Active
-                </label>
+                {from < (levels[levels.length - 1] ?? 0) && (
+                  <label
+                    className="checkbox-label"
+                    style={{ opacity: canAfford || !widgetsNeeded ? 1 : 0.5 }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={!!s.active && canAfford}
+                      disabled={widgetsNeeded > 0 && !canAfford}
+                      onChange={(e) => setUpgrade(h.name, 'active', e.target.checked)}
+                    />{' '}
+                    Upgrade
+                  </label>
+                )}
                 <CostStatus
                   active={!!s.active && canAfford}
                   hasSelection={to > from}
+                  atMax={from >= (levels[levels.length - 1] ?? 0)}
                   points={points}
                   emptyHint="Select current & target widget level"
                   lines={[

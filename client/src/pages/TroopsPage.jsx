@@ -203,7 +203,7 @@ export default function TroopsPage() {
                       checked={!!s.active}
                       onChange={(e) => setField(key, 'active', e.target.checked)}
                     />{' '}
-                    Active
+                    Upgrade
                   </label>
                   <label className="checkbox-label">
                     <input
@@ -290,6 +290,7 @@ export default function TroopsPage() {
                   onChange={(e) => setField(key, 'qty', e.target.value.replace(/[^0-9.]/g, ''))}
                   style={{ width: '100%', marginTop: 8, textAlign: 'center' }}
                 />
+                {toLevels.length > 0 ? (
                 <div className="checkbox-group">
                   <label className="checkbox-label">
                     <input
@@ -297,7 +298,7 @@ export default function TroopsPage() {
                       checked={!!s.active}
                       onChange={(e) => setField(key, 'active', e.target.checked)}
                     />{' '}
-                    Active
+                    Upgrade
                   </label>
                   <label className="checkbox-label">
                     <input
@@ -308,9 +309,11 @@ export default function TroopsPage() {
                     +Speedups
                   </label>
                 </div>
+                ) : null}
                 <CostStatus
                   active={!!s.active && !!card?.canAfford}
                   hasSelection={!!card}
+                  atMax={toLevels.length === 0 && !!s.from}
                   points={card?.points}
                   costs={card?.costs || {}}
                   vault={card?.vaultBefore || vault}
