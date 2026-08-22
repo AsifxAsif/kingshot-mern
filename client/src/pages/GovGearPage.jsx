@@ -85,19 +85,49 @@ export default function GovGearPage() {
   }, [rows, order]);
 
   const setPiece = (piece, field, value) => {
+    if (!piece || !GEAR_PIECES.includes(piece)) return;
     updateSection('govGear', (prev) => {
-      const cur = { ...(prev[piece] || {}), [field]: value };
+      // Keep only valid gear slots (drop junk keys like "undefined")
+      const cleaned = {};
+      for (const k of GEAR_PIECES) {
+        if (prev[k] != null) cleaned[k] = prev[k];
+      }
+      const cur = { ...(cleaned[piece] || {}), [field]: value };
       if (field === 'from') {
         const fromO = order[String(value)] ?? 0;
         for (const l of levels) {
-          if ((order[l] ?? 0) > fromO) { cur.to = l; break; }
+          if ((order[l] ?? 0) > fromO) {
+            cur.to = l;
+            break;
+          }
         }
         cur.active = false;
       }
       if (field === 'to') cur.active = false;
-      return { ...prev, [piece]: cur };
+      // Clear empty shell
+      if (cur.from == null && cur.to == null && !cur.active) {
+        delete cleaned[piece];
+      } else {
+        cleaned[piece] = cur;
+      }
+      return cleaned;
     });
   };
+
+  // One-time prune of invalid keys already in preset/DB
+  useEffect(() => {
+    const g = state.govGear || {};
+    const keys = Object.keys(g);
+    const bad = keys.filter((k) => !GEAR_PIECES.includes(k));
+    if (!bad.length) return;
+    updateSection('govGear', (prev) => {
+      const cleaned = {};
+      for (const k of GEAR_PIECES) {
+        if (prev[k] != null) cleaned[k] = prev[k];
+      }
+      return cleaned;
+    });
+  }, [state.govGear, updateSection]);
 
   const cards = useMemo(() => {
     const raw = GEAR_PIECES.map((piece) => {

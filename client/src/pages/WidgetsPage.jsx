@@ -163,7 +163,11 @@ export default function WidgetsPage() {
                 />
                 <span>
                   {h.name}{' '}
+<<<<<<< HEAD
+                  <span style={{ opacity: 0.65, fontSize: '0.75rem', marginLeft: 10, justifycontent: 'flex-end' }}>
+=======
                   <span style={{ opacity: 0.65, fontSize: '0.75rem' }}>
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
                     Gen {h.generation || 1}
                   </span>
                 </span>

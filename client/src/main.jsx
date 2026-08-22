@@ -4,9 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { AppProvider } from './context/AppContext';
 import { AuthProvider } from './context/AuthContext';
-import './original-style.css';
-import './index.css';
-import './misc-align.css';
+import './styles.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -23,6 +21,12 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
+    navigator.serviceWorker
+      .register('/sw.js', { scope: '/', updateViaCache: 'none' })
+      .then((reg) => {
+        // Check for SW updates periodically
+        try { reg.update(); } catch (_) {}
+      })
+      .catch(() => {});
   });
 }

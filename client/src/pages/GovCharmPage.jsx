@@ -127,19 +127,58 @@ export default function GovCharmPage() {
 
   const [groupSet, setGroupSet] = useState({});
 
+<<<<<<< HEAD
+  const allCharmNames = useMemo(
+    () => CHARM_GROUPS.flatMap((g) => g.charms),
+    []
+  );
+
+=======
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
   const setPiece = (piece, field, value) => {
+    if (!piece || !allCharmNames.includes(piece)) return;
     updateSection('govCharm', (prev) => {
-      const cur = { ...(prev[piece] || {}), [field]: value };
+      const cleaned = {};
+      for (const k of allCharmNames) {
+        if (prev[k] != null) cleaned[k] = prev[k];
+      }
+      const cur = { ...(cleaned[piece] || {}), [field]: value };
       if (field === 'from') {
         const next = nextLvl(levels, value, order);
         if (next) cur.to = next;
         cur.active = false;
       }
       if (field === 'to') cur.active = false;
-      return { ...prev, [piece]: cur };
+      if (
+        (cur.from == null || cur.from === '' || cur.from === '0') &&
+        (cur.to == null || cur.to === '') &&
+        !cur.active
+      ) {
+        delete cleaned[piece];
+      } else {
+        cleaned[piece] = cur;
+      }
+      return cleaned;
     });
   };
 
+<<<<<<< HEAD
+  // Prune invalid keys left from older builds
+  useEffect(() => {
+    const c = state.govCharm || {};
+    const bad = Object.keys(c).filter((k) => !allCharmNames.includes(k));
+    if (!bad.length) return;
+    updateSection('govCharm', (prev) => {
+      const cleaned = {};
+      for (const k of allCharmNames) {
+        if (prev[k] != null) cleaned[k] = prev[k];
+      }
+      return cleaned;
+    });
+  }, [state.govCharm, allCharmNames, updateSection]);
+
+=======
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
   const applyGroupLevel = (group, field, raw) => {
     const clean = String(raw || '').trim();
     if (!clean) return;
@@ -152,11 +191,14 @@ export default function GovCharmPage() {
     }
   };
 
+<<<<<<< HEAD
+=======
   const allCharmNames = useMemo(
     () => CHARM_GROUPS.flatMap((g) => g.charms),
     []
   );
 
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
   const cards = useMemo(() => {
     const raw = allCharmNames.map((name) => {
       const group = CHARM_GROUPS.find((g) => g.charms.includes(name));

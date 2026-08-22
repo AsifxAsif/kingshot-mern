@@ -185,7 +185,11 @@ export default function WarAcademyPage() {
                           disabled={!c.to || (!c.canAfford && !c.active)}
                           onChange={(e) => setField(c.name, 'active', e.target.checked)}
                         />{' '}
+<<<<<<< HEAD
+                        Upgrade
+=======
                         Active
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
                       </label>
                       <label className="checkbox-label">
                         <input
@@ -246,7 +250,11 @@ export default function WarAcademyPage() {
                         disabled={!c.to || (!c.canAfford && !c.active)}
                         onChange={(e) => setField(c.name, 'active', e.target.checked)}
                       />{' '}
+<<<<<<< HEAD
+                      Upgrade
+=======
                       Active
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
                     </label>
                     <label className="checkbox-label">
                       <input

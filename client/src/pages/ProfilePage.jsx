@@ -3,6 +3,20 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { formatNumber } from '../utils/calc';
+import AssetImg from '../components/AssetImg';
+import {
+  asset,
+  buildingImg,
+  heroImg,
+  heroWidgetImg,
+  heroWidgetFallbacks,
+  troopImg,
+  petImg,
+  warAcademyImg,
+  resourceImg,
+  govGearImg,
+  govCharmImg,
+} from '../utils/images';
 
 const SECTIONS = [
   { key: 'buildings', title: 'Buildings', path: '/buildings', scoreKey: 'buildings' },
@@ -17,12 +31,28 @@ const SECTIONS = [
   { key: 'misc', title: 'Misc', path: '/misc', scoreKey: 'misc' },
 ];
 
+<<<<<<< HEAD
+const VALID_GOV_GEAR = ['Helmet', 'Watch', 'Armor', 'Pant', 'Belt', 'Weapon'];
+const VALID_GOV_CHARMS = [
+  'Helmet Charm #1', 'Helmet Charm #2', 'Helmet Charm #3',
+  'Watch Charm #1', 'Watch Charm #2', 'Watch Charm #3',
+  'Armor Charm #1', 'Armor Charm #2', 'Armor Charm #3',
+  'Pant Charm #1', 'Pant Charm #2', 'Pant Charm #3',
+  'Belt Charm #1', 'Belt Charm #2', 'Belt Charm #3',
+  'Weapon Charm #1', 'Weapon Charm #2', 'Weapon Charm #3',
+];
+
+=======
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
 function str(v) {
   if (v == null || v === '') return null;
   return String(v);
 }
 
+<<<<<<< HEAD
+=======
 /** True only when there is a real level range to upgrade */
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
 function hasUpgradeRange(from, to) {
   const a = str(from);
   const b = str(to);
@@ -31,13 +61,137 @@ function hasUpgradeRange(from, to) {
   const na = Number(a);
   const nb = Number(b);
   if (Number.isFinite(na) && Number.isFinite(nb)) return nb > na;
+<<<<<<< HEAD
+  return true;
+=======
   return true; // non-numeric level names still count if both set and different
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
 }
 
 function levelLabel(from, to) {
   return `${str(from) ?? '—'} → ${str(to) ?? '—'}`;
 }
 
+<<<<<<< HEAD
+function resolveImage(sectionKey, row) {
+  const name = row.name || '';
+  const id = row.id || '';
+  const levelForImg = row.to || row.from || null;
+  try {
+    switch (sectionKey) {
+      case 'buildings':
+        return { src: buildingImg(name), fallbacks: [] };
+      case 'troops': {
+        const type = id.replace(/^(train_|promo_)/, '') || name;
+        return { src: troopImg(type), fallbacks: [] };
+      }
+      case 'warAcademy':
+        return { src: warAcademyImg(name), fallbacks: [asset('war_academy.webp')] };
+      case 'heroes':
+        return { src: heroImg(name), fallbacks: [] };
+      case 'widgets':
+        return {
+          src: heroWidgetImg(name),
+          fallbacks: heroWidgetFallbacks(name),
+        };
+      case 'pets':
+        return { src: petImg(name), fallbacks: [] };
+      case 'heroGear':
+        if (String(id).includes('forge') || /forge/i.test(name)) {
+          return { src: asset('forge_hammer.webp'), fallbacks: [] };
+        }
+        return {
+          src: asset('hero-gear-mythic.webp'),
+          fallbacks: [asset('hero-gear-red.webp'), asset('mythic-gear.webp')],
+        };
+      case 'govGear': {
+        // Target level image (falls back to current)
+        const src = govGearImg(name, levelForImg);
+        const cur = row.from ? govGearImg(name, row.from) : null;
+        return {
+          src,
+          fallbacks: [cur, asset('mythic-gear.webp')].filter(Boolean),
+        };
+      }
+      case 'govCharm': {
+        const src = govCharmImg(name, levelForImg);
+        const cur = row.from ? govCharmImg(name, row.from) : null;
+        return {
+          src,
+          fallbacks: [cur, asset('charm_design.webp'), asset('charm_guide.webp')].filter(Boolean),
+        };
+      }
+      case 'misc':
+        if (id === 'roulette') return { src: asset('hero_roulette.webp'), fallbacks: [] };
+        if (id === 'bison') return { src: asset('grip_of_the_titan.webp'), fallbacks: [] };
+        if (String(id).startsWith('march_')) {
+          const res = (row.detail || '').split('·')[0]?.trim()?.toLowerCase() || 'bread';
+          return { src: resourceImg(res), fallbacks: [asset('gathering_speed.webp')] };
+        }
+        return { src: asset('gathering_speed.webp'), fallbacks: [] };
+      default:
+        return { src: asset('vault_icon.webp'), fallbacks: [] };
+    }
+  } catch {
+    return { src: asset('vault_icon.webp'), fallbacks: [] };
+  }
+}
+
+function collectRows(key, state) {
+  const rows = [];
+
+  if (key === 'govGear') {
+    const section = state.govGear || {};
+    for (const name of VALID_GOV_GEAR) {
+      const s = section[name];
+      if (!s || typeof s !== 'object') continue;
+      if (!hasUpgradeRange(s.from, s.to)) continue;
+      rows.push({
+        id: name,
+        name,
+        from: s.from,
+        to: s.to,
+        detail: levelLabel(s.from, s.to),
+        active: !!s.active,
+      });
+    }
+    return rows;
+  }
+
+  if (key === 'govCharm') {
+    const section = state.govCharm || {};
+    for (const name of VALID_GOV_CHARMS) {
+      const s = section[name];
+      if (!s || typeof s !== 'object') continue;
+      if (!hasUpgradeRange(s.from, s.to)) continue;
+      rows.push({
+        id: name,
+        name,
+        from: s.from,
+        to: s.to,
+        detail: levelLabel(s.from, s.to),
+        active: !!s.active,
+      });
+    }
+    return rows;
+  }
+
+  if (key === 'buildings' || key === 'warAcademy' || key === 'pets' || key === 'widgets') {
+    const section = state[key] || {};
+    for (const [name, s] of Object.entries(section)) {
+      if (!s || typeof s !== 'object' || Array.isArray(s)) continue;
+      if (!name || name === 'undefined') continue;
+      if (!hasUpgradeRange(s.from, s.to)) continue;
+      const parts = [levelLabel(s.from, s.to)];
+      if (s.speedup) parts.push('+Spd');
+      rows.push({
+        id: name,
+        name,
+        from: s.from,
+        to: s.to,
+        detail: parts.join(' · '),
+        active: !!s.active,
+=======
 /**
  * Build preview rows. ACTIVE only when:
  *  - the page would treat it as a real selection (levels / qty / etc.)
@@ -59,6 +213,7 @@ function collectRows(key, state) {
         name,
         detail: parts.join(' · '),
         active: !!s.active, // only flag active if checkbox set; still requires range above
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
       });
     }
     return rows;
@@ -68,7 +223,10 @@ function collectRows(key, state) {
     const section = state.troops || {};
     for (const [id, s] of Object.entries(section)) {
       if (!s || typeof s !== 'object') continue;
+<<<<<<< HEAD
+=======
 
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
       if (id.startsWith('train_')) {
         const type = id.replace(/^train_/, '');
         const level = parseInt(s.level, 10) || 0;
@@ -77,12 +235,19 @@ function collectRows(key, state) {
         rows.push({
           id,
           name: `Train ${type}`,
+<<<<<<< HEAD
+          detail: `T${level} ×${qty}`,
+=======
           detail: `T${level} × ${qty}${s.speedup ? ' · +Speedups' : ''}`,
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
           active: !!s.active,
         });
         continue;
       }
+<<<<<<< HEAD
+=======
 
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
       if (id.startsWith('promo_')) {
         const type = id.replace(/^promo_/, '');
         const from = parseInt(s.from, 10) || 0;
@@ -92,13 +257,20 @@ function collectRows(key, state) {
         rows.push({
           id,
           name: `Promote ${type}`,
+<<<<<<< HEAD
+          detail: `T${from}→${to} ×${qty}`,
+=======
           detail: `T${from} → T${to} × ${qty}${s.speedup ? ' · +Speedups' : ''}`,
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
           active: !!s.active,
         });
         continue;
       }
+<<<<<<< HEAD
+=======
 
       // Legacy shape: from/to only
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
       if (hasUpgradeRange(s.from, s.to)) {
         rows.push({
           id,
@@ -120,6 +292,14 @@ function collectRows(key, state) {
       const h = heroes[name] || {};
       const cur = Number.isFinite(Number(f.currentMaxIdx)) ? Number(f.currentMaxIdx) : -1;
       const tgt = Number.isFinite(Number(f.targetMaxIdx)) ? Number(f.targetMaxIdx) : -1;
+<<<<<<< HEAD
+      const hasPetals = tgt > cur && tgt >= 0;
+      if (!hasPetals && !hasUpgradeRange(h.starFrom, h.starTo)) continue;
+      const parts = [];
+      if (hasPetals) parts.push(`${cur < 0 ? '—' : cur}→${tgt}`);
+      if (hasUpgradeRange(h.starFrom, h.starTo)) parts.push(`★ ${levelLabel(h.starFrom, h.starTo)}`);
+      rows.push({ id: name, name, detail: parts.join(' · '), active: !!h.active });
+=======
       // Real selection: target petal beyond current (or any non-default pair)
       const hasPetals = tgt > cur && tgt >= 0;
       const hasStars = hasUpgradeRange(h.starFrom, h.starTo);
@@ -133,14 +313,19 @@ function collectRows(key, state) {
         detail: parts.join(' · '),
         active: !!h.active,
       });
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
     }
     return rows;
   }
 
   if (key === 'heroGear') {
     const hg = state.heroGear || {};
+<<<<<<< HEAD
+    const items = Array.isArray(hg.items) ? [...hg.items] : [];
+=======
     const items = Array.isArray(hg.items) ? hg.items : [];
     // legacy single card
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
     if (!items.length && hasUpgradeRange(hg.from, hg.to)) {
       items.push({ id: 'gear_legacy', from: hg.from, to: hg.to, active: hg.active });
     }
@@ -148,13 +333,21 @@ function collectRows(key, state) {
       if (!it || !hasUpgradeRange(it.from, it.to)) return;
       rows.push({
         id: it.id || `gear_${i}`,
+<<<<<<< HEAD
+        name: `Gear #${i + 1}`,
+=======
         name: `Hero Gear #${i + 1}`,
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
         detail: levelLabel(it.from, it.to),
         active: !!it.active,
       });
     });
+<<<<<<< HEAD
+    const forgeItems = Array.isArray(hg.forgeItems) ? [...hg.forgeItems] : [];
+=======
 
     const forgeItems = Array.isArray(hg.forgeItems) ? hg.forgeItems : [];
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
     if (!forgeItems.length && hasUpgradeRange(hg.forgeFrom, hg.forgeTo)) {
       forgeItems.push({
         id: 'forge_legacy',
@@ -167,7 +360,11 @@ function collectRows(key, state) {
       if (!it || !hasUpgradeRange(it.from, it.to)) return;
       rows.push({
         id: it.id || `forge_${i}`,
+<<<<<<< HEAD
+        name: `Forge #${i + 1}`,
+=======
         name: `Forgehammer #${i + 1}`,
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
         detail: levelLabel(it.from, it.to),
         active: !!it.active,
       });
@@ -181,7 +378,11 @@ function collectRows(key, state) {
     if (spins > 0) {
       rows.push({
         id: 'roulette',
+<<<<<<< HEAD
+        name: 'Roulette',
+=======
         name: 'Hero Roulette',
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
         detail: `${m.roulette} spins`,
         active: !!m.rouletteActive,
       });
@@ -191,6 +392,18 @@ function collectRows(key, state) {
       rows.push({
         id: 'bison',
         name: 'Bison Grip',
+<<<<<<< HEAD
+        detail: `${grip}× ${m.bisonResource || ''}`,
+        active: !!m.gatherActive,
+      });
+    }
+    Object.entries(m.gatheringCards || {}).forEach(([id, c]) => {
+      if (!c?.resource || !c?.node) return;
+      rows.push({
+        id: `march_${id}`,
+        name: `March ${Number(id) + 1}`,
+        detail: `${c.resource} · N${c.node}`,
+=======
         detail: `${grip}× · ${m.bisonResource || 'bread'} node ${m.bisonNode || '—'}`,
         active: !!m.gatherActive,
       });
@@ -203,6 +416,7 @@ function collectRows(key, state) {
         id: `march_${id}`,
         name: `Gathering March ${Number(id) + 1}`,
         detail: `${c.resource} · Node ${c.node} · Skill ${c.skill ?? 0}`,
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
         active: !!m.gatherActive,
       });
     });
@@ -218,6 +432,55 @@ function ScorePill({ value }) {
       {formatNumber(value || 0)} <small>pts</small>
     </span>
   );
+<<<<<<< HEAD
+}
+
+function ItemTile({ sectionKey, row }) {
+  const img = resolveImage(sectionKey, row);
+  const showPair = sectionKey === 'govGear' || sectionKey === 'govCharm';
+  return (
+    <div className={`profile-item-tile ${row.active ? 'is-active' : ''}`}>
+      <span className={`tile-badge ${row.active ? 'active' : 'planned'}`}>
+        {row.active ? 'Active' : 'Plan'}
+      </span>
+      {showPair && row.from && row.to ? (
+        <div className="tile-img-pair">
+          <AssetImg
+            src={
+              sectionKey === 'govGear'
+                ? govGearImg(row.name, row.from)
+                : govCharmImg(row.name, row.from)
+            }
+            size={40}
+            alt={`${row.name} current`}
+            className="tile-img"
+          />
+          <span className="tile-arrow">→</span>
+          <AssetImg
+            src={img.src}
+            fallbacks={img.fallbacks}
+            size={40}
+            alt={`${row.name} target`}
+            className="tile-img"
+          />
+        </div>
+      ) : (
+        <AssetImg
+          src={img.src}
+          fallbacks={img.fallbacks}
+          size={56}
+          alt={row.name}
+          className="tile-img"
+        />
+      )}
+      <span className="tile-name" title={row.name}>
+        {row.name}
+      </span>
+      <span className="tile-levels">{row.detail}</span>
+    </div>
+  );
+=======
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
 }
 
 export default function ProfilePage() {
@@ -233,6 +496,13 @@ export default function ProfilePage() {
   const sections = useMemo(() => {
     return SECTIONS.map((sec) => {
       const rows = collectRows(sec.key, state);
+<<<<<<< HEAD
+      return {
+        ...sec,
+        rows,
+        activeCount: rows.filter((r) => r.active).length,
+        plannedCount: rows.filter((r) => !r.active).length,
+=======
       const activeCount = rows.filter((r) => r.active).length;
       const plannedCount = rows.filter((r) => !r.active).length;
       return {
@@ -240,6 +510,7 @@ export default function ProfilePage() {
         rows,
         activeCount,
         plannedCount,
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
         score: Number(pageScores[sec.scoreKey]) || 0,
       };
     });
@@ -255,8 +526,11 @@ export default function ProfilePage() {
     return { active, planned, total: active + planned };
   }, [sections]);
 
+<<<<<<< HEAD
+=======
   const toggle = (key) => setOpen((p) => ({ ...p, [key]: !p[key] }));
 
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
   const filterRows = (rows) => {
     if (filter === 'active') return rows.filter((r) => r.active);
     if (filter === 'planned') return rows.filter((r) => !r.active);
@@ -266,13 +540,29 @@ export default function ProfilePage() {
   return (
     <div className="app-container profile-page">
       <div className="item-card profile-account">
+<<<<<<< HEAD
+        <div className="item-card-header" style={{ justifyContent: 'space-between' }}>
+=======
         <div className="item-card-header">
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
           <span>Profile overview</span>
           <ScorePill value={globalScore} />
         </div>
         <div className="item-card-body">
           {user ? (
+<<<<<<< HEAD
+            <div
+              className="profile-meta"
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-evenly',
+                flexWrap: 'wrap',
+              }}
+            >
+=======
             <div className="profile-meta">
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
               <div>
                 <span className="profile-meta-label">Username</span>
                 <strong>{user.username}</strong>
@@ -300,7 +590,11 @@ export default function ProfilePage() {
           ) : (
             <div className="profile-guest">
               <p className="hint" style={{ margin: 0 }}>
+<<<<<<< HEAD
+                Guest mode — overview uses your local preset. Register to sync cloud presets.
+=======
                 Guest mode — preview uses the current local preset. Register to save cloud presets.
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
               </p>
               <button
                 type="button"
@@ -322,11 +616,19 @@ export default function ProfilePage() {
             </div>
             <div className="profile-stat profile-stat-active">
               <span className="profile-stat-num">{totals.active}</span>
+<<<<<<< HEAD
+              <span className="profile-stat-label">Active</span>
+            </div>
+            <div className="profile-stat">
+              <span className="profile-stat-num">{totals.planned}</span>
+              <span className="profile-stat-label">Planned</span>
+=======
               <span className="profile-stat-label">Active upgrades</span>
             </div>
             <div className="profile-stat">
               <span className="profile-stat-num">{totals.planned}</span>
               <span className="profile-stat-label">Planned only</span>
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
             </div>
             <div className="profile-stat profile-stat-score">
               <span className="profile-stat-num">{formatNumber(globalScore || 0)}</span>
@@ -339,8 +641,13 @@ export default function ProfilePage() {
       <div className="profile-filters">
         {[
           ['all', 'All'],
+<<<<<<< HEAD
+          ['active', 'Active'],
+          ['planned', 'Planned'],
+=======
           ['active', 'Active only'],
           ['planned', 'Planned only'],
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
         ].map(([id, label]) => (
           <button
             key={id}
@@ -367,7 +674,11 @@ export default function ProfilePage() {
         </button>
       </div>
 
+<<<<<<< HEAD
+      <div className="item-card">
+=======
       <div className="item-card profile-scoreboard">
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
         <div className="item-card-header">Points by page</div>
         <div className="item-card-body profile-score-grid">
           {sections.map((s) => (
@@ -386,6 +697,24 @@ export default function ProfilePage() {
         const rows = filterRows(sec.rows);
         const isOpen = open[sec.key] !== false;
         return (
+<<<<<<< HEAD
+          <div className="item-card profile-section" key={sec.key} style={{ marginTop: 12 }}>
+            <button
+              type="button"
+              className="item-card-header profile-section-toggle"
+              onClick={() => setOpen((p) => ({ ...p, [sec.key]: !isOpen }))}
+            >
+              <span>
+                {sec.title}
+                <span
+                  style={{
+                    marginLeft: 8,
+                    fontSize: '0.7rem',
+                    fontWeight: 600,
+                    color: 'var(--text-muted)',
+                  }}
+                >
+=======
           <div className="item-card profile-section" key={sec.key}>
             <button
               type="button"
@@ -395,26 +724,43 @@ export default function ProfilePage() {
               <span>
                 {sec.title}
                 <span className="profile-section-badge">
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
                   {sec.activeCount} active
                   {sec.plannedCount ? ` · ${sec.plannedCount} planned` : ''}
                 </span>
               </span>
+<<<<<<< HEAD
+              <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <ScorePill value={sec.score} />
+                <span>{isOpen ? '▼' : '▶'}</span>
+=======
               <span className="profile-section-right">
                 <ScorePill value={sec.score} />
                 <span className="toggle-icon">{isOpen ? '▼' : '▶'}</span>
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
               </span>
             </button>
             {isOpen && (
               <div className="item-card-body">
                 {!sec.rows.length ? (
                   <p className="hint" style={{ margin: 0 }}>
+<<<<<<< HEAD
+                    No selections yet. <Link to={sec.path}>Open {sec.title}</Link>
+=======
                     No levels selected yet. <Link to={sec.path}>Open {sec.title}</Link>
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
                   </p>
                 ) : !rows.length ? (
                   <p className="hint" style={{ margin: 0 }}>
                     Nothing matches this filter.
                   </p>
                 ) : (
+<<<<<<< HEAD
+                  <div className="profile-item-grid">
+                    {rows.map((r) => (
+                      <ItemTile key={r.id} sectionKey={sec.key} row={r} />
+                    ))}
+=======
                   <div className="profile-table-wrap">
                     <table className="profile-table">
                       <thead>
@@ -444,11 +790,16 @@ export default function ProfilePage() {
                         ))}
                       </tbody>
                     </table>
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
                   </div>
                 )}
                 <div className="profile-section-footer">
                   <Link to={sec.path} className="preset-btn">
+<<<<<<< HEAD
+                    Edit {sec.title} →
+=======
                     Edit on {sec.title} →
+>>>>>>> 6cd597902ba86b1bd3899bc9d39a2f2373349231
                   </Link>
                 </div>
               </div>

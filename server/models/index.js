@@ -43,6 +43,9 @@ const presetSchema = new mongoose.Schema(
     // null / missing = guest (anonymous default-only flow)
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null, index: true },
     name: { type: String, required: true, trim: true },
+    // Identity first (before vault / calculator data)
+    username: { type: String, default: '', trim: true },
+    gameId: { type: String, default: '', trim: true },
     vault: { type: mongoose.Schema.Types.Mixed, default: {} },
     troops: { type: mongoose.Schema.Types.Mixed, default: {} },
     buildings: { type: mongoose.Schema.Types.Mixed, default: {} },

@@ -19,7 +19,7 @@ const LINKS = [
 ];
 
 const PAGE_LABELS = {
-  '/': null,
+  '/': 'VAULT SCORE',
   '/buildings': 'BUILDING SCORE',
   '/war-academy': 'ACADEMY SCORE',
   '/widgets': 'WIDGETS SCORE',
@@ -33,6 +33,7 @@ const PAGE_LABELS = {
 };
 
 const PATH_TO_SCORE_KEY = {
+  '/': 'vault',
   '/buildings': 'buildings',
   '/war-academy': 'warAcademy',
   '/widgets': 'widgets',
