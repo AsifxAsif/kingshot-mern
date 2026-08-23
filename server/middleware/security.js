@@ -13,20 +13,28 @@ export function buildCors() {
     .filter(Boolean);
 
   // Vercel preview + production patterns if none set
+  const isProd = process.env.NODE_ENV === 'production';
   const origin = list.length
     ? (origin, cb) => {
-        if (!origin) return cb(null, true); // same-origin / curl
+        // Same-origin / server-to-server may omit Origin — still require JWT on routes
+        if (!origin) return cb(null, !isProd);
         if (list.includes(origin)) return cb(null, true);
         if (list.some((o) => o.includes('*') && origin.endsWith(o.replace('*', '')))) {
           return cb(null, true);
         }
-        // allow vercel.app previews if enabled
         if (process.env.ALLOW_VERCEL_PREVIEWS === 'true' && /\.vercel\.app$/.test(origin)) {
           return cb(null, true);
         }
         return cb(new Error('Not allowed by CORS'));
       }
-    : true; // dev default
+    : isProd
+      ? (origin, cb) => {
+          // Production without CORS_ORIGINS: allow same-site + vercel.app only
+          if (!origin) return cb(null, false);
+          if (/\.vercel\.app$/.test(origin) || /localhost/.test(origin)) return cb(null, true);
+          return cb(new Error('Not allowed by CORS'));
+        }
+      : true; // local dev
 
   return cors({
     origin,

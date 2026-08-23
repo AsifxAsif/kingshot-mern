@@ -10,7 +10,7 @@ import {
 } from '../utils/validate.js';
 
 const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_DAYS = process.env.JWT_DAYS || '7d';
+const JWT_DAYS = process.env.JWT_DAYS || '365d';
 const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS || 12);
 
 function requireSecret() {

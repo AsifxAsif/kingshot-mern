@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { useApp } from './context/AppContext';
 import Navbar from './components/Navbar';
 import AuthModal from './components/AuthModal';
+import RequireAuthGate from './components/RequireAuthGate';
 import ErrorBoundary from './components/ErrorBoundary';
 
 const VaultPage = lazy(() => import('./pages/VaultPage'));
@@ -58,19 +59,22 @@ export default function App() {
 
   // Always keep Navbar mounted so links work even while preset data loads
   return (
-    <div className="app">
-      <Navbar />
-      <AuthModal />
-      <main className="app-container">
-        {loading ? (
-          <div className="page-loading">
-            <div className="spinner" />
-            <p>Loading preset…</p>
-          </div>
-        ) : (
-          <AppRoutes />
-        )}
-      </main>
-    </div>
+    <RequireAuthGate>
+      <div className="app">
+        <Navbar />
+        <AuthModal />
+        <PageMeta />
+        <main className="app-container">
+          {loading ? (
+            <div className="page-loading">
+              <div className="spinner" />
+              <p>Loading preset…</p>
+            </div>
+          ) : (
+            <AppRoutes />
+          )}
+        </main>
+      </div>
+    </RequireAuthGate>
   );
 }

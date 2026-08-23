@@ -119,7 +119,7 @@ export default function Navbar() {
   };
 
   return (
-    <div className="navbar">
+    <div className="navbar" data-auth-allow>
       <div className="navbar-row-1">
         <label className="hamburger" id="hamburgerIcon">
           <input
@@ -223,13 +223,14 @@ export default function Navbar() {
               Reset all
             </button>
             {user ? (
-              <button type="button" className="preset-btn" onClick={logout} title={user.email}>
+              <button type="button" className="preset-btn" data-auth-allow onClick={logout} title={user.email}>
                 {user.username} · Logout
               </button>
             ) : (
               <button
                 type="button"
                 className="preset-btn"
+                data-auth-allow
                 onClick={() => {
                   setAuthMode('login');
                   setAuthOpen(true);

@@ -15,7 +15,12 @@ const BASE = resolveApiBase();
 
 function getToken() {
   try {
-    return sessionStorage.getItem('kingshot_token') || '';
+    // Stay logged in across browser restarts (until explicit Logout)
+    return (
+      localStorage.getItem('kingshot_token') ||
+      sessionStorage.getItem('kingshot_token') ||
+      ''
+    );
   } catch {
     return '';
   }

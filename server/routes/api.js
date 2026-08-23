@@ -6,17 +6,20 @@ import { authLimiter, writeLimiter } from '../middleware/security.js';
 
 const router = Router();
 
-// Auth — brute-force limited
+// ── Public (no auth): login / register only ──────────────────────────────
 router.post('/auth/register', authLimiter, authController.register);
 router.post('/auth/login', authLimiter, authController.login);
-router.get('/auth/me', authController.authOptional, authController.me);
 
-router.use(authController.authOptional);
+// ── Authenticated routes ─────────────────────────────────────────────────
+// All routes below require a valid Bearer JWT
+router.use(authController.authRequired);
 
-// Game data (read-only)
+router.get('/auth/me', authController.me);
+
+// Game data (was public — now login required)
 router.get('/data/:collection', dataController.getCollection);
 
-// Presets
+// Presets (already user-scoped; now hard-require login at middleware level)
 router.get('/presets', presetController.listPresets);
 router.get('/presets/:name', presetController.getPreset);
 router.post('/presets', writeLimiter, presetController.createPreset);

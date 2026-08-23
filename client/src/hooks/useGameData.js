@@ -4,6 +4,12 @@ import { getCollection } from '../services/api';
 const cache = new Map();
 const inflight = new Map();
 
+/** Clear in-memory game-data cache (e.g. on logout) */
+export function clearGameDataCache() {
+  cache.clear();
+  inflight.clear();
+}
+
 async function fetchCollection(name) {
   if (cache.has(name)) return cache.get(name);
   if (inflight.has(name)) return inflight.get(name);
@@ -43,7 +49,13 @@ export function useGameData(collection) {
         }
       })
       .catch((e) => {
-        if (!cancelled) setError(e.message || 'Failed to load');
+        if (!cancelled) {
+          const msg =
+            e.status === 401
+              ? 'Login required to load game data'
+              : e.message || 'Failed to load';
+          setError(msg);
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);

@@ -28,21 +28,17 @@ app.use(morgan(isProd ? 'combined' : 'dev'));
 app.use('/api', apiLimiter);
 app.use('/api', apiRoutes);
 
+// Public health only — no API catalog / version dump
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ ok: true });
+});
+
 app.get('/api', (req, res) => {
-  res.json({
-    name: 'Kingshot Event Calculator API',
-    version: '2.1.0',
-    status: 'ok',
-    runtime: process.env.VERCEL ? 'vercel-serverless' : 'node',
-  });
+  res.status(401).json({ error: 'Authentication required' });
 });
 
 app.get('/', (req, res) => {
-  res.json({
-    name: 'Kingshot Event Calculator API',
-    version: '2.1.0',
-    status: 'ok',
-  });
+  res.status(401).json({ error: 'Authentication required' });
 });
 
 app.use((req, res) => {

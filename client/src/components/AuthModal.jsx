@@ -47,6 +47,7 @@ export default function AuthModal() {
   return (
     <div
       className="auth-overlay"
+      data-auth-modal
       style={{
         position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
         display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
@@ -54,13 +55,18 @@ export default function AuthModal() {
       }}
       onClick={() => setAuthOpen(false)}
     >
-      <div className="item-card" style={{ width: 'min(400px, 100%)', margin: 0 }} onClick={(e) => e.stopPropagation()}>
+      <div
+        className="item-card"
+        data-auth-modal
+        style={{ width: 'min(400px, 100%)', margin: 0 }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="item-card-header">
           <span>{authMode === 'register' ? 'Register' : 'Login'}</span>
         </div>
         <div className="item-card-body">
           {authMessage && <p className="hint">{authMessage}</p>}
-          <form onSubmit={submit}>
+          <form onSubmit={submit} data-auth-modal>
             {authMode === 'register' && (
               <>
                 <div className="buff-field" style={{ marginBottom: 10 }}>
@@ -103,7 +109,7 @@ export default function AuthModal() {
             )}
           </p>
           <p className="hint" style={{ marginTop: 8 }}>
-            Guests use the <strong>default</strong> preset only. Register to save extra presets + Game ID.
+            Login is required to use the calculator and save presets. You stay logged in until you click Logout.
           </p>
         </div>
       </div>

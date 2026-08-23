@@ -1,4 +1,5 @@
-BUILD 2026-08-23-max-level-hide-speedup-and-message
-- At max: hide Upgrade + Speedups
-- CostStatus atMax → 'Max level reached' (no 'no cost rows' text)
+BUILD 2026-08-23-require-login-persist-session
+- Require login before any calculator input (RequireAuthGate)
+- Token in localStorage (survives browser restart)
+- JWT default 365d; stays logged in until Logout
 
