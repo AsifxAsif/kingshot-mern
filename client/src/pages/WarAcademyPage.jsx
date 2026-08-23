@@ -18,6 +18,8 @@ import CostStatus from '../components/CostStatus';
 import { LevelSelects } from '../components/LevelSelects';
 import GroupCard from '../components/GroupCard';
 import { warAcademyImg, troopImg } from '../utils/images';
+import { collectStepRequirements, evaluateRequirements } from '../utils/prerequisites';
+import PrereqList from '../components/PrereqList';
 
 const RES = [
   'bread', 'wood', 'stone', 'iron', 'gold', 'truegold', 'truegold_dust', 'tempered_truegold',
@@ -61,6 +63,7 @@ export default function WarAcademyPage() {
     [state.vault, state.lockedUpgrades, remainingVaultExcluding]
   );
   const wa = state.warAcademy || {};
+  const buildingsState = state.buildings || {};
   const buffs = state.settings?.researchBuffs || {};
   const root = data?.['War Academy'] || data || {};
 
@@ -109,21 +112,28 @@ export default function WarAcademyPage() {
         costs.research_speedup = (costs.research_speedup || 0) + speedupMins;
         points += speedupMins * (SCORE_RULES.speedup_min || 0);
       }
+      const reqRaw = collectStepRequirements(steps);
+      const prereq = evaluateRequirements(reqRaw, buildingsState, wa);
+      // Toggle lives on research buffs panel (default ON)
+      const prereqEnabled = buffs.prereqCheck !== false;
+      const prereqsMet = prereqEnabled ? prereq.allMet : true;
       return {
         id: name, name, group, levels, s, from, to, steps, costs, points,
         totalTime, buffedTime, active: !!s.active,
+        prereq, prereqsMet, prereqEnabled,
       };
     });
 
     const afford = sequentialAfford(
-      raw.map((c) => ({ id: c.id, costs: c.costs, active: c.active })),
+      raw.map((c) => ({ id: c.id, costs: c.costs, active: c.active && c.prereqsMet })),
       vault
     );
     return raw.map((c) => {
       const a = afford.get(c.id) || { canAfford: true, vaultBefore: vault };
-      return { ...c, canAfford: a.canAfford, vaultBefore: a.vaultBefore };
+      const canAfford = a.canAfford && c.prereqsMet;
+      return { ...c, canAfford, vaultBefore: a.vaultBefore };
     });
-  }, [root, wa, vault, buffs]);
+  }, [root, wa, buildingsState, vault, buffs]);
 
   const totalActivePoints = useMemo(
     () => cards.reduce((s, c) => s + (c.active && c.canAfford ? c.points : 0), 0),
@@ -183,11 +193,15 @@ export default function WarAcademyPage() {
                     <>
                     {!atMax && (
                     <div className="checkbox-group">
-                      <label className="checkbox-label" style={{ opacity: c.canAfford || !c.to ? 1 : 0.5 }}>
+                      <label
+                        className="checkbox-label"
+                        style={{ opacity: (c.canAfford && c.prereqsMet) || !c.to ? 1 : 0.5 }}
+                        title={!c.prereqsMet ? 'Prerequisites not met' : undefined}
+                      >
                         <input
                           type="checkbox"
-                          checked={!!c.active && c.canAfford}
-                          disabled={!c.to || (!c.canAfford && !c.active)}
+                          checked={!!c.active && c.canAfford && c.prereqsMet}
+                          disabled={!c.to || !c.prereqsMet || (!c.canAfford && !c.active)}
                           onChange={(e) => setField(c.name, 'active', e.target.checked)}
                         />{' '}
                         Upgrade
@@ -202,8 +216,11 @@ export default function WarAcademyPage() {
                       </label>
                     </div>
                     )}
+                    {c.prereqEnabled && c.steps.length > 0 && c.prereq?.items?.length > 0 && (
+                      <PrereqList items={c.prereq.items} />
+                    )}
                     <CostStatus
-                      active={!!c.active && c.canAfford}
+                      active={!!c.active && c.canAfford && c.prereqsMet}
                       hasSelection={!!c.to}
                       atMax={atMax}
                       points={c.points}
@@ -254,11 +271,14 @@ export default function WarAcademyPage() {
                   <>
                   {!atMax && (
                   <div className="checkbox-group">
-                    <label className="checkbox-label">
+                    <label
+                      className="checkbox-label"
+                      title={!c.prereqsMet ? 'Prerequisites not met' : undefined}
+                    >
                       <input
                         type="checkbox"
-                        checked={!!c.active && c.canAfford}
-                        disabled={!c.to || (!c.canAfford && !c.active)}
+                        checked={!!c.active && c.canAfford && c.prereqsMet}
+                        disabled={!c.to || !c.prereqsMet || (!c.canAfford && !c.active)}
                         onChange={(e) => setField(c.name, 'active', e.target.checked)}
                       />{' '}
                       Upgrade
@@ -273,8 +293,11 @@ export default function WarAcademyPage() {
                     </label>
                   </div>
                   )}
+                  {c.prereqEnabled && c.steps.length > 0 && c.prereq?.items?.length > 0 && (
+                    <PrereqList items={c.prereq.items} />
+                  )}
                   <CostStatus
-                    active={!!c.active && c.canAfford}
+                    active={!!c.active && c.canAfford && c.prereqsMet}
                     hasSelection={!!c.to}
                     atMax={atMax}
                     points={c.points}

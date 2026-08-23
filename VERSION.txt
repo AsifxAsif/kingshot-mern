@@ -1,5 +1,5 @@
-BUILD 2026-08-23-require-login-persist-session
-- Require login before any calculator input (RequireAuthGate)
-- Token in localStorage (survives browser restart)
-- JWT default 365d; stays logged in until Logout
+BUILD 2026-08-23-prerequisites-buildings-war-academy
+- Prerequisites for Buildings + War Academy upgrade paths
+- Blocks Upgrade when tracked prereqs unmet
+- Shows met/unmet list; external buildings marked not tracked
 

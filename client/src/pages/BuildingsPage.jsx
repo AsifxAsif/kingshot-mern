@@ -19,6 +19,8 @@ import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
 import { LevelSelects } from '../components/LevelSelects';
 import { buildingImg } from '../utils/images';
+import { collectStepRequirements, evaluateRequirements } from '../utils/prerequisites';
+import PrereqList from '../components/PrereqList';
 
 const RESOURCE_KEYS = [
   'bread', 'wood', 'stone', 'iron', 'gold',
@@ -114,18 +116,25 @@ export default function BuildingsPage() {
         points += speedupMins * SCORE_RULES.speedup_min;
       }
       Object.keys(costs).forEach((k) => { if (!costs[k]) delete costs[k]; });
+      const reqRaw = collectStepRequirements(steps);
+      const prereq = evaluateRequirements(reqRaw, bState, {});
+      // Toggle lives on building buffs panel (default ON)
+      const prereqEnabled = buffs.prereqCheck !== false;
+      const prereqsMet = prereqEnabled ? prereq.allMet : true;
       return {
         id: name, name, levels, s, from, to, steps, costs, points,
         totalTime, buffedTime, speedupMins, active: !!s.active,
+        prereq, prereqsMet, prereqEnabled,
       };
     });
     const afford = sequentialAfford(
-      raw.map((c) => ({ id: c.id, costs: c.costs, active: c.active })),
+      raw.map((c) => ({ id: c.id, costs: c.costs, active: c.active && c.prereqsMet })),
       baseVault
     );
     return raw.map((c) => {
       const a = afford.get(c.id) || { canAfford: true, vaultBefore: baseVault };
-      return { ...c, canAfford: a.canAfford, vaultBefore: a.vaultBefore };
+      const canAfford = a.canAfford && c.prereqsMet;
+      return { ...c, canAfford, vaultBefore: a.vaultBefore };
     });
   }, [data, buildingNames, bState, buffs, baseVault]);
 
@@ -176,12 +185,16 @@ export default function BuildingsPage() {
               <>
               {!atMax && (
               <div className="checkbox-group">
-                <label className="checkbox-label" style={{ opacity: c.canAfford || !c.to ? 1 : 0.5 }}>
+                <label
+                  className="checkbox-label"
+                  style={{ opacity: (c.canAfford && c.prereqsMet) || !c.to ? 1 : 0.5 }}
+                  title={!c.prereqsMet ? 'Prerequisites not met' : undefined}
+                >
                   <input
                     className="checkbox"
                     type="checkbox"
-                    checked={!!c.active && c.canAfford}
-                    disabled={!c.to || (!c.canAfford && !c.active)}
+                    checked={!!c.active && c.canAfford && c.prereqsMet}
+                    disabled={!c.to || !c.prereqsMet || (!c.canAfford && !c.active)}
                     onChange={(e) => setField(c.name, 'active', e.target.checked)}
                   />{' '}
                   Upgrade
@@ -197,8 +210,11 @@ export default function BuildingsPage() {
                 </label>
               </div>
               )}
+              {c.prereqEnabled && c.steps.length > 0 && c.prereq?.items?.length > 0 && (
+                <PrereqList items={c.prereq.items} />
+              )}
               <CostStatus
-                active={!!c.active && c.canAfford}
+                active={!!c.active && c.canAfford && c.prereqsMet}
                 hasSelection={!!c.to}
                 atMax={atMax}
                 points={c.points}
