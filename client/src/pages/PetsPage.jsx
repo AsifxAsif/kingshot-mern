@@ -1,6 +1,7 @@
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
 import {
   parseCost,
   formatNumber,
@@ -165,6 +166,7 @@ export default function PetsPage() {
     [state.vault, state.lockedUpgrades, remainingVaultExcluding]
   );
   const petsState = state.pets || {};
+  const showMaxed = useShowMaxedItems();
   const taming = state.settings?.tamingMarks || {};
   const root = data?.Pet || data || {};
   const petNames = useMemo(
@@ -235,7 +237,12 @@ export default function PetsPage() {
       tamingQtyCommon * (SCORE_RULES.common_taming_mark || 1150)
     : 0;
 
-  const petUpgradeTotal = useMemo(
+  const hasMaxedItems = useMemo(
+    () => cards.some((c) => isAtMaxLevel(c.from, c.levels)),
+    [cards]
+  );
+
+    const petUpgradeTotal = useMemo(
     () => cards.reduce((s, c) => s + (c.active && c.canAfford ? c.points : 0), 0),
     [cards]
   );
@@ -287,10 +294,11 @@ export default function PetsPage() {
 
   return (
     <div className="app-container">
+      <ShowMaxedToggle hasMaxed={hasMaxedItems} />
       <TamingMarksCard vault={vault} />
 
       <div className="items-grid cards-grid">
-        {cards.map((c) => (
+        {cards.filter((c) => showMaxed || !isAtMaxLevel(c.from, c.levels)).map((c) => (
           <div className="item-card" key={c.name}>
             <div className="item-card-header">
               <AssetImg src={petImg(c.name)} size={40} />
@@ -309,7 +317,10 @@ export default function PetsPage() {
                 return (
               <>
               {!atMax && (
-              <label className="checkbox-label">
+              <label
+                className={`checkbox-label${!c.canAfford || !c.to ? ' is-disabled' : ''}`}
+                style={{ opacity: c.canAfford && c.to ? 1 : 0.42 }}
+              >
                 <input
                   type="checkbox"
                   className="checkbox"

@@ -180,7 +180,65 @@ export function mergeCosts(costMaps = []) {
 }
 
 /**
+ * Split needed speedup minutes across specific type, then general_speedup.
+ * Used so building/research/training can fall back to general when specific is short.
+ *
+ * @returns {{ costs: Object, usedSpecific: number, usedGeneral: number, used: number, shortfall: number }}
+ */
+export function allocateSpeedupMinutes(needMins, specificKey, vault = {}) {
+  const need = Math.max(0, Math.ceil(Number(needMins) || 0));
+  if (!need || !specificKey) {
+    return { costs: {}, usedSpecific: 0, usedGeneral: 0, used: 0, shortfall: 0 };
+  }
+
+  let left = need;
+  const costs = {};
+
+  const specificHave = Math.max(0, vaultAmount(vault, specificKey));
+  const usedSpecific = Math.min(left, specificHave);
+  if (usedSpecific > 0) {
+    costs[specificKey] = usedSpecific;
+    left -= usedSpecific;
+  }
+
+  const genHave = Math.max(0, vaultAmount(vault, 'general_speedup'));
+  const usedGeneral = Math.min(left, genHave);
+  if (usedGeneral > 0) {
+    costs.general_speedup = usedGeneral;
+    left -= usedGeneral;
+  }
+
+  // Still short → keep deficit on specific key so UI shows insufficient
+  if (left > 0) {
+    costs[specificKey] = (costs[specificKey] || 0) + left;
+  }
+
+  return {
+    costs,
+    usedSpecific,
+    usedGeneral,
+    used: usedSpecific + usedGeneral,
+    shortfall: left,
+  };
+}
+
+/** Strip speedup resource keys from a cost map (before re-allocating). */
+export function stripSpeedupKeys(costs = {}) {
+  const out = { ...normalizeCostMap(costs) };
+  delete out.building_speedup;
+  delete out.research_speedup;
+  delete out.training_speedup;
+  delete out.general_speedup;
+  delete out.master_speedup;
+  return out;
+}
+
+/**
  * Shared same-page affordability (all cards see each other).
+ *
+ * Optional per item:
+ *   speedupMins + speedupKey → allocate specific then general against vaultBefore
+ * Result entries include resolvedCosts (with speedup split) for locking/display.
  */
 export function sequentialAfford(items, baseVault = {}) {
   const list = items || [];
@@ -189,20 +247,56 @@ export function sequentialAfford(items, baseVault = {}) {
   let activeIds = new Set(list.filter((i) => i.active).map((i) => i.id));
 
   for (let pass = 0; pass < 12; pass++) {
-    const costsById = new Map(
-      list.map((i) => [i.id, normalizeCostMap(i.costs || {})])
-    );
+    const costsById = new Map();
+    for (const item of list) {
+      // Base costs without baked-in speedups; split is applied per vaultBefore
+      let base = stripSpeedupKeys(item.costs || {});
+      // If caller already put only non-speedup in costs, fine.
+      // Re-add non-dynamic speedup if no speedupMins (legacy)
+      if (!(item.speedupMins > 0 && item.speedupKey)) {
+        base = normalizeCostMap(item.costs || {});
+      }
+      costsById.set(item.id, base);
+    }
     let changed = false;
 
     for (const item of list) {
       const otherMaps = [];
       for (const id of activeIds) {
-        if (id !== item.id) otherMaps.push(costsById.get(id) || {});
+        if (id !== item.id) {
+          const prev = result.get(id);
+          otherMaps.push(prev?.resolvedCosts || costsById.get(id) || {});
+        }
       }
       const vaultBefore = subtractCosts(baseVault, mergeCosts(otherMaps));
-      const costs = costsById.get(item.id) || {};
+
+      let costs = { ...(costsById.get(item.id) || {}) };
+      let speedupAlloc = null;
+      if (item.speedupMins > 0 && item.speedupKey) {
+        speedupAlloc = allocateSpeedupMinutes(
+          item.speedupMins,
+          item.speedupKey,
+          vaultBefore
+        );
+        for (const [k, v] of Object.entries(speedupAlloc.costs)) {
+          costs[k] = (costs[k] || 0) + v;
+        }
+      }
+
       const { canAfford, remaining } = computeAffordability(costs, vaultBefore);
-      result.set(item.id, { canAfford, vaultBefore, remaining });
+      result.set(item.id, {
+        canAfford,
+        vaultBefore,
+        remaining,
+        resolvedCosts: costs,
+        speedupAlloc,
+      });
+    }
+
+    // Rebuild costsById from resolved for next pass consistency
+    for (const item of list) {
+      const r = result.get(item.id);
+      if (r?.resolvedCosts) costsById.set(item.id, r.resolvedCosts);
     }
 
     const nextActive = new Set();
@@ -223,13 +317,14 @@ export function sequentialAfford(items, baseVault = {}) {
   return result;
 }
 
-/** Sum costs of items that are active and affordable */
+/** Sum costs of items that are active and affordable (uses resolvedCosts when present). */
 export function sumActiveCosts(items, affordMap) {
   const locked = {};
   for (const item of items || []) {
     const a = affordMap?.get(item.id);
     if (!item.active || !a?.canAfford) continue;
-    for (const [k, amt] of Object.entries(normalizeCostMap(item.costs || {}))) {
+    const src = a.resolvedCosts || item.costs || {};
+    for (const [k, amt] of Object.entries(normalizeCostMap(src))) {
       locked[k] = (locked[k] || 0) + amt;
     }
   }

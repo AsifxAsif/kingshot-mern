@@ -1,3 +1,5 @@
+@import url('https://fonts.cdnfonts.com/css/satoshi');
+
 /* ============================================================
    Kingshot Calculator — unified stylesheet
    Merged from: original-style.css → index.css → misc-align.css → theme.css
@@ -2504,8 +2506,6 @@ img.asset-img,
    Kingshot Calculator — Professional UI Theme
    Loads last; refines layout without changing app logic.
    ============================================================ */
-
-@import url('https://fonts.cdnfonts.com/css/satoshi');
 
 :root {
   --bg-main: #efece6;

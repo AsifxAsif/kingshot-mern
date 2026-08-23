@@ -1,6 +1,7 @@
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
 import { parseCost, formatNumber, SCORE_RULES } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import CostStatus from '../components/CostStatus';
@@ -68,6 +69,7 @@ function getSteps(rows, from, to, order) {
 export default function GovGearPage() {
   const { data, loading, error } = useGameData('gov_gears');
   const { state, updateSection, setPageScore, setPageLockedCosts, remainingVaultExcluding } = useApp();
+  const showMaxed = useShowMaxedItems();
   const vault = useMemo(
     () => remainingVaultExcluding('govGear'),
     [state.vault, state.lockedUpgrades, remainingVaultExcluding]
@@ -164,6 +166,11 @@ export default function GovGearPage() {
     return t;
   }, [cards]);
 
+  const hasMaxedItems = useMemo(
+    () => cards.some((c) => isAtMaxLevel(c.from, levels)),
+    [cards, levels]
+  );
+
   useEffect(() => {
     setPageLockedCosts(
       'govGear',
@@ -181,6 +188,7 @@ export default function GovGearPage() {
 
   return (
     <div className="calculator-page">
+      <ShowMaxedToggle hasMaxed={hasMaxedItems} />
       <div className="group-columns group-columns-1 gov-group-rows">
         {GEAR_GROUPS.map((group) => (
           <GroupCard
@@ -193,6 +201,7 @@ export default function GovGearPage() {
             {group.pieces.map((piece) => {
               const c = cards.find((x) => x.piece === piece || x.id === piece || x.name === piece);
               if (!c) return null;
+              if (!showMaxed && isAtMaxLevel(c.from, levels)) return null;
               const name = c.piece || c.id || c.name || piece;
               return (
                 <div className="item-card group-card-item" key={name}>

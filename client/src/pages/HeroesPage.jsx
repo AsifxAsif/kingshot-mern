@@ -1,6 +1,7 @@
 import { useMemo, useEffect, useCallback, useState } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import ShowMaxedToggle, { useShowMaxedItems } from '../components/ShowMaxedToggle';
 import { parseCost, formatNumber, SCORE_RULES } from '../utils/calc';
 import AssetImg from '../components/AssetImg';
 import ResourceLines from '../components/ResourceLines';
@@ -143,6 +144,7 @@ function FlowerRow({ maxIdx, onPetalClick, type }) {
 export default function HeroesPage() {
   const { data, loading, error } = useGameData('heroes');
   const { state, updateSection, setPageScore, vault } = useApp();
+  const showMaxed = useShowMaxedItems();
   const maxGen = state.settings?.maxHeroGen ?? 7;
   const shards = state.heroShards || {};
   const heroesState = state.heroes || {};
@@ -375,11 +377,21 @@ export default function HeroesPage() {
     setPageScore('heroes', totalActivePoints);
   }, [totalActivePoints, setPageScore]);
 
+  const hasMaxedItems = useMemo(
+    () =>
+      heroes.some((h) => {
+        const fs = flowerStates[h.name] || { currentMaxIdx: -1 };
+        return fs.currentMaxIdx >= MAX_ABS;
+      }),
+    [heroes, flowerStates]
+  );
+
   if (loading) return <div className="page-loading"><div className="spinner" /><p>Loading heroes…</p></div>;
   if (error) return <div className="page-error"><p>{error}</p></div>;
 
   return (
     <div className="app-container">
+<ShowMaxedToggle hasMaxed={hasMaxedItems} />
       {toast && <div className="hero-toast hero-toast-error">{toast}</div>}
 
 
@@ -412,7 +424,10 @@ export default function HeroesPage() {
       </div>
 
       <div className="items-grid cards-grid">
-        {heroes.map((h) => {
+        {heroes.filter((h) => {
+          const fs = flowerStates[h.name] || { currentMaxIdx: -1, targetMaxIdx: -1 };
+          return showMaxed || fs.currentMaxIdx < MAX_ABS;
+        }).map((h) => {
           const s = heroesState[h.name] || {};
           const fs = flowerStates[h.name] || { currentMaxIdx: -1, targetMaxIdx: -1 };
           const currVal = valueAtAbsIdx(fs.currentMaxIdx);
@@ -485,7 +500,10 @@ export default function HeroesPage() {
                 </div>
                 {fs.currentMaxIdx >= MAX_ABS ? null : (
                 <div className="checkbox-group">
-                  <label className="checkbox-label">
+                  <label
+                    className={`checkbox-label${!canUpgrade ? ' is-disabled' : ''}`}
+                    style={{ opacity: canUpgrade ? 1 : 0.42 }}
+                  >
                     <input
                       className="checkbox"
                       type="checkbox"

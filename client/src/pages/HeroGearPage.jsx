@@ -1,6 +1,7 @@
 import { useMemo, useEffect, useCallback } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
 import { parseCost, SCORE_RULES } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import CostStatus from '../components/CostStatus';
@@ -63,6 +64,7 @@ export default function HeroGearPage() {
     setPageLockedCosts,
     remainingVaultExcluding,
   } = useApp();
+  const showMaxed = useShowMaxedItems();
   const vault = useMemo(
     () => remainingVaultExcluding('heroGear'),
     [state.vault, state.lockedUpgrades, remainingVaultExcluding]
@@ -247,7 +249,14 @@ export default function HeroGearPage() {
     setPageLockedCosts('heroGear', sumActiveCosts(all, map));
   }, [gearCards, forgeCards, seq, setPageLockedCosts]);
 
-  useEffect(() => {
+  const hasMaxedItems = useMemo(
+    () =>
+      gearCards.some((c) => isAtMaxLevel(c.from, levels)) ||
+      forgeCards.some((c) => isAtMaxLevel(c.from, forgeLevels)),
+    [gearCards, forgeCards, levels, forgeLevels]
+  );
+
+    useEffect(() => {
     setPageScore('heroGear', total);
   }, [total, setPageScore]);
 
@@ -267,11 +276,12 @@ export default function HeroGearPage() {
 
   return (
     <div className="calculator-page">
+      <ShowMaxedToggle hasMaxed={hasMaxedItems} />
       <div className="hero-gear-two-col">
         {/* Column 1 — Gear */}
         <div className="hero-gear-col">
           <div className="section-title">Hero Gear</div>
-          {gearCards.map((c, idx) => {
+          {gearCards.filter((c) => showMaxed || !isAtMaxLevel(c.from, levels)).map((c, idx) => {
             const canAfford = seq.get(c.id)?.canAfford ?? true;
             const gearVault = seq.get(c.id)?.vaultBefore || vault;
             return (
@@ -305,7 +315,8 @@ export default function HeroGearPage() {
                   <>
                   {!atMax && (
                   <div className="checkbox-group">
-                    <label className="checkbox-label">
+                    <label className={`checkbox-label${!canAfford || !c.to ? ' is-disabled' : ''}`}
+                      style={{ opacity: canAfford && c.to ? 1 : 0.42 }}>
                       <input
                         className="checkbox"
                         type="checkbox"
@@ -346,7 +357,7 @@ export default function HeroGearPage() {
         {/* Column 2 — Forgehammer */}
         <div className="hero-gear-col">
           <div className="section-title">Forgehammer Mastery</div>
-          {forgeCards.map((c, idx) => {
+          {forgeCards.filter((c) => showMaxed || !isAtMaxLevel(c.from, forgeLevels)).map((c, idx) => {
             const canAfford = seq.get(c.id)?.canAfford ?? true;
             const forgeVault = seq.get(c.id)?.vaultBefore || vault;
             return (
@@ -380,7 +391,8 @@ export default function HeroGearPage() {
                   <>
                   {!atMax && (
                   <div className="checkbox-group">
-                    <label className="checkbox-label">
+                    <label className={`checkbox-label${!canAfford || !c.to ? ' is-disabled' : ''}`}
+                      style={{ opacity: canAfford && c.to ? 1 : 0.42 }}>
                       <input
                         className="checkbox"
                         type="checkbox"

@@ -34,6 +34,28 @@ main.app-container {
   padding: 0 0 24px;
 }
 
+.show-maxed-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 8px 12px 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+.show-maxed-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+}
+.show-maxed-hint {
+  opacity: 0.7;
+  font-size: 0.8rem;
+}
+
 a.nav-link {
   display: inline-block;
   text-decoration: none;
@@ -782,10 +804,24 @@ img.asset-img,
 .checkbox-label {
   gap: 6px !important;
   flex-wrap: wrap;
+  transition: opacity 0.15s ease, filter 0.15s ease;
 }
 .checkbox-label input[type="checkbox"] {
   align-self: center !important;
   margin: 0 !important;
+}
+
+/* Visually disabled Upgrade / action checkboxes (all pages) */
+.checkbox-label:has(input:disabled),
+.checkbox-label.is-disabled {
+  opacity: 0.42 !important;
+  cursor: not-allowed !important;
+  filter: grayscale(0.35);
+  pointer-events: none;
+}
+.checkbox-label input[type="checkbox"]:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.7;
 }
 
 /* Inventory / vault-style rows */

@@ -1,6 +1,7 @@
 import { useMemo, useEffect, useState } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
 import { parseCost, formatNumber, SCORE_RULES } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import CostStatus from '../components/CostStatus';
@@ -109,6 +110,7 @@ export default function GovCharmPage() {
   const { data, loading, error } = useGameData('gov_charms');
   const { state, updateSection, setPageScore, setPageLockedCosts, remainingVaultExcluding } =
     useApp();
+  const showMaxed = useShowMaxedItems();
   const vault = useMemo(
     () => remainingVaultExcluding('govCharm'),
     [state.vault, state.lockedUpgrades, remainingVaultExcluding]
@@ -241,7 +243,12 @@ export default function GovCharmPage() {
     );
   }, [cards, setPageLockedCosts]);
 
-  useEffect(() => {
+  const hasMaxedItems = useMemo(
+    () => cards.some((c) => isAtMaxLevel(c.from, levels)),
+    [cards, levels]
+  );
+
+    useEffect(() => {
     setPageScore('govCharm', totalPoints);
   }, [totalPoints, setPageScore]);
 
@@ -261,6 +268,7 @@ export default function GovCharmPage() {
 
   return (
     <div className="calculator-page">
+      <ShowMaxedToggle hasMaxed={hasMaxedItems} />
       <div className="group-columns group-columns-1 gov-group-rows">
         {TROOP_ORDER.map((troop) => {
           const groups = CHARM_GROUPS.filter((g) => g.troop === troop);
@@ -315,6 +323,7 @@ export default function GovCharmPage() {
                   {group.charms.map((name) => {
                     const c = cards.find((x) => x.name === name);
                     if (!c) return null;
+                    if (!showMaxed && isAtMaxLevel(c.from, levels)) return null;
                     return (
                       <div className="item-card group-card-item" key={c.name}>
                         <div className="item-card-header" style={{ justifyContent: 'space-evenly' }}>

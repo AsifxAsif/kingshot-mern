@@ -1,6 +1,7 @@
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
 import { SCORE_RULES } from '../utils/calc';
 import AssetImg from '../components/AssetImg';
 import CostStatus from '../components/CostStatus';
@@ -10,6 +11,7 @@ import { heroWidgetImg, heroWidgetFallbacks, resourceImg } from '../utils/images
 export default function WidgetsPage() {
   const { data: widgetsData, loading: lw } = useGameData('widgets');
   const { data: heroesData, loading: lh } = useGameData('heroes');
+  const showMaxed = useShowMaxedItems();
   const { state, updateSection, setPageScore } = useApp();
   const heroWidgets = state.heroWidgets || {};
   const wState = state.widgets || {};
@@ -50,6 +52,14 @@ export default function WidgetsPage() {
   const setWidgetInv = (name, val) => {
     updateSection('heroWidgets', (prev) => ({ ...prev, [name]: val }));
   };
+
+  const hasMaxedItems = useMemo(() => {
+    const maxLvl = levels[levels.length - 1] ?? 0;
+    return ssrHeroes.some((h) => {
+      const from = Number((wState[h.name] || {}).from) || 0;
+      return from >= maxLvl;
+    });
+  }, [ssrHeroes, wState, levels]);
 
   const setUpgrade = (name, field, value) => {
     updateSection('widgets', (prev) => ({
@@ -98,6 +108,7 @@ export default function WidgetsPage() {
 
   return (
     <div className="calculator-page">
+      <ShowMaxedToggle hasMaxed={hasMaxedItems} />
       <div className="inventory-card">
         <div className="buff-field" style={{ marginBottom: 12 }}>
           <label>Latest Hero Generation</label>
@@ -136,7 +147,11 @@ export default function WidgetsPage() {
       </div>
 
       <div className="cards-grid">
-        {ssrHeroes.map((h) => {
+        {ssrHeroes.filter((h) => {
+          const s = wState[h.name] || {};
+          const from = Number(s.from) || 0;
+          return showMaxed || from < (levels[levels.length - 1] ?? 0);
+        }).map((h) => {
           const s = wState[h.name] || {};
           const from = parseInt(s.from ?? '0', 10);
           const to = parseInt(s.to || '0', 10);

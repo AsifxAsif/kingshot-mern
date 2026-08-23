@@ -1,6 +1,7 @@
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
 import {
   parseCost,
   parseTimeToSeconds,
@@ -55,6 +56,7 @@ export default function BuildingsPage() {
     remainingVaultExcluding,
   } = useApp();
   const bState = state.buildings || {};
+  const showMaxed = useShowMaxedItems();
   const buffs = state.settings?.buildingBuffs || {};
   // Base vault after OTHER pages' locks (stable via useMemo on underlying state)
   const baseVault = useMemo(
@@ -110,13 +112,10 @@ export default function BuildingsPage() {
         }
       }
       const buffedTime = applyBuildingSpeedupBuffs(totalTime, buffs);
-      const speedupMins = secondsToSpeedupMinutes(buffedTime);
-      if (s.speedup) {
-        costs.building_speedup = (costs.building_speedup || 0) + speedupMins;
-        points += speedupMins * SCORE_RULES.speedup_min;
-      }
+      const speedupMins = s.speedup ? secondsToSpeedupMinutes(buffedTime) : 0;
+      // Speedup is allocated specific → general inside sequentialAfford (not baked here)
       Object.keys(costs).forEach((k) => { if (!costs[k]) delete costs[k]; });
-      const reqRaw = collectStepRequirements(steps);
+      const reqRaw = collectStepRequirements(steps, name);
       const prereq = evaluateRequirements(reqRaw, bState, {});
       // Toggle lives on building buffs panel (default ON)
       const prereqEnabled = buffs.prereqCheck !== false;
@@ -125,20 +124,43 @@ export default function BuildingsPage() {
         id: name, name, levels, s, from, to, steps, costs, points,
         totalTime, buffedTime, speedupMins, active: !!s.active,
         prereq, prereqsMet, prereqEnabled,
+        speedupKey: 'building_speedup',
       };
     });
     const afford = sequentialAfford(
-      raw.map((c) => ({ id: c.id, costs: c.costs, active: c.active && c.prereqsMet })),
+      raw.map((c) => ({
+        id: c.id,
+        costs: c.costs,
+        active: c.active && c.prereqsMet,
+        speedupMins: c.speedupMins,
+        speedupKey: c.speedupKey,
+      })),
       baseVault
     );
     return raw.map((c) => {
       const a = afford.get(c.id) || { canAfford: true, vaultBefore: baseVault };
       const canAfford = a.canAfford && c.prereqsMet;
-      return { ...c, canAfford, vaultBefore: a.vaultBefore };
+      const resolvedCosts = a.resolvedCosts || c.costs;
+      const usedSpd = a.speedupAlloc?.used ?? 0;
+      const pts =
+        c.points + (usedSpd > 0 ? usedSpd * (SCORE_RULES.speedup_min || 0) : 0);
+      return {
+        ...c,
+        costs: resolvedCosts,
+        points: pts,
+        canAfford,
+        vaultBefore: a.vaultBefore,
+        speedupAlloc: a.speedupAlloc,
+      };
     });
   }, [data, buildingNames, bState, buffs, baseVault]);
 
-  const totalActivePoints = useMemo(() => {
+  const hasMaxedItems = useMemo(
+    () => cards.some((c) => isAtMaxLevel(c.from, c.levels)),
+    [cards]
+  );
+
+    const totalActivePoints = useMemo(() => {
     let total = 0;
     for (const c of cards) {
       if (c.active && c.canAfford && c.steps.length) total += c.points;
@@ -164,8 +186,9 @@ export default function BuildingsPage() {
   return (
     <div className="app-container">
       <BuildingBuffPanel />
+      <ShowMaxedToggle hasMaxed={hasMaxedItems} />
       <div className="items-grid cards-grid">
-        {cards.map((c) => (
+        {cards.filter((c) => showMaxed || !isAtMaxLevel(c.from, c.levels)).map((c) => (
           <div className="item-card" key={c.name} data-type="building">
             <div className="item-card-header">
               <AssetImg src={buildingImg(c.name)} size={50} />

@@ -1,6 +1,7 @@
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
 import {
   parseCost,
   getUpgradeSteps,
@@ -63,6 +64,7 @@ export default function WarAcademyPage() {
     [state.vault, state.lockedUpgrades, remainingVaultExcluding]
   );
   const wa = state.warAcademy || {};
+  const showMaxed = useShowMaxedItems();
   const buildingsState = state.buildings || {};
   const buffs = state.settings?.researchBuffs || {};
   const root = data?.['War Academy'] || data || {};
@@ -107,35 +109,56 @@ export default function WarAcademyPage() {
       Object.keys(costs).forEach((k) => { if (!costs[k]) delete costs[k]; });
       const buffedTime = applyResearchSpeedupBuffs(totalTime, buffs);
       let points = dust * SCORE_RULES.truegold_dust;
-      const speedupMins = secondsToSpeedupMinutes(buffedTime);
-      if (s.speedup && speedupMins > 0) {
-        costs.research_speedup = (costs.research_speedup || 0) + speedupMins;
-        points += speedupMins * (SCORE_RULES.speedup_min || 0);
-      }
-      const reqRaw = collectStepRequirements(steps);
+      const speedupMins =
+        s.speedup && buffedTime > 0 ? secondsToSpeedupMinutes(buffedTime) : 0;
+      // Speedup split (research → general) happens in sequentialAfford
+      const reqRaw = collectStepRequirements(steps, name);
       const prereq = evaluateRequirements(reqRaw, buildingsState, wa);
       // Toggle lives on research buffs panel (default ON)
       const prereqEnabled = buffs.prereqCheck !== false;
       const prereqsMet = prereqEnabled ? prereq.allMet : true;
       return {
         id: name, name, group, levels, s, from, to, steps, costs, points,
-        totalTime, buffedTime, active: !!s.active,
+        totalTime, buffedTime, speedupMins, active: !!s.active,
         prereq, prereqsMet, prereqEnabled,
+        speedupKey: 'research_speedup',
       };
     });
 
     const afford = sequentialAfford(
-      raw.map((c) => ({ id: c.id, costs: c.costs, active: c.active && c.prereqsMet })),
+      raw.map((c) => ({
+        id: c.id,
+        costs: c.costs,
+        active: c.active && c.prereqsMet,
+        speedupMins: c.speedupMins,
+        speedupKey: c.speedupKey,
+      })),
       vault
     );
     return raw.map((c) => {
       const a = afford.get(c.id) || { canAfford: true, vaultBefore: vault };
       const canAfford = a.canAfford && c.prereqsMet;
-      return { ...c, canAfford, vaultBefore: a.vaultBefore };
+      const resolvedCosts = a.resolvedCosts || c.costs;
+      const usedSpd = a.speedupAlloc?.used ?? 0;
+      const pts =
+        c.points + (usedSpd > 0 ? usedSpd * (SCORE_RULES.speedup_min || 0) : 0);
+      return {
+        ...c,
+        costs: resolvedCosts,
+        points: pts,
+        canAfford,
+        vaultBefore: a.vaultBefore,
+        speedupAlloc: a.speedupAlloc,
+      };
     });
   }, [root, wa, buildingsState, vault, buffs]);
 
-  const totalActivePoints = useMemo(
+  const hasMaxedItems = useMemo(
+    () => cards.some((c) => isAtMaxLevel(c.from, c.levels)),
+    [cards]
+  );
+
+    const totalActivePoints = useMemo(
     () => cards.reduce((s, c) => s + (c.active && c.canAfford ? c.points : 0), 0),
     [cards]
   );
@@ -162,9 +185,10 @@ export default function WarAcademyPage() {
   return (
     <div className="calculator-page">
       <ResearchBuffPanel />
+      <ShowMaxedToggle hasMaxed={hasMaxedItems} />
       <div className="group-columns group-columns-3">
         {TECH_GROUPS.map((g) => {
-          const groupCards = cards.filter((c) => c.group === g.name);
+          const groupCards = cards.filter((c) => c.group === g.name && (showMaxed || !isAtMaxLevel(c.from, c.levels)));
           if (!groupCards.length) return null;
           return (
             <GroupCard
@@ -248,10 +272,10 @@ export default function WarAcademyPage() {
           );
         })}
       </div>
-      {cards.some((c) => c.group === 'Other') && (
+      {cards.some((c) => c.group === 'Other' && (showMaxed || !isAtMaxLevel(c.from, c.levels))) && (
         <div className="group-columns group-columns-1" style={{ marginTop: 16 }}>
           <GroupCard title="Other">
-            {cards.filter((c) => c.group === 'Other').map((c) => (
+            {cards.filter((c) => c.group === 'Other' && (showMaxed || !isAtMaxLevel(c.from, c.levels))).map((c) => (
               <div className="item-card group-card-item" key={c.name}>
                 <div className="item-card-header">
                   <AssetImg src={warAcademyImg(c.name)} size={40} />
@@ -272,7 +296,8 @@ export default function WarAcademyPage() {
                   {!atMax && (
                   <div className="checkbox-group">
                     <label
-                      className="checkbox-label"
+                      className={`checkbox-label${!(c.canAfford && c.prereqsMet) || !c.to ? ' is-disabled' : ''}`}
+                      style={{ opacity: (c.canAfford && c.prereqsMet) || !c.to ? 1 : 0.42 }}
                       title={!c.prereqsMet ? 'Prerequisites not met' : undefined}
                     >
                       <input

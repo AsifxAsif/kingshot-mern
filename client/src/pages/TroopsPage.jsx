@@ -2,6 +2,7 @@ import { sequentialAfford, sumActiveCosts, computeAffordability } from '../utils
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import ShowMaxedToggle, { useShowMaxedItems } from '../components/ShowMaxedToggle';
 import {
   parseCost,
   parseTimeToSeconds,
@@ -23,6 +24,7 @@ const TYPES = ['Infantry', 'Cavalry', 'Archer'];
 export default function TroopsPage() {
   const { data, loading, error } = useGameData('troops');
   const { state, updateSection, setPageScore, setPageLockedCosts, remainingVaultExcluding } = useApp();
+  const showMaxed = useShowMaxedItems();
   const vault = useMemo(
     () => remainingVaultExcluding('troops'),
     [state.vault, state.lockedUpgrades, remainingVaultExcluding]
@@ -59,15 +61,14 @@ export default function TroopsPage() {
           let points = (row.point || SCORE_RULES.troops[level] || 0) * qty;
           const timeSec = parseTimeToSeconds(row.time) * qty;
           const buffedTrain = applyTrainingSpeedupBuffs(timeSec, trainBuffs);
-          if (t.speedup && buffedTrain > 0) {
-            const mins = Math.ceil(buffedTrain / 60);
-            costs.training_speedup = (costs.training_speedup || 0) + mins;
-            points += mins * SCORE_RULES.speedup_min;
-          }
+          const speedupMins =
+            t.speedup && buffedTrain > 0 ? Math.ceil(buffedTrain / 60) : 0;
           out.cards[tKey] = {
             costs,
             points,
             timeSec,
+            speedupMins,
+            speedupKey: 'training_speedup',
             label: `${type} T${level} ×${qty}`,
             active: !!t.active,
           };
@@ -104,16 +105,15 @@ export default function TroopsPage() {
             ((SCORE_RULES.troops?.[to] || 0) - (SCORE_RULES.troops?.[from] || 0)) * pQty;
           points = Math.max(0, points);
           const buffedTime = applyTrainingSpeedupBuffs(timeSec, trainBuffs);
-          if (p.speedup && buffedTime > 0) {
-            const mins = Math.ceil(buffedTime / 60);
-            costs.training_speedup = (costs.training_speedup || 0) + mins;
-            points += mins * (SCORE_RULES.speedup_min || 0);
-          }
+          const speedupMins =
+            p.speedup && buffedTime > 0 ? Math.ceil(buffedTime / 60) : 0;
           out.cards[pKey] = {
             costs,
             points,
             timeSec,
             buffedTime,
+            speedupMins,
+            speedupKey: 'training_speedup',
             label: `${type} T${from}→T${to} ×${pQty} (${chain.length} steps)`,
             active: !!p.active,
           };
@@ -126,15 +126,23 @@ export default function TroopsPage() {
       id,
       costs: out.cards[id].costs,
       active: out.cards[id].active,
+      speedupMins: out.cards[id].speedupMins || 0,
+      speedupKey: out.cards[id].speedupKey,
     }));
     const afford = sequentialAfford(seqItems, vault);
     for (const id of out.order) {
       const a = afford.get(id) || { canAfford: true, vaultBefore: vault };
-      out.cards[id].canAfford = a.canAfford;
-      out.cards[id].vaultBefore = a.vaultBefore;
-      if (out.cards[id].active && a.canAfford) {
-        out.totalPoints += out.cards[id].points;
-        for (const [k, v] of Object.entries(out.cards[id].costs || {})) {
+      const card = out.cards[id];
+      const usedSpd = a.speedupAlloc?.used ?? 0;
+      card.costs = a.resolvedCosts || card.costs;
+      card.points =
+        card.points + (usedSpd > 0 ? usedSpd * (SCORE_RULES.speedup_min || 0) : 0);
+      card.canAfford = a.canAfford;
+      card.vaultBefore = a.vaultBefore;
+      card.speedupAlloc = a.speedupAlloc;
+      if (card.active && a.canAfford) {
+        out.totalPoints += card.points;
+        for (const [k, v] of Object.entries(card.costs || {})) {
           out.totalCosts[k] = (out.totalCosts[k] || 0) + v;
         }
       }
@@ -158,12 +166,24 @@ export default function TroopsPage() {
     setPageScore('troops', results.totalPoints);
   }, [results.totalPoints, setPageScore]);
 
+  const hasMaxedItems = useMemo(() => {
+    const training = data?.Training || data?.training || {};
+    for (const type of TYPES) {
+      const levels = (training[type] || []).map((r) => Number(r.lvl));
+      const maxTier = levels.length ? Math.max(...levels) : 11;
+      const s = troopsState[`train_${type}`] || {};
+      if (Number(s.level) === maxTier) return true;
+    }
+    return false;
+  }, [data, troopsState]);
+
   if (loading) return <div className="page-loading"><div className="spinner" /><p>Loading troops…</p></div>;
   if (error) return <div className="page-error"><p>{error}</p></div>;
 
   return (
     <div className="calculator-page">
       <TrainingBuffPanel />
+      <ShowMaxedToggle hasMaxed={hasMaxedItems} />
       <div className="group-columns group-columns-1">
       <GroupCard title="Training" iconSrc={troopImg('Infantry')} iconAlt="Training">
       <div className="cards-grid cards-grid-3">
@@ -172,6 +192,8 @@ export default function TroopsPage() {
           const s = troopsState[key] || {};
           const levels = (training[type] || []).map((r) => r.lvl);
           const card = results.cards[key];
+          const maxTier = levels.length ? Math.max(...levels.map(Number)) : 11;
+          if (!showMaxed && Number(s.level) === maxTier && !s.active && !s.qty) return null;
           return (
             <div className="item-card" key={key}>
               <div className="item-card-header"><AssetImg src={troopImg(type)} size={40} /><span>{type}</span></div>
@@ -197,10 +219,14 @@ export default function TroopsPage() {
                   />
                 </div>
                 <div className="checkbox-group">
-                  <label className="checkbox-label">
+                  <label
+                    className={`checkbox-label${!(card?.canAfford || !card || s.active) ? ' is-disabled' : ''}`}
+                    style={{ opacity: (card?.canAfford ?? true) || !!s.active ? 1 : 0.42 }}
+                  >
                     <input
                       type="checkbox"
-                      checked={!!s.active}
+                      checked={!!s.active && !!card?.canAfford}
+                      disabled={!card || (!card.canAfford && !s.active)}
                       onChange={(e) => setField(key, 'active', e.target.checked)}
                     />{' '}
                     Upgrade
@@ -292,10 +318,14 @@ export default function TroopsPage() {
                 />
                 {toLevels.length > 0 ? (
                 <div className="checkbox-group">
-                  <label className="checkbox-label">
+                  <label
+                    className={`checkbox-label${!(card?.canAfford || !card || s.active) ? ' is-disabled' : ''}`}
+                    style={{ opacity: (card?.canAfford ?? true) || !!s.active ? 1 : 0.42 }}
+                  >
                     <input
                       type="checkbox"
-                      checked={!!s.active}
+                      checked={!!s.active && !!card?.canAfford}
+                      disabled={!card || (!card.canAfford && !s.active)}
                       onChange={(e) => setField(key, 'active', e.target.checked)}
                     />{' '}
                     Upgrade

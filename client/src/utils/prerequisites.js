@@ -131,20 +131,73 @@ export function levelMeets(currentLevel, requiredLevel) {
 }
 
 /**
- * Collect unique requirement strings from upgrade steps (rows between from→to).
+ * True if this requirement refers to the same research/building being upgraded.
+ * Intermediate self-levels are completed automatically along the from→to path.
  */
-export function collectStepRequirements(steps) {
-  const list = [];
-  const seen = new Set();
+function isSelfRequirement(parsed, selfName) {
+  if (!selfName || !parsed?.name) return false;
+  const a = String(parsed.name).trim().toLowerCase();
+  const b = String(selfName).trim().toLowerCase();
+  if (a === b) return true;
+  // "Truegold Bows" vs "Truegold Bows" already covered; also strip type suffix mismatch edge cases
+  const strip = (s) => s.replace(/\s*\([^)]*\)\s*$/, '').trim();
+  return strip(a) === strip(b) && a.includes('(') === b.includes('(');
+}
+
+/**
+ * Collect requirements from upgrade steps (from→to path), then collapse to
+ * **ultimate level only** per dependency name.
+ *
+ * @param {Array} steps - cost rows between from and to
+ * @param {string} [selfName] - name of the tech/building being upgraded; its own
+ *   intermediate level requirements are omitted (completed automatically on the path)
+ *
+ * Example path Bracers 1→4 may list Bracers lvl2/3 — those are dropped.
+ * War Academy TG2 + Battalion lvl4 are kept at their max only.
+ */
+export function collectStepRequirements(steps, selfName = '') {
+  // key = kind|name (case-insensitive name) → best parsed req
+  const best = new Map();
+
   for (const step of steps || []) {
     const reqs = step.requirements || step.requirement || [];
     const arr = Array.isArray(reqs) ? reqs : [reqs];
     for (const r of arr) {
       if (r == null || r === '') continue;
-      const key = String(r);
-      if (seen.has(key)) continue;
-      seen.add(key);
-      list.push(key);
+      const parsed = parseRequirement(String(r));
+      if (!parsed) continue;
+      if (isSelfRequirement(parsed, selfName)) continue;
+
+      const nameKey = String(parsed.name || parsed.raw || '').toLowerCase();
+      const mapKey = `${parsed.kind}|${nameKey}`;
+      const prev = best.get(mapKey);
+
+      if (!prev) {
+        best.set(mapKey, parsed);
+        continue;
+      }
+
+      // Keep the higher required level (numeric / TG aware)
+      if (
+        parsed.level != null &&
+        convertLevelToNumeric(parsed.level) > convertLevelToNumeric(prev.level)
+      ) {
+        best.set(mapKey, parsed);
+      }
+    }
+  }
+
+  // Rebuild display strings for evaluateRequirements
+  const list = [];
+  for (const parsed of best.values()) {
+    if (parsed.kind === 'building' && parsed.name === 'War Academy' && parsed.level) {
+      list.push(`War Academy ${parsed.level}`);
+    } else if (parsed.kind === 'tech' && parsed.name && parsed.level != null) {
+      list.push(`${parsed.name} lvl${parsed.level}`);
+    } else if (parsed.kind === 'building' && parsed.name && parsed.level != null) {
+      list.push(`${parsed.name} Lv. ${parsed.level}`);
+    } else if (parsed.raw) {
+      list.push(parsed.raw);
     }
   }
   return list;
