@@ -4,6 +4,7 @@ import { useApp } from './context/AppContext';
 import Navbar from './components/Navbar';
 import AuthModal from './components/AuthModal';
 import RequireAuthGate from './components/RequireAuthGate';
+import PageMeta from './components/PageMeta';
 import ErrorBoundary from './components/ErrorBoundary';
 
 const VaultPage = lazy(() => import('./pages/VaultPage'));
