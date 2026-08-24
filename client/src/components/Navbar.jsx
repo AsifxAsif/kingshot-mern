@@ -15,6 +15,7 @@ const LINKS = [
   { to: '/pets', label: 'PETS' },
   { to: '/troops', label: 'TROOPS' },
   { to: '/misc', label: 'MISC' },
+  { to: '/planner', label: 'PLANNER' },
   { to: '/profile', label: 'PROFILE' },
 ];
 

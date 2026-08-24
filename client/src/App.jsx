@@ -18,6 +18,7 @@ const GovCharmPage = lazy(() => import('./pages/GovCharmPage'));
 const PetsPage = lazy(() => import('./pages/PetsPage'));
 const TroopsPage = lazy(() => import('./pages/TroopsPage'));
 const MiscPage = lazy(() => import('./pages/MiscPage'));
+const PlannerPage = lazy(() => import('./pages/PlannerPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 
 function PageFallback() {
@@ -46,6 +47,7 @@ function AppRoutes() {
           <Route path="/pets" element={<PetsPage />} />
           <Route path="/troops" element={<TroopsPage />} />
           <Route path="/misc" element={<MiscPage />} />
+          <Route path="/planner" element={<PlannerPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           {/* Fallback so unknown paths still render something */}
           <Route path="*" element={<VaultPage />} />

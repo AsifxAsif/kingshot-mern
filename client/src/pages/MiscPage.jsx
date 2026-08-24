@@ -122,9 +122,12 @@ export default function MiscPage() {
     const node = card.node || '';
     const skill = parseInt(card.skill || '0', 10) || 0;
     const speed = parseFloat(card.speed || '0') || 0;
+    const rounds = Math.min(99, Math.max(1, parseInt(card.rounds || '1', 10) || 1));
     const nodeData = resource && node ? getNodeData(node, resource) : null;
     const result = calculateGatheringTime(nodeData, skill, speed);
-    const points = resource && nodeData ? gatheringPoints(result.resourceAmount, resource) : 0;
+    const pointsPerRound =
+      resource && nodeData ? gatheringPoints(result.resourceAmount, resource) : 0;
+    const points = pointsPerRound * rounds;
     return {
       id,
       card,
@@ -132,8 +135,10 @@ export default function MiscPage() {
       node,
       skill,
       speed,
+      rounds,
       nodeData,
       ...result,
+      pointsPerRound,
       points,
       skillBonus: getSkillBonus(skill),
       skillTitle: resource ? getSkillTitle(resource) : 'Skill Level',
@@ -308,9 +313,42 @@ export default function MiscPage() {
       <div className="items-grid cards-grid">
         {cardsCalc.map((c) => (
           <div className="item-card gathering-card" key={c.id} data-card-id={c.id}>
-            <div className="item-card-header">
+            <div className="item-card-header" style={{ flexWrap: 'wrap', gap: 8 }}>
               <AssetImg src={c.nodeImg} size={40} />
               <span>Gathering March {parseInt(c.id, 10) + 1}</span>
+              <div
+                className="rounds-stepper"
+                title="How many times this march gathers today"
+                style={{
+                  marginLeft: 'auto',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>Rounds</span>
+                <button
+                  type="button"
+                  className="preset-btn"
+                  style={{ minWidth: 32, padding: '4px 8px' }}
+                  disabled={c.rounds <= 1}
+                  onClick={() => setGatherCard(c.id, 'rounds', String(c.rounds - 1))}
+                  aria-label="Fewer rounds"
+                >
+                  −
+                </button>
+                <strong style={{ minWidth: 28, textAlign: 'center' }}>{c.rounds}</strong>
+                <button
+                  type="button"
+                  className="preset-btn"
+                  style={{ minWidth: 32, padding: '4px 8px' }}
+                  disabled={c.rounds >= 99}
+                  onClick={() => setGatherCard(c.id, 'rounds', String(c.rounds + 1))}
+                  aria-label="More rounds"
+                >
+                  +
+                </button>
+              </div>
             </div>
             <div className="item-card-body">
               <div className="buff-row">
@@ -421,7 +459,25 @@ export default function MiscPage() {
                       )}
                     </div>
                     <div>
+                      Points / round: <strong>+{formatNumber(c.pointsPerRound)}</strong>
+                    </div>
+                    <div>
+                      Rounds: <strong>×{c.rounds}</strong>
+                      {c.timeSeconds > 0 && (
+                        <span style={{ opacity: 0.75 }}>
+                          {' '}
+                          (≈ {formatSecondsToTime(c.timeSeconds * c.rounds)} total time)
+                        </span>
+                      )}
+                    </div>
+                    <div>
                       Points: <strong>+{formatNumber(c.points)}</strong>
+                      {c.rounds > 1 && (
+                        <span style={{ opacity: 0.75 }}>
+                          {' '}
+                          ({formatNumber(c.pointsPerRound)} × {c.rounds})
+                        </span>
+                      )}
                     </div>
                   </div>
                 )}

@@ -59,6 +59,11 @@ const PAGE_META = {
     description: 'Troop training and promotion cost and points calculator.',
     keywords: `${BASE_KEYWORDS}, troops, infantry, cavalry, archer`,
   },
+  '/planner': {
+    title: `Planner · ${SITE}`,
+    description: 'Plan which event day to run each active upgrade step and see daily resource needs.',
+    keywords: `${BASE_KEYWORDS}, planner, event days, schedule`,
+  },
   '/misc': {
     title: `Misc · ${SITE}`,
     description: 'Hero roulette and gathering points calculator for Strongest Governor.',

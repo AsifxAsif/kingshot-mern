@@ -57,6 +57,7 @@ const presetSchema = new mongoose.Schema(
     warAcademy: { type: mongoose.Schema.Types.Mixed, default: {} },
     widgets: { type: mongoose.Schema.Types.Mixed, default: {} },
     misc: { type: mongoose.Schema.Types.Mixed, default: {} },
+    planner: { type: mongoose.Schema.Types.Mixed, default: {} },
     heroShards: { type: mongoose.Schema.Types.Mixed, default: {} },
     heroWidgets: { type: mongoose.Schema.Types.Mixed, default: {} },
     // Hero flower / star progression (Heroes page)

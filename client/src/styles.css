@@ -12,13 +12,25 @@
    ============================================ */
 /* Root Variables */
 :root {
+	color-scheme: light;
 	--lcd-bg: #1a1e16;
 	--bg-main: #e8e8e8;
 	--surface: #f0f0f0;
 	--surface-dark: #d8d8d8;
+	--surface-elevated: #ffffff;
 	--text-primary: #1a1a1a;
 	--text-secondary: #555;
 	--text-muted: #888;
+	--border-color: #d0d0d0;
+	--border-strong: #bbb;
+	--input-bg: #f8f8f8;
+	--overlay-bg: rgba(0, 0, 0, 0.45);
+	--hover-fill: rgba(0, 0, 0, 0.04);
+	--hover-fill-strong: rgba(0, 0, 0, 0.08);
+	--glass: rgba(255, 255, 255, 0.5);
+	--glass-strong: rgba(255, 255, 255, 0.7);
+	--scrollbar-thumb: #c0c0c0;
+	--scrollbar-thumb-hover: #b0b0b0;
 	--shadow-extruded: 8px 8px 16px rgba(0, 0, 0, 0.08), -8px -8px 16px rgba(255, 255, 255, 0.7);
 	--shadow-extruded-sm: 4px 4px 8px rgba(0, 0, 0, 0.06), -4px -4px 8px rgba(255, 255, 255, 0.6);
 	--shadow-extruded-lg: 12px 12px 24px rgba(0, 0, 0, 0.1), -12px -12px 24px rgba(255, 255, 255, 0.8);
@@ -33,6 +45,9 @@
 	--color-info-bg: #e3f2fd;
 	--lcd-glow: #4af205;
 	--lcd-glow-dim: rgba(74, 242, 5, 0.3);
+	--lcd-text-dim: #8a9682;
+	--danger-soft: #ffbbbb;
+	--danger-soft-hover: #ff9999;
 	--radius-sm: 8px;
 	--radius-md: 14px;
 	--radius-lg: 20px;
@@ -42,6 +57,49 @@
 	--navbar-height: 56px;
 	--spacing-sm: 10px;
 }
+
+/* Dark mode follows OS / device preference only (no in-app toggle) */
+@media (prefers-color-scheme: dark) {
+	:root {
+		color-scheme: dark;
+		--lcd-bg: #0d100c;
+		--bg-main: #12141a;
+		--surface: #1c1f28;
+		--surface-dark: #161922;
+		--surface-elevated: #252a36;
+		--text-primary: #e8eaef;
+		--text-secondary: #a8adb8;
+		--text-muted: #7a8090;
+		--border-color: #333846;
+		--border-strong: #454b5c;
+		--input-bg: #181b24;
+		--overlay-bg: rgba(0, 0, 0, 0.65);
+		--hover-fill: rgba(255, 255, 255, 0.06);
+		--hover-fill-strong: rgba(255, 255, 255, 0.1);
+		--glass: rgba(255, 255, 255, 0.06);
+		--glass-strong: rgba(255, 255, 255, 0.1);
+		--scrollbar-thumb: #3a4050;
+		--scrollbar-thumb-hover: #4a5164;
+		--shadow-extruded: 8px 8px 16px rgba(0, 0, 0, 0.45), -4px -4px 12px rgba(255, 255, 255, 0.03);
+		--shadow-extruded-sm: 4px 4px 8px rgba(0, 0, 0, 0.4), -2px -2px 6px rgba(255, 255, 255, 0.03);
+		--shadow-extruded-lg: 12px 12px 24px rgba(0, 0, 0, 0.5), -6px -6px 16px rgba(255, 255, 255, 0.03);
+		--shadow-inset: inset 3px 3px 6px rgba(0, 0, 0, 0.45), inset -2px -2px 5px rgba(255, 255, 255, 0.04);
+		--color-success: #66bb6a;
+		--color-success-bg: #1b2e1c;
+		--color-error: #ef5350;
+		--color-error-bg: #3a1a1a;
+		--color-warning: #ffb74d;
+		--color-warning-bg: #3a2a12;
+		--color-info: #64b5f6;
+		--color-info-bg: #152536;
+		--lcd-glow: #5cff2e;
+		--lcd-glow-dim: rgba(92, 255, 46, 0.28);
+		--lcd-text-dim: #6a7a62;
+		--danger-soft: #5a2a2a;
+		--danger-soft-hover: #6e3333;
+	}
+}
+
 /* Base Reset - Critical */
 * {
 	margin: 0;
@@ -70,11 +128,11 @@ body {
 }
 ::-webkit-scrollbar-thumb {
 	border-radius: 4px;
-	background: #c0c0c0;
-	border: 1px solid #aaa;
+	background: var(--scrollbar-thumb);
+	border: 1px solid var(--border-strong);
 }
 ::-webkit-scrollbar-thumb:hover {
-	background: #b0b0b0;
+	background: var(--scrollbar-thumb-hover);
 }
 /* ============================================
    NAVBAR - FIXED LAYOUT
@@ -135,7 +193,7 @@ body {
 	text-decoration: none;
 	background: var(--surface);
 	color: var(--text-primary);
-	border: 1px solid #d0d0d0;
+	border: 1px solid var(--border-color);
 	transition: all var(--transition-fast);
 	box-shadow: var(--shadow-extruded-sm);
 	font-weight: 700;
@@ -175,7 +233,7 @@ body {
 }
 .scoreboard .lcd-label {
 	font-size: 0.55rem;
-	color: #8a9682;
+	color: var(--lcd-text-dim);
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 	white-space: nowrap;
@@ -209,7 +267,7 @@ body {
 	padding: 6px 14px;
 	border-radius: var(--radius-sm);
 	background: var(--surface);
-	border: 1px solid #d0d0d0;
+	border: 1px solid var(--border-color);
 	box-shadow: var(--shadow-extruded-sm);
 	font-weight: 700;
 	color: var(--text-primary);
@@ -227,11 +285,11 @@ body {
 	box-shadow: var(--shadow-inset);
 }
 .btn-delete, .btn-reset {
-	background: #ffbbbb;
+	background: var(--danger-soft);
 	color: var(--color-error);
 }
 .btn-delete:hover, .btn-reset:hover {
-	background: #ff9999;
+	background: var(--danger-soft-hover);
 }
 /* Hamburger - Desktop hidden */
 .hamburger {
@@ -358,7 +416,7 @@ body {
 .vault-item {
 	padding: 12px;
 	border-radius: var(--radius-sm);
-	background: rgba(255, 255, 255, 0.5);
+	background: var(--glass);
 	border: 1px solid var(--text-muted);
 	box-shadow: var(--shadow-extruded-sm);
 	transition: all var(--transition-fast);
@@ -391,7 +449,7 @@ body {
 	text-align: center;
 	border-radius: var(--radius-sm);
 	background: var(--surface);
-	border: 1px solid #d0d0d0;
+	border: 1px solid var(--border-color);
 	box-shadow: var(--shadow-inset);
 	transition: all var(--transition-fast);
 	font-weight: 700;
@@ -449,7 +507,7 @@ body {
 	height: 50px;
 	object-fit: contain;
 	border-radius: var(--radius-sm);
-	background: rgba(255, 255, 255, 0.5);
+	background: var(--glass);
 	padding: 4px;
 	display: block;
 	flex-shrink: 0;
@@ -478,7 +536,7 @@ body {
 	font-size: 0.85rem;
 	border-radius: var(--radius-sm);
 	background: var(--surface);
-	border: 1px solid #d0d0d0;
+	border: 1px solid var(--border-color);
 	box-shadow: var(--shadow-inset);
 	transition: all var(--transition-fast);
 	font-weight: 700;
@@ -506,14 +564,14 @@ body {
 	font-size: 0.8rem;
 	border-radius: var(--radius-sm);
 	align-items: center;
-	background: rgba(0, 0, 0, 0.04);
+	background: var(--hover-fill);
 	border: 1px solid transparent;
 	transition: all var(--transition-fast);
 	font-weight: 700;
 	user-select: none;
 }
 .checkbox-label:hover {
-	background: rgba(0, 0, 0, 0.08);
+	background: var(--hover-fill-strong);
 	border-color: var(--text-muted);
 }
 .checkbox-label input[type="checkbox"] {
@@ -556,8 +614,8 @@ body {
 	padding: 12px 14px;
 	font-size: 0.75rem;
 	border-radius: var(--radius-sm);
-	background: rgba(0, 0, 0, 0.03);
-	border: 1px solid #d0d0d0;
+	background: var(--hover-fill);
+	border: 1px solid var(--border-color);
 	border-left: 4px solid #aaa;
 	transition: all var(--transition-fast);
 	min-height: 40px;
@@ -596,8 +654,8 @@ body {
 	padding: 3px 8px;
 	border-radius: 20px;
 	align-items: center;
-	background: rgba(255, 255, 255, 0.7);
-	border: 1px solid #d0d0d0;
+	background: var(--glass-strong);
+	border: 1px solid var(--border-color);
 	box-shadow: var(--shadow-extruded-sm);
 	font-weight: 700;
 	transition: all var(--transition-fast);
@@ -691,7 +749,7 @@ body {
 	font-size: 0.85rem;
 	border-radius: var(--radius-sm);
 	background: var(--surface);
-	border: 1px solid #d0d0d0;
+	border: 1px solid var(--border-color);
 	box-shadow: var(--shadow-inset);
 	transition: all var(--transition-fast);
 	font-weight: 700;
@@ -812,7 +870,7 @@ body {
 	padding: 6px 12px;
 	border: 1px solid var(--text-muted);
 	border-radius: var(--radius-sm);
-	background: rgba(255, 255, 255, 0.5);
+	background: var(--glass);
 	box-shadow: var(--shadow-extruded-sm);
 	gap: 8px;
 	transition: all var(--transition-fast);
@@ -838,7 +896,7 @@ body {
 }
 .hero-shard-input {
 	background: var(--surface);
-	border: 1px solid #d0d0d0;
+	border: 1px solid var(--border-color);
 	border-radius: var(--radius-sm);
 	box-shadow: var(--shadow-inset);
 	flex-shrink: 0;
@@ -1037,7 +1095,7 @@ body {
 	font-size: 0.9rem;
 	border-radius: var(--radius-sm);
 	background: var(--surface);
-	border: 1px solid #d0d0d0;
+	border: 1px solid var(--border-color);
 	box-shadow: var(--shadow-inset);
 	font-weight: 700;
 	transition: all var(--transition-fast);
@@ -1057,7 +1115,7 @@ body {
 .app-modal-btn {
 	padding: 8px 20px;
 	border-radius: var(--radius-sm);
-	border: 1px solid #d0d0d0;
+	border: 1px solid var(--border-color);
 	font-weight: 700;
 	font-size: 0.85rem;
 	cursor: pointer;
@@ -1182,7 +1240,7 @@ body {
 		text-align: center;
 		transition: all var(--transition-fast);
 		width: 100%;
-		border: 1px solid #d0d0d0;
+		border: 1px solid var(--border-color);
 		white-space: normal;
 	}
 	.nav-links .nav-link:active {
@@ -1302,7 +1360,7 @@ body {
 	}
 	.preset-dropdown.show .btn-reset {
 		flex: 1 1 100%;
-		background: #ffbbbb;
+		background: var(--danger-soft);
 	}
 	@keyframes dropdownSlideIn {
 		from {
@@ -1482,7 +1540,7 @@ body {
 	.item-card {
 		break-inside: avoid;
 		box-shadow: none !important;
-		border: 1px solid #ddd;
+		border: 1px solid var(--border-color);
 	}
 	.scoreboard .lcd-value {
 		color: #000 !important;
@@ -1684,7 +1742,7 @@ a.nav-link {
   width: 40px;
   height: 40px;
   margin: 0 auto 12px;
-  border: 3px solid #ddd;
+  border: 3px solid var(--border-color);
   border-top-color: var(--lcd-glow, #4af205);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -1759,7 +1817,7 @@ a.nav-link {
 }
 .vault-item {
   background: var(--surface, #f0f0f0);
-  border: 1px solid #d0d0d0;
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-sm, 8px);
   padding: 10px 12px;
 }
@@ -1777,8 +1835,8 @@ a.nav-link {
   text-align: center;
   font-weight: 700;
   border-radius: 6px;
-  border: 1px solid #ccc;
-  background: #f8f8f8;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg);
 }
 
 .rarity { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
@@ -1853,7 +1911,7 @@ a.nav-link {
 /* Inventory cards like original */
 .inventory-card {
   background: var(--surface, #f0f0f0);
-  border: 1px solid #d0d0d0;
+  border: 1px solid var(--border-color);
   border-radius: var(--radius, 16px);
   padding: 14px;
   margin-bottom: 16px;
@@ -2194,7 +2252,7 @@ a.nav-link {
   gap: 10px;
   padding: 8px 10px;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--hover-fill);
   border-bottom: 2px solid rgba(0, 0, 0, 0.08);
   font-weight: 800;
   font-size: 1rem;
@@ -2996,7 +3054,7 @@ input[type="text"]:focus {
   object-fit: contain;
   border-radius: 10px;
   margin-top: 1rem;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--glass-strong);
   padding: 4px;
   border: 1px solid var(--border);
 }
@@ -3032,7 +3090,7 @@ input[type="text"]:focus {
   font-weight: 600;
   font-family: var(--font-mono);
   color: var(--text-secondary);
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--hover-fill);
   padding: 3px 8px;
   border-radius: 999px;
 }
@@ -3197,4 +3255,109 @@ input[type="text"]:focus {
   .scoreboard .lcd-value {
     font-size: 1.1rem !important;
   }
+}
+
+
+
+/* Show maxed items bar — consistent spacing on every page */
+.show-maxed-bar {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+	width: 100%;
+	box-sizing: border-box;
+	margin: 0 0 16px 0;
+	padding: 10px 14px;
+	border-radius: var(--radius-sm, 8px);
+	background: var(--hover-fill, rgba(0, 0, 0, 0.04));
+	border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+}
+.show-maxed-label {
+	font-weight: 600;
+	font-size: 0.9rem;
+	cursor: pointer;
+	user-select: none;
+	margin: 0;
+}
+.show-maxed-hint {
+	opacity: 0.7;
+	font-size: 0.8rem;
+}
+/* Space after buff panels when show-maxed follows them */
+.collapsible-card + .show-maxed-bar,
+.buff-panel + .show-maxed-bar {
+	margin-top: 4px;
+}
+.show-maxed-bar + .items-grid,
+.show-maxed-bar + .cards-grid,
+.show-maxed-bar + .group-columns,
+.show-maxed-bar + .hero-gear-two-col,
+.show-maxed-bar + .inventory-card {
+	margin-top: 0;
+}
+
+/* ============================================================
+   Dark mode polish — hard-coded light colors that still leak
+   ============================================================ */
+@media (prefers-color-scheme: dark) {
+	html, body {
+		background: var(--bg-main);
+		color: var(--text-primary);
+	}
+
+	input, select, textarea, button {
+		color: var(--text-primary);
+	}
+
+	input, select, textarea {
+		background: var(--input-bg);
+		border-color: var(--border-color);
+	}
+
+	/* Force pure black text (light-only) to primary */
+	.item-card-body,
+	.checkbox-label,
+	.level-controls,
+	.status-pane,
+	.cost-line,
+	.preset-btn,
+	.app-modal,
+	.buff-field label,
+	.control-label {
+		color: var(--text-primary);
+	}
+
+	/* Hero rarity chips stay vivid but readable */
+	.rarity-mythic { background: #6b5a1a; color: #ffe082; }
+	.rarity-legendary { background: #4a2a5a; color: #e1bee7; }
+	.rarity-epic { background: #1a3a5a; color: #90caf9; }
+	.rarity-rare { background: #1a3a24; color: #a5d6a7; }
+
+	.text-deficit { color: var(--color-error); }
+	.text-remaining { color: var(--color-success); }
+
+	.app-modal-overlay {
+		background: var(--overlay-bg);
+	}
+	.app-modal {
+		background: var(--surface);
+		color: var(--text-primary);
+		border: 1px solid var(--border-color);
+	}
+
+	.show-maxed-bar {
+		background: var(--hover-fill);
+		border-color: var(--border-color);
+	}
+
+	/* LCD score stays high-contrast */
+	.lcd-display, .score-lcd, .global-score {
+		background: var(--lcd-bg);
+	}
+}
+
+.rounds-stepper button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
