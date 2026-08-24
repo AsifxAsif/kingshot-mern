@@ -660,6 +660,9 @@ export default function PlannerPage() {
               onClick={() => setPlanner({ selectedDay: d.day })}
             >
               Day {d.day}: {d.title}
+              {n > 0 && (
+                <span style={{ marginLeft: 6, opacity: 0.8 }}>({n})</span>
+              )}
             </button>
           );
         })}
