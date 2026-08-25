@@ -223,7 +223,7 @@ export default function WarAcademyPage() {
                         title={!c.prereqsMet ? 'Prerequisites not met' : undefined}
                       >
                         <input
-                          type="checkbox"
+                          className="checkbox" type="checkbox"
                           checked={!!c.active && c.canAfford && c.prereqsMet}
                           disabled={!c.to || !c.prereqsMet || (!c.canAfford && !c.active)}
                           onChange={(e) => setField(c.name, 'active', e.target.checked)}
@@ -232,7 +232,7 @@ export default function WarAcademyPage() {
                       </label>
                       <label className="checkbox-label">
                         <input
-                          type="checkbox"
+                          className="checkbox" type="checkbox"
                           checked={!!c.s.speedup}
                           onChange={(e) => setField(c.name, 'speedup', e.target.checked)}
                         />{' '}
@@ -301,7 +301,7 @@ export default function WarAcademyPage() {
                       title={!c.prereqsMet ? 'Prerequisites not met' : undefined}
                     >
                       <input
-                        type="checkbox"
+                        className="checkbox" type="checkbox"
                         checked={!!c.active && c.canAfford && c.prereqsMet}
                         disabled={!c.to || !c.prereqsMet || (!c.canAfford && !c.active)}
                         onChange={(e) => setField(c.name, 'active', e.target.checked)}
@@ -310,7 +310,7 @@ export default function WarAcademyPage() {
                     </label>
                     <label className="checkbox-label">
                       <input
-                        type="checkbox"
+                        className="checkbox" type="checkbox"
                         checked={!!c.s.speedup}
                         onChange={(e) => setField(c.name, 'speedup', e.target.checked)}
                       />{' '}

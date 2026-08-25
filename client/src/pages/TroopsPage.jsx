@@ -224,7 +224,7 @@ export default function TroopsPage() {
                     style={{ opacity: (card?.canAfford ?? true) || !!s.active ? 1 : 0.42 }}
                   >
                     <input
-                      type="checkbox"
+                      className="checkbox" type="checkbox"
                       checked={!!s.active && !!card?.canAfford}
                       disabled={!card || (!card.canAfford && !s.active)}
                       onChange={(e) => setField(key, 'active', e.target.checked)}
@@ -233,7 +233,7 @@ export default function TroopsPage() {
                   </label>
                   <label className="checkbox-label">
                     <input
-                      type="checkbox"
+                      className="checkbox" type="checkbox"
                       checked={!!s.speedup}
                       onChange={(e) => setField(key, 'speedup', e.target.checked)}
                     />{' '}
@@ -323,7 +323,7 @@ export default function TroopsPage() {
                     style={{ opacity: (card?.canAfford ?? true) || !!s.active ? 1 : 0.42 }}
                   >
                     <input
-                      type="checkbox"
+                      className="checkbox" type="checkbox"
                       checked={!!s.active && !!card?.canAfford}
                       disabled={!card || (!card.canAfford && !s.active)}
                       onChange={(e) => setField(key, 'active', e.target.checked)}
@@ -332,7 +332,7 @@ export default function TroopsPage() {
                   </label>
                   <label className="checkbox-label">
                     <input
-                      type="checkbox"
+                      className="checkbox" type="checkbox"
                       checked={!!s.speedup}
                       onChange={(e) => setField(key, 'speedup', e.target.checked)}
                     />{' '}

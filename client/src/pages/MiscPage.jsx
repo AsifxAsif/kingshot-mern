@@ -205,7 +205,7 @@ export default function MiscPage() {
           </div>
           <label className="checkbox-label">
             <input
-              type="checkbox"
+              className="checkbox" type="checkbox"
               checked={!!misc.rouletteActive}
               onChange={(e) => setField('rouletteActive', e.target.checked)}
             />
@@ -296,7 +296,7 @@ export default function MiscPage() {
 
           <label className="checkbox-label" style={{ marginTop: 12 }}>
             <input
-              type="checkbox"
+              className="checkbox" type="checkbox"
               checked={!!misc.gatherActive}
               onChange={(e) => setField('gatherActive', e.target.checked)}
             />

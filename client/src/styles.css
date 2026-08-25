@@ -1148,23 +1148,28 @@
 		font-size: 0.8rem;
 		padding: 8px 12px;
 		min-height: 36px;
-		width: 100%;
 		border-radius: var(--radius-sm);
 		box-shadow: var(--shadow-extruded-sm);
-	}
-	.preset-dropdown.show .preset-select {
-		min-width: 100%;
-		flex: 1 1 100%;
-	}
-	.preset-dropdown.show .preset-btn,
-	.preset-dropdown.show .btn-reset {
-		flex: 1 1 calc(50% - 4px);
+		box-sizing: border-box;
 		text-align: center;
 		font-weight: 700;
 	}
+	.preset-dropdown.show .preset-select {
+		width: 100% !important;
+		flex: 1 1 100% !important;
+		min-width: 100%;
+	}
+	.preset-dropdown.show .preset-btn {
+		flex: 1 1 calc(50% - 4px) !important;
+		width: calc(50% - 4px) !important;
+		max-width: calc(50% - 4px);
+	}
+	/* Reset page + Reset all on one row */
 	.preset-dropdown.show .btn-reset {
-		flex: 1 1 100%;
-		background: var(--danger-soft);
+		flex: 1 1 calc(50% - 4px) !important;
+		width: calc(50% - 4px) !important;
+		max-width: calc(50% - 4px);
+		background: var(--danger-soft, #ffebee);
 	}
 	@keyframes dropdownSlideIn {
 		from {
@@ -2460,16 +2465,7 @@ img.asset-img,
 	margin-bottom: 4px;
 }
 
-.misc-page .checkbox-label {
-	display: flex !important;
-	align-items: center !important;
-	gap: 8px;
-}
-
-.misc-page .checkbox-label input[type='checkbox'] {
-	margin: 0 !important;
-	align-self: center;
-}
+/* misc uses same global checkbox styles */
 
 .misc-page .misc-lcd {
 	padding: 12px;
@@ -3627,4 +3623,193 @@ input[type="text"]:focus {
 		width: 44px;
 		height: 44px;
 	}
+}
+
+
+/* ============================================================
+   Unified checkboxes (all pages)
+   ============================================================ */
+.checkbox-group {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 12px;
+	margin: 8px 0;
+}
+
+.checkbox-label {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 8px !important;
+	flex-wrap: nowrap;
+	padding: 8px 14px;
+	margin: 0;
+	cursor: pointer;
+	user-select: none;
+	border-radius: var(--radius-sm, 8px);
+	background: var(--hover-fill, rgba(0, 0, 0, 0.04));
+	border: 1px solid transparent;
+	font-size: 0.82rem !important;
+	font-weight: 600 !important;
+	color: var(--text-primary) !important;
+	line-height: 1.2;
+	transition: background var(--transition-fast, 0.15s ease),
+		border-color var(--transition-fast, 0.15s ease),
+		opacity var(--transition-fast, 0.15s ease);
+}
+
+.checkbox-label:hover {
+	background: var(--hover-fill-strong, rgba(0, 0, 0, 0.08));
+	border-color: var(--border-color, #ccc);
+}
+
+.checkbox-label.is-disabled,
+.checkbox-label:has(input:disabled) {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+/* Custom box — same for class .checkbox and plain type=checkbox in labels */
+.checkbox-label input[type="checkbox"],
+.checkbox-label input.checkbox,
+input.checkbox[type="checkbox"] {
+	appearance: none !important;
+	-webkit-appearance: none !important;
+	width: 18px !important;
+	height: 18px !important;
+	min-width: 18px !important;
+	min-height: 18px !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	border-radius: 4px !important;
+	border: 2px solid var(--text-secondary, #555) !important;
+	background: var(--surface, #f0f0f0) !important;
+	box-shadow: none !important;
+	position: relative !important;
+	cursor: pointer;
+	flex-shrink: 0;
+	accent-color: transparent;
+	vertical-align: middle;
+	transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.checkbox-label input[type="checkbox"]::after,
+.checkbox-label input.checkbox::after,
+input.checkbox[type="checkbox"]::after {
+	content: "" !important;
+	position: absolute;
+	left: 50%;
+	top: 45%;
+	width: 5px;
+	height: 9px;
+	border: solid var(--text-primary, #111);
+	border-width: 0 2px 2px 0;
+	transform: translate(-50%, -60%) rotate(45deg) scale(0);
+	transition: transform 0.15s ease;
+}
+
+.checkbox-label input[type="checkbox"]:checked,
+.checkbox-label input.checkbox:checked,
+input.checkbox[type="checkbox"]:checked {
+	background: rgba(74, 242, 5, 0.15) !important;
+	border-color: #3a9e08 !important;
+}
+
+.checkbox-label input[type="checkbox"]:checked::after,
+.checkbox-label input.checkbox:checked::after,
+input.checkbox[type="checkbox"]:checked::after {
+	transform: translate(-50%, -60%) rotate(45deg) scale(1);
+}
+
+.checkbox-label input[type="checkbox"]:disabled,
+input.checkbox:disabled {
+	cursor: not-allowed;
+	opacity: 0.7;
+}
+
+.show-maxed-bar input[type="checkbox"] {
+	appearance: none !important;
+	-webkit-appearance: none !important;
+	width: 18px !important;
+	height: 18px !important;
+	margin: 0 6px 0 0 !important;
+	border-radius: 4px !important;
+	border: 2px solid var(--text-secondary, #555) !important;
+	background: var(--surface, #f0f0f0) !important;
+	position: relative;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+.show-maxed-bar input[type="checkbox"]::after {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 45%;
+	width: 5px;
+	height: 9px;
+	border: solid var(--text-primary, #111);
+	border-width: 0 2px 2px 0;
+	transform: translate(-50%, -60%) rotate(45deg) scale(0);
+}
+
+.show-maxed-bar input[type="checkbox"]:checked {
+	background: rgba(74, 242, 5, 0.15) !important;
+	border-color: #3a9e08 !important;
+}
+
+.show-maxed-bar input[type="checkbox"]:checked::after {
+	transform: translate(-50%, -60%) rotate(45deg) scale(1);
+}
+
+/* ========== App modal (preset confirm / prompt) ========== */
+.app-modal-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 10000;
+	background: var(--overlay-bg, rgba(0, 0, 0, 0.45));
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px;
+}
+.app-modal {
+	width: min(420px, 100%);
+	max-height: min(90vh, 640px);
+	overflow: auto;
+	box-shadow: var(--shadow-extruded-lg, 0 12px 40px rgba(0, 0, 0, 0.25));
+}
+.app-modal-header {
+	font-weight: 700;
+}
+.app-modal-message {
+	margin: 0 0 14px;
+	font-size: 0.92rem;
+	line-height: 1.45;
+	color: var(--text-secondary, #444);
+	white-space: pre-wrap;
+}
+.app-modal-input {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 10px 12px;
+	margin-bottom: 14px;
+	border-radius: var(--radius-sm, 8px);
+	border: 1px solid var(--border-color, #ccc);
+	background: var(--input-bg, #fff);
+	color: var(--text-primary);
+	font-size: 0.95rem;
+}
+.app-modal-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	justify-content: flex-end;
+}
+.app-modal-actions .preset-btn {
+	min-width: 88px;
+}
+.app-modal-danger .item-card-header {
+	color: var(--color-error, #c62828);
 }

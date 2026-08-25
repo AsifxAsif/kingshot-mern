@@ -87,7 +87,7 @@ export function BuildingBuffPanel() {
           <div className="checkbox-group" style={{ marginBottom: 12 }}>
             <label className="checkbox-label">
               <input
-                type="checkbox"
+                className="checkbox" type="checkbox"
                 checked={!!b.groundWorks}
                 onChange={(e) => set('groundWorks', e.target.checked)}
               />
@@ -109,7 +109,7 @@ export function BuildingBuffPanel() {
             </div>
             <label className="checkbox-label">
               <input
-                type="checkbox"
+                className="checkbox" type="checkbox"
                 checked={!!b.doubleTime}
                 onChange={(e) => set('doubleTime', e.target.checked)}
               />
@@ -124,7 +124,7 @@ export function BuildingBuffPanel() {
           <div className="checkbox-group" style={{ marginTop: 12, borderTop: '1px solid rgba(0,0,0,0.08)', paddingTop: 10 }}>
             <label className="checkbox-label" title="When on, Upgrade is blocked until current-level prerequisites are met">
               <input
-                type="checkbox"
+                className="checkbox" type="checkbox"
                 checked={b.prereqCheck !== false}
                 onChange={(e) => set('prereqCheck', e.target.checked)}
               />
@@ -195,7 +195,7 @@ export function TrainingBuffPanel() {
           <div className="checkbox-group" style={{ marginBottom: 12 }}>
             <label className="checkbox-label">
               <input
-                type="checkbox"
+                className="checkbox" type="checkbox"
                 checked={!!t.mobilize}
                 onChange={(e) => set('mobilize', e.target.checked)}
               />
@@ -203,7 +203,7 @@ export function TrainingBuffPanel() {
             </label>
             <label className="checkbox-label">
               <input
-                type="checkbox"
+                className="checkbox" type="checkbox"
                 checked={!!t.kvk}
                 onChange={(e) => set('kvk', e.target.checked)}
               />
@@ -273,7 +273,7 @@ export function ResearchBuffPanel() {
           <div className="checkbox-group" style={{ marginBottom: 12 }}>
             <label className="checkbox-label">
               <input
-                type="checkbox"
+                className="checkbox" type="checkbox"
                 checked={!!r.freshIdeas}
                 onChange={(e) => set('freshIdeas', e.target.checked)}
               />
@@ -286,7 +286,7 @@ export function ResearchBuffPanel() {
           <div className="checkbox-group" style={{ marginTop: 12, borderTop: '1px solid rgba(0,0,0,0.08)', paddingTop: 10 }}>
             <label className="checkbox-label" title="When on, Upgrade is blocked until current-level prerequisites are met">
               <input
-                type="checkbox"
+                className="checkbox" type="checkbox"
                 checked={r.prereqCheck !== false}
                 onChange={(e) => set('prereqCheck', e.target.checked)}
               />

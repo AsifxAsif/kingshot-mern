@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
+import AppModal from './AppModal';
 
 const LINKS = [
   { to: '/', label: 'VAULT' },
@@ -56,12 +57,17 @@ export default function Navbar() {
     saving,
     switchPreset,
     createPreset,
+    renamePreset,
     deletePreset,
     resetCurrentPage,
     resetPresetFull,
   } = useApp();
   const [menuOpen, setMenuOpen] = useState(false);
   const [presetOpen, setPresetOpen] = useState(false);
+  /** @type {[{type, title, message, danger, defaultValue, confirmLabel}, function]} */
+  const [modal, setModal] = useState(null);
+  const closeModal = () => setModal(null);
+
   const location = useLocation();
   const navigate = useNavigate();
   const navRef = useRef(null);
@@ -105,84 +111,190 @@ export default function Navbar() {
     ? parseInt(state.pageScores?.[pageScoreKey] || 0, 10) || 0
     : null;
 
-  const handleNew = async () => {
+
+  const displayNameOf = (storageName) =>
+    presetList.find((p) => p.name === storageName)?.displayName || storageName;
+
+  const handleRename = () => {
+    if (!user) {
+      requireAuth('Login required to rename a preset.');
+      return;
+    }
+    if (!currentName) return;
+    const currentLabel = displayNameOf(currentName);
+    setModal({
+      type: 'prompt',
+      title: 'Rename preset',
+      message: 'This name is shown in the menu. Enter a new name for this preset.',
+      defaultValue: currentLabel,
+      placeholder: 'Preset name',
+      confirmLabel: 'Rename',
+      onConfirm: async (value) => {
+        const label = String(value || '').trim();
+        if (!label) {
+          setModal({
+            type: 'alert',
+            title: 'Invalid name',
+            message: 'Name cannot be empty.',
+            confirmLabel: 'OK',
+            onConfirm: () => closeModal(),
+          });
+          return;
+        }
+        closeModal();
+        try {
+          await renamePreset(currentName, label);
+          setPresetOpen(false);
+        } catch (err) {
+          if (err.code === 'AUTH_REQUIRED') requireAuth(err.message);
+          else
+            setModal({
+              type: 'alert',
+              title: 'Rename failed',
+              message: err.message || 'Rename failed',
+              confirmLabel: 'OK',
+              onConfirm: () => closeModal(),
+            });
+        }
+      },
+    });
+  };
+
+  const handleNew = () => {
     if (!user) {
       requireAuth('Register or login to create a new preset.');
       return;
     }
-    const name = prompt('New preset name:');
-    if (name?.trim()) {
-      try {
-        await createPreset(name.trim());
-        setPresetOpen(false);
-      } catch (err) {
-        if (err.code === 'AUTH_REQUIRED') requireAuth(err.message);
-        else alert(err.message);
-      }
-    }
+    setModal({
+      type: 'prompt',
+      title: 'New preset',
+      message: 'Enter a name for the new preset. This is shown in the menu.',
+      defaultValue: '',
+      placeholder: 'e.g. War Plan',
+      confirmLabel: 'Create',
+      onConfirm: async (value) => {
+        const name = String(value || '').trim();
+        if (!name) {
+          setModal({
+            type: 'alert',
+            title: 'Invalid name',
+            message: 'Please enter a preset name.',
+            confirmLabel: 'OK',
+            onConfirm: () => closeModal(),
+          });
+          return;
+        }
+        closeModal();
+        try {
+          await createPreset(name);
+          setPresetOpen(false);
+        } catch (err) {
+          if (err.code === 'AUTH_REQUIRED') requireAuth(err.message);
+          else
+            setModal({
+              type: 'alert',
+              title: 'Create failed',
+              message: err.message || 'Create failed',
+              confirmLabel: 'OK',
+              onConfirm: () => closeModal(),
+            });
+        }
+      },
+    });
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!user) {
       requireAuth('Login required to manage presets.');
       return;
     }
     if (!currentName) return;
-    if (
-      !confirm(
-        `Delete preset "${currentName}" from the database?\n\nThis permanently removes that preset. This cannot be undone.`
-      )
-    ) {
-      return;
-    }
-    try {
-      await deletePreset(currentName);
-      setPresetOpen(false);
-    } catch (e) {
-      alert(e.message || 'Delete failed');
-    }
+    const deleteLabel = displayNameOf(currentName);
+    setModal({
+      type: 'confirm',
+      title: 'Delete preset',
+      message: `Delete preset "${deleteLabel}" from the database?\n\nThis permanently removes that preset. This cannot be undone.`,
+      confirmLabel: 'Delete',
+      danger: true,
+      onConfirm: async () => {
+        closeModal();
+        try {
+          await deletePreset(currentName);
+          setPresetOpen(false);
+        } catch (e) {
+          setModal({
+            type: 'alert',
+            title: 'Delete failed',
+            message: e.message || 'Delete failed',
+            confirmLabel: 'OK',
+            onConfirm: () => closeModal(),
+          });
+        }
+      },
+    });
   };
 
   const handleResetPage = () => {
     const label = PAGE_LABELS[location.pathname] || location.pathname || 'this page';
-    if (
-      !confirm(
-        `Reset only "${label}" on preset "${currentName}"?\n\nOther pages stay unchanged.`
-      )
-    ) {
-      return;
-    }
-    try {
-      resetCurrentPage(location.pathname);
-      setPresetOpen(false);
-    } catch (e) {
-      alert(e.message || 'Reset page failed');
-    }
+    const presetLabel = displayNameOf(currentName);
+    setModal({
+      type: 'confirm',
+      title: 'Reset page',
+      message: `Reset only "${label}" on preset "${presetLabel}"?\n\nOther pages stay unchanged.`,
+      confirmLabel: 'Reset page',
+      danger: true,
+      onConfirm: () => {
+        closeModal();
+        try {
+          resetCurrentPage(location.pathname);
+          setPresetOpen(false);
+        } catch (e) {
+          setModal({
+            type: 'alert',
+            title: 'Reset failed',
+            message: e.message || 'Reset page failed',
+            confirmLabel: 'OK',
+            onConfirm: () => closeModal(),
+          });
+        }
+      },
+    });
   };
 
-  const handleResetFull = async () => {
-    if (
-      !confirm(
-        `Reset ALL data on preset "${currentName}"?\n\nThis clears every page in this preset (vault, upgrades, planner, scores). This cannot be undone.`
-      )
-    ) {
-      return;
-    }
-    try {
-      if (resetPresetFull) await resetPresetFull();
-      else resetCurrentPage(location.pathname);
-      setPresetOpen(false);
-    } catch (e) {
-      alert(e.message || 'Reset failed');
-    }
+  const handleResetFull = () => {
+    const presetLabel = displayNameOf(currentName);
+    setModal({
+      type: 'confirm',
+      title: 'Reset all data',
+      message: `Reset ALL data on preset "${presetLabel}"?\n\nThis clears every page in this preset (vault, upgrades, planner, scores). This cannot be undone.`,
+      confirmLabel: 'Reset all',
+      danger: true,
+      onConfirm: async () => {
+        closeModal();
+        try {
+          if (resetPresetFull) await resetPresetFull();
+          else resetCurrentPage(location.pathname);
+          setPresetOpen(false);
+        } catch (e) {
+          setModal({
+            type: 'alert',
+            title: 'Reset failed',
+            message: e.message || 'Reset failed',
+            confirmLabel: 'OK',
+            onConfirm: () => closeModal(),
+          });
+        }
+      },
+    });
   };
 
   return (
+    <>
     <div className="navbar" data-auth-allow ref={navRef}>
       <div className="navbar-row-1">
         <label className={`hamburger${menuOpen ? ' active' : ''}`} id="hamburgerIcon">
           <input
-            type="checkbox"
+            className="checkbox" type="checkbox"
             id="hamburgerCheckbox"
             checked={menuOpen}
             onChange={() => {
@@ -260,12 +372,15 @@ export default function Navbar() {
             >
               {presetList.map((p) => (
                 <option key={p.name} value={p.name}>
-                  {p.name}
+                  {p.displayName || p.name}
                 </option>
               ))}
             </select>
             <button type="button" className="preset-btn" onClick={handleNew} title="Create New Preset">
               New
+            </button>
+            <button type="button" className="preset-btn" onClick={handleRename} title="Rename preset">
+              Rename
             </button>
             <button type="button" className="preset-btn btn-delete" onClick={handleDelete} title="Delete Preset">
               Delete
@@ -302,5 +417,19 @@ export default function Navbar() {
         </div>
       </div>
     </div>
+    <AppModal
+      open={!!modal}
+      title={modal?.title || ''}
+      message={modal?.message || ''}
+      mode={modal?.type || 'confirm'}
+      confirmLabel={modal?.confirmLabel || 'OK'}
+      cancelLabel="Cancel"
+      danger={!!modal?.danger}
+      defaultValue={modal?.defaultValue || ''}
+      placeholder={modal?.placeholder || ''}
+      onCancel={closeModal}
+      onConfirm={(val) => modal?.onConfirm?.(val)}
+    />
+  </>
   );
 }

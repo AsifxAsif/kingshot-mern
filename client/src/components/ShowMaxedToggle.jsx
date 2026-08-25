@@ -32,7 +32,7 @@ export default function ShowMaxedToggle({ className = '', hasMaxed = false }) {
         title="When off, cards already at max level are hidden"
       >
         <input
-          type="checkbox"
+          className="checkbox" type="checkbox"
           checked={showMaxed}
           onChange={(e) => setShow(e.target.checked)}
         />

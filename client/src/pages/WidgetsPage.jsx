@@ -197,7 +197,7 @@ export default function WidgetsPage() {
                     style={{ opacity: canAfford || !widgetsNeeded ? 1 : 0.5 }}
                   >
                     <input
-                      type="checkbox"
+                      className="checkbox" type="checkbox"
                       checked={!!s.active && canAfford}
                       disabled={widgetsNeeded > 0 && !canAfford}
                       onChange={(e) => setUpgrade(h.name, 'active', e.target.checked)}

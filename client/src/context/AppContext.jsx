@@ -11,6 +11,7 @@ import {
   listPresets,
   getPreset,
   createPreset as apiCreate,
+  renamePreset as apiRename,
   updatePreset as apiUpdate,
   deletePreset as apiDelete,
 } from '../services/api';
@@ -347,7 +348,7 @@ export function AppProvider({ children }) {
       const primary = primaryPresetName(u);
       if (!primary) return null;
       const local = loadLocalDefault();
-      const body = { name: primary, ...buildFullPayload(local, u) };
+      const body = { name: primary, displayName: primary, ...buildFullPayload(local, u) };
       try {
         await apiCreate(body);
       } catch {
@@ -486,16 +487,44 @@ export function AppProvider({ children }) {
           settings: state.settings,
           pageScores: state.pageScores,
         };
-        await apiCreate(body);
+        const created = await apiCreate(body);
+        const storageName = created?.name || n;
         await refreshList();
-        setSavedActiveName(n);
-        setCurrentName(n);
+        setSavedActiveName(storageName);
+        setCurrentName(storageName);
         // stay on same state (already copied)
       } catch (e) {
         alert(e.message || 'Create failed');
       }
     },
     [user, state, refreshList]
+  );
+
+  const renamePreset = useCallback(
+    async (storageName, newDisplayName) => {
+      if (!user) {
+        alert('Login required to rename a preset');
+        return null;
+      }
+      const label = String(newDisplayName || '').trim();
+      if (!label) {
+        alert('Enter a preset name');
+        return null;
+      }
+      try {
+        const updated = await apiRename(storageName, label);
+        await refreshList();
+        if (updated?.name) {
+          setSavedActiveName(updated.name);
+          setCurrentName(updated.name);
+        }
+        return updated;
+      } catch (e) {
+        alert(e.message || 'Rename failed');
+        return null;
+      }
+    },
+    [user, refreshList]
   );
 
   const deletePreset = useCallback(
@@ -654,6 +683,7 @@ export function AppProvider({ children }) {
     globalScore,
     switchPreset,
     createPreset,
+        renamePreset,
     createPrimaryForNewUser,
     deletePreset,
     resetPresetFull,
