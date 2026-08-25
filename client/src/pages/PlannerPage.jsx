@@ -8,8 +8,16 @@ import {
   formatSecondsToTime,
   getUpgradeSteps,
   SCORE_RULES,
+  applyBuildingSpeedupBuffs,
+  applyResearchSpeedupBuffs,
+  applyTrainingSpeedupBuffs,
+  secondsToSpeedupMinutes,
 } from '../utils/calc';
-import { normalizeCostMap } from '../utils/resources';
+import {
+  normalizeCostMap,
+  sequentialAfford,
+  buildRemainingVault,
+} from '../utils/resources';
 import AssetImg from '../components/AssetImg';
 import { buildingImg, warAcademyImg, asset, petImg } from '../utils/images';
 
@@ -166,520 +174,747 @@ function getTargetSteps(rows, from, to, order) {
   });
 }
 
+
+/** Stable planner segment keys (must not change across deploys or day picks are lost) */
+function segmentKey(itemId, stepIndex) {
+  return `${itemId}:i:${stepIndex}`;
+}
+
+/** Resolve saved day for a segment; supports legacy keys from older builds */
+function resolveAssignedDay(assignments, itemId, stepIndex, legacyKeys, allowed) {
+  const map = assignments || {};
+  const primary = segmentKey(itemId, stepIndex);
+  if (map[primary] != null && allowed.includes(Number(map[primary]))) {
+    return Number(map[primary]);
+  }
+  // whole-item assignment (bulk)
+  if (map[itemId] != null && allowed.includes(Number(map[itemId]))) {
+    return Number(map[itemId]);
+  }
+  for (const k of legacyKeys || []) {
+    if (k && map[k] != null && allowed.includes(Number(map[k]))) {
+      return Number(map[k]);
+    }
+  }
+  return allowed[0];
+}
+
 function allowedDaysForCategory(category) {
   return EVENT_DAYS.filter((d) => d.categories.includes(category)).map((d) => d.day);
 }
 
 /**
- * Build one plan item per active upgrade (whole path totals).
- * Buildings / War Academy also expose optional stepSegments for splitting.
+ * Build plan items matching category pages:
+ * - same cost/point rules
+ * - buffs + sequential speedup where applicable
+ * - only active & affordable upgrades
  */
 function collectPlanItems(state, dataMap) {
   const items = [];
+  const vault = state.vault || {};
+  const locked = state.lockedUpgrades || {};
 
-  // —— Buildings ——
-  const bData = dataMap.buildings || {};
-  for (const [name, s] of Object.entries(state.buildings || {})) {
-    if (!s?.active || !s.to) continue;
-    const steps = getUpgradeSteps(bData[name] || [], s.from || '0', s.to);
-    if (!steps.length) continue;
-    let points = 0;
-    let timeSec = 0;
-    const costs = {};
-    const segments = [];
-    for (const st of steps) {
-      const sc = stepResourceCosts(st);
-      Object.assign(costs, mergeCosts([costs, sc]));
-      const t = parseTimeToSeconds(st.time);
-      timeSec += t;
-      let pts =
-        parseCost(st.truegold) * (SCORE_RULES.truegold || 0) +
-        parseCost(st.tempered_truegold) * (SCORE_RULES.tempered_truegold || 0);
-      if (s.speedup && t > 0) {
-        const mins = Math.ceil(t / 60);
-        costs.building_speedup = (costs.building_speedup || 0) + mins;
-        pts += mins * (SCORE_RULES.speedup_min || 30);
+  const pushAffordable = (pageKey, candidates) => {
+    if (!candidates.length) return;
+    const pageVault = buildRemainingVault(vault, locked, pageKey);
+    const afford = sequentialAfford(
+      candidates.map((c) => ({
+        id: c.id,
+        costs: c.costs || {},
+        active: true,
+        speedupMins: c.speedupMins || 0,
+        speedupKey: c.speedupKey,
+      })),
+      pageVault
+    );
+    for (const c of candidates) {
+      const a = afford.get(c.id);
+      if (!a?.canAfford) continue;
+      const usedSpd = a.speedupAlloc?.used ?? 0;
+      const spdPts = usedSpd > 0 ? usedSpd * (SCORE_RULES.speedup_min || 0) : 0;
+      const pts = (c.points || 0) + spdPts;
+      let segments = c.segments || [];
+      if (segments.length && (c.points || 0) > 0 && pts !== c.points) {
+        const ratio = pts / c.points;
+        segments = segments.map((seg) => ({
+          ...seg,
+          points: Math.round((seg.points || 0) * ratio),
+        }));
+      } else if (segments.length === 1 && spdPts) {
+        segments = [{ ...segments[0], points: pts, costs: a.resolvedCosts || c.costs }];
       }
-      points += pts;
-      const lvl = rowLevel(st);
-      segments.push({
-        key: `buildings:${name}:${lvl}`,
-        label: `→ ${lvl}`,
+      items.push({
+        ...c,
         points: pts,
-        timeSec: t,
-        costs: sc,
+        costs: a.resolvedCosts || c.costs,
+        segments:
+          segments.length > 0
+            ? segments
+            : [
+                {
+                  key: `${c.id}:all`,
+                  label: c.path || c.name,
+                  points: pts,
+                  timeSec: c.timeSec || 0,
+                  costs: a.resolvedCosts || c.costs,
+                },
+              ],
       });
     }
-    items.push({
-      id: `buildings:${name}`,
-      category: 'buildings',
-      page: 'Buildings',
-      name,
-      path: `${s.from || '0'} → ${s.to}`,
-      points,
-      timeSec,
-      costs,
-      stepCount: steps.length,
-      segments,
-      canSplit: segments.length > 1,
-      img: buildingImg(name),
+  };
+
+  /** Hero gear / forge: same scoring as HeroGearPage (normalized keys, no double-count) */
+  const scoreHeroGearCosts = (costs) => {
+    let points = 0;
+    const counted = new Set();
+    for (const [k, v] of Object.entries(costs || {})) {
+      let key = k;
+      if (k === 'forgehammer' || k === 'forge_hammers' || k === 'forgehammers') key = 'forge_hammer';
+      if (k === 'xp' || k === 'exp') key = 'hero_xp';
+      if (counted.has(key)) continue;
+      counted.add(key);
+      const rate = SCORE_RULES[key];
+      if (rate) points += Number(v) * rate;
+    }
+    return points;
+  };
+
+  const stepCostsHeroGear = (step) => {
+    const costs = {};
+    for (const [k, v] of Object.entries(step || {})) {
+      if (['current_lvl', 'target_lvl', 'level', 'time', 'point', 'points', 'score', 'mythic_gear'].includes(k)) {
+        continue;
+      }
+      const n = parseCost(v);
+      if (!n) continue;
+      let key = k;
+      if (k === 'xp' || k === 'exp') key = 'hero_xp';
+      else if (k === 'forgehammer' || k === 'forge_hammers' || k === 'forgehammers') key = 'forge_hammer';
+      // merge aliases into one bucket
+      if (key === 'forgehammer') key = 'forge_hammer';
+      costs[key] = (costs[key] || 0) + n;
+    }
+    return costs;
+  };
+
+  const filterLvlSteps = (rows, from, to) => {
+    const fromN = from === '' || from == null ? null : Number(from);
+    const toN = to === '' || to == null ? null : Number(to);
+    if (fromN == null || toN == null || Number.isNaN(fromN) || Number.isNaN(toN) || toN <= fromN) {
+      return [];
+    }
+    return (rows || []).filter((r) => {
+      const c = Number(r.current_lvl ?? r.level);
+      const t = Number(r.target_lvl ?? r.target);
+      return c >= fromN && t <= toN && t > fromN;
     });
+  };
+
+  // —— Buildings ——
+  {
+    const bData = dataMap.buildings || {};
+    const buildingBuffs = state.settings?.buildingBuffs || {};
+    const candidates = [];
+    for (const [name, s] of Object.entries(state.buildings || {})) {
+      if (!s?.active || !s.to) continue;
+      const steps = getUpgradeSteps(bData[name] || [], s.from || '0', s.to);
+      if (!steps.length) continue;
+      let basePoints = 0;
+      let timeSec = 0;
+      const costs = {};
+      const segments = [];
+      for (const st of steps) {
+        const sc = stepResourceCosts(st);
+        Object.assign(costs, mergeCosts([costs, sc]));
+        const t = parseTimeToSeconds(st.time);
+        timeSec += t;
+        const pts =
+          parseCost(st.truegold) * (SCORE_RULES.truegold || 0) +
+          parseCost(st.tempered_truegold) * (SCORE_RULES.tempered_truegold || 0);
+        basePoints += pts;
+        const lvl = rowLevel(st);
+        const si = segments.length;
+        segments.push({
+          key: segmentKey(`buildings:${name}`, si),
+          legacyKeys: [`buildings:${name}:${lvl}`],
+          label: `→ ${lvl}`,
+          points: pts,
+          timeSec: t,
+          costs: sc,
+        });
+      }
+      const buffedTime = applyBuildingSpeedupBuffs(timeSec, buildingBuffs);
+      candidates.push({
+        id: `buildings:${name}`,
+        category: 'buildings',
+        page: 'Buildings',
+        name,
+        path: `${s.from || '0'} → ${s.to}`,
+        points: basePoints,
+        timeSec: buffedTime,
+        costs,
+        stepCount: steps.length,
+        segments,
+        canSplit: segments.length > 1,
+        img: buildingImg(name),
+        speedupMins: s.speedup ? secondsToSpeedupMinutes(buffedTime) : 0,
+        speedupKey: 'building_speedup',
+      });
+    }
+    pushAffordable('buildings', candidates);
   }
 
   // —— War Academy ——
-  const waRoot = dataMap.war_academy || {};
-  const waData = waRoot['War Academy'] || waRoot;
-  for (const [name, s] of Object.entries(state.warAcademy || {})) {
-    if (!s?.active || !s.to) continue;
-    const steps = getUpgradeSteps(waData[name] || [], s.from || '0', s.to);
-    if (!steps.length) continue;
-    let points = 0;
-    let timeSec = 0;
-    const costs = {};
-    const segments = [];
-    for (const st of steps) {
-      const sc = stepResourceCosts(st);
-      Object.assign(costs, mergeCosts([costs, sc]));
-      const t = parseTimeToSeconds(st.time);
-      timeSec += t;
-      let pts = parseCost(st.truegold_dust) * (SCORE_RULES.truegold_dust || 0);
-      if (s.speedup && t > 0) {
-        const mins = Math.ceil(t / 60);
-        costs.research_speedup = (costs.research_speedup || 0) + mins;
-        pts += mins * (SCORE_RULES.speedup_min || 30);
+  {
+    const waRoot = dataMap.war_academy || {};
+    const waData = waRoot['War Academy'] || waRoot;
+    const researchBuffs = state.settings?.researchBuffs || {};
+    const candidates = [];
+    for (const [name, s] of Object.entries(state.warAcademy || {})) {
+      if (!s?.active || !s.to) continue;
+      const steps = getUpgradeSteps(waData[name] || [], s.from || '0', s.to);
+      if (!steps.length) continue;
+      let basePoints = 0;
+      let timeSec = 0;
+      const costs = {};
+      const segments = [];
+      for (const st of steps) {
+        const sc = stepResourceCosts(st);
+        Object.assign(costs, mergeCosts([costs, sc]));
+        const t = parseTimeToSeconds(st.time);
+        timeSec += t;
+        const pts = parseCost(st.truegold_dust) * (SCORE_RULES.truegold_dust || 0);
+        basePoints += pts;
+        const lvl = rowLevel(st);
+        const si = segments.length;
+        segments.push({
+          key: segmentKey(`warAcademy:${name}`, si),
+          legacyKeys: [`warAcademy:${name}:${lvl}`, `warAcademy:${name}:lvl ${lvl}`],
+          label: `→ lvl ${lvl}`,
+          points: pts,
+          timeSec: t,
+          costs: sc,
+        });
       }
-      points += pts;
-      const lvl = rowLevel(st);
-      segments.push({
-        key: `warAcademy:${name}:${lvl}`,
-        label: `→ lvl ${lvl}`,
-        points: pts,
-        timeSec: t,
-        costs: sc,
+      const buffedTime = applyResearchSpeedupBuffs(timeSec, researchBuffs);
+      candidates.push({
+        id: `warAcademy:${name}`,
+        category: 'warAcademy',
+        page: 'War Academy',
+        name,
+        path: `${s.from || '0'} → ${s.to}`,
+        points: basePoints,
+        timeSec: buffedTime,
+        costs,
+        stepCount: steps.length,
+        segments,
+        canSplit: segments.length > 1,
+        img: warAcademyImg(name),
+        speedupMins: s.speedup ? secondsToSpeedupMinutes(buffedTime) : 0,
+        speedupKey: 'research_speedup',
       });
     }
-    items.push({
-      id: `warAcademy:${name}`,
-      category: 'warAcademy',
-      page: 'War Academy',
-      name,
-      path: `${s.from || '0'} → ${s.to}`,
-      points,
-      timeSec,
-      costs,
-      stepCount: steps.length,
-      segments,
-      canSplit: segments.length > 1,
-      img: warAcademyImg(name),
-    });
+    pushAffordable('warAcademy', candidates);
   }
 
   // —— Pets ——
-  const petRoot = dataMap.pets || {};
-  const petData = petRoot.Pet || petRoot.Pets || petRoot;
-  for (const [name, s] of Object.entries(state.pets || {})) {
-    if (name === 'tamingMarks' || !s?.active || !s.to) continue;
-    const rows = Array.isArray(petData[name]) ? petData[name] : [];
-    const steps = getUpgradeSteps(rows, s.from || '0', s.to);
-    if (!steps.length) continue;
-    let points = 0;
-    let timeSec = 0;
-    const costs = {};
-    const segments = [];
-    for (const st of steps) {
-      const sc = stepResourceCosts(st);
-      Object.assign(costs, mergeCosts([costs, sc]));
-      const t = parseTimeToSeconds(st.time);
-      timeSec += t;
-      const targetLvl = st.target_lvl || st.target || st.level;
-      const advPts = getPetAdvancementPoints(targetLvl);
-      const pts =
-        advPts > 0 ? advPts : parseCost(st.point ?? st.points ?? st.score ?? 0);
-      points += pts;
-      const lvl = rowLevel(st) || String(targetLvl);
-      segments.push({
-        key: `pets:${name}:${lvl}`,
-        label: `→ ${lvl}`,
-        points: pts,
-        timeSec: t,
-        costs: sc,
+  {
+    const petRoot = dataMap.pets || {};
+    const petData = petRoot.Pet || petRoot.Pets || petRoot;
+    const candidates = [];
+    for (const [name, s] of Object.entries(state.pets || {})) {
+      if (name === 'tamingMarks' || !s?.active || !s.to) continue;
+      const rows = Array.isArray(petData[name]) ? petData[name] : [];
+      const steps = getUpgradeSteps(rows, s.from || '0', s.to);
+      if (!steps.length) continue;
+      let points = 0;
+      let timeSec = 0;
+      const costs = {};
+      const segments = [];
+      for (const st of steps) {
+        const sc = stepResourceCosts(st);
+        Object.assign(costs, mergeCosts([costs, sc]));
+        const t = parseTimeToSeconds(st.time);
+        timeSec += t;
+        const targetLvl = st.target_lvl || st.target || st.level;
+        const advPts = getPetAdvancementPoints(targetLvl);
+        const pts = advPts > 0 ? advPts : parseCost(st.point ?? st.points ?? st.score ?? 0);
+        points += pts;
+        const lvl = rowLevel(st) || String(targetLvl);
+        const si = segments.length;
+        segments.push({
+          key: segmentKey(`pets:${name}`, si),
+          legacyKeys: [`pets:${name}:${lvl}`],
+          label: `→ ${lvl}`,
+          points: pts,
+          timeSec: t,
+          costs: sc,
+        });
+      }
+      candidates.push({
+        id: `pets:${name}`,
+        category: 'pets',
+        page: 'Pets',
+        name,
+        path: `${s.from || '0'} → ${s.to}`,
+        points,
+        timeSec,
+        costs,
+        stepCount: steps.length,
+        segments,
+        canSplit: segments.length > 1,
+        img: (typeof petImg === 'function' ? petImg(name) : null) || asset('grey_wolf.webp'),
       });
     }
-    items.push({
-      id: `pets:${name}`,
-      category: 'pets',
-      page: 'Pets',
-      name,
-      path: `${s.from || '0'} → ${s.to}`,
-      points,
-      timeSec,
-      costs,
-      stepCount: steps.length,
-      segments,
-      canSplit: segments.length > 1,
-      img: (typeof petImg === 'function' ? petImg(name) : null) || asset('grey_wolf.webp'),
-    });
-  }
+    pushAffordable('pets', candidates);
 
-  // Taming marks (settings)
-  const tm = state.settings?.tamingMarks || state.pets?.tamingMarks || {};
-  const tmAdv = parseCost(tm.advanced);
-  const tmCommon = parseCost(tm.common);
-  if (tm.active && (tmAdv > 0 || tmCommon > 0)) {
-    const tmPts =
-      tmAdv * (SCORE_RULES.advanced_taming_mark || 15000) +
-      tmCommon * (SCORE_RULES.common_taming_mark || 1150);
-    items.push({
-      id: 'pets:tamingMarks',
-      category: 'pets',
-      page: 'Pets',
-      name: 'Taming Marks',
-      path: `Adv ${tmAdv} · Common ${tmCommon}`,
-      points: tmPts,
-      timeSec: 0,
-      costs: {
+    const tm = state.settings?.tamingMarks || state.pets?.tamingMarks || {};
+    const tmAdv = parseCost(tm.advanced);
+    const tmCommon = parseCost(tm.common);
+    if (tm.active && (tmAdv > 0 || tmCommon > 0)) {
+      const tmCosts = {
         ...(tmAdv ? { advanced_taming_mark: tmAdv } : {}),
         ...(tmCommon ? { common_taming_mark: tmCommon } : {}),
-      },
-      stepCount: 1,
-      segments: [],
-      canSplit: false,
-    });
+      };
+      const tmPts =
+        tmAdv * (SCORE_RULES.advanced_taming_mark || 15000) +
+        tmCommon * (SCORE_RULES.common_taming_mark || 1150);
+      pushAffordable('pets', [
+        {
+          id: 'pets:tamingMarks',
+          category: 'pets',
+          page: 'Pets',
+          name: 'Taming Marks',
+          path: `Adv ${tmAdv} · Common ${tmCommon}`,
+          points: tmPts,
+          timeSec: 0,
+          costs: tmCosts,
+          stepCount: 1,
+          segments: [
+            {
+              key: segmentKey('pets:tamingMarks', 0),
+              legacyKeys: ['pets:tamingMarks:all'],
+              label: 'Taming marks',
+              points: tmPts,
+              timeSec: 0,
+              costs: tmCosts,
+            },
+          ],
+          canSplit: false,
+        },
+      ]);
+    }
   }
 
   // —— Gov Gear ——
-  const ggData = dataMap.gov_gears || {};
-  const gearRows = ggData['GOV Gear'] || [];
-  const gearOrder = buildTargetOrder(gearRows);
-  for (const [name, s] of Object.entries(state.govGear || {})) {
-    if (!s?.active || !s.to) continue;
-    const steps = getTargetSteps(gearRows, s.from || '0', s.to, gearOrder);
-    if (!steps.length) continue;
-    let points = 0;
-    const costs = {};
-    const segments = [];
-    for (const st of steps) {
-      const sc = stepResourceCosts(st);
-      Object.assign(costs, mergeCosts([costs, sc]));
-      const pts = parseCost(st.point) * (SCORE_RULES.gov_gear_score || 36);
-      points += pts;
-      const lvl = rowLevel(st);
-      segments.push({
-        key: `govGear:${name}:${lvl}`,
-        label: `→ ${lvl}`,
-        points: pts,
+  {
+    const ggData = dataMap.gov_gears || {};
+    const gearRows = ggData['GOV Gear'] || [];
+    const gearOrder = buildTargetOrder(gearRows);
+    const candidates = [];
+    for (const [name, s] of Object.entries(state.govGear || {})) {
+      if (!s?.active || !s.to) continue;
+      const steps = getTargetSteps(gearRows, s.from || '0', s.to, gearOrder);
+      if (!steps.length) continue;
+      let points = 0;
+      const costs = {};
+      const segments = [];
+      for (const st of steps) {
+        const sc = stepResourceCosts(st);
+        Object.assign(costs, mergeCosts([costs, sc]));
+        const pts = parseCost(st.point) * (SCORE_RULES.gov_gear_score || 36);
+        points += pts;
+        const lvl = rowLevel(st);
+        const si = segments.length;
+        segments.push({
+          key: segmentKey(`govGear:${name}`, si),
+          legacyKeys: [`govGear:${name}:${lvl}`],
+          label: `→ ${lvl}`,
+          points: pts,
+          timeSec: 0,
+          costs: sc,
+        });
+      }
+      candidates.push({
+        id: `govGear:${name}`,
+        category: 'govGear',
+        page: 'Gov Gear',
+        name,
+        path: `${s.from || '0'} → ${s.to}`,
+        points,
         timeSec: 0,
-        costs: sc,
+        costs,
+        stepCount: steps.length,
+        segments,
+        canSplit: segments.length > 1,
       });
     }
-    items.push({
-      id: `govGear:${name}`,
-      category: 'govGear',
-      page: 'Gov Gear',
-      name,
-      path: `${s.from || '0'} → ${s.to}`,
-      points,
-      timeSec: 0,
-      costs,
-      stepCount: steps.length,
-      segments,
-      canSplit: segments.length > 1,
-    });
+    pushAffordable('govGear', candidates);
   }
 
   // —— Gov Charm ——
-  const gcData = dataMap.gov_charms || {};
-  const charmRows = gcData['GOV Charm'] || [];
-  const charmOrder = buildTargetOrder(charmRows);
-  for (const [name, s] of Object.entries(state.govCharm || {})) {
-    if (!s?.active || !s.to) continue;
-    const steps = getTargetSteps(charmRows, s.from || '0', s.to, charmOrder);
-    if (!steps.length) continue;
-    let points = 0;
-    const costs = {};
-    const segments = [];
-    for (const st of steps) {
-      const sc = stepResourceCosts(st);
-      Object.assign(costs, mergeCosts([costs, sc]));
-      const pts = parseCost(st.point) * (SCORE_RULES.gov_charm_score || 70);
-      points += pts;
-      const lvl = rowLevel(st);
-      segments.push({
-        key: `govCharm:${name}:${lvl}`,
-        label: `→ ${lvl}`,
-        points: pts,
-        timeSec: 0,
-        costs: sc,
-      });
-    }
-    items.push({
-      id: `govCharm:${name}`,
-      category: 'govCharm',
-      page: 'Gov Charm',
-      name,
-      path: `${s.from || '0'} → ${s.to}`,
-      points,
-      timeSec: 0,
-      costs,
-      stepCount: steps.length,
-      segments,
-      canSplit: segments.length > 1,
-    });
-  }
-
-  // —— Hero Gear ——
-  const hgData = dataMap.hero_gears || dataMap.hero_gear || {};
-  const hgRows = hgData['Hero Gear'] || (Array.isArray(hgData) ? hgData : []);
-  const hg = state.heroGear || {};
-  for (const item of hg.items || []) {
-    if (!item?.active || !item.to) continue;
-    const steps = getUpgradeSteps(hgRows, item.from || '0', item.to);
-    if (!steps.length) continue;
-    let points = 0;
-    const costs = {};
-    for (const st of steps) {
-      Object.assign(costs, mergeCosts([costs, stepResourceCosts(st)]));
-      points +=
-        parseCost(st.mithril) * (SCORE_RULES.mithril || 0) +
-        parseCost(st.forgehammer || st.forge_hammer) * (SCORE_RULES.forge_hammer || 0);
-    }
-    const id = item.id || 'gear';
-    items.push({
-      id: `heroGear:${id}`,
-      category: 'heroGear',
-      page: 'Hero Gear',
-      name: `Gear #${id}`,
-      path: `${item.from || '0'} → ${item.to}`,
-      points,
-      timeSec: 0,
-      costs,
-      stepCount: steps.length,
-      segments: [],
-      canSplit: false,
-    });
-  }
-  for (const item of hg.forgeItems || []) {
-    if (!item?.active || !item.to) continue;
-    const forgeRows = hgData.Forge || hgData.Forgehammer || hgRows;
-    const steps = getUpgradeSteps(forgeRows, item.from || '0', item.to);
-    if (!steps.length) continue;
-    let points = 0;
-    const costs = {};
-    for (const st of steps) {
-      Object.assign(costs, mergeCosts([costs, stepResourceCosts(st)]));
-      points +=
-        parseCost(st.mithril) * (SCORE_RULES.mithril || 0) +
-        parseCost(st.forgehammer || st.forge_hammer) * (SCORE_RULES.forge_hammer || 0);
-    }
-    const id = item.id || 'forge';
-    items.push({
-      id: `heroForge:${id}`,
-      category: 'heroGear',
-      page: 'Hero Gear',
-      name: `Forge #${id}`,
-      path: `${item.from || '0'} → ${item.to}`,
-      points,
-      timeSec: 0,
-      costs,
-      stepCount: steps.length,
-      segments: [],
-      canSplit: false,
-    });
-  }
-
-  // —— Widgets ——
-  const wRows = (dataMap.widgets || {}).Widgets || [];
-  for (const [name, s] of Object.entries(state.widgets || {})) {
-    if (!s?.active) continue;
-    const from = parseInt(s.from, 10) || 0;
-    const to = parseInt(s.to, 10) || 0;
-    if (to <= from) continue;
-    let points = 0;
-    let widgets = 0;
-    const segments = [];
-    for (const row of wRows) {
-      const cur = Number(row.current_lvl);
-      const tgt = Number(row.target_lvl);
-      if (cur >= from && tgt <= to && tgt > from) {
-        const w = parseCost(row.widgets);
-        widgets += w;
-        const pts = w * (SCORE_RULES.widgets || 0);
+  {
+    const gcData = dataMap.gov_charms || {};
+    const charmRows = gcData['GOV Charm'] || [];
+    const charmOrder = buildTargetOrder(charmRows);
+    const candidates = [];
+    for (const [name, s] of Object.entries(state.govCharm || {})) {
+      if (!s?.active || !s.to) continue;
+      const steps = getTargetSteps(charmRows, s.from || '0', s.to, charmOrder);
+      if (!steps.length) continue;
+      let points = 0;
+      const costs = {};
+      const segments = [];
+      for (const st of steps) {
+        const sc = stepResourceCosts(st);
+        Object.assign(costs, mergeCosts([costs, sc]));
+        const pts = parseCost(st.point) * (SCORE_RULES.gov_charm_score || 70);
         points += pts;
+        const lvl = rowLevel(st);
+        const si = segments.length;
         segments.push({
-          key: `widgets:${name}:${tgt}`,
-          label: `${cur}→${tgt}`,
+          key: segmentKey(`govCharm:${name}`, si),
+          legacyKeys: [`govCharm:${name}:${lvl}`],
+          label: `→ ${lvl}`,
           points: pts,
           timeSec: 0,
-          costs: w ? { widgets: w } : {},
+          costs: sc,
         });
       }
+      candidates.push({
+        id: `govCharm:${name}`,
+        category: 'govCharm',
+        page: 'Gov Charm',
+        name,
+        path: `${s.from || '0'} → ${s.to}`,
+        points,
+        timeSec: 0,
+        costs,
+        stepCount: steps.length,
+        segments,
+        canSplit: segments.length > 1,
+      });
     }
-    if (!segments.length) continue;
-    items.push({
-      id: `widgets:${name}`,
-      category: 'widgets',
-      page: 'Widgets',
-      name,
-      path: `${from} → ${to}`,
-      points,
-      timeSec: 0,
-      costs: widgets ? { widgets } : {},
-      stepCount: segments.length,
-      segments,
-      canSplit: segments.length > 1,
+    pushAffordable('govCharm', candidates);
+  }
+
+  // —— Hero Gear + Forge Mastery ——
+  {
+    const hgData = dataMap.hero_gears || {};
+    const hgRows = hgData['Hero Gear'] || hgData.HeroGear || (Array.isArray(hgData) ? hgData : []);
+    const forgeData = dataMap.forgehammers || {};
+    const forgeRows =
+      forgeData?.Mastery || forgeData?.Forgehammer || forgeData?.Forge || (Array.isArray(forgeData) ? forgeData : []);
+    const hg = state.heroGear || {};
+    const gearList = Array.isArray(hg.items) ? hg.items : [];
+    const forgeList = Array.isArray(hg.forgeItems) ? hg.forgeItems : [];
+    const candidates = [];
+
+    gearList.forEach((item, idx) => {
+      if (!item?.active || item.to === '' || item.to == null) return;
+      const steps = filterLvlSteps(hgRows, item.from || '0', item.to);
+      if (!steps.length) return;
+      let points = 0;
+      const costs = {};
+      const segments = [];
+      for (const st of steps) {
+        const sc = stepCostsHeroGear(st);
+        Object.assign(costs, mergeCosts([costs, sc]));
+        const pts = scoreHeroGearCosts(sc);
+        points += pts;
+        const lvl = st.target_lvl ?? st.target ?? rowLevel(st);
+        const si = segments.length;
+        const gid = `heroGear:${item.id || `gear_${idx}`}`;
+        segments.push({
+          key: segmentKey(gid, si),
+          legacyKeys: [`heroGear:${item.id || idx}:${lvl}`, `heroGear:${item.id}:${lvl}`],
+          label: `→ ${lvl}`,
+          points: pts,
+          timeSec: 0,
+          costs: sc,
+        });
+      }
+      const name =
+        item.label?.trim() || (item.id === 'gear_default' ? 'Hero Gear' : `Hero Gear ${idx + 1}`);
+      candidates.push({
+        id: `heroGear:${item.id || `gear_${idx}`}`,
+        category: 'heroGear',
+        page: 'Hero Gear',
+        name,
+        path: `${item.from || '0'} → ${item.to}`,
+        points,
+        timeSec: 0,
+        costs,
+        stepCount: steps.length,
+        segments,
+        canSplit: segments.length > 1,
+      });
     });
+
+    forgeList.forEach((item, idx) => {
+      if (!item?.active || item.to === '' || item.to == null) return;
+      const steps = filterLvlSteps(forgeRows, item.from || '0', item.to);
+      if (!steps.length) return;
+      let points = 0;
+      const costs = {};
+      const segments = [];
+      for (const st of steps) {
+        const sc = stepCostsHeroGear(st);
+        Object.assign(costs, mergeCosts([costs, sc]));
+        const pts = scoreHeroGearCosts(sc);
+        points += pts;
+        const lvl = st.target_lvl ?? st.target ?? rowLevel(st);
+        const si = segments.length;
+        const fid = `heroForge:${item.id || `forge_${idx}`}`;
+        segments.push({
+          key: segmentKey(fid, si),
+          legacyKeys: [`heroForge:${item.id || idx}:${lvl}`, `heroForge:${item.id}:${lvl}`],
+          label: `→ ${lvl}`,
+          points: pts,
+          timeSec: 0,
+          costs: sc,
+        });
+      }
+      const name =
+        item.label?.trim() ||
+        (item.id === 'forge_default' ? 'Forge Mastery' : `Forge Mastery ${idx + 1}`);
+      candidates.push({
+        id: `heroForge:${item.id || `forge_${idx}`}`,
+        category: 'heroGear',
+        page: 'Hero Gear',
+        name,
+        path: `${item.from || '0'} → ${item.to}`,
+        points,
+        timeSec: 0,
+        costs,
+        stepCount: steps.length,
+        segments,
+        canSplit: segments.length > 1,
+      });
+    });
+
+    pushAffordable('heroGear', candidates);
+  }
+
+  // —— Widgets (inventory = heroWidgets, same as WidgetsPage) ——
+  {
+    const wRows = (dataMap.widgets || {}).Widgets || [];
+    const invMap = state.heroWidgets || {};
+    for (const [name, s] of Object.entries(state.widgets || {})) {
+      if (!s?.active) continue;
+      const from = parseInt(s.from, 10) || 0;
+      const to = parseInt(s.to, 10) || 0;
+      if (to <= from) continue;
+      let widgetsNeeded = 0;
+      const segments = [];
+      for (const row of wRows) {
+        const cur = Number(row.current_lvl);
+        const tgt = Number(row.target_lvl);
+        // Match WidgetsPage: current_lvl >= from && target_lvl <= to
+        if (cur >= from && tgt <= to && tgt > from) {
+          const w = parseCost(row.widgets);
+          widgetsNeeded += w;
+          const pts = w * (SCORE_RULES.widgets || 0);
+          const si = segments.length;
+          segments.push({
+            key: segmentKey(`widgets:${name}`, si),
+            legacyKeys: [`widgets:${name}:${tgt}`],
+            label: `${cur}→${tgt}`,
+            points: pts,
+            timeSec: 0,
+            costs: w ? { widgets: w } : {},
+          });
+        }
+      }
+      if (!segments.length) continue;
+      const inv = parseCost(invMap[name]);
+      if (widgetsNeeded > inv) continue; // not affordable
+      const points = widgetsNeeded * (SCORE_RULES.widgets || 0);
+      items.push({
+        id: `widgets:${name}`,
+        category: 'widgets',
+        page: 'Widgets',
+        name,
+        path: `${from} → ${to}`,
+        points,
+        timeSec: 0,
+        costs: widgetsNeeded ? { widgets: widgetsNeeded } : {},
+        stepCount: segments.length,
+        segments,
+        canSplit: segments.length > 1,
+      });
+    }
   }
 
   // —— Troops ——
-  const troopsData = dataMap.troops || {};
-  const training = troopsData?.Troops?.Training || troopsData?.Training || {};
-  const promoting = troopsData?.Troops?.Promoting || troopsData?.Promoting || {};
-  for (const [key, s] of Object.entries(state.troops || {})) {
-    if (!s?.active) continue;
-    if (key.startsWith('train_')) {
-      const type = key.replace('train_', '');
-      const level = parseInt(s.level, 10) || 0;
-      const qty = parseFloat(s.qty) || 0;
-      if (!level || !qty) continue;
-      const row = (training[type] || []).find((r) => r.lvl === level || Number(r.lvl) === level);
-      if (!row) continue;
-      const costs = {};
-      for (const k of ['bread', 'wood', 'stone', 'iron', 'gold', 'truegold']) {
-        if (row[k] != null) costs[k] = parseCost(row[k]) * qty;
-      }
-      let points = (row.point || SCORE_RULES.troops?.[level] || 0) * qty;
-      const timeSec = parseTimeToSeconds(row.time) * qty;
-      if (s.speedup && timeSec > 0) {
-        const mins = Math.ceil(timeSec / 60);
-        costs.training_speedup = mins;
-        points += mins * (SCORE_RULES.speedup_min || 30);
-      }
-      items.push({
-        id: `troops:${key}`,
-        category: 'troops',
-        page: 'Troops',
-        name: `Train ${type} T${level} ×${qty}`,
-        path: `T${level}`,
-        points,
-        timeSec,
-        costs,
-        stepCount: 1,
-        segments: [],
-        canSplit: false,
-      });
-    } else if (key.startsWith('promo_')) {
-      const type = key.replace('promo_', '');
-      const from = parseInt(s.from, 10) || 0;
-      const to = parseInt(s.to, 10) || 0;
-      const qty = parseFloat(s.qty) || 0;
-      if (!(from > 0 && to > from && qty > 0)) continue;
-      const rows = promoting[type] || [];
-      const chain = [];
-      let cur = from;
-      for (let guard = 0; guard < 20 && cur < to; guard++) {
-        const row = rows.find((r) => Number(r.current_lvl) === cur);
-        if (!row) break;
-        chain.push(row);
-        cur = Number(row.target_lvl);
-        if (cur === to) break;
-      }
-      if (!chain.length || Number(chain[chain.length - 1].target_lvl) !== to) continue;
-      const costs = {};
-      let timeSec = 0;
-      for (const row of chain) {
+  {
+    const troopsData = dataMap.troops || {};
+    const training = troopsData?.Troops?.Training || troopsData?.Training || {};
+    const promoting = troopsData?.Troops?.Promoting || troopsData?.Promoting || {};
+    const trainBuffs = state.settings?.trainingBuffs || {};
+    const candidates = [];
+    for (const [key, s] of Object.entries(state.troops || {})) {
+      if (!s?.active) continue;
+      if (key.startsWith('train_')) {
+        const type = key.replace('train_', '');
+        const level = parseInt(s.level, 10) || 0;
+        const qty = parseFloat(s.qty) || 0;
+        if (!level || !qty) continue;
+        const row = (training[type] || []).find((r) => r.lvl === level || Number(r.lvl) === level);
+        if (!row) continue;
+        const costs = {};
         for (const k of ['bread', 'wood', 'stone', 'iron', 'gold', 'truegold']) {
-          if (row[k] != null) costs[k] = (costs[k] || 0) + parseCost(row[k]) * qty;
+          if (row[k] != null) costs[k] = parseCost(row[k]) * qty;
         }
-        timeSec += parseTimeToSeconds(row.time) * qty;
+        const points = (row.point || SCORE_RULES.troops?.[level] || 0) * qty;
+        const timeSec = parseTimeToSeconds(row.time) * qty;
+        const buffedTime = applyTrainingSpeedupBuffs(timeSec, trainBuffs);
+        candidates.push({
+          id: `troops:${key}`,
+          category: 'troops',
+          page: 'Troops',
+          name: `Train ${type} T${level} ×${qty}`,
+          path: `T${level}`,
+          points,
+          timeSec: buffedTime,
+          costs,
+          stepCount: 1,
+          segments: [
+            {
+              key: segmentKey(`troops:${key}`, 0),
+              legacyKeys: [`troops:${key}:all`],
+              label: `T${level} ×${qty}`,
+              points,
+              timeSec: buffedTime,
+              costs: { ...costs },
+            },
+          ],
+          canSplit: false,
+          speedupMins: s.speedup && buffedTime > 0 ? secondsToSpeedupMinutes(buffedTime) : 0,
+          speedupKey: 'training_speedup',
+        });
+      } else if (key.startsWith('promo_')) {
+        const type = key.replace('promo_', '');
+        const from = parseInt(s.from, 10) || 0;
+        const to = parseInt(s.to, 10) || 0;
+        const qty = parseFloat(s.qty) || 0;
+        if (!(from > 0 && to > from && qty > 0)) continue;
+        const rows = promoting[type] || [];
+        const chain = [];
+        let cur = from;
+        for (let guard = 0; guard < 20 && cur < to; guard++) {
+          const row = rows.find((r) => Number(r.current_lvl) === cur);
+          if (!row) break;
+          chain.push(row);
+          cur = Number(row.target_lvl);
+          if (cur === to) break;
+        }
+        if (!chain.length || Number(chain[chain.length - 1].target_lvl) !== to) continue;
+        const costs = {};
+        let timeSec = 0;
+        for (const row of chain) {
+          for (const k of ['bread', 'wood', 'stone', 'iron', 'gold', 'truegold']) {
+            if (row[k] != null) costs[k] = (costs[k] || 0) + parseCost(row[k]) * qty;
+          }
+          timeSec += parseTimeToSeconds(row.time) * qty;
+        }
+        const points = Math.max(
+          0,
+          ((SCORE_RULES.troops?.[to] || 0) - (SCORE_RULES.troops?.[from] || 0)) * qty
+        );
+        const buffedTime = applyTrainingSpeedupBuffs(timeSec, trainBuffs);
+        candidates.push({
+          id: `troops:${key}`,
+          category: 'troops',
+          page: 'Troops',
+          name: `Promo ${type} T${from}→T${to} ×${qty}`,
+          path: `T${from} → T${to}`,
+          points,
+          timeSec: buffedTime,
+          costs,
+          stepCount: chain.length,
+          segments: [
+            {
+              key: segmentKey(`troops:${key}`, 0),
+              legacyKeys: [`troops:${key}:all`],
+              label: `T${from}→T${to} ×${qty}`,
+              points,
+              timeSec: buffedTime,
+              costs: { ...costs },
+            },
+          ],
+          canSplit: false,
+          speedupMins: s.speedup && buffedTime > 0 ? secondsToSpeedupMinutes(buffedTime) : 0,
+          speedupKey: 'training_speedup',
+        });
       }
-      let points = Math.max(
-        0,
-        ((SCORE_RULES.troops?.[to] || 0) - (SCORE_RULES.troops?.[from] || 0)) * qty
-      );
-      if (s.speedup && timeSec > 0) {
-        const mins = Math.ceil(timeSec / 60);
-        costs.training_speedup = mins;
-        points += mins * (SCORE_RULES.speedup_min || 30);
-      }
+    }
+    pushAffordable('troops', candidates);
+  }
+
+  // —— Heroes: only active with stored stepPoints when present ——
+  {
+    for (const [name, s] of Object.entries(state.heroes || {})) {
+      if (name.startsWith('_') || !s?.active) continue;
+      const pts = parseCost(s.points || s.stepPoints);
       items.push({
-        id: `troops:${key}`,
-        category: 'troops',
-        page: 'Troops',
-        name: `Promo ${type} T${from}→T${to} ×${qty}`,
-        path: `T${from} → T${to}`,
-        points,
-        timeSec,
-        costs,
-        stepCount: chain.length,
-        segments: [],
+        id: `heroes:${name}`,
+        category: 'heroes',
+        page: 'Heroes',
+        name,
+        path: s.from && s.to ? `${s.from} → ${s.to}` : 'Star upgrade',
+        points: pts,
+        timeSec: 0,
+        costs: {},
+        stepCount: 1,
+        segments: [
+          {
+            key: segmentKey(`heroes:${name}`, 0),
+            legacyKeys: [`heroes:${name}:all`],
+            label: name,
+            points: pts,
+            timeSec: 0,
+            costs: {},
+          },
+        ],
         canSplit: false,
+        note:
+          pts > 0
+            ? null
+            : 'Open Heroes page so points calculate; total is also in HEROES SCORE',
       });
     }
   }
 
-  // —— Heroes (use page score is hard; estimate from active flag + stored if any) ——
-  // Prefer locked costs / simple: if heroes page stored nothing, show active heroes
-  // with points from pageScores only as group is imperfect — try flower state
-  const flowerStates = state.heroes?._flowers || state.heroFlowers || {};
-  for (const [name, s] of Object.entries(state.heroes || {})) {
-    if (name.startsWith('_') || !s?.active) continue;
-    // Points often live only after calc on Heroes page — use pageScores share not available per hero.
-    // Show path info; points from optional s.points if set by page.
-    items.push({
-      id: `heroes:${name}`,
-      category: 'heroes',
-      page: 'Heroes',
-      name,
-      path: s.from && s.to ? `${s.from} → ${s.to}` : 'Star upgrade',
-      points: parseCost(s.points) || 0,
-      timeSec: 0,
-      costs: {},
-      stepCount: 1,
-      segments: [],
-      canSplit: false,
-      note:
-        (parseCost(s.points) || 0) > 0
-          ? null
-          : 'Open Heroes page so shard points calculate; total is in navbar HEROES SCORE',
-    });
-  }
-
-  // —— Misc ——
-  const misc = state.misc || {};
-  if (misc.rouletteActive && parseCost(misc.roulette) > 0) {
-    const spins = parseCost(misc.roulette);
-    items.push({
-      id: 'misc:roulette',
-      category: 'miscRoulette',
-      page: 'Misc',
-      name: 'Hero Roulette',
-      path: `×${spins} spins`,
-      points: spins * (SCORE_RULES.roulette || 8000),
-      timeSec: 0,
-      costs: {},
-      stepCount: 1,
-      segments: [],
-      canSplit: false,
-    });
-  }
-  if (misc.gatherActive) {
-    // Use page score fragment if present is hard; show marker with misc page score note
-    const gatherPts = parseCost(state.pageScores?.misc) || 0;
-    // Only gathering portion unknown — still list for scheduling
-    items.push({
-      id: 'misc:gather',
-      category: 'miscGather',
-      page: 'Misc',
-      name: 'Gathering',
-      path: 'Marches / bison',
-      points: 0,
-      timeSec: 0,
-      costs: {},
-      stepCount: 1,
-      segments: [],
-      canSplit: false,
-      note: 'Points follow Misc page gathering total (see MISC SCORE)',
-    });
+  // —— Misc roulette ——
+  {
+    const misc = state.misc || {};
+    if (misc.rouletteActive && parseCost(misc.roulette) > 0) {
+      const spins = parseCost(misc.roulette);
+      const points = spins * (SCORE_RULES.roulette || 8000);
+      items.push({
+        id: 'misc:roulette',
+        category: 'miscRoulette',
+        page: 'Misc',
+        name: 'Hero Roulette',
+        path: `×${spins} spins`,
+        points,
+        timeSec: 0,
+        costs: {},
+        stepCount: 1,
+        segments: [
+          {
+            key: segmentKey('misc:roulette', 0),
+            legacyKeys: ['misc:roulette:all'],
+            label: `×${spins}`,
+            points,
+            timeSec: 0,
+            costs: {},
+          },
+        ],
+        canSplit: false,
+      });
+    }
   }
 
   return items;
@@ -695,6 +930,7 @@ export default function PlannerPage() {
   const hg = useGameData('hero_gears');
   const widgets = useGameData('widgets');
   const troops = useGameData('troops');
+  const forge = useGameData('forgehammers');
 
   const loading =
     b.loading ||
@@ -704,7 +940,8 @@ export default function PlannerPage() {
     gc.loading ||
     hg.loading ||
     widgets.loading ||
-    troops.loading;
+    troops.loading ||
+    forge.loading;
 
   const planner = state.planner || {};
   const selectedDay = Math.min(7, Math.max(1, parseInt(planner.selectedDay || '1', 10) || 1));
@@ -716,18 +953,21 @@ export default function PlannerPage() {
     [updateSection]
   );
 
-  const setSegmentDay = (key, day) => {
-    updateSection('planner', (prev) => ({
-      ...(prev || {}),
-      assignments: { ...(prev?.assignments || {}), [key]: day },
-    }));
+  const setSegmentDay = (key, day, itemId) => {
+    updateSection('planner', (prev) => {
+      const next = { ...(prev?.assignments || {}), [key]: day };
+      // Keep a whole-item hint for bulk recovery across key-format changes
+      if (itemId) next[itemId] = day;
+      return { ...(prev || {}), assignments: next, selectedDay: prev?.selectedDay };
+    });
   };
 
-  const setSegmentsDay = (keys, day) => {
+  const setSegmentsDay = (keys, day, itemId) => {
     updateSection('planner', (prev) => {
       const next = { ...(prev?.assignments || {}) };
       for (const k of keys) next[k] = day;
-      return { ...(prev || {}), assignments: next };
+      if (itemId) next[itemId] = day;
+      return { ...(prev || {}), assignments: next, selectedDay: prev?.selectedDay };
     });
   };
 
@@ -741,8 +981,9 @@ export default function PlannerPage() {
       hero_gears: hg.data,
       widgets: widgets.data,
       troops: troops.data,
+      forgehammers: forge.data,
     }),
-    [b.data, wa.data, pets.data, gg.data, gc.data, hg.data, widgets.data, troops.data]
+    [b.data, wa.data, pets.data, gg.data, gc.data, hg.data, widgets.data, troops.data, forge.data]
   );
 
   const planItems = useMemo(() => {
@@ -767,12 +1008,21 @@ export default function PlannerPage() {
   }, [state, dataMap]);
 
   const effectiveSegDay = useCallback(
-    (seg, category) => {
+    (seg, category, itemId) => {
       const allowed = allowedDaysForCategory(category);
       if (!allowed.length) return 1;
-      const a = assignments[seg.key];
-      if (a != null && allowed.includes(Number(a))) return Number(a);
-      return allowed[0];
+      // Parse step index from stable key "...:i:N"
+      let stepIndex = 0;
+      const m = String(seg.key || '').match(/:i:(\d+)$/);
+      if (m) stepIndex = parseInt(m[1], 10);
+      const id = itemId || String(seg.key || '').replace(/:i:\d+$/, '');
+      return resolveAssignedDay(
+        assignments,
+        id,
+        stepIndex,
+        seg.legacyKeys || [],
+        allowed
+      );
     },
     [assignments]
   );
@@ -784,7 +1034,7 @@ export default function PlannerPage() {
     const out = [];
     for (const it of planItems) {
       const segs = (it.segments || []).filter(
-        (seg) => effectiveSegDay(seg, it.category) === selectedDay
+        (seg) => effectiveSegDay(seg, it.category, it.id) === selectedDay
       );
       if (!segs.length) continue;
       const points = segs.reduce((s, x) => s + (x.points || 0), 0);
@@ -835,7 +1085,7 @@ export default function PlannerPage() {
     const p = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
     for (const it of planItems) {
       for (const seg of it.segments || []) {
-        const d = effectiveSegDay(seg, it.category);
+        const d = effectiveSegDay(seg, it.category, it.id);
         c[d] = (c[d] || 0) + 1;
         p[d] = (p[d] || 0) + (seg.points || 0);
       }
@@ -862,16 +1112,12 @@ export default function PlannerPage() {
           <button
             key={d.day}
             type="button"
-            className="preset-btn"
-            style={{
-              fontWeight: selectedDay === d.day ? 700 : 500,
-              opacity: selectedDay === d.day ? 1 : 0.72,
-              borderWidth: selectedDay === d.day ? 2 : 1,
-            }}
+            className={`preset-btn planner-day-tab${selectedDay === d.day ? ' is-selected' : ''}`}
+            aria-pressed={selectedDay === d.day}
             onClick={() => setPlanner({ selectedDay: d.day })}
           >
             Day {d.day}
-            <span style={{ opacity: 0.8, marginLeft: 6 }}>
+            <span className="planner-day-tab-sub">
               {d.title.split(' ')[0]}
               {countByDay.c[d.day] ? ` · ${countByDay.c[d.day]}` : ''}
             </span>
@@ -889,6 +1135,10 @@ export default function PlannerPage() {
           <div style={{ fontSize: '0.88rem', opacity: 0.9, marginBottom: 10 }}>
             Scores today from: {dayInfo.sources.join(' · ')}
           </div>
+          <p className="hint" style={{ marginBottom: 10 }}>
+            Points match your category pages (buffs, speedups, and only upgrades that are active and
+            affordable with current vault). Day assignments save with your preset in the database.
+          </p>
           <div className={`status-pane ${summary.count ? 'status-ok' : 'status-info'}`}>
             <div>
               Steps on this day: <strong>{summary.count}</strong>
@@ -990,11 +1240,12 @@ export default function PlannerPage() {
                       >
                         <span style={{ opacity: 0.85 }}>All steps →</span>
                         <select
+                          className="planner-day-select"
                           value={bulkValue}
                           onChange={(e) => {
                             const v = e.target.value;
                             if (!v) return;
-                            setSegmentsDay(allKeys, parseInt(v, 10));
+                            setSegmentsDay(allKeys, parseInt(v, 10), it.id);
                           }}
                         >
                           {!allSame && (
@@ -1037,7 +1288,7 @@ export default function PlannerPage() {
                       )}
                     </div>
                     {it.segments.map((seg) => {
-                      const day = effectiveSegDay(seg, it.category);
+                      const day = effectiveSegDay(seg, it.category, it.id);
                       return (
                         <div
                           key={seg.key}
@@ -1071,9 +1322,10 @@ export default function PlannerPage() {
                             >
                               Move to
                               <select
+                                className="planner-day-select is-selected"
                                 value={day}
                                 onChange={(e) =>
-                                  setSegmentDay(seg.key, parseInt(e.target.value, 10))
+                                  setSegmentDay(seg.key, parseInt(e.target.value, 10), it.id)
                                 }
                               >
                                 {allowed.map((d) => (

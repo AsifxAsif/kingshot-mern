@@ -3813,3 +3813,44 @@ input.checkbox:disabled {
 .app-modal-danger .item-card-header {
 	color: var(--color-error, #c62828);
 }
+
+/* ========== Planner selection (match navbar .nav-link.active) ========== */
+.planner-day-tab {
+	font-weight: 500;
+	opacity: 0.85;
+	transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease,
+		box-shadow 0.15s ease, opacity 0.15s ease;
+}
+.planner-day-tab.is-selected,
+.planner-day-tab[aria-pressed='true'] {
+	background: var(--accent) !important;
+	color: #fff !important;
+	border-color: var(--accent) !important;
+	box-shadow: var(--shadow-inset);
+	border-left: 4px solid var(--lcd-glow);
+	font-weight: 700;
+	opacity: 1;
+}
+.planner-day-tab.is-selected .planner-day-tab-sub,
+.planner-day-tab[aria-pressed='true'] .planner-day-tab-sub {
+	opacity: 0.95;
+	color: #fff;
+}
+.planner-day-tab-sub {
+	opacity: 0.8;
+	margin-left: 6px;
+}
+.planner-day-select {
+	border: 1px solid var(--border-color, #ccc);
+	border-radius: var(--radius-sm, 6px);
+	padding: 4px 8px;
+	background: var(--surface, #fff);
+	color: var(--text-primary);
+	font-weight: 600;
+}
+.planner-day-select.is-selected,
+.planner-day-select:focus {
+	border-color: var(--accent) !important;
+	box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
+	outline: none;
+}
