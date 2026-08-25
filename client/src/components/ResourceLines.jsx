@@ -61,19 +61,29 @@ export default function ResourceLines({ lines = [], active = false }) {
 
         let statusText = null;
         let statusClass = '';
+        // Negative left always means short, even if caller forgot deficit
+        const isShort = deficit || (left != null && left < 0);
         if (active && left != null) {
-          statusText = deficit
+          statusText = isShort
             ? `${formatAmt(key, left)} short`
             : `${formatAmt(key, left)} remaining`;
-          statusClass = deficit ? 'text-deficit' : 'text-remaining';
+          statusClass = isShort ? 'text-deficit' : 'text-remaining';
+        } else if (have != null && need != null) {
+          // Prefer remaining/short from have-need when both present
+          const derivedLeft = left != null ? left : have - Number(need);
+          const short = deficit || derivedLeft < 0;
+          statusText = short
+            ? `${formatAmt(key, derivedLeft)} short`
+            : `${formatAmt(key, derivedLeft)} remaining`;
+          statusClass = short ? 'text-deficit' : 'text-remaining';
         } else if (have != null) {
           statusText = `${formatAmt(key, have)} in vault`;
           statusClass = deficit ? 'text-deficit' : 'text-remaining';
         } else if (left != null) {
-          statusText = deficit
+          statusText = isShort
             ? `${formatAmt(key, left)} short`
             : `${formatAmt(key, left)} remaining`;
-          statusClass = deficit ? 'text-deficit' : 'text-remaining';
+          statusClass = isShort ? 'text-deficit' : 'text-remaining';
         }
 
         return (

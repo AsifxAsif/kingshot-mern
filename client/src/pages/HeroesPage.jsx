@@ -454,8 +454,8 @@ export default function HeroesPage() {
               }
             } else {
               status = `${result.from} → ${result.to}: ${result.heroShardsUsed}/${result.heroShardsNeeded} hero shards`;
-              if (result.generalUsed) {
-                status += ` + ${result.generalUsed} ${generalType.replace(/_/g, ' ')}`;
+              if (result.generalUsed > 0) {
+                status += ` + ${result.generalUsed} ${generalType.replace(/_/g, ' ')} (after hero shards)`;
               }
               status += ` → ${formatNumber(result.stepPoints)} pts`;
             }
@@ -566,19 +566,43 @@ export default function HeroesPage() {
                       : ''}
                   </div>
                   <div style={{ marginBottom: 4 }}>{status}</div>
-                  {result && (result.heroShardsNeeded > 0 || result.shortage > 0 || result.generalUsed > 0) && (
+                  {result && (result.heroShardsNeeded > 0 || result.shortage > 0 || result.generalUsed > 0) && (() => {
+                    const haveHero = parseCost(shards[h.name]);
+                    const needHeroTotal = result.heroShardsNeeded ?? 0;
+                    // Always spend hero-specific shards first; general only covers shortage when enabled
+                    const heroSpend =
+                      useGen && !result.error
+                        ? (result.heroShardsUsed ?? Math.min(haveHero, needHeroTotal))
+                        : needHeroTotal;
+                    const heroLeft = haveHero - heroSpend;
+                    const heroDeficit = heroLeft < 0;
+
+                    // General row only if user enabled General Shards
+                    const showGeneral =
+                      !!useGen &&
+                      ((result.generalUsed ?? 0) > 0 || (result.shortage ?? 0) > 0);
+                    const genNeed = result.error
+                      ? (result.shortage ?? 0)
+                      : (result.generalUsed ?? result.shortage ?? 0);
+                    // vaultLeft from calc = available BEFORE this card spends general
+                    // (already minus other active heroes). After spend: vaultLeft - genNeed.
+                    const genAvailableBefore =
+                      result.vaultLeft != null ? result.vaultLeft : vaultTotal;
+                    const genHave = genAvailableBefore;
+                    const genLeft = genAvailableBefore - genNeed;
+                    const genDeficit = genLeft < 0;
+
+                    return (
                     <ResourceLines
                       active={!!s.active && result && !result.error}
                       lines={[
                         {
                           key: 'hero_shards',
                           label: `${h.name} shards`,
-                          need: result.heroShardsNeeded ?? 0,
-                          left:
-                            parseCost(shards[h.name]) - (result.heroShardsNeeded ?? 0),
-                          deficit:
-                            parseCost(shards[h.name]) < (result.heroShardsNeeded ?? 0) &&
-                            !(result.generalUsed > 0),
+                          need: heroSpend,
+                          have: haveHero,
+                          left: heroLeft,
+                          deficit: heroDeficit,
                           img: heroImg(h.name),
                           fallbacks: [
                             resourceImg('mythic_general_shard'),
@@ -586,23 +610,23 @@ export default function HeroesPage() {
                             resourceImg('rare_general_shard'),
                           ],
                         },
-                        ...(result.shortage > 0 || result.generalUsed > 0
+                        ...(showGeneral
                           ? [
                             {
                               key: generalType,
                               label: generalType.replace(/_/g, ' '),
-                              need: result.generalUsed || result.shortage || 0,
-                              left:
-                                vaultTotal - (result.generalUsed || result.shortage || 0),
-                              deficit:
-                                (result.generalUsed || result.shortage || 0) > vaultTotal,
+                              need: genNeed,
+                              have: genHave,
+                              left: genLeft,
+                              deficit: genDeficit,
                               img: resourceImg(generalType),
                             },
                           ]
                           : []),
                       ]}
                     />
-                  )}
+                    );
+                  })()}
                 </div>
                 )}
               </div>
