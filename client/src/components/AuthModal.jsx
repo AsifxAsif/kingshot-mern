@@ -21,12 +21,18 @@ export default function AuthModal() {
     setBusy(true);
     try {
       if (authMode === 'register') {
-        if (!gameId.trim()) {
-          setError('Game ID is required');
+        const gid = String(gameId).replace(/\D/g, '');
+        if (!gid) {
+          setError('Game ID is required (numbers only — your player ID, not the name)');
           setBusy(false);
           return;
         }
-        const data = await register(username, email, password, gameId.trim());
+        if (gid !== String(gameId).trim()) {
+          setError('Game ID must be numbers only');
+          setBusy(false);
+          return;
+        }
+        const data = await register(username, email, password, gid);
         if (data?.user && createPrimaryForNewUser) {
           await createPrimaryForNewUser(data.user);
         }
@@ -86,13 +92,17 @@ export default function AuthModal() {
                   />
                 </div>
                 <div className="buff-field" style={{ marginBottom: 10 }}>
-                  <label>Game ID</label>
+                  <label>Game ID (numbers only)</label>
                   <input
                     value={gameId}
-                    onChange={(e) => setGameId(e.target.value)}
+                    onChange={(e) => setGameId(e.target.value.replace(/\D/g, '').slice(0, 20))}
                     required
-                    placeholder="Your in-game ID"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={20}
+                    placeholder="e.g. 123456789"
                     autoComplete="off"
+                    title="Enter your numeric player ID, not the character name"
                   />
                 </div>
               </>
