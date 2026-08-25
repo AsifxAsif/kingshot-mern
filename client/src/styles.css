@@ -1524,9 +1524,13 @@ a.nav-link {
 	cursor: pointer;
 }
 
-.nav-links.show {
-	display: flex !important;
+/* Desktop only — mobile uses grid overlay under @media */
+@media (min-width: 769px) {
+	.nav-links.show {
+		display: flex !important;
+	}
 }
+
 
 .page-loading,
 .page-error {
@@ -2640,6 +2644,22 @@ body {
 	gap: 4px !important;
 }
 
+/* Mobile: keep menu closed unless .show — must beat any later flex rules */
+@media (max-width: 768px) {
+	.nav-links {
+		display: none !important;
+	}
+	.nav-links.show {
+		display: grid !important;
+	}
+	.preset-dropdown {
+		display: none !important;
+	}
+	.preset-dropdown.show {
+		display: flex !important;
+	}
+}
+
 .nav-link {
 	text-decoration: none;
 	white-space: nowrap;
@@ -3454,4 +3474,157 @@ input[type="text"]:focus {
 .rounds-stepper button:disabled {
 	opacity: 0.4;
 	cursor: not-allowed;
+}
+
+/* Password show/hide on auth modal */
+.password-field {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+.password-field input {
+	width: 100%;
+	padding-right: 44px;
+}
+.password-toggle {
+	position: absolute;
+	right: 6px;
+	top: 50%;
+	transform: translateY(-50%);
+	border: none;
+	background: transparent;
+	color: var(--text-secondary, #555);
+	cursor: pointer;
+	padding: 6px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 6px;
+}
+.password-toggle:hover {
+	color: var(--text-primary, #111);
+	background: var(--hover-fill, rgba(0,0,0,0.06));
+}
+
+/* ========== Floating help (?) ========== */
+.help-fab-wrap {
+	position: fixed;
+	right: 16px;
+	bottom: 16px;
+	z-index: 9000;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 8px;
+	pointer-events: none;
+}
+.help-fab-hint {
+	pointer-events: none;
+	background: var(--surface-elevated, #fff);
+	color: var(--text-primary);
+	border: 1px solid var(--border-color, #ccc);
+	box-shadow: var(--shadow-extruded-sm, 0 4px 12px rgba(0,0,0,0.12));
+	padding: 6px 12px;
+	border-radius: 999px;
+	font-size: 0.85rem;
+	font-weight: 600;
+}
+.help-fab {
+	pointer-events: auto;
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	border: 1px solid var(--border-color, #bbb);
+	background: var(--surface-elevated, #fff);
+	color: var(--text-primary);
+	font-size: 1.4rem;
+	font-weight: 800;
+	line-height: 1;
+	cursor: pointer;
+	box-shadow: var(--shadow-extruded, 0 6px 18px rgba(0,0,0,0.15));
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.help-fab:hover {
+	transform: translateY(-2px) scale(1.05);
+	box-shadow: var(--shadow-extruded-lg, 0 10px 24px rgba(0,0,0,0.18));
+}
+.help-fab:active {
+	transform: translateY(0) scale(0.98);
+}
+.help-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 9500;
+	background: var(--overlay-bg, rgba(0,0,0,0.45));
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px;
+}
+.help-modal {
+	width: min(640px, 100%);
+	max-height: min(88vh, 900px);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	box-shadow: var(--shadow-extruded-lg, 0 12px 40px rgba(0,0,0,0.25));
+}
+.help-modal-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	flex-shrink: 0;
+}
+.help-modal-body {
+	overflow-y: auto;
+	flex: 1;
+	padding-bottom: 8px;
+}
+.help-lead {
+	margin: 0 0 14px;
+	opacity: 0.9;
+	font-size: 0.95rem;
+}
+.help-section {
+	margin-bottom: 16px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid var(--border-color, rgba(0,0,0,0.08));
+}
+.help-section:last-child {
+	border-bottom: none;
+}
+.help-section h3 {
+	margin: 0 0 8px;
+	font-size: 1rem;
+}
+.help-section-body p,
+.help-section-body li {
+	font-size: 0.9rem;
+	line-height: 1.45;
+	color: var(--text-secondary, #444);
+}
+.help-section-body ul,
+.help-section-body ol {
+	margin: 6px 0 0;
+	padding-left: 1.25rem;
+}
+.help-section-body li {
+	margin-bottom: 6px;
+}
+.help-section-body code {
+	font-size: 0.85em;
+	padding: 1px 5px;
+	border-radius: 4px;
+	background: var(--hover-fill, rgba(0,0,0,0.06));
+}
+@media (max-width: 480px) {
+	.help-fab-wrap {
+		right: 12px;
+		bottom: 12px;
+	}
+	.help-fab {
+		width: 44px;
+		height: 44px;
+	}
 }

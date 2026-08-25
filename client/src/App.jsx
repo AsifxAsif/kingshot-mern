@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import AuthModal from './components/AuthModal';
 import RequireAuthGate from './components/RequireAuthGate';
 import PageMeta from './components/PageMeta';
+import HelpFab from './components/HelpFab';
 import ErrorBoundary from './components/ErrorBoundary';
 
 const VaultPage = lazy(() => import('./pages/VaultPage'));
@@ -66,6 +67,7 @@ export default function App() {
       <div className="app">
         <Navbar />
         <AuthModal />
+        <HelpFab />
         <PageMeta />
         <main className="app-container">
           {loading ? (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -64,11 +64,40 @@ export default function Navbar() {
   const [presetOpen, setPresetOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const navRef = useRef(null);
 
-  useEffect(() => {
+  const closeMenus = () => {
     setMenuOpen(false);
     setPresetOpen(false);
+  };
+
+  // Close on route change
+  useEffect(() => {
+    closeMenus();
   }, [location.pathname]);
+
+  // Close on outside click / Escape
+  useEffect(() => {
+    if (!menuOpen && !presetOpen) return undefined;
+
+    const onPointerDown = (e) => {
+      const root = navRef.current;
+      if (!root) return;
+      if (root.contains(e.target)) return;
+      closeMenus();
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') closeMenus();
+    };
+
+    // capture so we win over other handlers
+    document.addEventListener('pointerdown', onPointerDown, true);
+    document.addEventListener('keydown', onKey, true);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true);
+      document.removeEventListener('keydown', onKey, true);
+    };
+  }, [menuOpen, presetOpen]);
 
   const pageLabel = PAGE_LABELS[location.pathname] ?? null;
   const pageScoreKey = PATH_TO_SCORE_KEY[location.pathname];
@@ -99,7 +128,13 @@ export default function Navbar() {
       return;
     }
     if (!currentName) return;
-    if (!confirm(`Delete preset "${currentName}" from database?`)) return;
+    if (
+      !confirm(
+        `Delete preset "${currentName}" from the database?\n\nThis permanently removes that preset. This cannot be undone.`
+      )
+    ) {
+      return;
+    }
     try {
       await deletePreset(currentName);
       setPresetOpen(false);
@@ -108,8 +143,31 @@ export default function Navbar() {
     }
   };
 
+  const handleResetPage = () => {
+    const label = PAGE_LABELS[location.pathname] || location.pathname || 'this page';
+    if (
+      !confirm(
+        `Reset only "${label}" on preset "${currentName}"?\n\nOther pages stay unchanged.`
+      )
+    ) {
+      return;
+    }
+    try {
+      resetCurrentPage(location.pathname);
+      setPresetOpen(false);
+    } catch (e) {
+      alert(e.message || 'Reset page failed');
+    }
+  };
+
   const handleResetFull = async () => {
-    if (!confirm(`Reset ALL data on preset "${currentName}"?`)) return;
+    if (
+      !confirm(
+        `Reset ALL data on preset "${currentName}"?\n\nThis clears every page in this preset (vault, upgrades, planner, scores). This cannot be undone.`
+      )
+    ) {
+      return;
+    }
     try {
       if (resetPresetFull) await resetPresetFull();
       else resetCurrentPage(location.pathname);
@@ -120,9 +178,9 @@ export default function Navbar() {
   };
 
   return (
-    <div className="navbar" data-auth-allow>
+    <div className="navbar" data-auth-allow ref={navRef}>
       <div className="navbar-row-1">
-        <label className="hamburger" id="hamburgerIcon">
+        <label className={`hamburger${menuOpen ? ' active' : ''}`} id="hamburgerIcon">
           <input
             type="checkbox"
             id="hamburgerCheckbox"
@@ -149,7 +207,7 @@ export default function Navbar() {
               end={l.to === '/'}
               className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
               onClick={(e) => {
-                setMenuOpen(false);
+                closeMenus();
                 if (location.pathname !== l.to) {
                   e.preventDefault();
                   navigate(l.to);
@@ -215,7 +273,7 @@ export default function Navbar() {
             <button
               type="button"
               className="btn-reset"
-              onClick={() => resetCurrentPage(location.pathname)}
+              onClick={handleResetPage}
               title="Reset this page only"
             >
               Reset page
