@@ -13,7 +13,6 @@ const SPEEDUP_KEYS = new Set([
 function formatNeed(key, need) {
   if (need == null || need === '') return '';
   if (SPEEDUP_KEYS.has(key)) {
-    // stored as minutes → show as time string
     const secs = Math.round(Number(need) * 60);
     return formatSecondsToTime(secs);
   }
@@ -31,7 +30,8 @@ function formatAmt(key, n) {
 /**
  * Shared cost rows.
  * lines: [{ key, need, have?, left?, deficit?, label?, img?, fallbacks? }]
- * active: when true → "X remaining"; when false → "X in vault"
+ * active: true  → show remaining after this upgrade is locked
+ * active: false → show stock in vault (do not subtract this card's cost)
  */
 export default function ResourceLines({ lines = [], active = false }) {
   if (!lines.length) return null;
@@ -61,33 +61,35 @@ export default function ResourceLines({ lines = [], active = false }) {
 
         let statusText = null;
         let statusClass = '';
-        // Negative left always means short, even if caller forgot deficit
         const isShort = deficit || (left != null && left < 0);
-        if (active && left != null) {
-          statusText = isShort
-            ? `${formatAmt(key, left)} short`
-            : `${formatAmt(key, left)} remaining`;
-          statusClass = isShort ? 'text-deficit' : 'text-remaining';
-        } else if (have != null && need != null) {
-          // Prefer remaining/short from have-need when both present
-          const derivedLeft = left != null ? left : have - Number(need);
-          const short = deficit || derivedLeft < 0;
-          statusText = short
-            ? `${formatAmt(key, derivedLeft)} short`
-            : `${formatAmt(key, derivedLeft)} remaining`;
-          statusClass = short ? 'text-deficit' : 'text-remaining';
-        } else if (have != null) {
-          statusText = `${formatAmt(key, have)} in vault`;
-          statusClass = deficit ? 'text-deficit' : 'text-remaining';
-        } else if (left != null) {
-          statusText = isShort
-            ? `${formatAmt(key, left)} short`
-            : `${formatAmt(key, left)} remaining`;
-          statusClass = isShort ? 'text-deficit' : 'text-remaining';
+
+        if (active) {
+          // Upgrade locked: show stock left after paying this cost
+          if (left != null) {
+            statusText = isShort
+              ? `${formatAmt(key, left)} short`
+              : `${formatAmt(key, left)} remaining`;
+            statusClass = isShort ? 'text-deficit' : 'text-remaining';
+          } else if (have != null) {
+            statusText = `${formatAmt(key, have)} in vault`;
+            statusClass = deficit ? 'text-deficit' : 'text-remaining';
+          }
+        } else {
+          // Not locked yet: show real vault stock (no subtract for this card)
+          if (have != null) {
+            statusText = `${formatAmt(key, have)} in vault`;
+            statusClass = isShort ? 'text-deficit' : 'text-remaining';
+          } else if (isShort && left != null) {
+            statusText = `${formatAmt(key, left)} short`;
+            statusClass = 'text-deficit';
+          }
         }
 
         return (
-          <div key={`${key}-${label}`} className={`cost-line${deficit ? ' cost-line-deficit' : ' cost-line-ok'}`}>
+          <div
+            key={`${key}-${label}`}
+            className={`cost-line${deficit ? ' cost-line-deficit' : ' cost-line-ok'}`}
+          >
             <AssetImg src={img} fallbacks={fallbacks} size={20} alt={label} />
             <span className="cost-line-label">
               {label}

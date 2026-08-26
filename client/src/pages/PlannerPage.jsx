@@ -187,14 +187,21 @@ function resolveAssignedDay(assignments, itemId, stepIndex, legacyKeys, allowed)
   if (map[primary] != null && allowed.includes(Number(map[primary]))) {
     return Number(map[primary]);
   }
-  // whole-item assignment (bulk)
-  if (map[itemId] != null && allowed.includes(Number(map[itemId]))) {
-    return Number(map[itemId]);
-  }
   for (const k of legacyKeys || []) {
     if (k && map[k] != null && allowed.includes(Number(map[k]))) {
       return Number(map[k]);
     }
+  }
+  // Whole-item bulk only if this path has no per-step keys yet
+  const prefix = `${itemId}:i:`;
+  const hasStepKeys = Object.keys(map).some((k) => String(k).startsWith(prefix));
+  if (
+    !hasStepKeys &&
+    itemId &&
+    map[itemId] != null &&
+    allowed.includes(Number(map[itemId]))
+  ) {
+    return Number(map[itemId]);
   }
   return allowed[0];
 }
@@ -953,15 +960,44 @@ export default function PlannerPage() {
     [updateSection]
   );
 
-  const setSegmentDay = (key, day, itemId) => {
+  /**
+   * Move one segment to `day`, and cascade to all later steps in the same path
+   * (you cannot do later levels before earlier ones). Does NOT move earlier steps.
+   * `allKeys` = ordered segment keys for the full path.
+   */
+  const setSegmentDay = (key, day, itemId, allKeys = []) => {
     updateSection('planner', (prev) => {
-      const next = { ...(prev?.assignments || {}), [key]: day };
-      // Keep a whole-item hint for bulk recovery across key-format changes
-      if (itemId) next[itemId] = day;
+      const next = { ...(prev?.assignments || {}) };
+      const keys = allKeys.length ? allKeys : [key];
+      let idx = keys.indexOf(key);
+      if (idx < 0) idx = 0;
+
+      // This step + every step after → chosen day
+      for (let j = idx; j < keys.length; j++) {
+        next[keys[j]] = day;
+      }
+
+      // Enforce non-decreasing days along the path (upgrade order)
+      for (let j = 1; j < keys.length; j++) {
+        const prevDay = Number(next[keys[j - 1]]);
+        const curDay = Number(next[keys[j]]);
+        if (Number.isFinite(prevDay) && Number.isFinite(curDay) && curDay < prevDay) {
+          next[keys[j]] = prevDay;
+        }
+      }
+
+      // Whole-item hint only when every step shares the same day
+      if (itemId) {
+        const days = keys.map((k) => Number(next[k])).filter((d) => Number.isFinite(d));
+        if (days.length && days.every((d) => d === days[0])) next[itemId] = days[0];
+        else delete next[itemId];
+      }
+
       return { ...(prev || {}), assignments: next, selectedDay: prev?.selectedDay };
     });
   };
 
+  /** Assign every step of a path to the same day */
   const setSegmentsDay = (keys, day, itemId) => {
     updateSection('planner', (prev) => {
       const next = { ...(prev?.assignments || {}) };
@@ -1324,9 +1360,15 @@ export default function PlannerPage() {
                               <select
                                 className="planner-day-select is-selected"
                                 value={day}
-                                onChange={(e) =>
-                                  setSegmentDay(seg.key, parseInt(e.target.value, 10), it.id)
-                                }
+                                onChange={(e) => {
+                                  const fullKeys = (full.segments || []).map((s) => s.key);
+                                  setSegmentDay(
+                                    seg.key,
+                                    parseInt(e.target.value, 10),
+                                    it.id,
+                                    fullKeys
+                                  );
+                                }}
                               >
                                 {allowed.map((d) => (
                                   <option key={d} value={d}>

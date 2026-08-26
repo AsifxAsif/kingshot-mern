@@ -46,6 +46,8 @@ export default function TroopsPage() {
     const out = { cards: {}, totalPoints: 0, totalCosts: {}, order: [] };
     if (!data) return out;
 
+    // Order: all training first, then all promotions — so training_speedup is
+    // spent on train cards before promos fall back to general_speedup.
     for (const type of TYPES) {
       const tKey = `train_${type}`;
       const t = troopsState[tKey] || {};
@@ -75,7 +77,8 @@ export default function TroopsPage() {
           out.order.push(tKey);
         }
       }
-
+    }
+    for (const type of TYPES) {
       const pKey = `promo_${type}`;
       const p = troopsState[pKey] || {};
       const from = parseInt(p.from, 10) || 0;

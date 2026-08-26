@@ -348,7 +348,12 @@ export function AppProvider({ children }) {
       const primary = primaryPresetName(u);
       if (!primary) return null;
       const local = loadLocalDefault();
-      const body = { name: primary, displayName: primary, ...buildFullPayload(local, u) };
+      // UI label = username only; DB storage name keeps _gameId via server
+      const uiLabel =
+        String(u.username || 'user')
+          .replace(/[^a-zA-Z0-9_\-.]/g, '_')
+          .slice(0, 32) || 'preset';
+      const body = { name: primary, displayName: uiLabel, ...buildFullPayload(local, u) };
       try {
         await apiCreate(body);
       } catch {

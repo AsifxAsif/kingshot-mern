@@ -31,14 +31,22 @@ export function storageNameFromDisplay(displayName, gameId) {
 }
 
 export function displayNameFromStorage(name, gameId, explicit) {
-  if (explicit != null && String(explicit).trim()) return String(explicit).trim();
   const g = sanitizeGameId(gameId);
-  const n = String(name || '');
-  if (g && n.endsWith(`_${g}`)) {
-    const base = n.slice(0, -(g.length + 1));
-    return base || n;
-  }
-  return n;
+  const stripSuffix = (raw) => {
+    let s = String(raw ?? '').trim();
+    if (!s) return s;
+    if (g) {
+      const suffix = `_${g}`;
+      // Strip one or more trailing _gameId suffixes
+      while (s.endsWith(suffix) && s.length > suffix.length) {
+        s = s.slice(0, -suffix.length);
+      }
+    }
+    return s || String(raw ?? '').trim();
+  };
+  // Prefer explicit label, but never show the storage _gameId suffix in the UI
+  if (explicit != null && String(explicit).trim()) return stripSuffix(explicit);
+  return stripSuffix(name);
 }
 
 

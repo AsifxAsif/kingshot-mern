@@ -112,8 +112,24 @@ export default function Navbar() {
     : null;
 
 
-  const displayNameOf = (storageName) =>
-    presetList.find((p) => p.name === storageName)?.displayName || storageName;
+  const stripGameIdSuffix = (label, storageName) => {
+    let s = String(label || '').trim() || String(storageName || '');
+    const g = String(user?.gameId || '').trim();
+    if (g) {
+      const suffix = `_${g}`;
+      while (s.endsWith(suffix) && s.length > suffix.length) s = s.slice(0, -suffix.length);
+    }
+    // Fallback: if label equals full storage name, show part before last _digits
+    if (storageName && s === storageName) {
+      const m = s.match(/^(.*)_(\d{4,})$/);
+      if (m && m[1]) s = m[1];
+    }
+    return s || storageName;
+  };
+  const displayNameOf = (storageName) => {
+    const p = presetList.find((x) => x.name === storageName);
+    return stripGameIdSuffix(p?.displayName || storageName, storageName);
+  };
 
   const handleRename = () => {
     if (!user) {
@@ -125,7 +141,7 @@ export default function Navbar() {
     setModal({
       type: 'prompt',
       title: 'Rename preset',
-      message: 'This name is shown in the menu. Enter a new name for this preset.',
+      message: 'This name is shown in the menu. Your game ID stays attached in the database.',
       defaultValue: currentLabel,
       placeholder: 'Preset name',
       confirmLabel: 'Rename',
@@ -168,7 +184,7 @@ export default function Navbar() {
     setModal({
       type: 'prompt',
       title: 'New preset',
-      message: 'Enter a name for the new preset. This is shown in the menu.',
+      message: 'Enter a name for the new preset. Your game ID is stored with it automatically.',
       defaultValue: '',
       placeholder: 'e.g. War Plan',
       confirmLabel: 'Create',
@@ -372,7 +388,7 @@ export default function Navbar() {
             >
               {presetList.map((p) => (
                 <option key={p.name} value={p.name}>
-                  {p.displayName || p.name}
+                  {stripGameIdSuffix(p.displayName || p.name, p.name)}
                 </option>
               ))}
             </select>

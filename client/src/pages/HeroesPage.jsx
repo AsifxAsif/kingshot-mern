@@ -442,7 +442,19 @@ export default function HeroesPage() {
 
           const shortage = preview?.shortage || 0;
           const hasEnoughHero = preview && !preview.error && shortage === 0;
-          const canEnableGeneral = !!preview && shortage > 0 && vaultTotal > 0 && fs.targetMaxIdx >= 0;
+          // Pool left after other ACTIVE heroes already reserved general shards
+          const genPoolLeft = Math.max(
+            0,
+            vaultTotal - (lockedGeneral[generalType] || 0) + (s.active && activeResults[h.name]?.generalUsed
+              ? activeResults[h.name].generalUsed
+              : 0)
+          );
+          // When already active, genPoolLeft includes this card's usage restored above for enable checks
+          const canEnableGeneral =
+            !!preview &&
+            shortage > 0 &&
+            (genPoolLeft > 0 || (s.active && (activeResults[h.name]?.generalUsed || 0) > 0)) &&
+            fs.targetMaxIdx >= 0;
           const generalDisabled = !canEnableGeneral;
 
           let status = 'Select current & target (petals)';
@@ -521,9 +533,9 @@ export default function HeroesPage() {
                         ? hasEnoughHero
                           ? `Enough ${h.name} shards — general not needed`
                           : vaultTotal <= 0
-                            ? `No ${generalType.replace(/_/g, ' ')}s in vault`
+                            ? `No ${generalType.replace(/_/g, ' ')}s left in vault (after other active heroes)`
                             : 'Select target level first'
-                        : `Spend ${generalType.replace(/_/g, ' ')}s from vault for the shortage`
+                        : `Spend ${generalType.replace(/_/g, ' ')}s from vault for the shortage (shared pool)`
                     }
                   >
                     <input
@@ -581,16 +593,24 @@ export default function HeroesPage() {
                     const showGeneral =
                       !!useGen &&
                       ((result.generalUsed ?? 0) > 0 || (result.shortage ?? 0) > 0);
-                    const genNeed = result.error
-                      ? (result.shortage ?? 0)
-                      : (result.generalUsed ?? result.shortage ?? 0);
-                    // vaultLeft from calc = available BEFORE this card spends general
-                    // (already minus other active heroes). After spend: vaultLeft - genNeed.
-                    const genAvailableBefore =
-                      result.vaultLeft != null ? result.vaultLeft : vaultTotal;
-                    const genHave = genAvailableBefore;
-                    const genLeft = genAvailableBefore - genNeed;
-                    const genDeficit = genLeft < 0;
+                    // This card's general spend (0 if insufficient / not using)
+                    const thisGenUsed =
+                      result && !result.error ? result.generalUsed || 0 : 0;
+                    const genNeed = result?.error
+                      ? result.shortage || 0
+                      : thisGenUsed || result?.shortage || 0;
+                    /**
+                     * Shared pool remaining — same basis on every card:
+                     * vault − all ACTIVE heroes' general use − this card's projected use if not yet active.
+                     * lockedGeneral is the sum after sequential pass of all active heroes.
+                     */
+                    const lockedByActives = lockedGeneral[generalType] || 0;
+                    const projectedExtra =
+                      !s.active && useGen && result && !result.error ? thisGenUsed : 0;
+                    // When this card is active, its usage is already inside lockedByActives
+                    const genLeft = vaultTotal - lockedByActives - projectedExtra;
+                    const genHave = vaultTotal;
+                    const genDeficit = genLeft < 0 || (result?.error && (result.shortage || 0) > 0);
 
                     return (
                     <ResourceLines
