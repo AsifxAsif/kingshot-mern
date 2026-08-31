@@ -57,6 +57,28 @@ function hasUpgradeRange(from, to) {
   return true;
 }
 
+
+/** Heroes page stores petal absolute indices; map to star labels (e.g. 3.3, 5.0) */
+const HERO_FLOWER_VALUES = [
+  '0.1', '0.2', '0.3', '0.4', '0.5', '1.0',
+  '1.1', '1.2', '1.3', '1.4', '1.5', '2.0',
+  '2.1', '2.2', '2.3', '2.4', '2.5', '3.0',
+  '3.1', '3.2', '3.3', '3.4', '3.5', '4.0',
+  '4.1', '4.2', '4.3', '4.4', '4.5', '5.0',
+];
+
+function heroStarFromAbsIdx(absIdx) {
+  const i = Number(absIdx);
+  if (!Number.isFinite(i) || i < 0) return '0';
+  return HERO_FLOWER_VALUES[i] || String(i);
+}
+
+function heroStarRangeLabel(curIdx, tgtIdx) {
+  const from = heroStarFromAbsIdx(curIdx);
+  const to = heroStarFromAbsIdx(tgtIdx);
+  return `${from} → ${to}`;
+}
+
 function levelLabel(from, to) {
   return `${str(from) ?? '—'} → ${str(to) ?? '—'}`;
 }
@@ -239,9 +261,16 @@ function collectRows(key, state) {
       const hasPetals = tgt > cur && tgt >= 0;
       if (!hasPetals && !hasUpgradeRange(h.starFrom, h.starTo)) continue;
       const parts = [];
-      if (hasPetals) parts.push(`${cur < 0 ? '—' : cur}→${tgt}`);
+      if (hasPetals) parts.push(heroStarRangeLabel(cur, tgt));
       if (hasUpgradeRange(h.starFrom, h.starTo)) parts.push(`★ ${levelLabel(h.starFrom, h.starTo)}`);
-      rows.push({ id: name, name, detail: parts.join(' · '), active: !!h.active });
+      rows.push({
+        id: name,
+        name,
+        detail: parts.join(' · '),
+        active: !!h.active,
+        from: hasPetals ? heroStarFromAbsIdx(cur) : h.starFrom,
+        to: hasPetals ? heroStarFromAbsIdx(tgt) : h.starTo,
+      });
     }
     return rows;
   }

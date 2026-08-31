@@ -407,10 +407,16 @@ export default function HeroesPage() {
           </div>
         </div>
         <div className="hero-shards-grid">
-          {heroes.map((h) => (
+          {heroes.map((h) => {
+            const fsInv = flowerStates[h.name] || { currentMaxIdx: -1 };
+            const isMaxed = fsInv.currentMaxIdx >= MAX_ABS;
+            // Hide inventory input when this hero is already maxed
+            if (isMaxed && !showMaxed) return null;
+            return (
             <div className={`hero-shard-item ${rarityClass(h.rarity)}`} key={h.name}>
               <AssetImg src={heroImg(h.name)} size={40} />
               <span className="hero-shard-name" title={h.name}>{h.name}</span>
+              {!isMaxed && (
               <input
                 type="text"
                 className="hero-shard-input"
@@ -418,8 +424,13 @@ export default function HeroesPage() {
                 value={shards[h.name] ?? ''}
                 onChange={(e) => setShard(h.name, e.target.value)}
               />
+              )}
+              {isMaxed && (
+                <span className="hero-shard-maxed" title="Maxed">Max</span>
+              )}
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -612,9 +623,15 @@ export default function HeroesPage() {
                     const genHave = vaultTotal;
                     const genDeficit = genLeft < 0 || (result?.error && (result.shortage || 0) > 0);
 
+                    // With general enabled (or upgrade locked), show remaining after this spend —
+                    // not the full vault stock. Without general, estimated still shows "in vault".
+                    const showRemaining =
+                      (!!s.active && result && !result.error) ||
+                      (!!useGen && showGeneral && result && !result.error);
+
                     return (
                     <ResourceLines
-                      active={!!s.active && result && !result.error}
+                      active={showRemaining}
                       lines={[
                         {
                           key: 'hero_shards',
@@ -636,7 +653,8 @@ export default function HeroesPage() {
                               key: generalType,
                               label: generalType.replace(/_/g, ' '),
                               need: genNeed,
-                              have: genHave,
+                              // have = pool before this card's spend (after other actives)
+                              have: Math.max(0, vaultTotal - lockedByActives + (s.active ? thisGenUsed : 0)),
                               left: genLeft,
                               deficit: genDeficit,
                               img: resourceImg(generalType),

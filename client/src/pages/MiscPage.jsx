@@ -106,7 +106,7 @@ export default function MiscPage() {
   const tokensInVault = parseCost(vault?.hero_roulette_token);
   const roulettePoints = spins * (SCORE_RULES.roulette || 8000);
 
-  const bisonGrip = parseInt(misc.bisonGrip || '0', 10) || 0;
+  const bisonGrip = Math.min(3, Math.max(0, parseInt(misc.bisonGrip || '0', 10) || 0));
   const bisonResource = misc.bisonResource || 'bread';
   const bisonNode = misc.bisonNode || '1';
   const bisonNodeData = bisonGrip > 0 ? getNodeData(bisonNode, bisonResource) : null;
@@ -247,13 +247,13 @@ export default function MiscPage() {
                 value={String(bisonGrip)}
                 onChange={(e) => setField('bisonGrip', e.target.value)}
               >
-                {[0, 1, 2].map((n) => (
+                {[0, 1, 2, 3].map((n) => (
                   <option key={n} value={n}>
-                    {n === 0 ? 'Off' : n}
+                    {n === 0 ? 'Off' : `${n} rounds`}
                   </option>
                 ))}
               </select>
-              <small>Instant full-node gather × uses</small>
+              <small>Instant full-node gather · max 3 uses</small>
             </div>
           </div>
 
