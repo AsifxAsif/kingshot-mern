@@ -1,9 +1,12 @@
 import { useEffect, useMemo } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
-import { parseCost, parseTimeToSeconds, formatNumber, formatSecondsToTime, SCORE_RULES } from '../utils/calc';
+import { useScoreRules } from '../hooks/useScoreRules';
+import { usePublishPageScore } from '../hooks/usePublishPageScore';
+import { parseCost, parseTimeToSeconds, formatNumber, formatSecondsToTime } from '../utils/calc';
 import AssetImg from '../components/AssetImg';
 import { asset, resourceImg } from '../utils/images';
+import { getGatherRate } from '../utils/events';
 
 const RESOURCES = ['bread', 'wood', 'stone', 'iron'];
 
@@ -43,8 +46,9 @@ function getSkillBonus(skillLevel) {
   return bonuses[skillLevel] || 0;
 }
 
-function gatheringPoints(resourceAmount, resourceType) {
-  const rate = GATHER_RATES[resourceType] || { rate: 3, per: 2500 };
+function gatheringPoints(resourceAmount, resourceType, eventId = 'sg') {
+  const rate = getGatherRate(eventId, resourceType);
+  if (!rate?.per) return 0;
   return Math.floor(resourceAmount / rate.per) * rate.rate;
 }
 
@@ -74,6 +78,7 @@ function ImgLabel({ src, size = 22, children }) {
 export default function MiscPage() {
   const { data, loading, error } = useGameData('misc');
   const { state, updateSection, setPageScore, vault } = useApp();
+  const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
   const misc = state.misc || {};
   const gatherCards = misc.gatheringCards || {};
 
@@ -104,7 +109,9 @@ export default function MiscPage() {
 
   const spins = parseCost(misc.roulette || 0);
   const tokensInVault = parseCost(vault?.hero_roulette_token);
-  const roulettePoints = spins * (SCORE_RULES.roulette || 8000);
+  const roulettePtsEach = SCORE_RULES.roulette ?? 0;
+  const roulettePoints = spins * roulettePtsEach;
+  const rouletteScores = roulettePtsEach > 0;
 
   const bisonGrip = Math.min(3, Math.max(0, parseInt(misc.bisonGrip || '0', 10) || 0));
   const bisonResource = misc.bisonResource || 'bread';
@@ -113,7 +120,7 @@ export default function MiscPage() {
   const bisonResourceAmt = bisonNodeData ? parseCost(bisonNodeData.resource) : 0;
   const bisonPoints =
     bisonGrip > 0 && bisonNodeData
-      ? gatheringPoints(bisonResourceAmt, bisonResource) * bisonGrip
+      ? gatheringPoints(bisonResourceAmt, bisonResource, activeEventId) * bisonGrip
       : 0;
 
   const cardsCalc = cardIds.map((id) => {
@@ -126,7 +133,7 @@ export default function MiscPage() {
     const nodeData = resource && node ? getNodeData(node, resource) : null;
     const result = calculateGatheringTime(nodeData, skill, speed);
     const pointsPerRound =
-      resource && nodeData ? gatheringPoints(result.resourceAmount, resource) : 0;
+      resource && nodeData ? gatheringPoints(result.resourceAmount, resource, activeEventId) : 0;
     const points = pointsPerRound * rounds;
     return {
       id,
@@ -148,13 +155,36 @@ export default function MiscPage() {
   });
 
   const gatherCardsPoints = cardsCalc.reduce((s, c) => s + c.points, 0);
-  const totalMiscPoints =
-    (misc.rouletteActive ? roulettePoints : 0) +
-    (misc.gatherActive ? gatherCardsPoints + bisonPoints : 0);
+  // Event missions are stored per-event under misc.eventMissions[eventId]
+  // Never read vault here (vault gems ≠ "gems used" for AB).
+  const eventMissions = (misc.eventMissions && misc.eventMissions[activeEventId]) || {};
+  const n = (key) => parseCost(eventMissions[key] || 0);
+  const setMissionField = (key, value) => {
+    updateSection('misc', (prev) => {
+      const em = { ...(prev.eventMissions || {}) };
+      em[activeEventId] = { ...(em[activeEventId] || {}), [key]: value };
+      return { ...prev, eventMissions: em };
+    });
+  };
+  const eventMissionPoints =
+    n('intel_missions') * (SCORE_RULES.intel_mission ?? 0) +
+    n('escort_trucks') * (SCORE_RULES.escort_truck ?? 0) +
+    n('raid_trucks') * (SCORE_RULES.raid_truck ?? 0) +
+    n('topup_points') * (SCORE_RULES.topup_point ?? 0) +
+    n('gems') * (SCORE_RULES.gem ?? 0) +
+    n('beast_1_10') * (SCORE_RULES.beast_1_10 ?? 0) +
+    n('beast_11_15') * (SCORE_RULES.beast_11_15 ?? 0) +
+    n('beast_16_20') * (SCORE_RULES.beast_16_20 ?? 0) +
+    n('beast_21_25') * (SCORE_RULES.beast_21_25 ?? 0) +
+    n('beast_26_30') * (SCORE_RULES.beast_26_30 ?? 0) +
+    n('terror_rallies') * (SCORE_RULES.terror_rally ?? 0);
 
-  useEffect(() => {
-    setPageScore('misc', totalMiscPoints);
-  }, [totalMiscPoints, setPageScore]);
+  const totalMiscPoints =
+    (rouletteScores && misc.rouletteActive ? roulettePoints : 0) +
+    (misc.gatherActive ? gatherCardsPoints + bisonPoints : 0) +
+    eventMissionPoints;
+
+  usePublishPageScore('misc', totalMiscPoints);
 
   if (loading)
     return (
@@ -172,7 +202,8 @@ export default function MiscPage() {
 
   return (
     <div className="app-container misc-page">
-      {/* Roulette */}
+      {/* Roulette — only if event scores it */}
+      {rouletteScores && (
       <div className="item-card" style={{ marginBottom: 16 }}>
         <div className="item-card-header">
           <AssetImg src={asset('hero_roulette.webp')} size={40} />
@@ -213,6 +244,7 @@ export default function MiscPage() {
           </label>
         </div>
       </div>
+      )}
 
       {/* Gathering settings */}
       <div className="item-card" style={{ marginBottom: 16 }}>
@@ -486,6 +518,57 @@ export default function MiscPage() {
           </div>
         ))}
       </div>
+
+      {/* Event-specific missions (KvK / AB only when scored) */}
+      {(SCORE_RULES.intel_mission || SCORE_RULES.escort_truck || SCORE_RULES.gem || SCORE_RULES.terror_rally) > 0 && (
+        <div className="item-card" style={{ marginTop: 16, marginBottom: 16 }}>
+          <div className="item-card-header">
+            <span>EVENT MISSIONS ({(activeEventId || 'sg').toUpperCase()})</span>
+          </div>
+          <div className="item-card-body">
+            <div className="vault-grid" style={{ marginTop: 8 }}>
+              {[
+                SCORE_RULES.gem ? ['gems', 'Gems used', SCORE_RULES.gem] : null,
+                SCORE_RULES.topup_point ? ['topup_points', 'Top-up points', SCORE_RULES.topup_point] : null,
+                SCORE_RULES.escort_truck ? ['escort_trucks', 'Escort trucks', SCORE_RULES.escort_truck] : null,
+                SCORE_RULES.raid_truck ? ['raid_trucks', 'Raid trucks', SCORE_RULES.raid_truck] : null,
+                SCORE_RULES.intel_mission ? ['intel_missions', 'Intel missions', SCORE_RULES.intel_mission] : null,
+                SCORE_RULES.beast_1_10 ? ['beast_1_10', 'Beasts 1–10', SCORE_RULES.beast_1_10] : null,
+                SCORE_RULES.beast_11_15 ? ['beast_11_15', 'Beasts 11–15', SCORE_RULES.beast_11_15] : null,
+                SCORE_RULES.beast_16_20 ? ['beast_16_20', 'Beasts 16–20', SCORE_RULES.beast_16_20] : null,
+                SCORE_RULES.beast_21_25 ? ['beast_21_25', 'Beasts 21–25', SCORE_RULES.beast_21_25] : null,
+                SCORE_RULES.beast_26_30 ? ['beast_26_30', 'Beasts 26–30', SCORE_RULES.beast_26_30] : null,
+                SCORE_RULES.terror_rally ? ['terror_rallies', 'Terror rallies', SCORE_RULES.terror_rally] : null,
+              ]
+                .filter(Boolean)
+                .map(([id, label, pts]) => (
+                  <div className="vault-item" key={id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div className="vault-label">
+                      <label htmlFor={`misc-${id}`}>{label}</label>
+                    </div>
+                    <input
+                      id={`misc-${id}`}
+                      type="text"
+                      placeholder="0"
+                      value={eventMissions[id] ?? ''}
+                      onChange={(e) => setMissionField(id, e.target.value)}
+                      style={{ textAlign: 'center' }}
+                    />
+                    <div style={{ fontSize: 12, opacity: 0.75, marginTop: 4 }}>
+                      {Number(pts).toLocaleString()} pts each
+                    </div>
+                  </div>
+                ))}
+            </div>
+            <div className="misc-lcd" style={{ marginTop: 12 }}>
+              <div className="misc-lcd-row">
+                <span>Event mission points:</span>
+                <span className="misc-lcd-value">+{formatNumber(eventMissionPoints)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

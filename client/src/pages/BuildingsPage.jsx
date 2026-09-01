@@ -1,19 +1,10 @@
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import { useScoreRules } from '../hooks/useScoreRules';
+import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
-import {
-  parseCost,
-  parseTimeToSeconds,
-  formatNumber,
-  formatSecondsToTime,
-  getUpgradeSteps,
-  SCORE_RULES,
-  convertLevelToNumeric,
-  sortLevels,
-  applyBuildingSpeedupBuffs,
-  secondsToSpeedupMinutes,
-} from '../utils/calc';
+import { parseCost, parseTimeToSeconds, formatNumber, formatSecondsToTime, getUpgradeSteps, convertLevelToNumeric, sortLevels, applyBuildingSpeedupBuffs, secondsToSpeedupMinutes } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import { BuildingBuffPanel } from '../components/BuffPanel';
 import CostStatus from '../components/CostStatus';
@@ -55,6 +46,7 @@ export default function BuildingsPage() {
     state, updateSection, setPageScore, setPageLockedCosts,
     remainingVaultExcluding,
   } = useApp();
+  const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
   const bState = state.buildings || {};
   const showMaxed = useShowMaxedItems();
   const buffs = state.settings?.buildingBuffs || {};
@@ -143,7 +135,7 @@ export default function BuildingsPage() {
       const resolvedCosts = a.resolvedCosts || c.costs;
       const usedSpd = a.speedupAlloc?.used ?? 0;
       const pts =
-        c.points + (usedSpd > 0 ? usedSpd * (SCORE_RULES.speedup_min || 0) : 0);
+        c.points + (usedSpd > 0 ? usedSpd * (SCORE_RULES.speedup_min ?? 0) : 0);
       return {
         ...c,
         costs: resolvedCosts,
@@ -153,7 +145,7 @@ export default function BuildingsPage() {
         speedupAlloc: a.speedupAlloc,
       };
     });
-  }, [data, buildingNames, bState, buffs, baseVault]);
+  }, [data, buildingNames, bState, buffs, baseVault, SCORE_RULES, activeEventId]);
 
   const hasMaxedItems = useMemo(
     () => cards.some((c) => isAtMaxLevel(c.from, c.levels)),
@@ -166,7 +158,7 @@ export default function BuildingsPage() {
       if (c.active && c.canAfford && c.steps.length) total += c.points;
     }
     return total;
-  }, [cards]);
+  }, [cards, SCORE_RULES, activeEventId]);
 
   useEffect(() => {
     const locked = sumActiveCosts(
@@ -174,11 +166,9 @@ export default function BuildingsPage() {
       new Map(cards.map((c) => [c.id, { canAfford: c.canAfford }]))
     );
     setPageLockedCosts('buildings', locked);
-  }, [cards, setPageLockedCosts]);
+  }, [cards, setPageLockedCosts, SCORE_RULES, activeEventId]);
 
-  useEffect(() => {
-    setPageScore('buildings', totalActivePoints);
-  }, [totalActivePoints, setPageScore]);
+  usePublishPageScore('buildings', totalActivePoints);
 
   if (loading) return <div className="page-loading"><div className="spinner" /><p>Loading buildings…</p></div>;
   if (error) return <div className="page-error"><p>{error}</p></div>;

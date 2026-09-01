@@ -1,8 +1,10 @@
 import { useMemo, useEffect, useCallback, useState } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import { useScoreRules } from '../hooks/useScoreRules';
+import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems } from '../components/ShowMaxedToggle';
-import { parseCost, formatNumber, SCORE_RULES } from '../utils/calc';
+import { parseCost, formatNumber } from '../utils/calc';
 import AssetImg from '../components/AssetImg';
 import ResourceLines from '../components/ResourceLines';
 import { heroImg, resourceImg } from '../utils/images';
@@ -144,6 +146,7 @@ function FlowerRow({ maxIdx, onPetalClick, type }) {
 export default function HeroesPage() {
   const { data, loading, error } = useGameData('heroes');
   const { state, updateSection, setPageScore, vault } = useApp();
+  const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
   const showMaxed = useShowMaxedItems();
   const maxGen = state.settings?.maxHeroGen ?? 7;
   const shards = state.heroShards || {};
@@ -159,7 +162,7 @@ export default function HeroesPage() {
   const heroes = useMemo(() => {
     const list = data?.Hero?.Heroes || [];
     return list.filter((h) => (h.generation || 1) <= maxGen);
-  }, [data, maxGen]);
+  }, [data, maxGen, SCORE_RULES, activeEventId]);
 
   const shardTable = data?.Hero?.['Hero Shards'] || [];
 
@@ -338,7 +341,7 @@ export default function HeroesPage() {
         canEnableGeneral: true,
       };
     },
-    [flowerStates, shardTable, shards, vault]
+    [flowerStates, shardTable, shards, vault, SCORE_RULES]
   );
 
   // Preview without locking (for checkbox enable state)
@@ -373,9 +376,7 @@ export default function HeroesPage() {
     return { totalActivePoints: total, lockedGeneral: locked, activeResults };
   }, [heroes, heroesState, calcForHero]);
 
-  useEffect(() => {
-    setPageScore('heroes', totalActivePoints);
-  }, [totalActivePoints, setPageScore]);
+  usePublishPageScore('heroes', totalActivePoints);
 
   const hasMaxedItems = useMemo(
     () =>

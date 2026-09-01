@@ -3,6 +3,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import AppModal from './AppModal';
+import { EVENTS, normalizeEventId } from '../utils/events';
 
 const LINKS = [
   { to: '/', label: 'VAULT' },
@@ -16,7 +17,6 @@ const LINKS = [
   { to: '/pets', label: 'PETS' },
   { to: '/troops', label: 'TROOPS' },
   { to: '/misc', label: 'MISC' },
-  { to: '/planner', label: 'PLANNER' },
   { to: '/profile', label: 'PROFILE' },
 ];
 
@@ -110,6 +110,8 @@ export default function Navbar() {
   const pageScore = pageScoreKey
     ? parseInt(state.pageScores?.[pageScoreKey] || 0, 10) || 0
     : null;
+  const activeEventId = normalizeEventId(state.settings?.activeEvent || 'sg') || 'sg';
+  const eventLabel = EVENTS[activeEventId]?.name || 'Strongest Governor';
 
 
   const stripGameIdSuffix = (label, storageName) => {
@@ -282,7 +284,7 @@ export default function Navbar() {
     setModal({
       type: 'confirm',
       title: 'Reset all data',
-      message: `Reset ALL data on preset "${presetLabel}"?\n\nThis clears every page in this preset (vault, upgrades, planner, scores). This cannot be undone.`,
+      message: `Reset ALL data on preset "${presetLabel}"?\n\nThis clears every page in this preset (vault, upgrades, scores). This cannot be undone.`,
       confirmLabel: 'Reset all',
       danger: true,
       onConfirm: async () => {
@@ -373,7 +375,7 @@ export default function Navbar() {
             </div>
           )}
           <div className="scoreboard">
-            <div className="lcd-label">Strongest Governor{saving ? '…' : ''}</div>
+            <div className="lcd-label">{eventLabel}{saving ? '…' : ''}</div>
             <div className="lcd-value">{globalScore.toLocaleString()}</div>
           </div>
         </div>

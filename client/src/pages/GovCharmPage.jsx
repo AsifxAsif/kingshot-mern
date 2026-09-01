@@ -1,8 +1,10 @@
 import { useMemo, useEffect, useState } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import { useScoreRules } from '../hooks/useScoreRules';
+import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
-import { parseCost, formatNumber, SCORE_RULES } from '../utils/calc';
+import { parseCost, formatNumber } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
@@ -108,6 +110,7 @@ function nextLvl(levels, from, order) {
 
 export default function GovCharmPage() {
   const { data, loading, error } = useGameData('gov_charms');
+  const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
   const { state, updateSection, setPageScore, setPageLockedCosts, remainingVaultExcluding } =
     useApp();
   const showMaxed = useShowMaxedItems();
@@ -125,7 +128,7 @@ export default function GovCharmPage() {
       if (r.target != null) set.add(String(r.target));
     }
     return Array.from(set).sort((a, b) => (order[a] ?? 0) - (order[b] ?? 0));
-  }, [rows, order]);
+  }, [rows, order, SCORE_RULES, activeEventId]);
 
   const [groupSet, setGroupSet] = useState({});
 
@@ -199,7 +202,7 @@ export default function GovCharmPage() {
       let points = 0;
       const costs = {};
       for (const step of steps) {
-        points += parseCost(step.point) * (SCORE_RULES.gov_charm_score || 1);
+        points += parseCost(step.point) * (SCORE_RULES.gov_charm_score ?? 0);
         if (step.guides) costs.charm_guide = (costs.charm_guide || 0) + parseCost(step.guides);
         if (step.designs) costs.charm_design = (costs.charm_design || 0) + parseCost(step.designs);
       }
@@ -225,7 +228,7 @@ export default function GovCharmPage() {
       const a = afford.get(c.id) || { canAfford: true, vaultBefore: vault };
       return { ...c, canAfford: a.canAfford, vaultBefore: a.vaultBefore };
     });
-  }, [cState, rows, order, vault, allCharmNames]);
+  }, [cState, rows, order, vault, allCharmNames, SCORE_RULES, activeEventId]);
 
   const totalPoints = useMemo(() => {
     let t = 0;
@@ -248,9 +251,7 @@ export default function GovCharmPage() {
     [cards, levels]
   );
 
-    useEffect(() => {
-    setPageScore('govCharm', totalPoints);
-  }, [totalPoints, setPageScore]);
+    usePublishPageScore('govCharm', totalPoints);
 
   if (loading)
     return (

@@ -1,14 +1,10 @@
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import { useScoreRules } from '../hooks/useScoreRules';
+import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
-import {
-  parseCost,
-  formatNumber,
-  getUpgradeSteps,
-  getLevelsFromArray,
-  SCORE_RULES,
-} from '../utils/calc';
+import { parseCost, formatNumber, getUpgradeSteps, getLevelsFromArray } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
@@ -27,8 +23,8 @@ const RES = [
   'gold',
 ];
 
-/** Original pets.js getPetAdvancementPoints */
-function getPetAdvancementPoints(targetLevelStr) {
+/** Advancement score × per-point rate (Points.json: Raise Pet Advancement Score by 1) */
+function getPetAdvancementPoints(targetLevelStr, ptsPerUnit = 50) {
   const levelStr = String(targetLevelStr).toLowerCase().trim();
   const match = levelStr.match(/^(\d+)_[Aa]dvancement$/);
   if (!match) return 0;
@@ -46,7 +42,7 @@ function getPetAdvancementPoints(targetLevelStr) {
     100: 17500,
   };
   const basePoints = milestoneMap[baseMilestone] || 0;
-  return basePoints * 50;
+  return basePoints * (Number(ptsPerUnit) || 0);
 }
 
 /**
@@ -56,14 +52,15 @@ function getPetAdvancementPoints(targetLevelStr) {
  */
 function TamingMarksCard({ vault }) {
   const { state, updateSection } = useApp();
+  const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
   const usage = state.settings?.tamingMarks || {};
 
   const advancedQty = parseCost(usage.advanced);
   const commonQty = parseCost(usage.common);
   const active = !!usage.active;
 
-  const advancedPts = advancedQty * (SCORE_RULES.advanced_taming_mark || 15000);
-  const commonPts = commonQty * (SCORE_RULES.common_taming_mark || 1150);
+  const advancedPts = advancedQty * (SCORE_RULES.advanced_taming_mark ?? 0);
+  const commonPts = commonQty * (SCORE_RULES.common_taming_mark ?? 0);
   const totalPts = advancedPts + commonPts;
 
   const costs = {};
@@ -160,6 +157,7 @@ export default function PetsPage() {
   const { data, loading, error } = useGameData('pets');
   const { state, updateSection, setPageScore, setPageLockedCosts, remainingVaultExcluding } =
     useApp();
+  const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
   const vault = useMemo(
     () => remainingVaultExcluding('pets'),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -201,7 +199,7 @@ export default function PetsPage() {
           if (step[k] != null) costs[k] = (costs[k] || 0) + parseCost(step[k]);
         }
         const targetLvl = step.target_lvl || step.target || step.level;
-        const advPts = getPetAdvancementPoints(targetLvl);
+        const advPts = getPetAdvancementPoints(targetLvl, SCORE_RULES.pet_advancement ?? 50);
         if (advPts > 0) {
           points += advPts;
         } else {
@@ -227,14 +225,14 @@ export default function PetsPage() {
       const a = afford.get(c.id) || { canAfford: true, vaultBefore: vault };
       return { ...c, canAfford: a.canAfford, vaultBefore: a.vaultBefore };
     });
-  }, [petNames, root, petsState, vault]);
+  }, [petNames, root, petsState, vault, SCORE_RULES, activeEventId]);
 
   const tamingQtyAdv = parseCost(taming.advanced);
   const tamingQtyCommon = parseCost(taming.common);
   const tamingActive = !!taming.active;
   const tamingPoints = tamingActive
-    ? tamingQtyAdv * (SCORE_RULES.advanced_taming_mark || 15000) +
-      tamingQtyCommon * (SCORE_RULES.common_taming_mark || 1150)
+    ? tamingQtyAdv * (SCORE_RULES.advanced_taming_mark ?? 0) +
+      tamingQtyCommon * (SCORE_RULES.common_taming_mark ?? 0)
     : 0;
 
   const hasMaxedItems = useMemo(
@@ -268,9 +266,7 @@ export default function PetsPage() {
     setPageLockedCosts('pets', fromPets);
   }, [cards, tamingActive, tamingQtyAdv, tamingQtyCommon, setPageLockedCosts]);
 
-  useEffect(() => {
-    setPageScore('pets', total);
-  }, [total, setPageScore]);
+  usePublishPageScore('pets', total);
 
   // Clear any leftover vault page score from the previous mistaken placement
   useEffect(() => {

@@ -2,16 +2,10 @@ import { sequentialAfford, sumActiveCosts, computeAffordability } from '../utils
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import { useScoreRules } from '../hooks/useScoreRules';
+import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems } from '../components/ShowMaxedToggle';
-import {
-  parseCost,
-  parseTimeToSeconds,
-  formatNumber,
-  formatSecondsToTime,
-  SCORE_RULES,
-  applyTrainingSpeedupBuffs,
-  secondsToSpeedupMinutes,
-} from '../utils/calc';
+import { parseCost, parseTimeToSeconds, formatNumber, formatSecondsToTime, applyTrainingSpeedupBuffs, secondsToSpeedupMinutes } from '../utils/calc';
 import { TrainingBuffPanel } from '../components/BuffPanel';
 import AssetImg from '../components/AssetImg';
 import CostStatus from '../components/CostStatus';
@@ -24,6 +18,7 @@ const TYPES = ['Infantry', 'Cavalry', 'Archer'];
 export default function TroopsPage() {
   const { data, loading, error } = useGameData('troops');
   const { state, updateSection, setPageScore, setPageLockedCosts, remainingVaultExcluding } = useApp();
+  const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
   const showMaxed = useShowMaxedItems();
   const vault = useMemo(
     () => remainingVaultExcluding('troops'),
@@ -60,7 +55,7 @@ export default function TroopsPage() {
           for (const k of ['bread', 'wood', 'stone', 'iron', 'gold', 'truegold']) {
             if (row[k] != null) costs[k] = parseCost(row[k]) * qty;
           }
-          let points = (row.point || SCORE_RULES.troops[level] || 0) * qty;
+          let points = (SCORE_RULES.troops?.[level] ?? row.point ?? 0) * qty;
           const timeSec = parseTimeToSeconds(row.time) * qty;
           const buffedTrain = applyTrainingSpeedupBuffs(timeSec, trainBuffs);
           const speedupMins =
@@ -139,7 +134,7 @@ export default function TroopsPage() {
       const usedSpd = a.speedupAlloc?.used ?? 0;
       card.costs = a.resolvedCosts || card.costs;
       card.points =
-        card.points + (usedSpd > 0 ? usedSpd * (SCORE_RULES.speedup_min || 0) : 0);
+        card.points + (usedSpd > 0 ? usedSpd * (SCORE_RULES.speedup_min ?? 0) : 0);
       card.canAfford = a.canAfford;
       card.vaultBefore = a.vaultBefore;
       card.speedupAlloc = a.speedupAlloc;
@@ -151,7 +146,7 @@ export default function TroopsPage() {
       }
     }
     return out;
-  }, [data, troopsState, training, promoting, vault, trainBuffs]);
+  }, [data, troopsState, training, promoting, vault, trainBuffs, SCORE_RULES, activeEventId]);
 
   useEffect(() => {
     const items = (results.order || []).map((id) => ({
@@ -165,9 +160,7 @@ export default function TroopsPage() {
     setPageLockedCosts('troops', sumActiveCosts(items, map));
   }, [results, setPageLockedCosts]);
 
-  useEffect(() => {
-    setPageScore('troops', results.totalPoints);
-  }, [results.totalPoints, setPageScore]);
+  usePublishPageScore('troops', results.totalPoints);
 
   const hasMaxedItems = useMemo(() => {
     const training = data?.Training || data?.training || {};

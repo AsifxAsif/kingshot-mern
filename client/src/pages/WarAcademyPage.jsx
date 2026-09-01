@@ -1,17 +1,10 @@
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import { useScoreRules } from '../hooks/useScoreRules';
+import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
-import {
-  parseCost,
-  getUpgradeSteps,
-  getLevelsFromArray,
-  SCORE_RULES,
-  parseTimeToSeconds,
-  formatSecondsToTime,
-  secondsToSpeedupMinutes,
-  applyResearchSpeedupBuffs,
-} from '../utils/calc';
+import { parseCost, getUpgradeSteps, getLevelsFromArray, parseTimeToSeconds, formatSecondsToTime, secondsToSpeedupMinutes, applyResearchSpeedupBuffs } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import { ResearchBuffPanel } from '../components/BuffPanel';
 import AssetImg from '../components/AssetImg';
@@ -59,6 +52,7 @@ const TECH_GROUPS = [
 export default function WarAcademyPage() {
   const { data, loading, error } = useGameData('war_academy');
   const { state, updateSection, setPageScore, setPageLockedCosts, remainingVaultExcluding } = useApp();
+  const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
   const vault = useMemo(
     () => remainingVaultExcluding('warAcademy'),
     [state.vault, state.lockedUpgrades, remainingVaultExcluding]
@@ -141,7 +135,7 @@ export default function WarAcademyPage() {
       const resolvedCosts = a.resolvedCosts || c.costs;
       const usedSpd = a.speedupAlloc?.used ?? 0;
       const pts =
-        c.points + (usedSpd > 0 ? usedSpd * (SCORE_RULES.speedup_min || 0) : 0);
+        c.points + (usedSpd > 0 ? usedSpd * (SCORE_RULES.speedup_min ?? 0) : 0);
       return {
         ...c,
         costs: resolvedCosts,
@@ -151,7 +145,7 @@ export default function WarAcademyPage() {
         speedupAlloc: a.speedupAlloc,
       };
     });
-  }, [root, wa, buildingsState, vault, buffs]);
+  }, [root, wa, buildingsState, vault, buffs, SCORE_RULES, activeEventId]);
 
   const hasMaxedItems = useMemo(
     () => cards.some((c) => isAtMaxLevel(c.from, c.levels)),
@@ -171,11 +165,9 @@ export default function WarAcademyPage() {
         new Map(cards.map((c) => [c.id, { canAfford: c.canAfford }]))
       )
     );
-  }, [cards, setPageLockedCosts]);
+  }, [cards, setPageLockedCosts, SCORE_RULES, activeEventId]);
 
-  useEffect(() => {
-    setPageScore('warAcademy', totalActivePoints);
-  }, [totalActivePoints, setPageScore]);
+  usePublishPageScore('warAcademy', totalActivePoints);
 
   if (loading) return <div className="page-loading"><div className="spinner" /><p>Loading…</p></div>;
   if (error) return <div className="page-error"><p>{error}</p></div>;

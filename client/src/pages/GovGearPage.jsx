@@ -1,8 +1,10 @@
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import { useScoreRules } from '../hooks/useScoreRules';
+import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
-import { parseCost, formatNumber, SCORE_RULES } from '../utils/calc';
+import { parseCost, formatNumber } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
@@ -69,6 +71,7 @@ function getSteps(rows, from, to, order) {
 export default function GovGearPage() {
   const { data, loading, error } = useGameData('gov_gears');
   const { state, updateSection, setPageScore, setPageLockedCosts, remainingVaultExcluding } = useApp();
+  const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
   const showMaxed = useShowMaxedItems();
   const vault = useMemo(
     () => remainingVaultExcluding('govGear'),
@@ -84,7 +87,7 @@ export default function GovGearPage() {
       if (r.target != null && r.target !== 'null') set.add(String(r.target));
     }
     return Array.from(set).sort((a, b) => (order[a] ?? 0) - (order[b] ?? 0));
-  }, [rows, order]);
+  }, [rows, order, SCORE_RULES, activeEventId]);
 
   const setPiece = (piece, field, value) => {
     if (!piece || !GEAR_PIECES.includes(piece)) return;
@@ -140,7 +143,7 @@ export default function GovGearPage() {
       let points = 0;
       const costs = { satin: 0, gilded_threads: 0, artisans_vision: 0 };
       for (const step of steps) {
-        points += parseCost(step.point) * SCORE_RULES.gov_gear_score;
+        points += parseCost(step.point) * (SCORE_RULES.gov_gear_score ?? 0);
         costs.satin += parseCost(step.satin);
         costs.gilded_threads += parseCost(step.threads);
         costs.artisans_vision += parseCost(step.artisans);
@@ -156,7 +159,7 @@ export default function GovGearPage() {
       const a = afford.get(c.id) || { canAfford: true, vaultBefore: vault };
       return { ...c, canAfford: a.canAfford, vaultBefore: a.vaultBefore };
     });
-  }, [gState, rows, order, vault]);
+  }, [gState, rows, order, vault, SCORE_RULES, activeEventId]);
 
   const totalPoints = useMemo(() => {
     let t = 0;
@@ -181,7 +184,7 @@ export default function GovGearPage() {
     );
   }, [cards, setPageLockedCosts]);
 
-  useEffect(() => { setPageScore('govGear', totalPoints); }, [totalPoints, setPageScore]);
+  usePublishPageScore('govGear', totalPoints);
 
   if (loading) return <div className="page-loading"><div className="spinner" /><p>Loading…</p></div>;
   if (error) return <div className="page-error"><p>{error}</p></div>;

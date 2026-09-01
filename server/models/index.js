@@ -69,6 +69,8 @@ const presetSchema = new mongoose.Schema(
     settings: { type: mongoose.Schema.Types.Mixed, default: {} },
     // Per-page scores (keys: buildings, troops, heroes, … — match setPageScore)
     pageScores: { type: mongoose.Schema.Types.Mixed, default: {} },
+    // Per-event parked page scores { sg: {...}, kvk: {...}, ab: {...} }
+    eventPageScores: { type: mongoose.Schema.Types.Mixed, default: {} },
   },
   { timestamps: true, collection: 'presets' }
 );

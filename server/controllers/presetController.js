@@ -72,6 +72,7 @@ const PRESET_FIELDS = [
   'lockedUpgrades',
   'settings',
   'pageScores',
+  'eventPageScores',
 ];
 
 /** Build a plain object with stable field order: identity → vault → rest */
@@ -101,6 +102,7 @@ function orderedPresetDoc({ userId, name, username, gameId, data }) {
     lockedUpgrades: d.lockedUpgrades != null ? d.lockedUpgrades : {},
     settings: d.settings != null ? d.settings : {},
     pageScores: d.pageScores != null ? d.pageScores : {},
+    eventPageScores: d.eventPageScores != null ? d.eventPageScores : {},
   };
 }
 

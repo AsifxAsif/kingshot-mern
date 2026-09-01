@@ -16,6 +16,7 @@ import {
   deletePreset as apiDelete,
 } from '../services/api';
 import { buildRemainingVault } from '../utils/resources';
+import { normalizeEventId } from '../utils/events';
 import { useAuth } from './AuthContext';
 
 const AppContext = createContext(null);
@@ -49,8 +50,9 @@ const EMPTY_STATE = {
   heroWidgets: {},
   heroFlowers: {},
   lockedUpgrades: {},
-  settings: {},
+  settings: { activeEvent: 'sg' },
   pageScores: {},
+  eventPageScores: {},
 };
 
 const PAGE_SCORE_RESET = {
@@ -124,6 +126,18 @@ export function AppProvider({ children }) {
       setState({ ...EMPTY_STATE });
       return;
     }
+    const eventPageScores = doc.eventPageScores || {};
+    const settings = doc.settings || {};
+    const active =
+      (typeof normalizeEventId === 'function'
+        ? normalizeEventId(settings.activeEvent || 'sg')
+        : null) ||
+      String(settings.activeEvent || 'sg').toLowerCase() ||
+      'sg';
+    const fromBucket = eventPageScores[active] || {};
+    const fromDoc = doc.pageScores || {};
+    // Prefer live pageScores; fill gaps from the active event's saved bucket
+    const pageScores = { ...fromBucket, ...fromDoc };
     setState({
       ...EMPTY_STATE,
       vault: doc.vault || {},
@@ -142,8 +156,9 @@ export function AppProvider({ children }) {
       heroWidgets: doc.heroWidgets || {},
       heroFlowers: doc.heroFlowers || {},
       lockedUpgrades: doc.lockedUpgrades || {},
-      settings: doc.settings || {},
-      pageScores: doc.pageScores || {},
+      settings,
+      pageScores,
+      eventPageScores,
     });
   };
 
@@ -169,6 +184,7 @@ export function AppProvider({ children }) {
       lockedUpgrades: st.lockedUpgrades || {},
       settings: st.settings || {},
       pageScores: st.pageScores || {},
+      eventPageScores: st.eventPageScores || {},
       username: u?.username || '',
       gameId: u?.gameId || '',
     };
@@ -199,9 +215,10 @@ export function AppProvider({ children }) {
   }, [user]);
 
   /**
-   * Flush pending patches to Mongo when logged in.
-   * Merges all section updates so rapid clicks don't drop fields.
-   * Also always localStorage-mirrors so nothing is lost offline.
+   * Flush full calculator state to MongoDB when logged in.
+   * Every section (vault, levels, actives, scores, missions, settings, locks, …)
+   * is written on each save so nothing lives only in browser memory.
+   * Guests cannot persist — RequireAuthGate requires login.
    */
   const flushSave = useCallback(async () => {
     const name = currentNameRef.current;
@@ -210,27 +227,22 @@ export function AppProvider({ children }) {
     const patch = { ...pendingPatch.current };
     pendingPatch.current = {};
 
-    // Always keep local backup
-    try {
-      localStorage.setItem(
-        `${DEFAULT_LOCAL_KEY}:${name}`,
-        JSON.stringify(st)
-      );
-      if (name === 'default') saveLocalDefault(st);
-    } catch {
-      /* ignore */
+    if (!u) {
+      // Not logged in: do not treat localStorage as a real preset store
+      return;
     }
-
-    if (!u) return; // guest → local only
+    if (!name || name === 'default') {
+      // Logged-in users should always have a named Mongo preset
+      return;
+    }
 
     setSaving(true);
     try {
-      // Send full payload so every page field is always in Mongo
       const full = buildFullPayload(st, u);
+      // Full document every time (server replaces preset document)
       await apiUpdate(name, { ...full, ...patch });
     } catch (e) {
       console.error('Save failed', e);
-      // put patch back so next flush retries
       pendingPatch.current = { ...patch, ...pendingPatch.current };
     } finally {
       setSaving(false);
@@ -239,11 +251,14 @@ export function AppProvider({ children }) {
 
   const scheduleSave = useCallback(
     (name, patch) => {
+      if (!userRef.current) return;
+      if (!name || name === 'default') return;
       pendingPatch.current = { ...pendingPatch.current, ...(patch || {}) };
       if (saveTimer.current) clearTimeout(saveTimer.current);
+      // Short debounce; full snapshot still sent on flush
       saveTimer.current = setTimeout(() => {
         flushSave();
-      }, 300);
+      }, 150);
     },
     [flushSave]
   );
@@ -387,17 +402,7 @@ export function AppProvider({ children }) {
           typeof valueOrFn === 'function' ? valueOrFn(prevSec) : valueOrFn;
         const next = { ...prev, [section]: nextSec };
         stateRef.current = next;
-        // local mirror immediately
-        try {
-          if (currentNameRef.current === 'default') saveLocalDefault(next);
-          localStorage.setItem(
-            `${DEFAULT_LOCAL_KEY}:${currentNameRef.current}`,
-            JSON.stringify(next)
-          );
-        } catch {
-          /* */
-        }
-        // Mongo when logged in (any preset including default)
+        // Persist entire preset to Mongo (full snapshot on flush)
         scheduleSave(currentNameRef.current, { [section]: nextSec });
         return next;
       });
@@ -409,13 +414,65 @@ export function AppProvider({ children }) {
     (key, score) => {
       const n = Number(score) || 0;
       setState((prev) => {
-        const prevScore = Number(prev.pageScores?.[key]) || 0;
-        if (prevScore === n) return prev;
-        const pageScores = { ...(prev.pageScores || {}), [key]: n };
-        const next = { ...prev, pageScores };
+        const eventId =
+          (typeof normalizeEventId === 'function'
+            ? normalizeEventId(prev.settings?.activeEvent || 'sg')
+            : null) ||
+          String(prev.settings?.activeEvent || 'sg').toLowerCase() ||
+          'sg';
+        const scores = prev.pageScores || {};
+        const hasKey = Object.prototype.hasOwnProperty.call(scores, key);
+        const prevScore = Number(scores[key]) || 0;
+        const bucket = (prev.eventPageScores || {})[eventId] || {};
+        const bucketPrev = Number(bucket[key]) || 0;
+        if (hasKey && prevScore === n && bucketPrev === n) return prev;
+        const pageScores = { ...scores, [key]: n };
+        const eventPageScores = {
+          ...(prev.eventPageScores || {}),
+          [eventId]: { ...bucket, [key]: n },
+        };
+        const next = { ...prev, pageScores, eventPageScores };
         stateRef.current = next;
-        if (currentNameRef.current === 'default') saveLocalDefault(next);
-        scheduleSave(currentNameRef.current, { pageScores });
+        scheduleSave(currentNameRef.current, { pageScores, eventPageScores });
+        return next;
+      });
+    },
+    [scheduleSave]
+  );
+
+  /**
+   * Switch active event.
+   * Common upgrades stay SHARED. Page score totals are stored per event in
+   * eventPageScores and restored on switch so you do not need to re-open every page.
+   * Open pages still re-publish with current rates (keeps the active page accurate).
+   */
+  const switchEvent = useCallback(
+    (nextEventId) => {
+      const nextId = String(nextEventId || 'sg').toLowerCase();
+      setState((prev) => {
+        const prevId = String(prev.settings?.activeEvent || 'sg').toLowerCase();
+        if (prevId === nextId) return prev;
+        const parked = {
+          ...(prev.eventPageScores || {}),
+          [prevId]: { ...(prev.pageScores || {}) },
+        };
+        const restored = { ...(parked[nextId] || {}) };
+        const next = {
+          ...prev,
+          settings: {
+            ...(prev.settings || {}),
+            activeEvent: nextId,
+            scoreEpoch: (Number(prev.settings?.scoreEpoch) || 0) + 1,
+          },
+          eventPageScores: parked,
+          pageScores: restored,
+        };
+        stateRef.current = next;
+        scheduleSave(currentNameRef.current, {
+          settings: next.settings,
+          eventPageScores: next.eventPageScores,
+          pageScores: next.pageScores,
+        });
         return next;
       });
     },
@@ -491,6 +548,7 @@ export function AppProvider({ children }) {
           lockedUpgrades: state.lockedUpgrades,
           settings: state.settings,
           pageScores: state.pageScores,
+          eventPageScores: state.eventPageScores,
         };
         const created = await apiCreate(body);
         const storageName = created?.name || n;
@@ -618,10 +676,21 @@ export function AppProvider({ children }) {
         next.pageScores = { ...(prev.pageScores || {}), [scoreKey]: 0 };
       }
       stateRef.current = next;
-      if (currentNameRef.current === 'default') saveLocalDefault(next);
       const patch = {};
       for (const k of keys) patch[k] = next[k];
       if (scoreKey) patch.pageScores = next.pageScores;
+      // Also persist per-event scores
+      const eventId = String(next.settings?.activeEvent || 'sg').toLowerCase();
+      if (scoreKey) {
+        next.eventPageScores = {
+          ...(prev.eventPageScores || {}),
+          [eventId]: {
+            ...((prev.eventPageScores || {})[eventId] || {}),
+            [scoreKey]: 0,
+          },
+        };
+        patch.eventPageScores = next.eventPageScores;
+      }
       scheduleSave(currentNameRef.current, patch);
       return next;
     });
@@ -661,7 +730,6 @@ export function AppProvider({ children }) {
       else lockedUpgrades[pageKey] = clean;
       const next = { ...prev, lockedUpgrades };
       stateRef.current = next;
-      if (currentNameRef.current === 'default') saveLocalDefault(next);
       scheduleSave(currentNameRef.current, { lockedUpgrades });
       return next;
     });
@@ -696,6 +764,7 @@ export function AppProvider({ children }) {
     resetCurrentPage,
     updateSection,
     setPageScore,
+    switchEvent,
     setPageLockedCosts,
     remainingVault,
     remainingVaultExcluding,

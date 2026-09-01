@@ -1,8 +1,10 @@
 import { useMemo, useEffect, useCallback } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import { useScoreRules } from '../hooks/useScoreRules';
+import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
-import { parseCost, SCORE_RULES } from '../utils/calc';
+import { parseCost } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
@@ -64,6 +66,7 @@ export default function HeroGearPage() {
     setPageLockedCosts,
     remainingVaultExcluding,
   } = useApp();
+  const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
   const showMaxed = useShowMaxedItems();
   const vault = useMemo(
     () => remainingVaultExcluding('heroGear'),
@@ -159,11 +162,12 @@ export default function HeroGearPage() {
       }
       let points = 0;
       for (const [k, v] of Object.entries(costs)) {
-        if (SCORE_RULES[k]) points += v * SCORE_RULES[k];
+        const rate = Number(SCORE_RULES[k] ?? 0);
+        if (rate) points += v * rate;
       }
       return { steps, costs, points, fromN, toN };
     },
-    [rows]
+    [rows, SCORE_RULES]
   );
 
   const calcForgeCosts = useCallback(
@@ -192,11 +196,12 @@ export default function HeroGearPage() {
       }
       let points = 0;
       for (const [k, v] of Object.entries(costs)) {
-        if (SCORE_RULES[k]) points += v * SCORE_RULES[k];
+        const rate = Number(SCORE_RULES[k] ?? 0);
+        if (rate) points += v * rate;
       }
       return { steps, costs, points };
     },
-    [forgeRows]
+    [forgeRows, SCORE_RULES]
   );
 
   const gearCards = useMemo(
@@ -230,7 +235,7 @@ export default function HeroGearPage() {
       ...forgeCards.map((c) => ({ id: c.id, costs: c.costs, active: !!c.active })),
     ];
     return sequentialAfford(seqItems, vault || {});
-  }, [gearCards, forgeCards, vault]);
+  }, [gearCards, forgeCards, vault, SCORE_RULES, activeEventId]);
 
   const total = useMemo(() => {
     let p = 0;
@@ -256,9 +261,7 @@ export default function HeroGearPage() {
     [gearCards, forgeCards, levels, forgeLevels]
   );
 
-    useEffect(() => {
-    setPageScore('heroGear', total);
-  }, [total, setPageScore]);
+    usePublishPageScore('heroGear', total);
 
   if (loading || forgeLoading)
     return (

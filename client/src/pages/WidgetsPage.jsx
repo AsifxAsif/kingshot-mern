@@ -1,8 +1,10 @@
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
+import { useScoreRules } from '../hooks/useScoreRules';
+import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
-import { SCORE_RULES } from '../utils/calc';
+
 import AssetImg from '../components/AssetImg';
 import CostStatus from '../components/CostStatus';
 import { LevelSelects } from '../components/LevelSelects';
@@ -13,6 +15,7 @@ export default function WidgetsPage() {
   const { data: heroesData, loading: lh } = useGameData('heroes');
   const showMaxed = useShowMaxedItems();
   const { state, updateSection, setPageScore } = useApp();
+  const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
   const heroWidgets = state.heroWidgets || {};
   const wState = state.widgets || {};
   // Same filter as Heroes: only show gens up to server's latest
@@ -30,7 +33,7 @@ export default function WidgetsPage() {
     return list.filter(
       (h) => h.rarity === 'SSR' && (h.generation || 1) <= maxGen
     );
-  }, [heroesData, maxGen]);
+  }, [heroesData, maxGen, SCORE_RULES, activeEventId]);
 
   const widgetRows = widgetsData?.Widgets || [];
   const levels = useMemo(() => {
@@ -89,14 +92,12 @@ export default function WidgetsPage() {
       const inv = invLeft[h.name] || 0;
       if (widgetsNeeded > inv) continue;
       invLeft[h.name] = inv - widgetsNeeded;
-      total += widgetsNeeded * SCORE_RULES.widgets;
+      total += widgetsNeeded * (SCORE_RULES.widgets ?? 0);
     }
     return total;
-  }, [ssrHeroes, wState, widgetRows, heroWidgets]);
+  }, [ssrHeroes, wState, widgetRows, heroWidgets, SCORE_RULES, activeEventId]);
 
-  useEffect(() => {
-    setPageScore('widgets', totalActivePoints);
-  }, [totalActivePoints, setPageScore]);
+  usePublishPageScore('widgets', totalActivePoints);
 
   if (lw || lh)
     return (
@@ -165,7 +166,7 @@ export default function WidgetsPage() {
           }
           const inv = parseFloat(heroWidgets[h.name]) || 0;
           const canAfford = widgetsNeeded <= inv;
-          const points = widgetsNeeded * SCORE_RULES.widgets;
+          const points = widgetsNeeded * (SCORE_RULES.widgets ?? 0);
           const left = inv - widgetsNeeded;
           return (
             <div className="item-card" key={h.name}>

@@ -25,7 +25,6 @@ const SECTIONS = [
             <strong>Upgrade</strong> to lock that plan into scores and vault usage.
           </li>
           <li>
-            Use <strong>Planner</strong> to put active upgrades on the correct event day.
           </li>
         </ol>
       </>
@@ -147,7 +146,6 @@ const SECTIONS = [
             <strong>Rounds</strong> control for multiple gathers per day.
           </li>
           <li>
-            <strong>Planner</strong> — 7 fixed Strongest Governor days. Only upgrades that score on
             that day appear. Move steps with <em>All steps → Day</em> or per-step <em>Move to</em>.
             An item shows on only one day once scheduled.
           </li>
@@ -189,28 +187,6 @@ const SECTIONS = [
           is shared across pages so one page cannot double-count the same general stock.
         </p>
         <p>Speedup minutes also contribute event points where the day rules allow them.</p>
-      </>
-    ),
-  },
-  {
-    id: 'planner',
-    title: 'Planner & event days',
-    body: (
-      <>
-        <p>The event is fixed at <strong>7 days</strong>. Rough mapping:</p>
-        <ol>
-          <li>City Construction — buildings, research, charms, related speedups</li>
-          <li>Hero Development — heroes, widgets, hero gear, buildings/research, roulette</li>
-          <li>Basic Skill Up — heroes, pets / taming marks, charms</li>
-          <li>Combat Training — troops, widgets, hero gear, charms</li>
-          <li>Power Boost — buildings, research, widgets, hero gear, speedups</li>
-          <li>Combat Training — troops, governor gear</li>
-          <li>Final Hero Development — heroes, pets, buildings, research, gear, gathering</li>
-        </ol>
-        <p>
-          Activate upgrades on category pages first; then open Planner, pick a day tab, and assign
-          multi-level paths (e.g. Embassy TG3→TG4) to days that award those points.
-        </p>
       </>
     ),
   },
@@ -297,7 +273,7 @@ export default function HelpFab() {
             <div className="item-card-body help-modal-body">
               <p className="help-lead">
                 Quick guide to the Kingshot <strong>Strongest Governor</strong> calculator — vault,
-                upgrades, speedups, prerequisites, and the 7-day planner.
+                upgrades, speedups, prerequisites,.
               </p>
               {SECTIONS.map((s) => (
                 <section key={s.id} className="help-section">
