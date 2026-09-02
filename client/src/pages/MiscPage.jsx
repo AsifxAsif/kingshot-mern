@@ -155,12 +155,41 @@ export default function MiscPage() {
   });
 
   const gatherCardsPoints = cardsCalc.reduce((s, c) => s + c.points, 0);
-  // Event missions are stored per-event under misc.eventMissions[eventId]
+  // Most event missions are per-event under misc.eventMissions[eventId].
+  // Intel missions are SHARED across KvK / AB (same input, event-specific points).
   // Never read vault here (vault gems ≠ "gems used" for AB).
+  const SHARED_MISSION_KEYS = new Set(['intel_missions']);
   const eventMissions = (misc.eventMissions && misc.eventMissions[activeEventId]) || {};
-  const n = (key) => parseCost(eventMissions[key] || 0);
+  const missionValue = (key) => {
+    if (SHARED_MISSION_KEYS.has(key)) {
+      // If user has set the shared field (even to ''), never resurrect old bucket values
+      if (Object.prototype.hasOwnProperty.call(misc, key)) {
+        return misc[key] ?? '';
+      }
+      // One-time migration from older per-event storage
+      const buckets = misc.eventMissions || {};
+      for (const eid of Object.keys(buckets)) {
+        const v = buckets[eid]?.[key];
+        if (v != null && v !== '') return v;
+      }
+      return '';
+    }
+    return eventMissions[key] ?? '';
+  };
+  const n = (key) => parseCost(missionValue(key) || 0);
   const setMissionField = (key, value) => {
     updateSection('misc', (prev) => {
+      if (SHARED_MISSION_KEYS.has(key)) {
+        // Clear legacy per-event copies so empty values stay empty
+        const em = { ...(prev.eventMissions || {}) };
+        for (const eid of Object.keys(em)) {
+          if (em[eid] && Object.prototype.hasOwnProperty.call(em[eid], key)) {
+            const { [key]: _removed, ...rest } = em[eid];
+            em[eid] = rest;
+          }
+        }
+        return { ...prev, [key]: value, eventMissions: em };
+      }
       const em = { ...(prev.eventMissions || {}) };
       em[activeEventId] = { ...(em[activeEventId] || {}), [key]: value };
       return { ...prev, eventMissions: em };
@@ -253,7 +282,7 @@ export default function MiscPage() {
           <span>GATHERING SETTINGS</span>
         </div>
         <div className="item-card-body">
-          <div className="buff-row" style={{ marginTop: 10 }}>
+          <div className="buff-row fields-2col" style={{ marginTop: 10 }}>
             <div className="buff-field">
               <label>March Units</label>
               <select
@@ -290,7 +319,7 @@ export default function MiscPage() {
           </div>
 
           {bisonGrip > 0 && (
-            <div className="buff-row" style={{ marginTop: 10 }}>
+            <div className="buff-row fields-2col" style={{ marginTop: 10 }}>
               <div className="buff-field">
                 <label>Bison Grip Resource</label>
                 <select
@@ -383,7 +412,7 @@ export default function MiscPage() {
               </div>
             </div>
             <div className="item-card-body">
-              <div className="buff-row">
+              <div className="buff-row fields-2col">
                 <div className="buff-field">
                   <label>
                     <ImgLabel src={resourceImg(c.resource || 'bread')} size={22}>
@@ -550,7 +579,7 @@ export default function MiscPage() {
                       id={`misc-${id}`}
                       type="text"
                       placeholder="0"
-                      value={eventMissions[id] ?? ''}
+                      value={missionValue(id)}
                       onChange={(e) => setMissionField(id, e.target.value)}
                       style={{ textAlign: 'center' }}
                     />

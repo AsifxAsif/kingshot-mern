@@ -85,11 +85,11 @@ function TamingMarksCard({ vault }) {
         <span>TAMING MARKS POINTS</span>
       </div>
       <div className="item-card-body">
-        <div className="buff-row" style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
-          <div className="buff-field" style={{ flex: '1 1 160px' }}>
+        <div className="buff-row fields-2col">
+          <div className="buff-field">
             <label className="img-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <AssetImg src={resourceImg('advanced_taming_mark')} size={22} />
-              <span>Advanced Taming Mark (use)</span>
+              <span>Advanced Taming Mark</span>
             </label>
             <input
               type="text"
@@ -103,10 +103,10 @@ function TamingMarksCard({ vault }) {
             </small>
           </div>
 
-          <div className="buff-field" style={{ flex: '1 1 160px' }}>
+          <div className="buff-field">
             <label className="img-label" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <AssetImg src={resourceImg('common_taming_mark')} size={22} />
-              <span>Common Taming Mark (use)</span>
+              <span>Common Taming Mark</span>
             </label>
             <input
               type="text"
@@ -289,7 +289,7 @@ export default function PetsPage() {
     );
 
   return (
-    <div className="app-container">
+    <div className="app-container pets-page">
       <ShowMaxedToggle hasMaxed={hasMaxedItems} />
       <TamingMarksCard vault={vault} />
 

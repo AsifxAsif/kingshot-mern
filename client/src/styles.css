@@ -2110,6 +2110,39 @@ img.asset-img,
 	gap: 6px;
 	margin-bottom: 4px;
 }
+/* Mobile: gather + bison + taming mark inputs — 2 fields per row */
+@media (max-width: 768px) {
+	.misc-page .buff-row,
+	.pets-page .buff-row {
+		display: grid !important;
+		grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+		flex-direction: unset !important;
+		gap: 10px 12px !important;
+		width: 100%;
+	}
+	.misc-page .buff-field,
+	.pets-page .buff-field {
+		min-width: 0 !important;
+		flex: none !important;
+		width: auto !important;
+		max-width: 100%;
+	}
+	.misc-page .buff-field input,
+	.misc-page .buff-field select,
+	.pets-page .buff-field input,
+	.pets-page .buff-field select {
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
+	}
+	.misc-page .buff-field small,
+	.pets-page .buff-field small {
+		display: block;
+		font-size: 0.7rem;
+		line-height: 1.25;
+		margin-top: 4px;
+	}
+}
 /* misc uses same global checkbox styles */
 .misc-page .misc-lcd {
 	padding: 12px;
@@ -3538,6 +3571,8 @@ input.checkbox:disabled {
 /* ----- Mobile edge handle (Android-style) ----- */
 .event-edge-handle {
 	position: fixed;
+	top: 50%;
+	transform: translateY(-50%);
 	z-index: 3000;
 	width: 24px;
 	min-height: 64px;
@@ -3594,8 +3629,8 @@ input.checkbox:disabled {
 	font-weight: 700;
 	letter-spacing: 0.06em;
 }
-/* Mobile expanded panel: floating, not full-height rail */
-@media (max-width: 768px) {
+/* Compact (<1280px): floating panel, edge handle at vertical center */
+@media (max-width: 1279px) {
 	.event-sidebar.is-expanded {
 		top: auto;
 		bottom: auto;
@@ -3611,9 +3646,29 @@ input.checkbox:disabled {
 		left: auto;
 	}
 }
-/* Desktop: hide edge handle (only used on mobile) */
-@media (min-width: 769px) {
+/* Wide desktop (≥1280px): permanent rail, no edge handle */
+@media (min-width: 1280px) {
 	.event-edge-handle {
 		display: none !important;
+	}
+}
+/* Force 2-col field rows on compact screens (misc + pets) */
+@media (max-width: 768px) {
+	.misc-page .buff-row,
+	.pets-page .buff-row,
+	.fields-2col {
+		display: grid !important;
+		grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+		flex-direction: unset !important;
+		gap: 10px 12px !important;
+		width: 100% !important;
+	}
+	.misc-page .buff-field,
+	.pets-page .buff-field,
+	.fields-2col > .buff-field {
+		min-width: 0 !important;
+		flex: none !important;
+		width: auto !important;
+		max-width: 100% !important;
 	}
 }
