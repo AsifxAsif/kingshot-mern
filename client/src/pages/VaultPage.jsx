@@ -19,9 +19,6 @@ export default function VaultPage() {
           style={{ marginRight: 8, verticalAlign: 'middle' }}
         />
         RESOURCE VAULT
-        <span className="vault-event-badge" style={{ color: event.accent, marginLeft: 10, fontSize: '0.75em' }}>
-          {event.short}
-        </span>
       </h2>
 
       <h3 className="vault-subhead">Common resources</h3>
