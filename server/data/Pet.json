@@ -2738,7 +2738,7 @@
 				"promotion_medallion": 40
 			}
 		],
-		"Grizzly Bear": [
+		"Lion": [
 			{
 				"current_lvl": "0",
 				"target_lvl": "1",
@@ -3444,7 +3444,7 @@
 				"promotion_medallion": 60
 			}
 		],
-		"Lion": [
+		"Grizzly Bear": [
 			{
 				"current_lvl": "0",
 				"target_lvl": "1",
@@ -5914,7 +5914,7 @@
 				"promotion_medallion": 100
 			}
 		],
-		"Alpha Black Panther": [
+		"Great Moose": [
 			{
 				"current_lvl": "0",
 				"target_lvl": "1",
@@ -6796,7 +6796,7 @@
 				"promotion_medallion": 100
 			}
 		],
-		"Great Moose": [
+		"Alpha Black Panther": [
 			{
 				"current_lvl": "0",
 				"target_lvl": "1",
