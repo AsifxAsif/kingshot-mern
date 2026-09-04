@@ -9,6 +9,7 @@ const LINKS = [
   { to: '/', label: 'VAULT' },
   { to: '/buildings', label: 'BUILDINGS' },
   { to: '/war-academy', label: 'WAR ACADEMY' },
+  { to: '/masters', label: 'MASTERS' },
   { to: '/widgets', label: 'WIDGETS' },
   { to: '/heroes', label: 'HEROES' },
   { to: '/hero-gear', label: 'HERO GEAR' },
@@ -24,6 +25,7 @@ const PAGE_LABELS = {
   '/': null,
   '/buildings': 'BUILDING SCORE',
   '/war-academy': 'ACADEMY SCORE',
+  '/masters': 'MASTERS SCORE',
   '/widgets': 'WIDGETS SCORE',
   '/heroes': 'HEROES SCORE',
   '/hero-gear': 'HERO GEAR SCORE',
@@ -37,6 +39,7 @@ const PAGE_LABELS = {
 const PATH_TO_SCORE_KEY = {
   '/buildings': 'buildings',
   '/war-academy': 'warAcademy',
+  '/masters': 'masters',
   '/widgets': 'widgets',
   '/heroes': 'heroes',
   '/hero-gear': 'heroGear',

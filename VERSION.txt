@@ -1,8 +1,7 @@
-BUILD 2026-09-01-multi-event
-- Multi-event scoring: Strongest Governor (SG), Kingdom vs Kingdom (KvK), Alliance Battle (AB)
-- Event sidebar switcher (master nav) — points recalculate for active event
-- Score tables aligned with Points.json (ab / kvk / sg columns)
-- Vault: common resources for all events + AB extra (gems)
-- Misc: event missions (intel, trucks, beasts, terror, top-up, gems) when event scores them
-- Gather rates adjust by event
-- Navbar total label follows active event name
+BUILD 2026-09-05-masters
+- Masters page: Affinity / Talent / Skills / Special Research for all 6 masters
+- Prerequisite checks (skill Affinity reqs, Special Research needs Affinity 100)
+- Costs: General Emblems, Master Manuscripts, Master Speedup (Learning XP as seconds → minutes)
+- Points from event score tables (emblem / manuscript / speedup_min)
+- Vault holds general_emblem, master_manuscript, master_speedup inventory
+- Data: server/data/Masters.json (Valora, Pan, Roman, Cassia, Wilson, Guinevere)

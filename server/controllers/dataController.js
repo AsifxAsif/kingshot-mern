@@ -8,7 +8,7 @@ import {
 } from '../models/index.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, '../data');
-const ALLOWED_COLLECTIONS = new Set(['heroes', 'hero_gears', 'gov_gears', 'gov_charms', 'buildings', 'troops', 'war_academy', 'pets', 'misc', 'widgets', 'points', 'forgehammers', ]);
+const ALLOWED_COLLECTIONS = new Set(['heroes', 'hero_gears', 'gov_gears', 'gov_charms', 'buildings', 'troops', 'war_academy', 'pets', 'misc', 'widgets', 'points', 'forgehammers', 'masters', ]);
 const keyToFile = {
 	heroes: 'Hero.json',
 	hero_gears: 'Hero_Gear.json',
@@ -22,6 +22,7 @@ const keyToFile = {
 	widgets: 'Widgets.json',
 	points: 'Points.json',
 	forgehammers: 'Forgehammer.json',
+	masters: 'Masters.json',
 };
 
 function readLocalJson(collection) {

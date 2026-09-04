@@ -16,6 +16,9 @@ const RESOURCE_IMG = {
 	stamina: 'stamina.webp',
 	master_manuscript: 'master_manuscript.webp',
 	general_emblem: 'general_emblem.webp',
+	elite_spices: 'Elite_Spices.webp',
+	silver_goblet: 'Silver_Goblet.webp',
+	copper_horn: 'Copper_Horn.webp',
 	promotion_medallion: 'promotion_medallion.webp',
 	nutrient_potion: 'nutrient_potion.webp',
 	growth_manual: 'growth_manual.webp',
@@ -101,7 +104,147 @@ export const asset = (path) => {
 	const clean = String(path).replace(/^\/+/, '').replace(/^assets\//, '');
 	return `/assets/${clean}`;
 };
-export const resourceImg = (id) => asset(RESOURCE_IMG[id] || `${id}.webp`);
+export const resourceImg = (id) => {
+	const key = String(id || '');
+	// Per-master emblem inventory uses general emblem art
+	if (key.startsWith('master_emblem_')) {
+		return asset(RESOURCE_IMG.general_emblem || 'general_emblem.webp');
+	}
+	return asset(RESOURCE_IMG[key] || `${key}.webp`);
+};
+
+/** Alternate filenames under /assets for a resource id */
+export function resourceImgFallbacks(id) {
+	const key = String(id || '');
+	if (key.startsWith('master_emblem_')) {
+		return resourceImgFallbacks('general_emblem');
+	}
+	const primary = RESOURCE_IMG[key];
+	const alts = {
+		elite_spices: [
+			'Elite_Spices.webp', 'elite_spices.webp', 'EliteSpices.webp', 'elite-spices.webp',
+			'Elite_Spices.png', 'elite_spices.png', 'spices.webp', 'EliteSpices.png',
+		],
+		silver_goblet: [
+			'Silver_Goblet.webp', 'silver_goblet.webp', 'SilverGoblet.webp', 'silver-goblet.webp',
+			'Silver_Goblet.png', 'silver_goblet.png', 'goblet.webp', 'SilverGoblet.png',
+		],
+		copper_horn: [
+			'Copper_Horn.webp', 'copper_horn.webp', 'CopperHorn.webp', 'copper-horn.webp',
+			'Copper_Horn.png', 'copper_horn.png', 'horn.webp', 'CopperHorn.png',
+		],
+		general_emblem: [
+			'general_emblem.webp', 'General_Emblem.webp', 'Master_Emblem.webp', 'master_emblem.webp',
+			'general_emblem.png', 'GeneralEmblem.webp',
+		],
+		master_manuscript: [
+			'master_manuscript.webp', 'Master_Manuscript.webp', 'Masters_Manuscript.webp',
+			'master_manuscript.png', 'MasterManuscript.webp',
+		],
+		master_speedup: [
+			'master_speedup.webp', 'Master_Speedup.webp', 'master_speedup.png', 'MasterSpeedup.webp',
+		],
+	};
+	const list = [];
+	if (primary) list.push(asset(primary));
+	for (const name of alts[key] || []) {
+		list.push(asset(name));
+	}
+	// generic snake + Title_Case
+	if (key) {
+		list.push(asset(`${key}.webp`));
+		list.push(asset(`${key}.png`));
+		const title = key.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join('_');
+		list.push(asset(`${title}.webp`));
+		list.push(asset(`${title}.png`));
+	}
+	return [...new Set(list.filter(Boolean))];
+}
+
+
+/** Masters icons — place under client/public/assets/masters/ */
+function slugifyMasterPart(s) {
+	return String(s || '')
+		.toLowerCase()
+		.trim()
+		.replace(/&/g, 'and')
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-+|-+$/g, '');
+}
+
+/**
+ * Master avatar: assets/masters/master-{id}-avatar.webp
+ * Also tries .png and root-level fallbacks.
+ */
+export function masterImg(idOrName) {
+	const id = slugifyMasterPart(idOrName);
+	const base = `masters/master-${id}-avatar`;
+	return asset(`${base}.webp`);
+}
+
+export function masterImgFallbacks(idOrName) {
+	const id = slugifyMasterPart(idOrName);
+	return [
+		asset(`masters/master-${id}-avatar.png`),
+		asset(`masters/${id}.webp`),
+		asset(`masters/${id}.png`),
+		asset(`icons/master-${id}-avatar.webp`),
+		asset(`icons/master-${id}-avatar.png`),
+		asset(`master-${id}-avatar.webp`),
+		asset(`general_emblem.webp`),
+	];
+}
+
+/** Talent icon: master-{id}-talent */
+export function masterTalentImg(idOrName) {
+	const id = slugifyMasterPart(idOrName);
+	return asset(`masters/master-${id}-talent.webp`);
+}
+
+export function masterTalentImgFallbacks(idOrName) {
+	const id = slugifyMasterPart(idOrName);
+	return [
+		asset(`masters/master-${id}-talent.png`),
+		asset(`icons/master-${id}-talent.webp`),
+		asset(`icons/master-${id}-talent.png`),
+		...masterImgFallbacks(idOrName),
+	];
+}
+
+/** Skill icon: master-{id}-{skill-slug} */
+export function masterSkillImg(idOrName, skillName) {
+	const id = slugifyMasterPart(idOrName);
+	const sk = slugifyMasterPart(skillName);
+	return asset(`masters/master-${id}-${sk}.webp`);
+}
+
+export function masterSkillImgFallbacks(idOrName, skillName) {
+	const id = slugifyMasterPart(idOrName);
+	const sk = slugifyMasterPart(skillName);
+	return [
+		asset(`masters/master-${id}-${sk}.png`),
+		asset(`icons/master-${id}-${sk}.webp`),
+		asset(`icons/master-${id}-${sk}.png`),
+		...masterImgFallbacks(idOrName),
+	];
+}
+
+/** Affinity row icon */
+export function masterAffinityImg(idOrName) {
+	const id = slugifyMasterPart(idOrName);
+	return asset(`masters/master-${id}-type.webp`);
+}
+
+export function masterAffinityImgFallbacks(idOrName) {
+	const id = slugifyMasterPart(idOrName);
+	return [
+		asset(`masters/master-${id}-type.png`),
+		asset(`icons/master-${id}-type.webp`),
+		asset(`icons/master-${id}-type.png`),
+		...masterImgFallbacks(idOrName),
+	];
+}
+
 export const buildingImg = (name) => asset(`building/${BUILDING_IMG[name] || name.toLowerCase().replace(/ /g, '_') + '.webp'}`);
 export const heroImg = (name) => {
 	const file = HERO_IMG[name] || name.toLowerCase().replace(/ /g, '_') + '.webp';

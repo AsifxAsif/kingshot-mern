@@ -25,6 +25,7 @@ export const Misc = makeDataModel('Misc', 'misc');
 export const Widget = makeDataModel('Widget', 'widgets');
 export const Point = makeDataModel('Point', 'points');
 export const Forgehammer = makeDataModel('Forgehammer', 'forgehammers');
+export const Master = makeDataModel('Master', 'masters');
 export const modelMap = {
 	heroes: Hero,
 	hero_gears: HeroGear,
@@ -38,6 +39,7 @@ export const modelMap = {
 	widgets: Widget,
 	points: Point,
 	forgehammers: Forgehammer,
+	masters: Master,
 };
 // User presets stored entirely in MongoDB (no localStorage)
 const presetSchema = new mongoose.Schema({
@@ -103,6 +105,10 @@ const presetSchema = new mongoose.Schema({
 		default: {}
 	},
 	warAcademy: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	masters: {
 		type: mongoose.Schema.Types.Mixed,
 		default: {}
 	},

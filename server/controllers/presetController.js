@@ -47,7 +47,7 @@ export function displayNameFromStorage(name, gameId, explicit) {
 	if (explicit != null && String(explicit).trim()) return stripSuffix(explicit);
 	return stripSuffix(name);
 }
-const PRESET_FIELDS = ['username', 'gameId', 'displayName', 'vault', 'troops', 'buildings', 'heroes', 'heroGear', 'govGear', 'govCharm', 'pets', 'warAcademy', 'widgets', 'misc', 'planner', 'heroShards', 'heroWidgets', 'heroFlowers', 'lockedUpgrades', 'settings', 'pageScores', 'eventPageScores', ];
+const PRESET_FIELDS = ['username', 'gameId', 'displayName', 'vault', 'troops', 'buildings', 'heroes', 'heroGear', 'govGear', 'govCharm', 'pets', 'warAcademy', 'masters', 'widgets', 'misc', 'planner', 'heroShards', 'heroWidgets', 'heroFlowers', 'lockedUpgrades', 'settings', 'pageScores', 'eventPageScores', ];
 /** Build a plain object with stable field order: identity → vault → rest */
 function orderedPresetDoc({
 	userId,
@@ -72,6 +72,7 @@ function orderedPresetDoc({
 		govCharm: d.govCharm != null ? d.govCharm : {},
 		pets: d.pets != null ? d.pets : {},
 		warAcademy: d.warAcademy != null ? d.warAcademy : {},
+		masters: d.masters != null ? d.masters : {},
 		widgets: d.widgets != null ? d.widgets : {},
 		misc: d.misc != null ? d.misc : {},
 		planner: d.planner != null ? d.planner : {},

@@ -27,6 +27,7 @@ const fileToKey = {
 	'Widgets.json': 'widgets',
 	'Points.json': 'points',
 	'Forgehammer.json': 'forgehammers',
+	'Masters.json': 'masters',
 };
 async function seed() {
 	await connectDB();

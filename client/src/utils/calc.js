@@ -125,6 +125,18 @@ export const RESOURCE_ITEMS = [{
 	placeholder: '20',
 	label: 'General Emblem'
 }, {
+	id: 'elite_spices',
+	placeholder: '10',
+	label: 'Elite Spices'
+}, {
+	id: 'silver_goblet',
+	placeholder: '20',
+	label: 'Silver Goblet'
+}, {
+	id: 'copper_horn',
+	placeholder: '50',
+	label: 'Copper Horn'
+}, {
 	id: 'promotion_medallion',
 	placeholder: '10',
 	label: 'Promotion Medallion'

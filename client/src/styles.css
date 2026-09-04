@@ -3672,3 +3672,154 @@ input.checkbox:disabled {
 		max-width: 100% !important;
 	}
 }
+
+
+/* ============================================================
+   Masters — Learning XP progress (input + slider)
+   ============================================================ */
+.learning-xp-block {
+	margin: 10px 0 12px;
+	padding: 12px 14px;
+	border-radius: var(--radius-sm, 8px);
+	border: 1px solid var(--border-color);
+	background: var(--surface-dark, var(--surface));
+	box-shadow: var(--shadow-inset);
+}
+
+.learning-xp-block .learning-xp-summary {
+	font-size: 0.8rem;
+	color: var(--text-secondary);
+	margin-bottom: 10px;
+	line-height: 1.4;
+}
+
+.learning-xp-block .learning-xp-summary strong {
+	color: var(--text-primary);
+	font-weight: 700;
+}
+
+.learning-xp-block .learning-xp-label {
+	display: block;
+	font-size: 0.8rem;
+	font-weight: 600;
+	color: var(--text-secondary);
+	margin-bottom: 8px;
+}
+
+.learning-xp-controls {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.learning-xp-controls input[type="number"] {
+	width: 110px;
+	padding: 10px 12px;
+	font-size: 0.85rem;
+	font-weight: 700;
+	text-align: center;
+	border-radius: var(--radius-sm, 8px);
+	border: 1px solid var(--border-color);
+	background: var(--input-bg, var(--surface));
+	color: var(--text-primary);
+	box-shadow: var(--shadow-inset);
+	transition: border-color var(--transition-fast, 0.15s), box-shadow var(--transition-fast, 0.15s);
+	-moz-appearance: textfield;
+}
+
+.learning-xp-controls input[type="number"]::-webkit-outer-spin-button,
+.learning-xp-controls input[type="number"]::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.learning-xp-controls input[type="number"]:focus {
+	outline: none;
+	border-color: var(--border-strong, #454b5c);
+	box-shadow: var(--shadow-inset), 0 0 0 2px var(--lcd-glow-dim, rgba(92, 255, 46, 0.28));
+}
+
+/* Range / volume-style progress */
+.learning-xp-controls input[type="range"] {
+	-webkit-appearance: none;
+	appearance: none;
+	flex: 1;
+	min-width: 140px;
+	max-width: 360px;
+	height: 10px;
+	border-radius: 999px;
+	background: linear-gradient(
+		to right,
+		var(--lcd-glow, #5cff2e) 0%,
+		var(--lcd-glow, #5cff2e) var(--xp-pct, 0%),
+		var(--border-color) var(--xp-pct, 0%),
+		var(--border-color) 100%
+	);
+	box-shadow: var(--shadow-inset);
+	cursor: pointer;
+	outline: none;
+}
+
+.learning-xp-controls input[type="range"]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: var(--lcd-glow, #5cff2e);
+	border: 2px solid var(--surface-elevated, #252a36);
+	box-shadow: var(--shadow-extruded-sm);
+	cursor: grab;
+	transition: transform var(--transition-fast, 0.15s);
+}
+
+.learning-xp-controls input[type="range"]::-webkit-slider-thumb:hover {
+	transform: scale(1.08);
+}
+
+.learning-xp-controls input[type="range"]::-webkit-slider-thumb:active {
+	cursor: grabbing;
+	transform: scale(1.02);
+}
+
+.learning-xp-controls input[type="range"]::-moz-range-track {
+	height: 10px;
+	border-radius: 999px;
+	background: var(--border-color);
+}
+
+.learning-xp-controls input[type="range"]::-moz-range-progress {
+	height: 10px;
+	border-radius: 999px;
+	background: var(--lcd-glow, #5cff2e);
+}
+
+.learning-xp-controls input[type="range"]::-moz-range-thumb {
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: var(--lcd-glow, #5cff2e);
+	border: 2px solid var(--surface-elevated, #252a36);
+	box-shadow: var(--shadow-extruded-sm);
+	cursor: grab;
+}
+
+.learning-xp-pct {
+	font-size: 0.8rem;
+	font-weight: 700;
+	color: var(--text-secondary);
+	min-width: 3.2em;
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 480px) {
+	.learning-xp-controls input[type="range"] {
+		max-width: 100%;
+		width: 100%;
+	}
+	.learning-xp-controls input[type="number"] {
+		width: 96px;
+	}
+}

@@ -43,6 +43,7 @@ const EMPTY_STATE = {
   govCharm: {},
   pets: {},
   warAcademy: {},
+  masters: {},
   widgets: {},
   misc: {},
   planner: {},
@@ -60,6 +61,7 @@ const PAGE_SCORE_RESET = {
   '/buildings': 'buildings',
   '/troops': 'troops',
   '/war-academy': 'warAcademy',
+  '/masters': 'masters',
   '/heroes': 'heroes',
   '/hero-gear': 'heroGear',
   '/gov-gear': 'govGear',
@@ -149,6 +151,7 @@ export function AppProvider({ children }) {
       govCharm: doc.govCharm || {},
       pets: doc.pets || {},
       warAcademy: doc.warAcademy || {},
+      masters: doc.masters || {},
       widgets: doc.widgets || {},
       misc: doc.misc || {},
       planner: doc.planner || {},
@@ -175,6 +178,7 @@ export function AppProvider({ children }) {
       govCharm: st.govCharm || {},
       pets: st.pets || {},
       warAcademy: st.warAcademy || {},
+      masters: st.masters || {},
       widgets: st.widgets || {},
       misc: st.misc || {},
       planner: st.planner || {},
@@ -539,6 +543,7 @@ export function AppProvider({ children }) {
           govCharm: state.govCharm,
           pets: state.pets,
           warAcademy: state.warAcademy,
+          masters: state.masters,
           widgets: state.widgets,
           misc: state.misc,
           planner: state.planner,
@@ -654,6 +659,7 @@ export function AppProvider({ children }) {
     else if (path.includes('building')) keys = ['buildings'];
     else if (path.includes('troop')) keys = ['troops'];
     else if (path.includes('war')) keys = ['warAcademy'];
+    else if (path.includes('master')) keys = ['masters'];
     else if (path.includes('hero-gear')) keys = ['heroGear'];
     else if (path.includes('hero')) keys = ['heroes', 'heroShards', 'heroFlowers'];
     else if (path.includes('gov-gear')) keys = ['govGear'];

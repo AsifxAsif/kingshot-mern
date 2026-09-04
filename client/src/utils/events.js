@@ -230,7 +230,7 @@ export function getScoreRules(eventId = 'sg') {
 	};
 }
 /** Common vault fields for every event (ids match RESOURCE_ITEMS / vault keys) */
-export const VAULT_COMMON_IDS = ['bread', 'wood', 'stone', 'iron', 'gold', 'truegold', 'truegold_dust', 'tempered_truegold', 'hero_xp', 'stamina', 'master_manuscript', 'general_emblem', 'promotion_medallion', 'nutrient_potion', 'growth_manual', 'advanced_taming_mark', 'common_taming_mark', 'pet_food', 'charm_design', 'charm_guide', 'mithril', 'forge_hammer', 'widgets', 'building_speedup', 'research_speedup', 'training_speedup', 'master_speedup', 'general_speedup', 'rare_general_shard', 'epic_general_shard', 'mythic_general_shard', 'hero_roulette_token', ];
+export const VAULT_COMMON_IDS = ['bread', 'wood', 'stone', 'iron', 'gold', 'truegold', 'truegold_dust', 'tempered_truegold', 'hero_xp', 'stamina', 'master_manuscript', 'general_emblem', 'elite_spices', 'silver_goblet', 'copper_horn', 'promotion_medallion', 'nutrient_potion', 'growth_manual', 'advanced_taming_mark', 'common_taming_mark', 'pet_food', 'charm_design', 'charm_guide', 'mithril', 'forge_hammer', 'widgets', 'building_speedup', 'research_speedup', 'training_speedup', 'master_speedup', 'general_speedup', 'rare_general_shard', 'epic_general_shard', 'mythic_general_shard', 'hero_roulette_token', ];
 /** Extra vault / misc inputs by event */
 export const VAULT_EVENT_EXTRA = {
 	sg: [],

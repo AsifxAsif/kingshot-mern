@@ -12,6 +12,7 @@ import EventSidebar from './components/EventSidebar';
 const VaultPage = lazy(() => import('./pages/VaultPage'));
 const BuildingsPage = lazy(() => import('./pages/BuildingsPage'));
 const WarAcademyPage = lazy(() => import('./pages/WarAcademyPage'));
+const MastersPage = lazy(() => import('./pages/MastersPage'));
 const WidgetsPage = lazy(() => import('./pages/WidgetsPage'));
 const HeroesPage = lazy(() => import('./pages/HeroesPage'));
 const HeroGearPage = lazy(() => import('./pages/HeroGearPage'));
@@ -40,6 +41,7 @@ function AppRoutes() {
           <Route path="/" element={<VaultPage />} />
           <Route path="/buildings" element={<BuildingsPage />} />
           <Route path="/war-academy" element={<WarAcademyPage />} />
+          <Route path="/masters" element={<MastersPage />} />
           <Route path="/widgets" element={<WidgetsPage />} />
           <Route path="/heroes" element={<HeroesPage />} />
           <Route path="/hero-gear" element={<HeroGearPage />} />
