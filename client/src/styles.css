@@ -1046,8 +1046,36 @@
 		grid-template-columns: 1fr;
 	}
 	.vault-grid {
-		grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+		grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+		gap: 10px;
 	}
+	.vault-item input {
+		width: 100%;
+		box-sizing: border-box;
+	}
+	.masters-page .vault-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+	}
+	.learning-xp-controls {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		align-items: center;
+		gap: 10px;
+	}
+	.learning-xp-controls input[type="number"] {
+		width: 100%;
+		max-width: none;
+	}
+	.learning-xp-controls input[type="range"] {
+		grid-column: 1 / -1;
+		max-width: 100%;
+		width: 100%;
+	}
+	.learning-xp-pct {
+		grid-column: 2;
+		justify-self: end;
+	}
+
 	.level-controls {
 		grid-template-columns: 1fr 1fr;
 	}
@@ -3821,5 +3849,35 @@ input.checkbox:disabled {
 	}
 	.learning-xp-controls input[type="number"] {
 		width: 96px;
+	}
+}
+
+
+/* masters-mobile-2col — force 2 input fields per row on phones */
+@media (max-width: 768px) {
+	.masters-page .vault-grid,
+	.vault-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+		gap: 10px;
+	}
+	.masters-page .vault-item,
+	.vault-item {
+		min-width: 0;
+	}
+	.masters-page .vault-item input,
+	.vault-item input {
+		width: 100%;
+		box-sizing: border-box;
+	}
+	.masters-page .level-controls,
+	.level-controls {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 8px;
+	}
+	.masters-page .level-controls select,
+	.level-controls select {
+		min-width: 0;
+		width: 100%;
 	}
 }

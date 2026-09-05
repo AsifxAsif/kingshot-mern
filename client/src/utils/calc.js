@@ -74,159 +74,159 @@ export const SCORE_RULES = {
 };
 export const RESOURCE_ITEMS = [{
 	id: 'bread',
-	placeholder: '1.5M',
+	placeholder: '0',
 	label: 'Bread'
 }, {
 	id: 'wood',
-	placeholder: '2.3M',
+	placeholder: '0',
 	label: 'Wood'
 }, {
 	id: 'stone',
-	placeholder: '500K',
+	placeholder: '0',
 	label: 'Stone'
 }, {
 	id: 'iron',
-	placeholder: '125K',
+	placeholder: '0',
 	label: 'Iron'
 }, {
 	id: 'gold',
-	placeholder: '10K',
+	placeholder: '0',
 	label: 'Gold'
 }, {
 	id: 'gems',
-	placeholder: '10000',
+	placeholder: '0',
 	label: 'Gems'
 }, {
 	id: 'truegold',
-	placeholder: '500',
+	placeholder: '0',
 	label: 'Truegold'
 }, {
 	id: 'truegold_dust',
-	placeholder: '1000',
+	placeholder: '0',
 	label: 'Truegold Dust'
 }, {
 	id: 'tempered_truegold',
-	placeholder: '25',
+	placeholder: '0',
 	label: 'Tempered Truegold'
 }, {
 	id: 'hero_xp',
-	placeholder: '1000',
+	placeholder: '0',
 	label: 'Hero XP'
 }, {
 	id: 'stamina',
-	placeholder: '100',
+	placeholder: '0',
 	label: 'Stamina'
 }, {
 	id: 'master_manuscript',
-	placeholder: '50',
+	placeholder: '0',
 	label: 'Master Manuscript'
 }, {
 	id: 'general_emblem',
-	placeholder: '20',
+	placeholder: '0',
 	label: 'General Emblem'
 }, {
 	id: 'elite_spices',
-	placeholder: '10',
+	placeholder: '0',
 	label: 'Elite Spices'
 }, {
 	id: 'silver_goblet',
-	placeholder: '20',
+	placeholder: '0',
 	label: 'Silver Goblet'
 }, {
 	id: 'copper_horn',
-	placeholder: '50',
+	placeholder: '0',
 	label: 'Copper Horn'
 }, {
 	id: 'promotion_medallion',
-	placeholder: '10',
+	placeholder: '0',
 	label: 'Promotion Medallion'
 }, {
 	id: 'nutrient_potion',
-	placeholder: '20',
+	placeholder: '0',
 	label: 'Nutrient Potion'
 }, {
 	id: 'growth_manual',
-	placeholder: '100',
+	placeholder: '0',
 	label: 'Growth Manual'
 }, {
 	id: 'advanced_taming_mark',
-	placeholder: '10',
+	placeholder: '0',
 	label: 'Advanced Taming Mark'
 }, {
 	id: 'common_taming_mark',
-	placeholder: '30',
+	placeholder: '0',
 	label: 'Common Taming Mark'
 }, {
 	id: 'pet_food',
-	placeholder: '5000',
+	placeholder: '0',
 	label: 'Pet Food'
 }, {
 	id: 'charm_design',
-	placeholder: '80',
+	placeholder: '0',
 	label: 'Charm Design'
 }, {
 	id: 'charm_guide',
-	placeholder: '100',
+	placeholder: '0',
 	label: 'Charm Guide'
 }, {
 	id: 'artisans_vision',
-	placeholder: '50',
+	placeholder: '0',
 	label: "Artisan's Vision"
 }, {
 	id: 'gilded_threads',
-	placeholder: '200',
+	placeholder: '0',
 	label: 'Gilded Threads'
 }, {
 	id: 'satin',
-	placeholder: '5000',
+	placeholder: '0',
 	label: 'Satin'
 }, {
 	id: 'mithril',
-	placeholder: '10',
+	placeholder: '0',
 	label: 'Mithril'
 }, {
 	id: 'forge_hammer',
-	placeholder: '50',
+	placeholder: '0',
 	label: 'Forge Hammer'
 }, {
 	id: 'mythic_general_shard',
-	placeholder: '50',
+	placeholder: '0',
 	label: 'Mythic General Shard'
 }, {
 	id: 'epic_general_shard',
-	placeholder: '200',
+	placeholder: '0',
 	label: 'Epic General Shard'
 }, {
 	id: 'rare_general_shard',
-	placeholder: '500',
+	placeholder: '0',
 	label: 'Rare General Shard'
 }, {
 	id: 'building_speedup',
-	placeholder: '2d 14h 35m',
+	placeholder: '0',
 	label: 'Building Speedup'
 }, {
 	id: 'research_speedup',
-	placeholder: '5d 3h 20m',
+	placeholder: '0',
 	label: 'Research Speedup'
 }, {
 	id: 'training_speedup',
-	placeholder: '1d 12h 5m',
+	placeholder: '0',
 	label: 'Training Speedup'
 }, {
 	id: 'master_speedup',
-	placeholder: '1d',
+	placeholder: '0',
 	label: 'Master Speedup'
 }, {
 	id: 'general_speedup',
-	placeholder: '10d 8h 45m',
+	placeholder: '0',
 	label: 'General Speedup'
 }, {
 	id: 'mythic_gear',
-	placeholder: '10',
+	placeholder: '0',
 	label: 'Mythic Gear'
 }, {
 	id: 'hero_roulette_token',
-	placeholder: '100',
+	placeholder: '0',
 	label: 'Hero Roulette Token'
 }, ];
 /* parseCost moved */

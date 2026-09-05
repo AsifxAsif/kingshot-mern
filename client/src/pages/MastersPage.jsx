@@ -29,6 +29,13 @@ function levelNum(v) {
   return Number.isFinite(n) ? n : 0;
 }
 
+/** Show blank with placeholder "0" instead of a raw 0 value */
+function emptyZeroInput(v) {
+  if (v == null || v === '' || v === 0 || v === '0') return '';
+  return String(v);
+}
+
+
 /** Talent rank L (1–11) needs Affinity (L-1)*10 */
 function talentAffinityReq(talentLevel) {
   const lv = levelNum(talentLevel);
@@ -47,9 +54,9 @@ function talentLevelFromAffinity(affLevel) {
 }
 
 export const AFFINITY_ITEMS = [
-  { id: 'elite_spices', label: 'Elite Spices', points: 1000, placeholder: '10' },
-  { id: 'silver_goblet', label: 'Silver Goblet', points: 100, placeholder: '20' },
-  { id: 'copper_horn', label: 'Copper Horn', points: 10, placeholder: '50' },
+  { id: 'elite_spices', label: 'Elite Spices', points: 1000, placeholder: '0' },
+  { id: 'silver_goblet', label: 'Silver Goblet', points: 100, placeholder: '0' },
+  { id: 'copper_horn', label: 'Copper Horn', points: 10, placeholder: '0' },
 ];
 
 function extractMastersList(data) {
@@ -79,7 +86,12 @@ function advancementStatusName(adv) {
 /**
  * Affinity ladder as separate steps:
  *   0,1,…,9, 10, Acquaintance 1, 11,…, 90, Close 3, 91,…, 100, Kindred Soul
- * Numeric steps cost affinity points; status steps cost emblems only.
+ *
+ * Cost model (matches game data):
+ *   - affinityCost on level N is the cost to advance FROM N (or its status) TO N+1
+ *   - Status steps (Close 3, etc.) cost emblems to *enter*; the row’s affinityCost
+ *     is paid when *leaving* that status toward the next numeric level
+ *   Example: Close 3 → 91 uses level 90’s affinityCost (3500), NOT level 91’s (3550)
  */
 function affinitySteps(master) {
   const rows = [...(master?.affinity || [])].sort(
@@ -88,25 +100,37 @@ function affinitySteps(master) {
   const steps = [];
   for (const row of rows) {
     const lv = Number(row.level) || 0;
-    const label = lv === 100 ? '100' : String(lv);
+    const ac = parseCost(row.affinityCost);
+    const emblems = parseEmblemFromAdvancement(row.advancement);
+    const status = advancementStatusName(row.advancement);
+
+    // Being at numeric level N — no enter cost (paid when leaving previous)
     steps.push({
       key: `lv_${lv}`,
       kind: 'level',
       level: lv,
-      label,
-      affinityCost: parseCost(row.affinityCost),
+      label: String(lv),
+      affinityCost: 0,
       emblems: 0,
+      exitAffinity: 0,
+      exitEmblems: 0,
     });
-    if (row.advancement) {
-      const status = advancementStatusName(row.advancement);
+
+    if (row.advancement && status) {
+      // Enter status: emblems only. Leave status → next level: this row’s affinityCost
       steps.push({
         key: `adv_${lv}`,
         kind: 'advancement',
         level: lv,
         label: status,
         affinityCost: 0,
-        emblems: parseEmblemFromAdvancement(row.advancement),
+        emblems,
+        exitAffinity: ac,
+        exitEmblems: 0,
       });
+    } else {
+      // No status step — leave this numeric level toward next by paying affinityCost
+      steps[steps.length - 1].exitAffinity = ac;
     }
   }
   if (!steps.length) {
@@ -118,6 +142,8 @@ function affinitySteps(master) {
         label: String(i),
         affinityCost: 0,
         emblems: 0,
+        exitAffinity: 0,
+        exitEmblems: 0,
       });
     }
   }
@@ -133,13 +159,12 @@ function stepIndex(steps, value) {
   const v = String(value);
   let idx = steps.findIndex((s) => s.label === v || s.key === v);
   if (idx >= 0) return idx;
-  // legacy: pure number stored before status split
   const n = levelNum(v);
   idx = steps.findIndex((s) => s.kind === 'level' && s.level === n);
   return idx;
 }
 
-/** Sum affinity points + emblems for steps (fromIdx, toIdx] */
+/** Sum costs for moving from fromVal → toVal (leave current, enter each next step) */
 function affinityRangeCost(master, fromVal, toVal) {
   const steps = affinitySteps(master);
   const fromIdx = stepIndex(steps, fromVal);
@@ -149,9 +174,13 @@ function affinityRangeCost(master, fromVal, toVal) {
   }
   let points = 0;
   let emblems = 0;
-  for (let i = fromIdx + 1; i <= toIdx; i++) {
-    points += steps[i].affinityCost || 0;
-    emblems += steps[i].emblems || 0;
+  for (let i = fromIdx; i < toIdx; i++) {
+    // Leaving step i
+    points += steps[i].exitAffinity || 0;
+    emblems += steps[i].exitEmblems || 0;
+    // Entering step i+1
+    points += steps[i + 1].affinityCost || 0;
+    emblems += steps[i + 1].emblems || 0;
   }
   return { points, emblems };
 }
@@ -284,37 +313,39 @@ function skillUpgradeCosts(skill, fromLv, toLv) {
   return { manuscripts, learningSeconds };
 }
 
-/** Total Learning XP (seconds) to fully train a skill (all levels). */
-function skillMaxLearningXP(skill) {
-  let total = 0;
+/** Highest skill level number in data */
+function skillMaxLevel(skill) {
+  let max = 0;
   for (const row of skill?.levels || []) {
-    total += parseCost(row.learningXP);
+    max = Math.max(max, levelNum(row.level));
   }
-  return total;
+  return max;
 }
 
-/** Cumulative Learning XP required to reach skill level `toLv` (from 0). */
-function skillLearningXPToReach(skill, toLv) {
+/**
+ * Learning XP (seconds) strictly for levels (fromLv, toLv] — never counts levels
+ * already at or below the selected current level.
+ */
+function skillPathLearningXP(skill, fromLv, toLv) {
+  const from = levelNum(fromLv);
   const to = levelNum(toLv);
+  if (to <= from) return 0;
   let total = 0;
   for (const row of skill?.levels || []) {
     const lv = Number(row.level) || 0;
-    if (lv > 0 && lv <= to) total += parseCost(row.learningXP);
+    if (lv > from && lv <= to) total += parseCost(row.learningXP);
   }
   return total;
 }
 
 /**
- * Remaining Learning XP for from→to given skill-wide learned XP (0…max).
+ * Remaining XP for from→to. `learnedXP` is partial progress *from the selected
+ * current level* toward max (not from level 0).
  */
 function skillRemainingLearningXP(skill, fromLv, toLv, learnedXP) {
-  const from = levelNum(fromLv);
-  const to = levelNum(toLv);
-  if (to <= from) return 0;
-  const needStart = skillLearningXPToReach(skill, from);
-  const needEnd = skillLearningXPToReach(skill, to);
+  const pathToTarget = skillPathLearningXP(skill, fromLv, toLv);
   const learned = Math.max(0, parseCost(learnedXP));
-  return Math.max(0, needEnd - Math.max(needStart, learned));
+  return Math.max(0, pathToTarget - learned);
 }
 
 function skillLevelAffinityReq(skill, targetLv) {
@@ -395,7 +426,7 @@ function MastersInventory({ mastersList, vault, updateVaultField, emblems, setEm
                 id={`m-${it.id}`}
                 type="text"
                 placeholder={it.placeholder}
-                value={vault?.[it.id] ?? ''}
+                value={emptyZeroInput(vault?.[it.id])}
                 onChange={(e) => updateVaultField(it.id, e.target.value)}
               />
             </div>
@@ -431,7 +462,7 @@ function MastersInventory({ mastersList, vault, updateVaultField, emblems, setEm
                   id={`emblem-${id}`}
                   type="text"
                   placeholder="0"
-                  value={emblems[id] ?? ''}
+                  value={emptyZeroInput(emblems[id])}
                   onChange={(e) => setEmblem(id, e.target.value)}
                 />
               </div>
@@ -458,25 +489,21 @@ function UpgradeRow({
       className="item-card group-card-item"
       style={{ margin: 0, boxShadow: 'none' }}
     >
-      <div className="item-card-header">
+      <div className="item-card-header" style={{ flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
         <AssetImg
           src={
             c.kind === 'affinity'
               ? masterAffinityImg(c.masterId)
-              : c.kind === 'talent'
-                ? masterTalentImg(c.masterId)
-                : c.kind === 'skill'
-                  ? masterSkillImg(c.masterId, c.title)
-                  : masterImg(c.masterId)
+              : c.kind === 'skill'
+                ? masterSkillImg(c.masterId, c.title)
+                : masterImg(c.masterId)
           }
           fallbacks={
             c.kind === 'affinity'
               ? masterAffinityImgFallbacks(c.masterId)
-              : c.kind === 'talent'
-                ? masterTalentImgFallbacks(c.masterId)
-                : c.kind === 'skill'
-                  ? masterSkillImgFallbacks(c.masterId, c.title)
-                  : masterImgFallbacks(c.masterId)
+              : c.kind === 'skill'
+                ? masterSkillImgFallbacks(c.masterId, c.title)
+                : masterImgFallbacks(c.masterId)
           }
           size={40}
           alt={c.title}
@@ -485,6 +512,37 @@ function UpgradeRow({
           {c.title}
           {c.skillType ? ` (${c.skillType})` : ''}
         </span>
+        {c.kind === 'affinity' ? (
+          <span
+            className="affinity-talent-header"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              marginLeft: 'auto',
+              fontWeight: 500,
+              fontSize: '0.9rem',
+            }}
+          >
+            <AssetImg
+              src={masterTalentImg(c.masterId)}
+              fallbacks={masterTalentImgFallbacks(c.masterId)}
+              size={36}
+              alt={c.talentName || 'Talent'}
+            />
+            <span>
+              {c.talentName || 'Talent'}
+              {' · '}
+              rank <strong>{c.talentFrom ?? '—'}</strong>
+              {c.talentTo && String(c.talentTo) !== String(c.talentFrom) ? (
+                <>
+                  {' '}
+                  → <strong>{c.talentTo}</strong>
+                </>
+              ) : null}
+            </span>
+          </span>
+        ) : null}
       </div>
       <div className="item-card-body">
         {c.unlockUnmet ? (
@@ -492,33 +550,48 @@ function UpgradeRow({
             Unlock: {c.unlockLabel || c.unlock}
           </div>
         ) : null}
-        {c.affinityPtsNeeded > 0 ? (
-          <div style={{ fontSize: '0.8rem', opacity: 0.8, marginBottom: 4 }}>
-            Affinity points needed: {formatNumber(c.affinityPtsNeeded)}
+        {c.kind === 'affinity' ? (
+          <div className="learning-xp-block" style={{ marginBottom: 10 }}>
+            {c.to ? (
+              <div className="learning-xp-summary">
+                Affinity points for this path:{' '}
+                <strong>{formatNumber(c.affinityPtsRaw || 0)}</strong>
+                {c.bankedAffinity > 0 ? (
+                  <>
+                    {' '}
+                    − banked <strong>{formatNumber(c.bankedAffinity)}</strong>
+                    {' = '}
+                    <strong>{formatNumber(c.affinityPtsNeeded)}</strong> still needed
+                  </>
+                ) : null}
+              </div>
+            ) : null}
+            <label className="learning-xp-label" htmlFor={`banked-${c.id}`}>
+              Banked affinity points (extra toward next levels)
+            </label>
+            <div className="learning-xp-controls">
+              <input
+                id={`banked-${c.id}`}
+                type="number"
+                min={0}
+                step={1}
+                placeholder="0"
+                value={emptyZeroInput(c.bankedAffinity)}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  setField(
+                    c.masterId,
+                    c.fieldKey,
+                    'bankedAffinity',
+                    raw === '' ? '' : Math.max(0, parseInt(raw, 10) || 0)
+                  );
+                }}
+              />
+            </div>
           </div>
         ) : null}
 
-        {c.kind === 'talent' ? (
-          <div className="level-selects" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-            <label>
-              Current Level{' '}
-              <select value={c.from ?? ''} disabled>
-                {(c.levels || []).map((lv) => (
-                  <option key={lv} value={lv}>{lv}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Target Level{' '}
-              <select value={c.to ?? ''} disabled>
-                <option value="">—</option>
-                {(c.levels || []).map((lv) => (
-                  <option key={lv} value={lv}>{lv}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-        ) : (
+        {(
           <LevelSelects
             levels={c.levels}
             from={c.from ?? ''}
@@ -531,24 +604,26 @@ function UpgradeRow({
 
         {c.prereqItems?.length > 0 && c.to ? <PrereqList items={c.prereqItems} /> : null}
 
-        {c.kind === 'skill' && c.maxLearningXP > 0 ? (
+        {c.kind === 'skill' && !c.atSkillMax && c.pathToMax > 0 ? (
           <div className="learning-xp-block">
             <div className="learning-xp-summary">
-              Skill Learning XP:{' '}
+              Learning from current level → max:{' '}
               <strong>{formatSecondsToTime(c.learnedXP || 0)}</strong>
               {' / '}
-              <strong>{formatSecondsToTime(c.maxLearningXP)}</strong>
+              <strong>{formatSecondsToTime(c.pathToMax)}</strong>
               {c.to && c.learningSeconds > 0 ? (
                 <>
                   {' '}
-                  · this upgrade needs{' '}
+                  · this upgrade{' '}
                   <strong>{formatSecondsToTime(c.learningSeconds)}</strong>
                   {c.remainingSeconds < c.learningSeconds ? (
                     <>
                       {' '}
-                      (remaining{' '}
+                      (still need{' '}
                       <strong>{formatSecondsToTime(c.remainingSeconds)}</strong>)
                     </>
+                  ) : c.remainingSeconds === 0 ? (
+                    <> (fully covered by learned XP)</>
                   ) : null}
                 </>
               ) : null}
@@ -557,7 +632,7 @@ function UpgradeRow({
                 : null}
             </div>
             <label className="learning-xp-label" htmlFor={`lxp-${c.id}`}>
-              Learned toward this skill (0 – max)
+              Already learned from current level (seconds)
             </label>
             <div className="learning-xp-controls">
               <input
@@ -566,11 +641,17 @@ function UpgradeRow({
                 min={0}
                 max={c.maxLearningXP}
                 step={1}
-                value={c.learnedXP || 0}
+                placeholder="0"
+                value={emptyZeroInput(c.learnedXP)}
                 onChange={(e) => {
+                  const raw = e.target.value;
+                  if (raw === '') {
+                    setField(c.masterId, c.fieldKey, 'learnedXP', '');
+                    return;
+                  }
                   const v = Math.max(
                     0,
-                    Math.min(c.maxLearningXP, parseInt(e.target.value, 10) || 0)
+                    Math.min(c.maxLearningXP, parseInt(raw, 10) || 0)
                   );
                   setField(c.masterId, c.fieldKey, 'learnedXP', v);
                 }}
@@ -716,6 +797,10 @@ export default function MastersPage() {
       const block = { ...(mid[key] || {}), [field]: value };
       if (field === 'from' || field === 'to') {
         block.active = false;
+        // Path XP is relative to current skill level — reset partial progress on level change
+        if (field === 'from' && String(key).startsWith('skill')) {
+          block.learnedXP = 0;
+        }
       }
       mid[key] = block;
       return { ...prev, [masterId]: mid };
@@ -736,78 +821,7 @@ export default function MastersPage() {
     }));
   };
 
-  /**
-   * Talent auto-follows Affinity: current talent = f(current affinity).
-   * Target talent follows affinity target when set.
-   */
-  useEffect(() => {
-    if (!mastersList.length) return;
-    let changed = false;
-    const next = { ...mastersState };
-    for (const master of mastersList) {
-      const id = String(master.id || master.name || '').toLowerCase();
-      const ms = next[id] || {};
-      const aff = ms.affinity || {};
-      const talent = { ...(ms.talent || {}) };
-      const wantFrom = talentLevelFromAffinity(affinityNumericValue(master, aff.from ?? '0'));
-      const wantTo = aff.to
-        ? talentLevelFromAffinity(affinityNumericValue(master, aff.to))
-        : '';
-      if (String(talent.from ?? '') !== wantFrom) {
-        talent.from = wantFrom;
-        talent.active = false;
-        changed = true;
-      }
-      if (String(talent.to ?? '') !== String(wantTo)) {
-        talent.to = wantTo;
-        talent.active = false;
-        changed = true;
-      }
-      // Keep talent active in sync with affinity only when levels differ
-      if (wantTo && wantFrom !== wantTo) {
-        if (!!talent.active !== !!aff.active) {
-          talent.active = !!aff.active;
-          changed = true;
-        }
-      } else if (talent.active) {
-        talent.active = false;
-        changed = true;
-      }
-      if (changed) next[id] = { ...ms, talent };
-    }
-    if (changed) {
-      updateSection('masters', () => {
-        // merge only talent fields we fixed, preserve concurrent edits
-        const out = { ...mastersState };
-        for (const master of mastersList) {
-          const id = String(master.id || master.name || '').toLowerCase();
-          const aff = (mastersState[id] || {}).affinity || {};
-          const wantFrom = talentLevelFromAffinity(affinityNumericValue(master, aff.from ?? '0'));
-          const wantTo = aff.to
-            ? talentLevelFromAffinity(affinityNumericValue(master, aff.to))
-            : '';
-          const prevT = (mastersState[id] || {}).talent || {};
-          out[id] = {
-            ...(mastersState[id] || {}),
-            talent: {
-              ...prevT,
-              from: wantFrom,
-              to: wantTo,
-              active: wantTo && wantFrom !== wantTo ? !!aff.active : false,
-            },
-          };
-        }
-        return out;
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    mastersList.map((m) => {
-      const id = String(m.id || m.name || '').toLowerCase();
-      const a = mastersState[id]?.affinity || {};
-      return `${id}:${a.from}:${a.to}:${!!a.active}`;
-    }).join('|'),
-  ]);
+
 
   /** Current affinity only (selected "from") — status steps use their milestone number */
   const effectiveAffinity = (masterId) => {
@@ -829,6 +843,20 @@ export default function MastersPage() {
     }));
   };
 
+  /** Hide only maxed *skill* cards — affinity always stays visible */
+  const hideMaxedSkills =
+    !!(state.settings?.mastersBuffs || {}).hideMaxedSkills;
+
+  const setHideMaxedSkills = (checked) => {
+    updateSection('settings', (prev) => ({
+      ...(prev || {}),
+      mastersBuffs: {
+        ...((prev || {}).mastersBuffs || {}),
+        hideMaxedSkills: !!checked,
+      },
+    }));
+  };
+
   const cards = useMemo(() => {
     const raw = [];
     try {
@@ -844,15 +872,21 @@ export default function MastersPage() {
           const levels = affinityLevels(master);
           const from = ms.affinity?.from ?? '0';
           const to = ms.affinity?.to || '';
-          const { points: pts, emblems: emblemsNeed } = to
+          const { points: ptsRaw, emblems: emblemsNeed } = to
             ? affinityRangeCost(master, from, to)
             : { points: 0, emblems: 0 };
+          const bankedAffinity = Math.max(0, parseCost(ms.affinity?.bankedAffinity));
+          const pts = Math.max(0, ptsRaw - bankedAffinity);
           const useGenEmblem = !!ms.affinity?.useGeneralEmblem;
           const costs = to ? { ...affinityPointsToItems(pts) } : {};
           if (emblemsNeed > 0) {
             Object.assign(costs, splitEmblemCost(id, emblemsNeed, emblems, useGenEmblem));
           }
           const basePoints = emblemsNeed * (SCORE_RULES.general_emblem || 0);
+          const talentFrom = talentLevelFromAffinity(affinityNumericValue(master, from));
+          const talentTo = to
+            ? talentLevelFromAffinity(affinityNumericValue(master, to))
+            : talentFrom;
           raw.push({
             id: `${id}__affinity`,
             masterId: id,
@@ -866,8 +900,13 @@ export default function MastersPage() {
             to,
             costs,
             affinityPtsNeeded: pts,
+            affinityPtsRaw: ptsRaw,
+            bankedAffinity,
             emblemsNeed,
             useGeneralEmblem: useGenEmblem,
+            talentFrom,
+            talentTo,
+            talentName: master.talent?.name || 'Talent',
             basePoints,
             learningSeconds: 0,
             speedupMins: 0,
@@ -878,69 +917,32 @@ export default function MastersPage() {
             prereqsMet: true,
           });
         }
-
-        {
-          const levels = talentLevels(master);
-          const from = ms.talent?.from ?? '0';
-          const to = ms.talent?.to || '';
-          const needAff = to ? talentAffinityReq(to) : 0;
-          const haveAff = effectiveAffinity(id);
-          const prereqItems = [];
-          if (needAff > 0) {
-            prereqItems.push({
-              raw: `Affinity ${needAff} (talent rank)`,
-              name: 'Affinity',
-              level: needAff,
-              have: haveAff,
-              met: haveAff >= needAff,
-              tracked: true,
-            });
-          }
-          const prereqsMet = prereqEnabled ? prereqItems.every((p) => p.met) : true;
-          raw.push({
-            id: `${id}__talent`,
-            masterId: id,
-            masterName,
-            masterType,
-            kind: 'talent',
-            fieldKey: 'talent',
-            title: master.talent?.name || 'Talent',
-            levels,
-            from,
-            to,
-            costs: {},
-            basePoints: 0,
-            learningSeconds: 0,
-            speedupMins: 0,
-            speedupKey: null,
-            speedupOn: false,
-            active: !!ms.talent?.active,
-            prereqItems,
-            prereqsMet,
-                      });
-        }
-
         (master.skills || []).forEach((skill, idx) => {
           const key = `skill${skill.id || idx + 1}`;
           const ss = ms[key] || {};
           const levels = skillLevels(skill);
           const from = ss.from ?? '0';
           const to = ss.to || '';
+          const maxLv = skillMaxLevel(skill);
+          const atSkillMax =
+            maxLv > 0 && levelNum(from) >= maxLv && (!to || levelNum(to) <= levelNum(from));
           const { manuscripts, learningSeconds: rangeLearning } = to
             ? skillUpgradeCosts(skill, from, to)
             : { manuscripts: 0, learningSeconds: 0 };
-          const maxLearningXP = skillMaxLearningXP(skill);
+          // Path XP from selected current level → skill max (partial progress basis)
+          const pathToMax = skillPathLearningXP(skill, from, maxLv);
           const costs = {};
           if (manuscripts > 0) costs.master_manuscript = manuscripts;
           const speedupOn = !!ss.speedup;
-          // Skill-wide learned XP (0 … max for this skill), not capped to selected range
+          // learnedXP = progress from *current level* toward max (not from 0)
           const learnedXP = Math.max(
             0,
-            Math.min(maxLearningXP, parseCost(ss.learnedXP))
+            Math.min(pathToMax, parseCost(ss.learnedXP))
           );
-          const remainingSeconds = to
-            ? skillRemainingLearningXP(skill, from, to, learnedXP)
-            : 0;
+          const remainingSeconds =
+            to && !atSkillMax
+              ? skillRemainingLearningXP(skill, from, to, learnedXP)
+              : 0;
           const speedupMins =
             speedupOn && remainingSeconds > 0 ? Math.ceil(remainingSeconds / 60) : 0;
           const basePoints = manuscripts * (SCORE_RULES.master_manuscript || 0);
@@ -988,7 +990,9 @@ export default function MastersPage() {
             costs,
             basePoints,
             learningSeconds: rangeLearning,
-            maxLearningXP,
+            maxLearningXP: pathToMax,
+            pathToMax,
+            atSkillMax,
             learnedXP,
             remainingSeconds,
             speedupMins,
@@ -1040,6 +1044,11 @@ export default function MastersPage() {
     [cards]
   );
 
+  const hasMaxedSkills = useMemo(
+    () => cards.some((c) => c.kind === 'skill' && c.atSkillMax),
+    [cards]
+  );
+
   useEffect(() => {
     // Lock only real vault resources (affinity items, manuscripts, speedups).
     // Per-master emblems live in masters.__emblems — map them to general_emblem for display score only.
@@ -1063,6 +1072,8 @@ export default function MastersPage() {
     const order = [];
     const map = new Map();
     for (const c of cards) {
+      // Only hide maxed skill cards — never hide affinity
+      if (hideMaxedSkills && c.kind === 'skill' && c.atSkillMax) continue;
       if (!map.has(c.masterId)) {
         map.set(c.masterId, {
           id: c.masterId,
@@ -1075,7 +1086,7 @@ export default function MastersPage() {
       map.get(c.masterId).cards.push(c);
     }
     return order.map((id) => map.get(id));
-  }, [cards]);
+  }, [cards, hideMaxedSkills]);
 
   if (loading) {
     return (
@@ -1131,6 +1142,20 @@ export default function MastersPage() {
           />{' '}
           Enforce prerequisite checks
         </label>
+        {hasMaxedSkills ? (
+          <label
+            className="checkbox-label"
+            title="Hide skill cards that are already at max level (Affinity card always stays visible)"
+          >
+            <input
+              className="checkbox"
+              type="checkbox"
+              checked={hideMaxedSkills}
+              onChange={(e) => setHideMaxedSkills(e.target.checked)}
+            />{' '}
+            Hide maxed skills
+          </label>
+        ) : null}
       </div>
 
       <MastersInventory

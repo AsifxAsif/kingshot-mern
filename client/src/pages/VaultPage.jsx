@@ -37,7 +37,7 @@ export default function VaultPage() {
               id={item.id}
               type="text"
               placeholder={item.placeholder}
-              value={vault?.[item.id] ?? ''}
+              value={(vault?.[item.id] === 0 || vault?.[item.id] === '0') ? '' : (vault?.[item.id] ?? '')}
               onChange={(e) => updateVaultField(item.id, e.target.value)}
             />
           </div>
@@ -64,7 +64,7 @@ export default function VaultPage() {
                   id={item.id}
                   type="text"
                   placeholder={item.placeholder || '0'}
-                  value={vault?.[item.id] ?? ''}
+                  value={(vault?.[item.id] === 0 || vault?.[item.id] === '0') ? '' : (vault?.[item.id] ?? '')}
                   onChange={(e) => updateVaultField(item.id, e.target.value)}
                 />
               </div>
