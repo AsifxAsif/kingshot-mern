@@ -21,9 +21,9 @@ export function buildCors() {
 		}
 		return cb(new Error('Not allowed by CORS'));
 	} : isProd ? (origin, cb) => {
-		// Production without CORS_ORIGINS: allow same-site + vercel.app only
+		// Production without CORS_ORIGINS: vercel.app only (set CORS_ORIGINS explicitly)
 		if (!origin) return cb(null, false);
-		if (/\.vercel\.app$/.test(origin) || /localhost/.test(origin)) return cb(null, true);
+		if (/\.vercel\.app$/.test(origin)) return cb(null, true);
 		return cb(new Error('Not allowed by CORS'));
 	} : true; // local dev
 	return cors({

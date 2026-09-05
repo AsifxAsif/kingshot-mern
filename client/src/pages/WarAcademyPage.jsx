@@ -67,6 +67,8 @@ export default function WarAcademyPage() {
     updateSection('warAcademy', (prev) => {
       const cur = { ...(prev[name] || {}), [field]: value };
       if (field === 'from' || field === 'to') cur.active = false;
+      // Persist default current level so Profile can detect from → to range
+      if (field === 'to' && (cur.from == null || cur.from === '')) cur.from = '0';
       return { ...prev, [name]: cur };
     });
   };

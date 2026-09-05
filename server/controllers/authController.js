@@ -9,16 +9,25 @@ import {
 	assertNoOperators,
 } from '../utils/validate.js';
 const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_DAYS = process.env.JWT_DAYS || '365d';
+const JWT_DAYS = process.env.JWT_DAYS || '30d';
 const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS || 12);
 
 function requireSecret() {
-	if (!JWT_SECRET || JWT_SECRET === 'kingshot-dev-secret-change-me') {
-		if (process.env.NODE_ENV === 'production') {
-			throw new Error('JWT_SECRET must be set in production');
-		}
+	const secret = JWT_SECRET || '';
+	const isProd = process.env.NODE_ENV === 'production';
+	const weak =
+		!secret ||
+		secret === 'kingshot-dev-secret-change-me' ||
+		secret.length < 32 ||
+		secret.startsWith('eyJ'); // reject JWT-shaped placeholders
+	if (isProd && weak) {
+		throw new Error('JWT_SECRET must be a strong random string (32+ chars) in production');
 	}
-	return JWT_SECRET || 'kingshot-dev-secret-change-me';
+	if (weak) {
+		console.warn('[auth] Using weak/dev JWT_SECRET — set a strong secret before production');
+		return secret || 'kingshot-dev-secret-change-me';
+	}
+	return secret;
 }
 
 function signToken(user) {

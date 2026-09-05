@@ -16,6 +16,10 @@ import {
   resourceImg,
   govGearImg,
   govCharmImg,
+  masterImg,
+  masterImgFallbacks,
+  masterAffinityImg,
+  masterSkillImg,
 } from '../utils/images';
 
 const SECTIONS = [
@@ -28,6 +32,7 @@ const SECTIONS = [
   { key: 'govCharm', title: 'Gov Charm', path: '/gov-charm', scoreKey: 'govCharm' },
   { key: 'widgets', title: 'Widgets', path: '/widgets', scoreKey: 'widgets' },
   { key: 'pets', title: 'Pets', path: '/pets', scoreKey: 'pets' },
+  { key: 'masters', title: 'Masters', path: '/masters', scoreKey: 'masters' },
   { key: 'misc', title: 'Misc', path: '/misc', scoreKey: 'misc' },
 ];
 
@@ -54,7 +59,8 @@ function hasUpgradeRange(from, to) {
   const na = Number(a);
   const nb = Number(b);
   if (Number.isFinite(na) && Number.isFinite(nb)) return nb > na;
-  return true;
+  // Non-numeric labels (status steps, gear colors, etc.)
+  return String(a).trim() !== String(b).trim();
 }
 
 
@@ -80,7 +86,12 @@ function heroStarRangeLabel(curIdx, tgtIdx) {
 }
 
 function levelLabel(from, to) {
-  return `${str(from) ?? '—'} → ${str(to) ?? '—'}`;
+  const a = str(from);
+  const b = str(to);
+  // Empty current level → readable text (not "—")
+  const left = a == null ? 'None' : a;
+  const right = b == null ? 'None' : b;
+  return `${left} → ${right}`;
 }
 
 function resolveImage(sectionKey, row) {
@@ -131,6 +142,25 @@ function resolveImage(sectionKey, row) {
           fallbacks: [cur, asset('charm_design.webp'), asset('charm_guide.webp')].filter(Boolean),
         };
       }
+      case 'masters': {
+        const mid = row.masterId || String(id).split('__')[0] || name;
+        if (row.fieldKey === 'affinity') {
+          return {
+            src: masterAffinityImg(mid),
+            fallbacks: masterImgFallbacks(mid),
+          };
+        }
+        if (String(row.fieldKey || '').startsWith('skill')) {
+          return {
+            src: masterSkillImg(mid, name),
+            fallbacks: masterImgFallbacks(mid),
+          };
+        }
+        return {
+          src: masterImg(mid),
+          fallbacks: masterImgFallbacks(mid),
+        };
+      }
       case 'misc':
         if (id === 'roulette') return { src: asset('hero_roulette.webp'), fallbacks: [] };
         if (id === 'bison') return { src: asset('grip_of_the_titan.webp'), fallbacks: [] };
@@ -155,7 +185,7 @@ function collectRows(key, state) {
     for (const name of VALID_GOV_GEAR) {
       const s = section[name];
       if (!s || typeof s !== 'object') continue;
-      if (!hasUpgradeRange(s.from, s.to)) continue;
+      if (!hasUpgradeRange(s.from ?? '0', s.to)) continue;
       rows.push({
         id: name,
         name,
@@ -173,7 +203,7 @@ function collectRows(key, state) {
     for (const name of VALID_GOV_CHARMS) {
       const s = section[name];
       if (!s || typeof s !== 'object') continue;
-      if (!hasUpgradeRange(s.from, s.to)) continue;
+      if (!hasUpgradeRange(s.from ?? '0', s.to)) continue;
       rows.push({
         id: name,
         name,
@@ -190,18 +220,60 @@ function collectRows(key, state) {
     const section = state[key] || {};
     for (const [name, s] of Object.entries(section)) {
       if (!s || typeof s !== 'object' || Array.isArray(s)) continue;
-      if (!name || name === 'undefined') continue;
-      if (!hasUpgradeRange(s.from, s.to)) continue;
-      const parts = [levelLabel(s.from, s.to)];
+      if (!name || name === 'undefined' || String(name).startsWith('__')) continue;
+      // lockedUpgrades[page] is a flat resource cost map — never list those keys as items
+      const from = s.from ?? '0';
+      if (!hasUpgradeRange(from, s.to)) continue;
+      const parts = [levelLabel(from, s.to)];
       if (s.speedup) parts.push('+Spd');
       rows.push({
         id: name,
         name,
-        from: s.from,
+        from,
         to: s.to,
         detail: parts.join(' · '),
         active: !!s.active,
       });
+    }
+    return rows;
+  }
+
+  if (key === 'masters') {
+    const section = state.masters || {};
+    for (const [masterId, ms] of Object.entries(section)) {
+      if (!masterId || String(masterId).startsWith('__')) continue;
+      if (!ms || typeof ms !== 'object' || Array.isArray(ms)) continue;
+      const masterName =
+        masterId.charAt(0).toUpperCase() + masterId.slice(1);
+
+      for (const [field, s] of Object.entries(ms)) {
+        if (!field || String(field).startsWith('__')) continue;
+        if (!s || typeof s !== 'object' || Array.isArray(s)) continue;
+        const from = s.from ?? (field === 'affinity' ? '0' : '0');
+        if (!hasUpgradeRange(from, s.to)) continue;
+
+        let label;
+        if (field === 'affinity') label = 'Affinity';
+        else if (field === 'talent') label = 'Talent';
+        else if (String(field).startsWith('skill')) {
+          label = String(field).replace(/^skill/i, 'Skill ');
+        } else label = field;
+
+        const parts = [levelLabel(from, s.to)];
+        if (s.speedup) parts.push('+Spd');
+
+        rows.push({
+          id: `${masterId}__${field}`,
+          name: label,
+          masterId,
+          masterName,
+          fieldKey: field,
+          from,
+          to: s.to,
+          detail: parts.join(' · '),
+          active: !!s.active,
+        });
+      }
     }
     return rows;
   }
@@ -605,6 +677,62 @@ export default function ProfilePage() {
                   <p className="hint" style={{ margin: 0 }}>
                     Nothing matches this filter.
                   </p>
+                ) : sec.key === 'masters' ? (
+                  <div className="profile-masters-groups" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {(() => {
+                      const byMaster = new Map();
+                      for (const r of rows) {
+                        const mid = r.masterId || 'unknown';
+                        if (!byMaster.has(mid)) {
+                          byMaster.set(mid, {
+                            id: mid,
+                            name: r.masterName || mid,
+                            rows: [],
+                          });
+                        }
+                        byMaster.get(mid).rows.push(r);
+                      }
+                      return [...byMaster.values()].map((g) => (
+                        <div
+                          key={g.id}
+                          className="item-card group-card-item"
+                          style={{ marginBottom: 12 }}
+                        >
+                          <div
+                            className="item-card-header"
+                            style={{ gap: 10, alignItems: 'center' }}
+                          >
+                            <AssetImg
+                              src={masterImg(g.id)}
+                              fallbacks={masterImgFallbacks(g.id)}
+                              size={40}
+                              alt={g.name}
+                            />
+                            <span>{g.name}</span>
+                            <span
+                              style={{
+                                marginLeft: 'auto',
+                                fontSize: '0.75rem',
+                                color: 'var(--text-muted)',
+                              }}
+                            >
+                              {g.rows.filter((x) => x.active).length} active
+                              {g.rows.some((x) => !x.active)
+                                ? ` · ${g.rows.filter((x) => !x.active).length} planned`
+                                : ''}
+                            </span>
+                          </div>
+                          <div className="item-card-body">
+                            <div className="profile-item-grid">
+                              {g.rows.map((r) => (
+                                <ItemTile key={r.id} sectionKey={sec.key} row={r} />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
                 ) : (
                   <div className="profile-item-grid">
                     {rows.map((r) => (

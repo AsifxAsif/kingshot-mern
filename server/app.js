@@ -16,7 +16,7 @@ app.disable('x-powered-by');
 app.use(securityHeaders());
 app.use(buildCors());
 app.use(express.json({
-	limit: process.env.JSON_LIMIT || '1mb'
+	limit: process.env.JSON_LIMIT || '2mb'
 }));
 app.use(express.urlencoded({
 	extended: false,

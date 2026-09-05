@@ -6,6 +6,11 @@ import {
 	Preset,
 	User
 } from '../models/index.js';
+
+function clientError(err) {
+	if (process.env.NODE_ENV === 'production') return 'Request failed';
+	return err?.message || 'Request failed';
+}
 /** Sanitize game id for name suffix */
 function sanitizeGameId(gameId) {
 	return String(gameId || '').trim().replace(/[^a-zA-Z0-9_\-]/g, '_').slice(0, 32);
@@ -109,7 +114,7 @@ export const listPresets = async (req, res) => {
 		})));
 	} catch (error) {
 		res.status(500).json({
-			message: error.message
+			message: clientError(error)
 		});
 	}
 };
@@ -137,7 +142,7 @@ export const getPreset = async (req, res) => {
 		res.json(preset);
 	} catch (error) {
 		res.status(500).json({
-			message: error.message
+			message: clientError(error)
 		});
 	}
 };
@@ -198,7 +203,7 @@ export const createPreset = async (req, res) => {
 		res.status(201).json(obj);
 	} catch (error) {
 		res.status(500).json({
-			message: error.message
+			message: clientError(error)
 		});
 	}
 };
@@ -276,7 +281,7 @@ export const updatePreset = async (req, res) => {
 	} catch (error) {
 		console.error('updatePreset', error);
 		res.status(500).json({
-			message: error.message
+			message: clientError(error)
 		});
 	}
 };
@@ -304,7 +309,7 @@ export const deletePreset = async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			message: error.message
+			message: clientError(error)
 		});
 	}
 };
@@ -380,7 +385,7 @@ export const renamePreset = async (req, res) => {
 		res.json(obj);
 	} catch (error) {
 		res.status(500).json({
-			message: error.message
+			message: clientError(error)
 		});
 	}
 };

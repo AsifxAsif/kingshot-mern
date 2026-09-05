@@ -3,9 +3,17 @@ import { useLocation } from 'react-router-dom';
 
 const SITE = 'Kingshot Calculator';
 const BASE_DESC =
-  'Kingshot Strongest Governor event calculator. Plan buildings, troops, heroes, gear, pets and track event points.';
+  'Kingshot Strongest Governor event calculator. Plan buildings, troops, heroes, gear, pets, masters and track event points.';
 const BASE_KEYWORDS =
-  'Kingshot, Strongest Governor, calculator, event points, buildings, troops, heroes, pets, war academy';
+  'Kingshot, Strongest Governor, calculator, event points, buildings, troops, heroes, pets, war academy, masters';
+
+/** Prefer VITE_SITE_URL in production builds; fall back to current origin in browser */
+function siteOrigin() {
+  const env = import.meta.env?.VITE_SITE_URL;
+  if (env && String(env).trim()) return String(env).replace(/\/$/, '');
+  if (typeof window !== 'undefined' && window.location?.origin) return window.location.origin;
+  return '';
+}
 
 const PAGE_META = {
   '/': {
@@ -23,6 +31,12 @@ const PAGE_META = {
     title: `War Academy · ${SITE}`,
     description: 'Plan War Academy Truegold research upgrades, costs and event points.',
     keywords: `${BASE_KEYWORDS}, war academy, research, truegold`,
+  },
+  '/masters': {
+    title: `Masters · ${SITE}`,
+    description:
+      'Plan Kingshot Masters affinity, skills, emblems, learning XP and Strongest Governor points.',
+    keywords: `${BASE_KEYWORDS}, masters, affinity, emblems, manuscripts`,
   },
   '/widgets': {
     title: `Widgets · ${SITE}`,
@@ -82,6 +96,17 @@ function upsertMeta(attr, key, content) {
   el.setAttribute('content', content);
 }
 
+function upsertLink(rel, href) {
+  if (!href) return;
+  let el = document.head.querySelector(`link[rel="${rel}"]`);
+  if (!el) {
+    el = document.createElement('link');
+    el.setAttribute('rel', rel);
+    document.head.appendChild(el);
+  }
+  el.setAttribute('href', href);
+}
+
 export default function PageMeta() {
   const { pathname } = useLocation();
   const meta = PAGE_META[pathname] || {
@@ -91,6 +116,10 @@ export default function PageMeta() {
   };
 
   useEffect(() => {
+    const origin = siteOrigin();
+    const canonical = origin ? `${origin}${pathname || '/'}` : '';
+    const ogImage = origin ? `${origin}/favicon.ico` : '';
+
     document.title = meta.title;
     upsertMeta('name', 'description', meta.description);
     upsertMeta('name', 'keywords', meta.keywords || BASE_KEYWORDS);
@@ -103,9 +132,13 @@ export default function PageMeta() {
     upsertMeta('property', 'og:type', 'website');
     upsertMeta('property', 'og:site_name', SITE);
     upsertMeta('property', 'og:locale', 'en_US');
-    upsertMeta('name', 'twitter:card', 'summary');
+    if (canonical) upsertMeta('property', 'og:url', canonical);
+    if (ogImage) upsertMeta('property', 'og:image', ogImage);
+    upsertMeta('name', 'twitter:card', ogImage ? 'summary' : 'summary');
     upsertMeta('name', 'twitter:title', meta.title);
     upsertMeta('name', 'twitter:description', meta.description);
+    if (ogImage) upsertMeta('name', 'twitter:image', ogImage);
+    if (canonical) upsertLink('canonical', canonical);
   }, [pathname, meta.title, meta.description, meta.keywords]);
 
   return null;
