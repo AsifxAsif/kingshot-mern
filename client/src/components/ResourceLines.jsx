@@ -1,6 +1,6 @@
 import { formatNumber, formatSecondsToTime } from '../utils/calc';
 import AssetImg from './AssetImg';
-import { resourceImg } from '../utils/images';
+import { resourceImg, resourceImgFallbacks } from '../utils/images';
 
 const SPEEDUP_KEYS = new Set([
   'training_speedup',
@@ -39,7 +39,11 @@ export default function ResourceLines({ lines = [], active = false }) {
     <div className="cost-grid">
       {lines.map((line) => {
         const key = line.key || line.label || '';
-        const label = line.label || String(key).replace(/_/g, ' ');
+        let label = line.label || String(key).replace(/_/g, ' ');
+        if (!line.label && key.startsWith('master_emblem_')) {
+          const name = key.slice('master_emblem_'.length);
+          label = `${name.charAt(0).toUpperCase()}${name.slice(1)} emblem`;
+        }
         const need = line.need;
         const have = line.have != null ? Number(line.have) : null;
         const left =
@@ -57,7 +61,7 @@ export default function ResourceLines({ lines = [], active = false }) {
                 ? have < Number(need)
                 : false;
         const img = line.img || resourceImg(key);
-        const fallbacks = line.fallbacks || [];
+        const fallbacks = line.fallbacks || resourceImgFallbacks(key);
 
         let statusText = null;
         let statusClass = '';

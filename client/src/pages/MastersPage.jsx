@@ -387,59 +387,14 @@ function splitEmblemCost(masterId, need, emblemsMap, useGeneral) {
 }
 
 
-/** Inventory strip at top of Masters page */
-function MastersInventory({ mastersList, vault, updateVaultField, emblems, setEmblem }) {
-  const totalAffinityPts = AFFINITY_ITEMS.reduce(
-    (s, it) => s + vaultAmount(vault, it.id) * it.points,
-    0
-  );
-
+/** Inventory strip at top of Masters page — emblems only (affinity gifts live on Vault) */
+function MastersInventory({ mastersList, emblems, setEmblem }) {
   return (
     <div className="item-card" style={{ marginBottom: 16, gridColumn: '1 / -1' }}>
       <div className="item-card-header">
-        <span>Masters inventory</span>
+        <span>Master emblems</span>
       </div>
       <div className="item-card-body">
-        <h3 className="vault-subhead" style={{ margin: '0 0 8px', fontSize: '0.9rem' }}>
-          Affinity gifts (Vault)
-        </h3>
-        <div className="vault-grid" style={{ marginBottom: 8 }}>
-          {AFFINITY_ITEMS.map((it) => (
-            <div
-              className="vault-item"
-              key={it.id}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-            >
-              <div className="vault-label">
-                <AssetImg
-                  src={resourceImg(it.id)}
-                  fallbacks={resourceImgFallbacks(it.id)}
-                  size={36}
-                  alt={it.label}
-                />
-                <label htmlFor={`m-${it.id}`}>{it.label}</label>
-              </div>
-              <small style={{ opacity: 0.7, marginBottom: 4 }}>
-                {formatNumber(it.points)} affinity each
-              </small>
-              <input
-                id={`m-${it.id}`}
-                type="text"
-                placeholder={it.placeholder}
-                value={emptyZeroInput(vault?.[it.id])}
-                onChange={(e) => updateVaultField(it.id, e.target.value)}
-              />
-            </div>
-          ))}
-        </div>
-        <div style={{ fontSize: '0.85rem', opacity: 0.85, marginBottom: 14 }}>
-          Total affinity points available:{' '}
-          <strong>{formatNumber(totalAffinityPts)}</strong>
-        </div>
-
-        <h3 className="vault-subhead" style={{ margin: '0 0 8px', fontSize: '0.9rem' }}>
-          Master emblems (per master)
-        </h3>
         <div className="vault-grid">
           {mastersList.map((m) => {
             const id = String(m.id || m.name || '').toLowerCase();
@@ -484,10 +439,17 @@ function UpgradeRow({
     c.levels.length > 0 &&
     String(c.from ?? '0') === String(c.levels[c.levels.length - 1]);
 
+  const skillLocked = c.kind === 'skill' && c.unlockUnmet;
+
   return (
     <div
       className="item-card group-card-item"
-      style={{ margin: 0, boxShadow: 'none' }}
+      style={{
+        margin: 0,
+        boxShadow: 'none',
+        opacity: skillLocked ? 0.72 : 1,
+        pointerEvents: skillLocked ? 'none' : undefined,
+      }}
     >
       <div className="item-card-header" style={{ flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
         <AssetImg
@@ -544,30 +506,56 @@ function UpgradeRow({
           </span>
         ) : null}
       </div>
-      <div className="item-card-body">
-        {c.unlockUnmet ? (
-          <div style={{ fontSize: '0.8rem', opacity: 0.75, marginBottom: 4, color: '#c0392b' }}>
-            Unlock: {c.unlockLabel || c.unlock}
+      <div
+        className="item-card-body"
+        style={
+          c.kind === 'skill' && c.unlockUnmet
+            ? { opacity: 0.85 }
+            : undefined
+        }
+      >
+        {c.kind === 'skill' && c.unlockUnmet ? (
+          <div
+            className="status-pane"
+            style={{
+              margin: 0,
+              padding: '12px 14px',
+              borderRadius: 8,
+              border: '1px solid var(--border-color)',
+              background: 'var(--surface-dark, var(--surface))',
+              color: 'var(--text-secondary)',
+              fontSize: '0.9rem',
+              lineHeight: 1.45,
+            }}
+          >
+            <div style={{ fontWeight: 700, color: 'var(--color-warning, #ffb74d)', marginBottom: 4 }}>
+              Locked
+            </div>
+            Unlocks at affinity:{' '}
+            <strong style={{ color: 'var(--text-primary)' }}>
+              {c.unlockLabel || c.unlock || '—'}
+            </strong>
           </div>
-        ) : null}
+        ) : (
+        <>
         {c.kind === 'affinity' ? (
           <div className="learning-xp-block" style={{ marginBottom: 10 }}>
             {c.to ? (
               <div className="learning-xp-summary">
-                Affinity points for this path:{' '}
+                Affinity needed for this upgrade:{' '}
                 <strong>{formatNumber(c.affinityPtsRaw || 0)}</strong>
                 {c.bankedAffinity > 0 ? (
                   <>
                     {' '}
-                    − banked <strong>{formatNumber(c.bankedAffinity)}</strong>
+                    − already have <strong>{formatNumber(c.bankedAffinity)}</strong>
                     {' = '}
-                    <strong>{formatNumber(c.affinityPtsNeeded)}</strong> still needed
+                    <strong>{formatNumber(c.affinityPtsNeeded)}</strong> left to get
                   </>
                 ) : null}
               </div>
             ) : null}
             <label className="learning-xp-label" htmlFor={`banked-${c.id}`}>
-              Banked affinity points (extra toward next levels)
+              Extra affinity points you already have
             </label>
             <div className="learning-xp-controls">
               <input
@@ -606,40 +594,15 @@ function UpgradeRow({
 
         {c.kind === 'skill' && !c.atSkillMax && c.pathToMax > 0 ? (
           <div className="learning-xp-block">
-            <div className="learning-xp-summary">
-              Learning from current level → max:{' '}
-              <strong>{formatSecondsToTime(c.learnedXP || 0)}</strong>
-              {' / '}
-              <strong>{formatSecondsToTime(c.pathToMax)}</strong>
-              {c.to && c.learningSeconds > 0 ? (
-                <>
-                  {' '}
-                  · this upgrade{' '}
-                  <strong>{formatSecondsToTime(c.learningSeconds)}</strong>
-                  {c.remainingSeconds < c.learningSeconds ? (
-                    <>
-                      {' '}
-                      (still need{' '}
-                      <strong>{formatSecondsToTime(c.remainingSeconds)}</strong>)
-                    </>
-                  ) : c.remainingSeconds === 0 ? (
-                    <> (fully covered by learned XP)</>
-                  ) : null}
-                </>
-              ) : null}
-              {c.speedupOn && c.remainingSeconds > 0
-                ? ` → ${formatNumber(c.speedupMins)} min speedup`
-                : null}
-            </div>
             <label className="learning-xp-label" htmlFor={`lxp-${c.id}`}>
-              Already learned from current level (seconds)
+              Training already done (toward max from current level)
             </label>
             <div className="learning-xp-controls">
               <input
                 id={`lxp-${c.id}`}
                 type="number"
                 min={0}
-                max={c.maxLearningXP}
+                max={c.pathToMax}
                 step={1}
                 placeholder="0"
                 value={emptyZeroInput(c.learnedXP)}
@@ -651,7 +614,7 @@ function UpgradeRow({
                   }
                   const v = Math.max(
                     0,
-                    Math.min(c.maxLearningXP, parseInt(raw, 10) || 0)
+                    Math.min(c.pathToMax, parseInt(raw, 10) || 0)
                   );
                   setField(c.masterId, c.fieldKey, 'learnedXP', v);
                 }}
@@ -659,8 +622,8 @@ function UpgradeRow({
               <input
                 type="range"
                 min={0}
-                max={c.maxLearningXP}
-                step={Math.max(1, Math.floor(c.maxLearningXP / 200))}
+                max={c.pathToMax}
+                step={Math.max(1, Math.floor(c.pathToMax / 200))}
                 value={c.learnedXP || 0}
                 onChange={(e) =>
                   setField(
@@ -672,16 +635,16 @@ function UpgradeRow({
                 }
                 style={{
                   ['--xp-pct']: `${
-                    c.maxLearningXP
-                      ? Math.round(((c.learnedXP || 0) / c.maxLearningXP) * 100)
+                    c.pathToMax
+                      ? Math.round(((c.learnedXP || 0) / c.pathToMax) * 100)
                       : 0
                   }%`,
                 }}
-                aria-label="Skill Learning XP progress"
+                aria-label="Training progress"
               />
               <span className="learning-xp-pct">
-                {c.maxLearningXP
-                  ? `${Math.round(((c.learnedXP || 0) / c.maxLearningXP) * 100)}%`
+                {c.pathToMax
+                  ? `${Math.round(((c.learnedXP || 0) / c.pathToMax) * 100)}%`
                   : '0%'}
               </span>
             </div>
@@ -756,7 +719,48 @@ function UpgradeRow({
                 ? 'No resource cost for talent'
                 : 'Select current → target'
           }
+          extra={
+            c.kind === 'skill' && c.to && c.learningSeconds > 0 ? (
+              <div
+                className="skill-training-cost"
+                style={{
+                  marginTop: 6,
+                  marginBottom: 4,
+                  fontSize: '0.85rem',
+                  lineHeight: 1.5,
+                }}
+              >
+                <div>
+                  Training time for this upgrade:{' '}
+                  <strong>{formatSecondsToTime(c.learningSeconds)}</strong>
+                </div>
+                <div>
+                  Already trained:{' '}
+                  <strong>
+                    {formatSecondsToTime(
+                      Math.min(c.learnedXP || 0, c.learningSeconds)
+                    )}
+                  </strong>
+                  {' / '}
+                  {formatSecondsToTime(c.learningSeconds)}
+                </div>
+                <div>
+                  Time left to train:{' '}
+                  <strong>
+                    {c.remainingSeconds > 0
+                      ? formatSecondsToTime(c.remainingSeconds)
+                      : 'Done'}
+                  </strong>
+                  {c.speedupOn && c.remainingSeconds > 0
+                    ? ` → ${formatNumber(c.speedupMins)} min speedup`
+                    : null}
+                </div>
+              </div>
+            ) : null
+          }
         />
+        </>
+        )}
       </div>
     </div>
   );
@@ -998,9 +1002,13 @@ export default function MastersPage() {
             speedupMins,
             speedupKey: speedupOn ? 'master_speedup' : null,
             speedupOn,
-            active: !!ss.active,
+            active: unlockUnmet ? false : !!ss.active,
             prereqItems,
-            prereqsMet: prereqEnabled ? prereqItems.every((p) => p.met) : true,
+            prereqsMet: unlockUnmet
+              ? false
+              : prereqEnabled
+                ? prereqItems.every((p) => p.met)
+                : true,
           });
         });
       }
@@ -1160,8 +1168,6 @@ export default function MastersPage() {
 
       <MastersInventory
         mastersList={mastersList}
-        vault={state.vault || {}}
-        updateVaultField={updateVaultField}
         emblems={emblems}
         setEmblem={setEmblem}
       />

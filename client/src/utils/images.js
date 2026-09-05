@@ -106,9 +106,10 @@ export const asset = (path) => {
 };
 export const resourceImg = (id) => {
 	const key = String(id || '');
-	// Per-master emblem inventory uses general emblem art
+	// Per-master emblems: use that master's avatar (not general emblem art)
 	if (key.startsWith('master_emblem_')) {
-		return asset(RESOURCE_IMG.general_emblem || 'general_emblem.webp');
+		const masterId = key.slice('master_emblem_'.length);
+		return masterImg(masterId);
 	}
 	return asset(RESOURCE_IMG[key] || `${key}.webp`);
 };
@@ -117,7 +118,8 @@ export const resourceImg = (id) => {
 export function resourceImgFallbacks(id) {
 	const key = String(id || '');
 	if (key.startsWith('master_emblem_')) {
-		return resourceImgFallbacks('general_emblem');
+		const masterId = key.slice('master_emblem_'.length);
+		return masterImgFallbacks(masterId);
 	}
 	const primary = RESOURCE_IMG[key];
 	const alts = {
