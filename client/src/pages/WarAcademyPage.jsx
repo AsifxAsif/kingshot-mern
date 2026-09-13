@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from 'react';
+import { useSiteConfig, applyOrder } from '../hooks/useSiteConfig';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
 import { useScoreRules } from '../hooks/useScoreRules';
@@ -58,6 +59,7 @@ export default function WarAcademyPage() {
     [state.vault, state.lockedUpgrades, remainingVaultExcluding]
   );
   const wa = state.warAcademy || {};
+  const { orders } = useSiteConfig();
   const showMaxed = useShowMaxedItems();
   const buildingsState = state.buildings || {};
   const buffs = state.settings?.researchBuffs || {};
@@ -85,7 +87,15 @@ export default function WarAcademyPage() {
       if (!ordered.some((o) => o.name === name)) ordered.push({ name, group: 'Other' });
     }
 
-    const raw = ordered.map(({ name, group }) => {
+    const orderedNames = applyOrder(
+      ordered.map((o) => o.name),
+      orders.war_academy,
+      (x) => x
+    );
+    const byName = Object.fromEntries(ordered.map((o) => [o.name, o]));
+    const orderedFinal = orderedNames.map((n) => byName[n]).filter(Boolean);
+
+    const raw = orderedFinal.map(({ name, group }) => {
       const rows = root[name] || [];
       const levels = getLevelsFromArray(rows);
       const s = wa[name] || {};
@@ -147,7 +157,7 @@ export default function WarAcademyPage() {
         speedupAlloc: a.speedupAlloc,
       };
     });
-  }, [root, wa, buildingsState, vault, buffs, SCORE_RULES, activeEventId]);
+  }, [root, wa, buildingsState, vault, buffs, SCORE_RULES, activeEventId, orders.war_academy]);
 
   const hasMaxedItems = useMemo(
     () => cards.some((c) => isAtMaxLevel(c.from, c.levels)),

@@ -1,5 +1,6 @@
 import { sequentialAfford, sumActiveCosts, computeAffordability } from '../utils/resources';
 import { useMemo, useEffect } from 'react';
+import { useSiteConfig, applyOrder } from '../hooks/useSiteConfig';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
 import { useScoreRules } from '../hooks/useScoreRules';
@@ -16,6 +17,11 @@ import { troopImg, resourceImg } from '../utils/images';
 const TYPES = ['Infantry', 'Cavalry', 'Archer'];
 
 export default function TroopsPage() {
+  const { orders } = useSiteConfig();
+  const TYPES = useMemo(
+    () => applyOrder(['Infantry', 'Cavalry', 'Archer'], orders.troops, (x) => x),
+    [orders.troops]
+  );
   const { data, loading, error } = useGameData('troops');
   const { state, updateSection, setPageScore, setPageLockedCosts, remainingVaultExcluding } = useApp();
   const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();

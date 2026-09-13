@@ -6,6 +6,7 @@ import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
 import { parseCost, parseTimeToSeconds, formatNumber, formatSecondsToTime, getUpgradeSteps, convertLevelToNumeric, sortLevels, applyBuildingSpeedupBuffs, secondsToSpeedupMinutes } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
+import { useSiteConfig, applyOrder } from '../hooks/useSiteConfig';
 import { BuildingBuffPanel } from '../components/BuffPanel';
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
@@ -49,6 +50,7 @@ export default function BuildingsPage() {
   const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
   const bState = state.buildings || {};
   const showMaxed = useShowMaxedItems();
+  const { orders } = useSiteConfig();
   const buffs = state.settings?.buildingBuffs || {};
   // Base vault after OTHER pages' locks (stable via useMemo on underlying state)
   const baseVault = useMemo(
@@ -57,10 +59,11 @@ export default function BuildingsPage() {
     [state.vault, state.lockedUpgrades, remainingVaultExcluding]
   );
 
-  const buildingNames = useMemo(
-    () => (data ? Object.keys(data).filter((k) => Array.isArray(data[k])) : []),
-    [data]
-  );
+  const buildingNames = useMemo(() => {
+    if (!data) return [];
+    const names = Object.keys(data).filter((k) => Array.isArray(data[k]));
+    return applyOrder(names, orders.buildings, (x) => x);
+  }, [data, orders.buildings]);
 
   const setField = (name, field, value) => {
     updateSection('buildings', (prev) => {

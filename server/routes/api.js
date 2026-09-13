@@ -4,6 +4,7 @@ import {
 import * as dataController from '../controllers/dataController.js';
 import * as presetController from '../controllers/presetController.js';
 import * as authController from '../controllers/authController.js';
+import * as siteConfigController from '../controllers/siteConfigController.js';
 import {
 	authLimiter,
 	writeLimiter
@@ -12,6 +13,8 @@ const router = Router();
 // ── Public (no auth): login / register only ──────────────────────────────
 router.post('/auth/register', authLimiter, authController.register);
 router.post('/auth/login', authLimiter, authController.login);
+// Public site UI config (list order) — no secrets
+router.get('/site-config', siteConfigController.getSiteConfig);
 // ── Authenticated routes ─────────────────────────────────────────────────
 // All routes below require a valid Bearer JWT
 router.use(authController.authRequired);

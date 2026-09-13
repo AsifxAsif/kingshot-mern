@@ -1,3 +1,4 @@
+import { useSiteConfig, applyOrder } from '../hooks/useSiteConfig';
 import { useMemo, useEffect, useCallback, useState } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
@@ -144,6 +145,7 @@ function FlowerRow({ maxIdx, onPetalClick, type }) {
 }
 
 export default function HeroesPage() {
+  const { orders } = useSiteConfig();
   const { data, loading, error } = useGameData('heroes');
   const { state, updateSection, setPageScore, vault } = useApp();
   const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
@@ -160,7 +162,8 @@ export default function HeroesPage() {
   };
 
   const heroes = useMemo(() => {
-    const list = data?.Hero?.Heroes || [];
+    const listRaw = data?.Hero?.Heroes || [];
+    const list = applyOrder(listRaw, orders.heroes, (h) => h.name || h.id);
     return list.filter((h) => (h.generation || 1) <= maxGen);
   }, [data, maxGen, SCORE_RULES, activeEventId]);
 

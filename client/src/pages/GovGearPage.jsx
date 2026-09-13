@@ -6,6 +6,7 @@ import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
 import { parseCost, formatNumber } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
+import { useSiteConfig, applyOrder } from '../hooks/useSiteConfig';
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
 import { LevelSelects } from '../components/LevelSelects';
@@ -69,6 +70,12 @@ function getSteps(rows, from, to, order) {
 }
 
 export default function GovGearPage() {
+  const { orders } = useSiteConfig();
+  const gearPieces = useMemo(
+    () => applyOrder(GEAR_PIECES, orders.gov_gear, (x) => x),
+    [orders.gov_gear]
+  );
+
   const { data, loading, error } = useGameData('gov_gears');
   const { state, updateSection, setPageScore, setPageLockedCosts, remainingVaultExcluding } = useApp();
   const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
@@ -135,7 +142,7 @@ export default function GovGearPage() {
   }, [state.govGear, updateSection]);
 
   const cards = useMemo(() => {
-    const raw = GEAR_PIECES.map((piece) => {
+    const raw = gearPieces.map((piece) => {
       const s = gState[piece] || {};
       const from = s.from ?? '0';
       const to = s.to || '';

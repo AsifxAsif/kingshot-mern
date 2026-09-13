@@ -1,4 +1,5 @@
 import { useMemo, useEffect } from 'react';
+import { useSiteConfig, applyOrder } from '../hooks/useSiteConfig';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
 import { useScoreRules } from '../hooks/useScoreRules';
@@ -781,9 +782,17 @@ export default function MastersPage() {
     [state.vault, state.lockedUpgrades, remainingVaultExcluding]
   );
   const mastersState = state.masters || {};
+  const { orders } = useSiteConfig();
   const emblems = mastersState.__emblems || {};
 
-  const mastersList = useMemo(() => extractMastersList(data), [data]);
+  const mastersList = useMemo(() => {
+    const list = extractMastersList(data);
+    return applyOrder(
+      list,
+      orders.masters,
+      (m) => String(m.id || m.name || '').toLowerCase()
+    );
+  }, [data, orders.masters]);
 
   /** Vault + per-master emblem counts for affordability */
   const vault = useMemo(() => {

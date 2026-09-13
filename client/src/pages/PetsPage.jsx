@@ -6,6 +6,7 @@ import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
 import { parseCost, formatNumber, getUpgradeSteps, getLevelsFromArray } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
+import { useSiteConfig, applyOrder } from '../hooks/useSiteConfig';
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
 import { LevelSelects } from '../components/LevelSelects';
@@ -167,9 +168,14 @@ export default function PetsPage() {
   const showMaxed = useShowMaxedItems();
   const taming = state.settings?.tamingMarks || {};
   const root = data?.Pet || data || {};
+  const { orders } = useSiteConfig();
   const petNames = useMemo(
-    () => Object.keys(root).filter((k) => Array.isArray(root[k])),
-    [root]
+    () => applyOrder(
+      Object.keys(root).filter((k) => Array.isArray(root[k])),
+      orders.pets,
+      (x) => x
+    ),
+    [root, orders.pets]
   );
 
   const setField = (name, field, value) => {

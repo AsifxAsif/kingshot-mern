@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -115,6 +115,7 @@ export default function Navbar() {
     : null;
   const activeEventId = normalizeEventId(state.settings?.activeEvent || 'sg') || 'sg';
   const eventLabel = EVENTS[activeEventId]?.name || 'Strongest Governor';
+  const orderedLinks = LINKS;
 
 
   const stripGameIdSuffix = (label, storageName) => {
@@ -333,7 +334,7 @@ export default function Navbar() {
         </label>
 
         <div className={`nav-links${menuOpen ? ' show' : ''}`} id="navLinks">
-          {LINKS.map((l) => (
+          {orderedLinks.map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
