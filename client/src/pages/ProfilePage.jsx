@@ -678,7 +678,7 @@ export default function ProfilePage() {
                     Nothing matches this filter.
                   </p>
                 ) : sec.key === 'masters' ? (
-                  <div className="profile-masters-groups">
+                  <div className="profile-masters-groups" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     {(() => {
                       const byMaster = new Map();
                       for (const r of rows) {
