@@ -15,11 +15,7 @@ const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS || 12);
 function requireSecret() {
 	const secret = JWT_SECRET || '';
 	const isProd = process.env.NODE_ENV === 'production';
-	const weak =
-		!secret ||
-		secret === 'kingshot-dev-secret-change-me' ||
-		secret.length < 32 ||
-		secret.startsWith('eyJ'); // reject JWT-shaped placeholders
+	const weak = !secret || secret === 'kingshot-dev-secret-change-me' || secret.length < 32 || secret.startsWith('eyJ'); // reject JWT-shaped placeholders
 	if (isProd && weak) {
 		throw new Error('JWT_SECRET must be a strong random string (32+ chars) in production');
 	}
