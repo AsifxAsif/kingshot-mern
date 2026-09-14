@@ -113,10 +113,6 @@ function petalLabelToAbs(label) {
   return -1;
 }
 
-/**
- * MightPulse: "4-Star (Tier 2)" means star level 4.2
- * → full flowers through 4.0, plus 2 petals on the next flower.
- */
 function starToAbsIdx(hero) {
   if (!hero) return -1;
 
@@ -219,7 +215,6 @@ function StarPetals({ maxIdx }) {
   );
 }
 
-/** troop: 1 infantry, 2 cavalry, 3 archer (MightPulse) */
 const TROOP_CODE = { 1: 'infantry', 2: 'cavalry', 3: 'archer' };
 
 function resolveHeroClass(hero, name, gearItem) {
@@ -391,11 +386,6 @@ function enhanceClass(level) {
   return 'enh-plain'; // 1–100: white background
 }
 
-/**
- * API gear fields (MightPulse):
- *   gear_level / slv  → enhancement (+N) top-right badge
- *   refine_level / rlv → Lv. under the image
- */
 function GearTile({ hero, heroName, item }) {
   const { src, fallbacks } = heroGearSrc(hero, heroName, item);
 

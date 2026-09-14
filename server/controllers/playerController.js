@@ -1,7 +1,3 @@
-/**
- * Player proxy: official v1 API + site profile (tg_info, upload_image).
- * Keys stay server-side: MIGHTPULSE_API_KEY
- */
 const MIGHTPULSE_API = 'https://api.mightpulse.com/v1';
 const MIGHTPULSE_SITE = 'https://mightpulse.com/api';
 const SITE_HEADERS = {
@@ -38,10 +34,7 @@ async function loadUserGameId(req) {
 		user
 	};
 }
-/**
- * Site player profile — includes tg_info.short (TG5), upload_image, etc.
- * GET https://mightpulse.com/api/players/{uid}
- */
+
 async function fetchSiteProfile(uid) {
 	if (!uid) return null;
 	try {
