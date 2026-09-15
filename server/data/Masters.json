@@ -8838,7 +8838,7 @@
         {
           "level": 1,
           "affinityCost": 600,
-          "advancement": "Squad ATK & DEF +1.58%",
+          "advancement": null,
           "stats": "Squad ATK & DEF +1.58%"
         },
         {
@@ -8892,7 +8892,7 @@
         {
           "level": 10,
           "affinityCost": 960,
-          "advancement": "8 Emblems · Squad ATK & DEF +2.25%",
+          "advancement": "8 Emblems · Acquaintance 1",
           "stats": "Squad ATK & DEF +2.25%"
         },
         {
@@ -8952,7 +8952,7 @@
         {
           "level": 20,
           "affinityCost": 1560,
-          "advancement": "16 Emblems · Squad ATK & DEF +3.60%",
+          "advancement": "16 Emblems · Acquaintance 2",
           "stats": "Squad ATK & DEF +3.60%"
         },
         {
@@ -9012,7 +9012,7 @@
         {
           "level": 30,
           "affinityCost": 2190,
-          "advancement": "24 Emblems · Squad ATK & DEF +4.95%",
+          "advancement": "24 Emblems · Acquaintance 3",
           "stats": "Squad ATK & DEF +4.95%"
         },
         {
@@ -9072,7 +9072,7 @@
         {
           "level": 40,
           "affinityCost": 3120,
-          "advancement": "32 Emblems · Squad ATK & DEF +6.30%",
+          "advancement": "32 Emblems · Casual 1",
           "stats": "Squad ATK & DEF +6.30%"
         },
         {
@@ -9132,7 +9132,7 @@
         {
           "level": 50,
           "affinityCost": 4350,
-          "advancement": "40 Emblems · Squad ATK & DEF +7.65%",
+          "advancement": "40 Emblems · Casual 2",
           "stats": "Squad ATK & DEF +7.65%"
         },
         {
@@ -9192,7 +9192,7 @@
         {
           "level": 60,
           "affinityCost": 5850,
-          "advancement": "48 Emblems · Squad ATK & DEF +9.00%",
+          "advancement": "48 Emblems · Casual 3",
           "stats": "Squad ATK & DEF +9.00%"
         },
         {
@@ -9252,7 +9252,7 @@
         {
           "level": 70,
           "affinityCost": 7350,
-          "advancement": "56 Emblems · Squad ATK & DEF +10.35%",
+          "advancement": "56 Emblems · Close 1",
           "stats": "Squad ATK & DEF +10.35%"
         },
         {
@@ -9312,7 +9312,7 @@
         {
           "level": 80,
           "affinityCost": 8850,
-          "advancement": "64 Emblems · Squad ATK & DEF +11.70%",
+          "advancement": "64 Emblems · Close 2",
           "stats": "Squad ATK & DEF +11.70%"
         },
         {
@@ -9372,7 +9372,7 @@
         {
           "level": 90,
           "affinityCost": 10350,
-          "advancement": "72 Emblems · Squad ATK & DEF +13.05%",
+          "advancement": "72 Emblems · Close 3",
           "stats": "Squad ATK & DEF +13.05%"
         },
         {
@@ -9431,8 +9431,8 @@
         },
         {
           "level": 100,
-          "affinityCost": 0,
-          "advancement": "80 Emblems · Squad ATK & DEF +15.00%",
+          "affinityCost": null,
+          "advancement": "80 Emblems · Kindred Soul",
           "stats": "Squad ATK & DEF +15.00%"
         }
       ],
@@ -9902,7 +9902,7 @@
         {
           "level": 1,
           "affinityCost": 900,
-          "advancement": "Squad ATK & DEF +1.58%",
+          "advancement": null,
           "stats": "Squad ATK & DEF +1.58%"
         },
         {
@@ -9956,7 +9956,7 @@
         {
           "level": 10,
           "affinityCost": 1440,
-          "advancement": "10 Emblems · Squad ATK & DEF +2.25%",
+          "advancement": "10 Emblems · Acquaintance 1",
           "stats": "Squad ATK & DEF +2.25%"
         },
         {
@@ -10016,7 +10016,7 @@
         {
           "level": 20,
           "affinityCost": 2340,
-          "advancement": "20 Emblems · Squad ATK & DEF +3.60%",
+          "advancement": "20 Emblems · Acquaintance 2",
           "stats": "Squad ATK & DEF +3.60%"
         },
         {
@@ -10076,7 +10076,7 @@
         {
           "level": 30,
           "affinityCost": 3290,
-          "advancement": "30 Emblems · Squad ATK & DEF +4.95%",
+          "advancement": "30 Emblems · Acquaintance 3",
           "stats": "Squad ATK & DEF +4.95%"
         },
         {
@@ -10136,7 +10136,7 @@
         {
           "level": 40,
           "affinityCost": 4680,
-          "advancement": "40 Emblems · Squad ATK & DEF +6.30%",
+          "advancement": "40 Emblems · Casual 1",
           "stats": "Squad ATK & DEF +6.30%"
         },
         {
@@ -10196,7 +10196,7 @@
         {
           "level": 50,
           "affinityCost": 6530,
-          "advancement": "50 Emblems · Squad ATK & DEF +7.65%",
+          "advancement": "50 Emblems · Casual 2",
           "stats": "Squad ATK & DEF +7.65%"
         },
         {
@@ -10256,7 +10256,7 @@
         {
           "level": 60,
           "affinityCost": 8780,
-          "advancement": "60 Emblems · Squad ATK & DEF +9.00%",
+          "advancement": "60 Emblems · Casual 3",
           "stats": "Squad ATK & DEF +9.00%"
         },
         {
@@ -10316,7 +10316,7 @@
         {
           "level": 70,
           "affinityCost": 11030,
-          "advancement": "70 Emblems · Squad ATK & DEF +10.35%",
+          "advancement": "70 Emblems · Close 1",
           "stats": "Squad ATK & DEF +10.35%"
         },
         {
@@ -10376,7 +10376,7 @@
         {
           "level": 80,
           "affinityCost": 13280,
-          "advancement": "80 Emblems · Squad ATK & DEF +11.70%",
+          "advancement": "80 Emblems · Close 2",
           "stats": "Squad ATK & DEF +11.70%"
         },
         {
@@ -10436,7 +10436,7 @@
         {
           "level": 90,
           "affinityCost": 15530,
-          "advancement": "90 Emblems · Squad ATK & DEF +13.05%",
+          "advancement": "90 Emblems · Close 3",
           "stats": "Squad ATK & DEF +13.05%"
         },
         {
@@ -10495,8 +10495,8 @@
         },
         {
           "level": 100,
-          "affinityCost": 0,
-          "advancement": "100 Emblems · Squad ATK & DEF +15.00%",
+          "affinityCost": null,
+          "advancement": "100 Emblems · Kindred Soul",
           "stats": "Squad ATK & DEF +15.00%"
         }
       ],
