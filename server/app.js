@@ -29,7 +29,21 @@ app.use(morgan(isProd ? 'combined' : 'dev'));
 app.use('/api', apiLimiter);
 // Public health (before auth-protected routes)
 app.get('/api/health', (req, res) => {
-	res.status(200).json({ ok: true, env: process.env.VERCEL ? 'vercel' : 'local' });
+	const hasKey = Boolean(
+		(process.env.MIGHTPULSE_API_KEY ||
+			process.env.MIGHT_PULSE_API_KEY ||
+			process.env.PLAYER_API_KEY ||
+			process.env.KSS_API_KEY ||
+			'').trim()
+	);
+	res.status(200).json({
+		ok: true,
+		env: process.env.VERCEL ? 'vercel' : 'local',
+		vercelEnv: process.env.VERCEL_ENV || null,
+		hasMightpulseKey: hasKey,
+		hasMongoUri: Boolean((process.env.MONGODB_URI || '').trim()),
+		hasJwtSecret: Boolean((process.env.JWT_SECRET || '').trim()),
+	});
 });
 app.use('/api', apiRoutes);
 app.get('/api', (req, res) => {

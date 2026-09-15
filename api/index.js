@@ -1,17 +1,28 @@
 /**
- * Vercel serverless entry — Express API under /api/*
- * Env vars must be set in Vercel Dashboard (not only server/.env).
+ * Vercel serverless entry — Express under /api/*
+ * Runtime secrets come from Vercel Environment Variables (not server/.env).
  */
 import dotenv from 'dotenv';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import connectDB from '../server/config/db.js';
 import app from '../server/app.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-// Load local .env when present (dev). On Vercel, process.env is already populated.
-dotenv.config({ path: path.join(__dirname, '../server/.env') });
-dotenv.config({ path: path.join(__dirname, '../.env') });
+
+// Only load local files; never override vars already set by Vercel
+function loadLocalEnv(filePath) {
+	try {
+		if (fs.existsSync(filePath)) {
+			dotenv.config({ path: filePath, override: false });
+		}
+	} catch {
+		/* ignore */
+	}
+}
+loadLocalEnv(path.join(__dirname, '../server/.env'));
+loadLocalEnv(path.join(__dirname, '../.env'));
 
 let ready;
 
@@ -35,11 +46,10 @@ export default async function handler(req, res) {
 			error: 'Database unavailable',
 			detail: e?.message || String(e),
 			hint:
-				'Set MONGODB_URI in Vercel → Project → Settings → Environment Variables (Production + Preview). In Atlas, allow Network Access 0.0.0.0/0, then Redeploy.',
+				'Set MONGODB_URI in Vercel → Settings → Environment Variables (Production + Preview), allow Atlas 0.0.0.0/0, Redeploy.',
 		});
 	}
 
-	// Ensure Express sees a normal /api/... path on all Vercel rewrite shapes
 	try {
 		const original = req.url || '/';
 		if (original === '/api/index' || original.startsWith('/api/index?')) {

@@ -89,15 +89,24 @@ function mergeSiteIntoPayload(payload, site) {
 async function fetchPlayerPayload(gameId, include) {
 	const apiKey = getApiKey();
 	if (!apiKey) {
-		console.error('[player] MIGHTPULSE_API_KEY is not set in environment');
+		const flags = {
+			MIGHTPULSE_API_KEY: Boolean((process.env.MIGHTPULSE_API_KEY || '').trim()),
+			MIGHT_PULSE_API_KEY: Boolean((process.env.MIGHT_PULSE_API_KEY || '').trim()),
+			PLAYER_API_KEY: Boolean((process.env.PLAYER_API_KEY || '').trim()),
+			KSS_API_KEY: Boolean((process.env.KSS_API_KEY || '').trim()),
+			VERCEL: Boolean(process.env.VERCEL),
+			VERCEL_ENV: process.env.VERCEL_ENV || null,
+		};
+		console.error('[player] API key missing. Env flags:', flags);
 		return {
 			status: 503,
 			body: {
 				ok: false,
 				error: 'Player API key not configured',
 				detail:
-					'MIGHTPULSE_API_KEY is missing. In Vercel → Settings → Environment Variables, add MIGHTPULSE_API_KEY (Production + Preview), then Redeploy.',
+					'MIGHTPULSE_API_KEY is not visible to the Vercel function. Open Vercel → Settings → Environment Variables → add MIGHTPULSE_API_KEY for Production AND Preview → save → Deployments → Redeploy (not only "retry"). Check /api/health for hasMightpulseKey.',
 				code: 'MISSING_PLAYER_API_KEY',
+				flags,
 			},
 		};
 	}
