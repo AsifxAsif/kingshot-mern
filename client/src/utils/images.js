@@ -169,8 +169,6 @@ function slugifyMasterPart(s) {
 	return String(s || '')
 		.toLowerCase()
 		.trim()
-		// Finder's Keepers → finders-keepers (match asset filenames)
-		.replace(/['’]/g, '')
 		.replace(/&/g, 'and')
 		.replace(/[^a-z0-9]+/g, '-')
 		.replace(/^-+|-+$/g, '');
@@ -225,22 +223,12 @@ export function masterSkillImg(idOrName, skillName) {
 export function masterSkillImgFallbacks(idOrName, skillName) {
 	const id = slugifyMasterPart(idOrName);
 	const sk = slugifyMasterPart(skillName);
-	// Extra aliases if apostrophe/spacing differs in filenames
-	const altSk = String(skillName || '')
-		.toLowerCase()
-		.replace(/['’]/g, '')
-		.replace(/[^a-z0-9]+/g, '-')
-		.replace(/^-+|-+$/g, '');
-	const skugs = [...new Set([sk, altSk].filter(Boolean))];
-	const list = [];
-	for (const s of skugs) {
-		list.push(asset(`masters/master-${id}-${s}.webp`));
-		list.push(asset(`masters/master-${id}-${s}.png`));
-		list.push(asset(`icons/master-${id}-${s}.webp`));
-		list.push(asset(`icons/master-${id}-${s}.png`));
-	}
-	list.push(...masterImgFallbacks(idOrName));
-	return [...new Set(list)];
+	return [
+		asset(`masters/master-${id}-${sk}.png`),
+		asset(`icons/master-${id}-${sk}.webp`),
+		asset(`icons/master-${id}-${sk}.png`),
+		...masterImgFallbacks(idOrName),
+	];
 }
 
 /** Affinity row icon */
@@ -290,6 +278,9 @@ export const heroWidgetImg = (name) => {
 		Ava: 'ava_widget.webp',
 		Charles: 'charles_widget.webp',
 		'Wee & Woo': 'wee_woo_widget.webp',
+		Liz: 'liz_widget.webp',
+		Diego: 'diego_widget.webp',
+		Luna: 'luna_widget.webp',
 	};
 	return asset(`widget/${map[name] || file}`);
 };

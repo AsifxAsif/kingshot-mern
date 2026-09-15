@@ -150,7 +150,7 @@ export default function HeroesPage() {
   const { state, updateSection, setPageScore, vault } = useApp();
   const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
   const showMaxed = useShowMaxedItems();
-  const maxGen = state.settings?.maxHeroGen ?? 7;
+  const maxGen = state.settings?.maxHeroGen ?? 8;
   const shards = state.heroShards || {};
   const heroesState = state.heroes || {};
   const flowerStates = state.heroFlowers || {};
@@ -404,7 +404,7 @@ export default function HeroesPage() {
           <div className="buff-field">
             <label>Latest Hero Generation</label>
             <select value={maxGen} onChange={(e) => setMaxGen(e.target.value)}>
-              {[1, 2, 3, 4, 5, 6, 7].map((g) => (
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((g) => (
                 <option key={g} value={g}>Gen {g}</option>
               ))}
             </select>
