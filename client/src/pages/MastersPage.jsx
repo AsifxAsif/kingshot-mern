@@ -714,10 +714,10 @@ function UpgradeRow({
                 +Speedups
               </label>
             ) : null}
-            {c.kind === 'affinity' && c.emblemsNeed > 0 ? (
+            {c.kind === 'affinity' && c.emblemsNeed > 0 && c.emblemsShort > 0 ? (
               <label
                 className="checkbox-label"
-                title="If this master's emblems are short, spend General Emblem from Vault"
+                title="This master's emblems are short — spend General Emblem from Vault for the rest"
               >
                 <input
                   className="checkbox"
@@ -917,7 +917,10 @@ export default function MastersPage() {
             : { points: 0, emblems: 0 };
           const bankedAffinity = Math.max(0, parseCost(ms.affinity?.bankedAffinity));
           const pts = Math.max(0, ptsRaw - bankedAffinity);
-          const useGenEmblem = !!ms.affinity?.useGeneralEmblem;
+          const masterEmblemHave = Math.max(0, parseCost(emblems[id]));
+          const emblemsShort = Math.max(0, emblemsNeed - masterEmblemHave);
+          // Only offer general emblem when this master's emblems are not enough
+          const useGenEmblem = emblemsShort > 0 && !!ms.affinity?.useGeneralEmblem;
           const costs = to ? { ...affinityPointsToItems(pts) } : {};
           if (emblemsNeed > 0) {
             Object.assign(costs, splitEmblemCost(id, emblemsNeed, emblems, useGenEmblem));
@@ -943,6 +946,8 @@ export default function MastersPage() {
             affinityPtsRaw: ptsRaw,
             bankedAffinity,
             emblemsNeed,
+            emblemsShort,
+            masterEmblemHave,
             useGeneralEmblem: useGenEmblem,
             talentFrom,
             talentTo,
