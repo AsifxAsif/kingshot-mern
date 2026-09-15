@@ -240,10 +240,12 @@ function affinityNumericValue(master, value) {
 }
 
 
+/** Skill ranks start at 1 (no level 0) — unlocking a skill means you start at Lv 1. */
 function skillLevels(skill) {
-  const lvls = (skill?.levels || []).map((r) => String(r.level));
-  if (lvls.length && !lvls.includes('0')) return ['0', ...lvls];
-  return lvls.length ? lvls : ['0', '1'];
+  const lvls = (skill?.levels || [])
+    .map((r) => String(r.level))
+    .filter((lv) => lv !== '0');
+  return lvls.length ? lvls : ['1'];
 }
 
 function talentLevels(master) {
@@ -934,7 +936,12 @@ export default function MastersPage() {
           const key = `skill${skill.id || idx + 1}`;
           const ss = ms[key] || {};
           const levels = skillLevels(skill);
-          const from = ss.from ?? '0';
+          // Unlocked skills start at Lv 1 (not 0)
+          const rawFrom = ss.from;
+          const from =
+            rawFrom == null || rawFrom === '' || String(rawFrom) === '0'
+              ? '1'
+              : String(rawFrom);
           const to = ss.to || '';
           const maxLv = skillMaxLevel(skill);
           const atSkillMax =
