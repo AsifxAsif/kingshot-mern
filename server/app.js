@@ -27,17 +27,13 @@ app.use(preventParamPollution());
 app.use(blockProbes);
 app.use(morgan(isProd ? 'combined' : 'dev'));
 app.use('/api', apiLimiter);
-app.use('/api', apiRoutes);
-// Public health only — no API catalog / version dump
+// Public health (before auth-protected routes)
 app.get('/api/health', (req, res) => {
-	res.status(200).json({
-		ok: true
-	});
+	res.status(200).json({ ok: true, env: process.env.VERCEL ? 'vercel' : 'local' });
 });
+app.use('/api', apiRoutes);
 app.get('/api', (req, res) => {
-	res.status(401).json({
-		error: 'Authentication required'
-	});
+	res.status(401).json({ error: 'Authentication required' });
 });
 app.get('/', (req, res) => {
 	res.status(401).json({

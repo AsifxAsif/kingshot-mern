@@ -7,27 +7,24 @@ import cors from 'cors';
 export function buildCors() {
 	const raw = process.env.CORS_ORIGINS || process.env.CLIENT_URL || '';
 	const list = raw.split(',').map((s) => s.trim()).filter(Boolean);
-	// Vercel preview + production patterns if none set
 	const isProd = process.env.NODE_ENV === 'production';
-	const origin = list.length ? (origin, cb) => {
-		// Same-origin / server-to-server may omit Origin — still require JWT on routes
-		if (!origin) return cb(null, !isProd);
-		if (list.includes(origin)) return cb(null, true);
-		if (list.some((o) => o.includes('*') && origin.endsWith(o.replace('*', '')))) {
-			return cb(null, true);
-		}
-		if (process.env.ALLOW_VERCEL_PREVIEWS === 'true' && /\.vercel\.app$/.test(origin)) {
-			return cb(null, true);
-		}
-		return cb(new Error('Not allowed by CORS'));
-	} : isProd ? (origin, cb) => {
-		// Production without CORS_ORIGINS: vercel.app only (set CORS_ORIGINS explicitly)
-		if (!origin) return cb(null, false);
-		if (/\.vercel\.app$/.test(origin)) return cb(null, true);
-		return cb(new Error('Not allowed by CORS'));
-	} : true; // local dev
+
+	const allowed = (origin) => {
+		if (!origin) return true; // same-origin / server / curl
+		if (list.includes(origin)) return true;
+		if (list.some((o) => o.includes('*') && origin.endsWith(o.replace('*', '')))) return true;
+		// Always allow this project's Vercel host + previews
+		if (/^https:\/\/kingshot-calculator([.-].*)?\.vercel\.app$/i.test(origin)) return true;
+		if (/\.vercel\.app$/i.test(origin)) return true;
+		if (!isProd && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)) return true;
+		return false;
+	};
+
 	return cors({
-		origin,
+		origin(origin, cb) {
+			if (allowed(origin)) return cb(null, true);
+			return cb(new Error('Not allowed by CORS'));
+		},
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 		allowedHeaders: ['Content-Type', 'Authorization'],
 		credentials: true,
@@ -44,7 +41,7 @@ export function securityHeaders() {
 				styleSrc: ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com'],
 				imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
 				fontSrc: ["'self'", 'https://cdnjs.cloudflare.com', 'data:'],
-				connectSrc: ["'self'", ...(process.env.API_CSP_CONNECT || '').split(',').filter(Boolean)],
+				connectSrc: ["'self'", 'https:', ...(process.env.API_CSP_CONNECT || '').split(',').filter(Boolean)],
 				objectSrc: ["'none'"],
 				frameAncestors: ["'none'"],
 				baseUri: ["'self'"],

@@ -5,8 +5,15 @@
  *   (with or without trailing /api — both work)
  */
 function resolveApiBase() {
-	// Empty VITE_API_URL → same origin /api (Vercel full-stack or Vite proxy)
+	// Prefer relative /api on Vercel / same host so production never hits localhost.
 	const raw = (import.meta.env.VITE_API_URL || '').trim().replace(/\/$/, '');
+	if (typeof window !== 'undefined') {
+		const host = window.location.hostname || '';
+		// Never call localhost from a deployed host
+		if (host && host !== 'localhost' && host !== '127.0.0.1') {
+			if (!raw || /localhost|127\.0\.0\.1/i.test(raw)) return '/api';
+		}
+	}
 	if (!raw) return '/api';
 	return raw.endsWith('/api') ? raw : `${raw}/api`;
 }
