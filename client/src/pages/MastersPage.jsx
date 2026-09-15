@@ -618,7 +618,7 @@ function UpgradeRow({
           />
         )}
 
-        {c.prereqItems?.length > 0 && c.to ? <PrereqList items={c.prereqItems} /> : null}
+        {prereqEnabled && c.prereqItems?.length > 0 && c.to ? <PrereqList items={c.prereqItems} /> : null}
 
         {c.kind === 'skill' && !c.atSkillMax && c.pathToMax > 0 ? (
           <div className="learning-xp-block">
