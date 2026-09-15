@@ -13,7 +13,13 @@ const SITE_HEADERS = {
 };
 
 function getApiKey() {
-	const key = (process.env.MIGHTPULSE_API_KEY || '').trim();
+	const key = (
+		process.env.MIGHTPULSE_API_KEY ||
+		process.env.MIGHT_PULSE_API_KEY ||
+		process.env.PLAYER_API_KEY ||
+		process.env.KSS_API_KEY ||
+		''
+	).trim();
 	return key || null;
 }
 
@@ -83,11 +89,15 @@ function mergeSiteIntoPayload(payload, site) {
 async function fetchPlayerPayload(gameId, include) {
 	const apiKey = getApiKey();
 	if (!apiKey) {
+		console.error('[player] MIGHTPULSE_API_KEY is not set in environment');
 		return {
 			status: 503,
 			body: {
 				ok: false,
-				error: 'Player data service is not configured on the server.',
+				error: 'Player API key not configured',
+				detail:
+					'MIGHTPULSE_API_KEY is missing. In Vercel → Settings → Environment Variables, add MIGHTPULSE_API_KEY (Production + Preview), then Redeploy.',
+				code: 'MISSING_PLAYER_API_KEY',
 			},
 		};
 	}
@@ -129,11 +139,13 @@ async function fetchPlayerPayload(gameId, include) {
 		...data,
 	};
 
-	// Enrich with site profile (tg_info.short, upload_image)
-	const uid = body.uid ?? body.player?.uid ?? gameId;
-	const site = await fetchSiteProfile(uid);
-	if (site) {
-		body = mergeSiteIntoPayload(body, site);
+	// Enrich with site profile (tg_info.short, upload_image) — non-fatal
+	try {
+		const uid = body.uid ?? body.player?.uid ?? gameId;
+		const site = await fetchSiteProfile(uid);
+		if (site) body = mergeSiteIntoPayload(body, site);
+	} catch (e) {
+		console.warn('[player] site profile skip:', e?.message || e);
 	}
 
 	return { status: 200, body };
