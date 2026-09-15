@@ -437,12 +437,14 @@ function UpgradeRow({
   c,
   setField,
   vault,
+  prereqEnabled = true,
 }) {
   const atMax =
     c.levels.length > 0 &&
     String(c.from ?? '0') === String(c.levels[c.levels.length - 1]);
 
-  const skillLocked = c.kind === 'skill' && c.unlockUnmet;
+  // When prereq checks are off, allow planning locked skills
+  const skillLocked = c.kind === 'skill' && c.unlockUnmet && prereqEnabled;
 
   return (
     <div
@@ -512,12 +514,12 @@ function UpgradeRow({
       <div
         className="item-card-body"
         style={
-          c.kind === 'skill' && c.unlockUnmet
+          c.kind === 'skill' && c.unlockUnmet && prereqEnabled
             ? { opacity: 0.85 }
             : undefined
         }
       >
-        {c.kind === 'skill' && c.unlockUnmet ? (
+        {c.kind === 'skill' && c.unlockUnmet && prereqEnabled ? (
           <div
             className="status-pane"
             style={{
@@ -538,9 +540,32 @@ function UpgradeRow({
             <strong style={{ color: 'var(--text-primary)' }}>
               {c.unlockLabel || c.unlock || '—'}
             </strong>
+            <div style={{ marginTop: 6, fontSize: '0.82rem' }}>
+              Turn off &quot;Enforce prerequisite checks&quot; to plan this skill early.
+            </div>
           </div>
         ) : (
         <>
+        {c.kind === 'skill' && c.unlockUnmet && !prereqEnabled ? (
+          <div
+            className="status-pane"
+            style={{
+              margin: '0 0 10px',
+              padding: '10px 12px',
+              borderRadius: 8,
+              border: '1px dashed var(--border-color)',
+              color: 'var(--text-secondary)',
+              fontSize: '0.85rem',
+            }}
+          >
+            Not unlocked yet (needs affinity:{' '}
+            <strong style={{ color: 'var(--text-primary)' }}>
+              {c.unlockLabel || c.unlock || '—'}
+            </strong>
+            ). Planning mode — levels and costs are editable.
+          </div>
+        ) : null}
+
         {c.kind === 'affinity' ? (
           <div className="learning-xp-block" style={{ marginBottom: 10 }}>
             {c.to ? (
@@ -942,7 +967,16 @@ export default function MastersPage() {
             rawFrom == null || rawFrom === '' || String(rawFrom) === '0'
               ? '1'
               : String(rawFrom);
-          const to = ss.to || '';
+          // Default target = next level after current (e.g. 1 → 2)
+          let to = ss.to != null && ss.to !== '' ? String(ss.to) : '';
+          if (!to && levels.length) {
+            const fi = levels.findIndex((lv) => String(lv) === String(from));
+            if (fi >= 0 && fi < levels.length - 1) {
+              to = String(levels[fi + 1]);
+            } else if (fi < 0 && levels.length > 1) {
+              to = String(levels[1]);
+            }
+          }
           const maxLv = skillMaxLevel(skill);
           const atSkillMax =
             maxLv > 0 && levelNum(from) >= maxLv && (!to || levelNum(to) <= levelNum(from));
@@ -1018,13 +1052,15 @@ export default function MastersPage() {
             speedupMins,
             speedupKey: speedupOn ? 'master_speedup' : null,
             speedupOn,
-            active: unlockUnmet ? false : !!ss.active,
+            active: unlockUnmet && prereqEnabled ? false : !!ss.active,
             prereqItems,
-            prereqsMet: unlockUnmet
-              ? false
-              : prereqEnabled
-                ? prereqItems.every((p) => p.met)
-                : true,
+            // Soft-lock only while prereq checks are enforced
+            prereqsMet:
+              unlockUnmet && prereqEnabled
+                ? false
+                : prereqEnabled
+                  ? prereqItems.every((p) => p.met)
+                  : true,
           });
         });
       }
@@ -1215,6 +1251,7 @@ export default function MastersPage() {
                     c={c}
                     setField={setField}
                     vault={vault}
+                    prereqEnabled={prereqEnabled}
                   />
                 ))}
               </div>
