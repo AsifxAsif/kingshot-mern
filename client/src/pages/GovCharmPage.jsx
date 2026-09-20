@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext';
 import { useScoreRules } from '../hooks/useScoreRules';
 import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
+import PageOptionsBar from '../components/PageOptionsBar';
 import { parseCost, formatNumber } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import CostStatus from '../components/CostStatus';
@@ -269,7 +270,7 @@ export default function GovCharmPage() {
 
   return (
     <div className="calculator-page">
-      <ShowMaxedToggle hasMaxed={hasMaxedItems} />
+      <PageOptionsBar hasMaxed={hasMaxedItems} />
       <div className="group-columns group-columns-1 gov-group-rows">
         {TROOP_ORDER.map((troop) => {
           const groups = CHARM_GROUPS.filter((g) => g.troop === troop);

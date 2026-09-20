@@ -30,12 +30,7 @@ app.use('/api', apiLimiter);
 // Public health (before auth-protected routes)
 app.get('/api/health', (req, res) => {
 	const hasKey = Boolean(
-		(process.env.MIGHTPULSE_API_KEY ||
-			process.env.MIGHT_PULSE_API_KEY ||
-			process.env.PLAYER_API_KEY ||
-			process.env.KSS_API_KEY ||
-			'').trim()
-	);
+		(process.env.MIGHTPULSE_API_KEY || process.env.MIGHT_PULSE_API_KEY || process.env.PLAYER_API_KEY || process.env.KSS_API_KEY || '').trim());
 	res.status(200).json({
 		ok: true,
 		env: process.env.VERCEL ? 'vercel' : 'local',
@@ -47,7 +42,9 @@ app.get('/api/health', (req, res) => {
 });
 app.use('/api', apiRoutes);
 app.get('/api', (req, res) => {
-	res.status(401).json({ error: 'Authentication required' });
+	res.status(401).json({
+		error: 'Authentication required'
+	});
 });
 app.get('/', (req, res) => {
 	res.status(401).json({

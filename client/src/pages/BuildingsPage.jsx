@@ -3,7 +3,8 @@ import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
 import { useScoreRules } from '../hooks/useScoreRules';
 import { usePublishPageScore } from '../hooks/usePublishPageScore';
-import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
+import { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
+import PageOptionsBar from '../components/PageOptionsBar';
 import { parseCost, parseTimeToSeconds, formatNumber, formatSecondsToTime, getUpgradeSteps, convertLevelToNumeric, sortLevels, applyBuildingSpeedupBuffs, secondsToSpeedupMinutes } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import { useSiteConfig, applyOrder } from '../hooks/useSiteConfig';
@@ -52,6 +53,14 @@ export default function BuildingsPage() {
   const showMaxed = useShowMaxedItems();
   const { orders } = useSiteConfig();
   const buffs = state.settings?.buildingBuffs || {};
+  const prereqEnabled = buffs.prereqCheck !== false;
+  const setPrereqEnabled = (checked) => {
+    updateSection('settings', (prev) => ({
+      ...(prev || {}),
+      buildingBuffs: { ...((prev || {}).buildingBuffs || {}), prereqCheck: checked },
+    }));
+  };
+
   // Base vault after OTHER pages' locks (stable via useMemo on underlying state)
   const baseVault = useMemo(
     () => remainingVaultExcluding('buildings'),
@@ -179,7 +188,13 @@ export default function BuildingsPage() {
   return (
     <div className="app-container">
       <BuildingBuffPanel />
-      <ShowMaxedToggle hasMaxed={hasMaxedItems} />
+      <PageOptionsBar
+        hasMaxed={hasMaxedItems}
+        showPrereq
+        prereqEnabled={prereqEnabled}
+        onPrereqChange={setPrereqEnabled}
+        prereqTitle="When on, Upgrade is blocked until building prerequisites are met"
+      />
       <div className="items-grid cards-grid">
         {cards.filter((c) => showMaxed || !isAtMaxLevel(c.from, c.levels)).map((c) => (
           <div className="item-card" key={c.name} data-type="building">

@@ -1,3 +1,4 @@
+import PageOptionsBar from '../components/PageOptionsBar';
 import { useMemo, useEffect } from 'react';
 import { useSiteConfig, applyOrder } from '../hooks/useSiteConfig';
 import { useGameData } from '../hooks/useGameData';
@@ -209,19 +210,26 @@ function affinityReqLabel(master, milestoneLevel) {
  * not merely at numeric level N.
  */
 function meetsAffinityStatusReq(master, currentValue, milestoneLevel) {
+  const need = levelNum(milestoneLevel);
+  if (need <= 0) return true;
   const steps = affinitySteps(master);
   const curIdx = stepIndex(steps, currentValue);
-  if (curIdx < 0) return false;
-  const status = affinityStatusStep(master, milestoneLevel);
-  if (status) {
-    const reqIdx = steps.findIndex((s) => s.key === status.key);
-    return reqIdx >= 0 && curIdx >= reqIdx;
+  // Prefer status rank (Acquaintance 1, Casual 1, …) when present
+  if (curIdx >= 0) {
+    const status = affinityStatusStep(master, need);
+    if (status) {
+      const reqIdx = steps.findIndex((s) => s.key === status.key);
+      if (reqIdx >= 0 && curIdx >= reqIdx) return true;
+    }
+    // Numeric level step at or past the milestone also counts
+    const lvIdx = steps.findIndex((s) => s.kind === 'level' && s.level === need);
+    if (lvIdx >= 0 && curIdx >= lvIdx) return true;
+    // Current step’s numeric rank
+    if ((steps[curIdx]?.level || 0) >= need) return true;
   }
-  // No status step — fall back to numeric level index
-  const lvIdx = steps.findIndex(
-    (s) => s.kind === 'level' && s.level === levelNum(milestoneLevel)
-  );
-  return lvIdx >= 0 && curIdx >= lvIdx;
+  // Fallback: parse bare numbers / labels
+  const curNum = affinityNumericValue(master, currentValue);
+  return curNum >= need;
 }
 
 function parseAffinityReqNumber(text) {
@@ -391,21 +399,54 @@ function splitEmblemCost(masterId, need, emblemsMap, useGeneral) {
 
 
 /** Inventory strip at top of Masters page — emblems only (affinity gifts live on Vault) */
-function MastersInventory({ mastersList, emblems, setEmblem }) {
+function MastersInventory({ mastersList, emblems, setEmblem, selectedId, onSelect }) {
   return (
     <div className="item-card" style={{ marginBottom: 16, gridColumn: '1 / -1' }}>
       <div className="item-card-header">
         <span>Master emblems</span>
+        <small style={{ marginLeft: 'auto', opacity: 0.7, fontWeight: 400 }}>
+          Click a master to show upgrades · type in the box for emblem count
+        </small>
       </div>
       <div className="item-card-body">
         <div className="vault-grid">
           {mastersList.map((m) => {
             const id = String(m.id || m.name || '').toLowerCase();
+            const selected = selectedId === id;
             return (
               <div
                 className="vault-item"
                 key={id}
-                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+                onClick={() => onSelect && onSelect(id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelect && onSelect(id);
+                  }
+                }}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                  borderRadius: 12,
+                  padding: 8,
+                  border: selected
+                    ? '2px solid #5b8def'
+                    : '2px solid rgba(0,0,0,0.08)',
+                  background: selected
+                    ? 'rgba(91,141,239,0.18)'
+                    : 'var(--surface, transparent)',
+                  boxShadow: selected
+                    ? '0 0 0 3px rgba(91,141,239,0.35)'
+                    : 'none',
+                  outline: selected ? '1px solid #5b8def' : 'none',
+                  transform: selected ? 'scale(1.02)' : 'none',
+                  transition: 'box-shadow 0.15s, background 0.15s, transform 0.15s',
+                }}
+                title={selected ? `${m.name} (selected)` : `Show ${m.name} upgrades`}
               >
                 <div className="vault-label">
                   <AssetImg
@@ -414,7 +455,10 @@ function MastersInventory({ mastersList, emblems, setEmblem }) {
                     size={36}
                     alt={m.name || id}
                   />
-                  <label htmlFor={`emblem-${id}`}>{m.name || id} emblems</label>
+                  <label htmlFor={`emblem-${id}`} style={{ fontWeight: selected ? 700 : undefined }}>
+                    {m.name || id} emblems
+                    {selected ? ' ✓' : ''}
+                  </label>
                 </div>
                 <input
                   id={`emblem-${id}`}
@@ -422,6 +466,13 @@ function MastersInventory({ mastersList, emblems, setEmblem }) {
                   placeholder="0"
                   value={emptyZeroInput(emblems[id])}
                   onChange={(e) => setEmblem(id, e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                  onFocus={() => onSelect && onSelect(id)}
+                  style={{
+                    borderColor: selected ? '#5b8def' : undefined,
+                    boxShadow: selected ? '0 0 0 2px rgba(91,141,239,0.35)' : undefined,
+                    fontWeight: selected ? 600 : undefined,
+                  }}
                 />
               </div>
             );
@@ -443,7 +494,8 @@ function UpgradeRow({
     c.levels.length > 0 &&
     String(c.from ?? '0') === String(c.levels[c.levels.length - 1]);
 
-  // When prereq checks are off, allow planning locked skills
+  // Whole-card lock only when skill is not unlocked yet.
+  // Level-up Affinity / Total Skill Lv. prereqs only disable the Upgrade button.
   const skillLocked = c.kind === 'skill' && c.unlockUnmet && prereqEnabled;
 
   return (
@@ -1007,7 +1059,6 @@ export default function MastersPage() {
           const basePoints = manuscripts * (SCORE_RULES.master_manuscript || 0);
 
           const needAff = to ? skillLevelAffinityReq(skill, to) : 0;
-          const haveAff = effectiveAffinity(id); // numeric, for display
           const curAffVal = (ms.affinity || {}).from ?? '0';
           const prereqItems = [];
           if (needAff > 0) {
@@ -1024,7 +1075,58 @@ export default function MastersPage() {
             });
           }
 
-          // Unlock is the status step after the milestone (Affinity 40 → Casual 1)
+          // Non-affinity gates: Total Skill Lv. / Skill power
+          if (to) {
+            let totalSkillLv = 0;
+            for (let si = 0; si < (master.skills || []).length; si++) {
+              const sk = `skill${si + 1}`;
+              totalSkillLv += levelNum((ms[sk] || {}).from || 0);
+            }
+            let skillPower = 0;
+            for (let si = 0; si < (master.skills || []).length; si++) {
+              const skillRow = master.skills[si];
+              const sk = `skill${si + 1}`;
+              const fromLv = levelNum((ms[sk] || {}).from || 0);
+              for (const row of skillRow.levels || []) {
+                const rl = Number(row.level) || 0;
+                if (rl > 0 && rl <= fromLv) skillPower += parseCost(row.power);
+              }
+            }
+            const tgt = levelNum(to);
+            for (const row of skill.levels || []) {
+              const rl = Number(row.level) || 0;
+              if (rl <= 0 || rl > tgt || !row.requirement) continue;
+              const text = String(row.requirement).trim();
+              if (/Affinity\s*\d+/i.test(text)) continue;
+              const tsm = text.match(/Total\s*Skill\s*Lv\.?\s*(\d+)/i);
+              const pm = text.match(/Skill\s*power\s*(\d+)/i);
+              if (tsm) {
+                const need = parseInt(tsm[1], 10);
+                prereqItems.push({
+                  raw: text,
+                  name: 'Total Skill Lv.',
+                  level: need,
+                  have: totalSkillLv,
+                  met: totalSkillLv >= need,
+                  tracked: true,
+                  detail: totalSkillLv >= need ? undefined : `have ${totalSkillLv}, need ${need}`,
+                });
+              } else if (pm) {
+                const need = parseInt(pm[1], 10);
+                prereqItems.push({
+                  raw: text,
+                  name: 'Skill power',
+                  level: need,
+                  have: skillPower,
+                  met: skillPower >= need,
+                  tracked: true,
+                  detail: skillPower >= need ? undefined : `have ${skillPower}, need ${need}`,
+                });
+              }
+            }
+          }
+
+          // Unlock is the status step at the milestone (Affinity 40 → Casual 1)
           const unlockAff = parseAffinityReqNumber(skill.unlock);
           const unlockLabel =
             unlockAff > 0 ? affinityReqLabel(master, unlockAff) : skill.unlock || '';
@@ -1064,7 +1166,7 @@ export default function MastersPage() {
               unlockUnmet && prereqEnabled
                 ? false
                 : prereqEnabled
-                  ? prereqItems.every((p) => p.met)
+                  ? prereqItems.filter((p) => p.tracked !== false).every((p) => p.met)
                   : true,
           });
         });
@@ -1184,86 +1286,75 @@ export default function MastersPage() {
 
   return (
     <div className="app-container masters-page">
-      <div
-        className="buff-panel"
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          gap: 16,
-          marginBottom: 12,
-          padding: '10px 14px',
-        }}
-      >
-        <label
-          className="checkbox-label"
-          title="When on, Upgrade is blocked until Affinity prerequisites are met"
-        >
-          <input
-            className="checkbox"
-            type="checkbox"
-            checked={prereqEnabled}
-            onChange={(e) => setPrereqEnabled(e.target.checked)}
-          />{' '}
-          Enforce prerequisite checks
-        </label>
-        {hasMaxedSkills ? (
-          <label
-            className="checkbox-label"
-            title="Hide skill cards that are already at max level (Affinity card always stays visible)"
-          >
-            <input
-              className="checkbox"
-              type="checkbox"
-              checked={hideMaxedSkills}
-              onChange={(e) => setHideMaxedSkills(e.target.checked)}
-            />{' '}
-            Hide maxed skills
-          </label>
-        ) : null}
-      </div>
-
       <MastersInventory
         mastersList={mastersList}
         emblems={emblems}
         setEmblem={setEmblem}
+        selectedId={
+          mastersState.__selectedMaster ||
+          String(mastersList[0]?.id || mastersList[0]?.name || '').toLowerCase()
+        }
+        onSelect={(id) =>
+          updateSection('masters', (prev) => ({
+            ...prev,
+            __selectedMaster: id,
+          }))
+        }
       />
 
-      {sections.map((group) => {
-        return (
-          <div className="item-card" key={group.id} style={{ marginBottom: 16 }}>
-            <div className="item-card-header" style={{ flexWrap: 'wrap', gap: 8 }}>
-              <AssetImg
-                src={masterImg(group.id)}
-                fallbacks={masterImgFallbacks(group.id)}
-                size={40}
-                alt={group.name}
-              />
-              <span>
-                {group.name}
-                {group.type ? (
-                  <span style={{ fontWeight: 400, opacity: 0.7, marginLeft: 8 }}>
-                    {group.type}
-                  </span>
-                ) : null}
-              </span>
-            </div>
-            <div className="item-card-body">
-              <div className="items-grid cards-grid">
-                {group.cards.map((c) => (
-                  <UpgradeRow
-                    key={c.id}
-                    c={c}
-                    setField={setField}
-                    vault={vault}
-                    prereqEnabled={prereqEnabled}
-                  />
-                ))}
+      <PageOptionsBar
+        showPrereq
+        prereqEnabled={prereqEnabled}
+        onPrereqChange={setPrereqEnabled}
+        prereqTitle="When on, Upgrade is blocked until Affinity / skill prerequisites are met"
+        hasMaxed={hasMaxedSkills}
+        hideMaxedMode
+        hideMaxed={hideMaxedSkills}
+        onHideMaxedChange={setHideMaxedSkills}
+      />
+
+      {sections
+        .filter((group) => {
+          const sel =
+            mastersState.__selectedMaster ||
+            String(mastersList[0]?.id || mastersList[0]?.name || '').toLowerCase();
+          return group.id === sel;
+        })
+        .map((group) => {
+          return (
+            <div className="item-card" key={group.id} style={{ marginBottom: 16 }}>
+              <div className="item-card-header" style={{ flexWrap: 'wrap', gap: 8 }}>
+                <AssetImg
+                  src={masterImg(group.id)}
+                  fallbacks={masterImgFallbacks(group.id)}
+                  size={40}
+                  alt={group.name}
+                />
+                <span>
+                  {group.name}
+                  {group.type ? (
+                    <span style={{ fontWeight: 400, opacity: 0.7, marginLeft: 8 }}>
+                      {group.type}
+                    </span>
+                  ) : null}
+                </span>
+              </div>
+              <div className="item-card-body">
+                <div className="items-grid cards-grid">
+                  {group.cards.map((c) => (
+                    <UpgradeRow
+                      key={c.id}
+                      c={c}
+                      setField={setField}
+                      vault={vault}
+                      prereqEnabled={prereqEnabled}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
     </div>
   );
 }

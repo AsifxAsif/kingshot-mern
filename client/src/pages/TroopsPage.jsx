@@ -6,6 +6,7 @@ import { useApp } from '../context/AppContext';
 import { useScoreRules } from '../hooks/useScoreRules';
 import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems } from '../components/ShowMaxedToggle';
+import PageOptionsBar from '../components/PageOptionsBar';
 import { parseCost, parseTimeToSeconds, formatNumber, formatSecondsToTime, applyTrainingSpeedupBuffs, secondsToSpeedupMinutes } from '../utils/calc';
 import { TrainingBuffPanel } from '../components/BuffPanel';
 import AssetImg from '../components/AssetImg';
@@ -185,7 +186,7 @@ export default function TroopsPage() {
   return (
     <div className="calculator-page">
       <TrainingBuffPanel />
-      <ShowMaxedToggle hasMaxed={hasMaxedItems} />
+      <PageOptionsBar hasMaxed={hasMaxedItems} />
       <div className="group-columns group-columns-1">
       <GroupCard title="Training" iconSrc={troopImg('Infantry')} iconAlt="Training">
       <div className="cards-grid cards-grid-3">

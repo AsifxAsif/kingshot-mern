@@ -4,7 +4,8 @@ import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
 import { useScoreRules } from '../hooks/useScoreRules';
 import { usePublishPageScore } from '../hooks/usePublishPageScore';
-import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
+import { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
+import PageOptionsBar from '../components/PageOptionsBar';
 import { parseCost, getUpgradeSteps, getLevelsFromArray, parseTimeToSeconds, formatSecondsToTime, secondsToSpeedupMinutes, applyResearchSpeedupBuffs } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import { ResearchBuffPanel } from '../components/BuffPanel';
@@ -63,6 +64,14 @@ export default function WarAcademyPage() {
   const showMaxed = useShowMaxedItems();
   const buildingsState = state.buildings || {};
   const buffs = state.settings?.researchBuffs || {};
+  const prereqEnabled = buffs.prereqCheck !== false;
+  const setPrereqEnabled = (checked) => {
+    updateSection('settings', (prev) => ({
+      ...(prev || {}),
+      researchBuffs: { ...((prev || {}).researchBuffs || {}), prereqCheck: checked },
+    }));
+  };
+
   const root = data?.['War Academy'] || data || {};
 
   const setField = (name, field, value) => {
@@ -189,7 +198,13 @@ export default function WarAcademyPage() {
   return (
     <div className="calculator-page">
       <ResearchBuffPanel />
-      <ShowMaxedToggle hasMaxed={hasMaxedItems} />
+      <PageOptionsBar
+        hasMaxed={hasMaxedItems}
+        showPrereq
+        prereqEnabled={prereqEnabled}
+        onPrereqChange={setPrereqEnabled}
+        prereqTitle="When on, Upgrade is blocked until tech / building prerequisites are met"
+      />
       <div className="group-columns group-columns-3">
         {TECH_GROUPS.map((g) => {
           const groupCards = cards.filter((c) => c.group === g.name && (showMaxed || !isAtMaxLevel(c.from, c.levels)));

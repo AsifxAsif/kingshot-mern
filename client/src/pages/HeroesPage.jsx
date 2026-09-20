@@ -5,6 +5,7 @@ import { useApp } from '../context/AppContext';
 import { useScoreRules } from '../hooks/useScoreRules';
 import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems } from '../components/ShowMaxedToggle';
+import PageOptionsBar from '../components/PageOptionsBar';
 import { parseCost, formatNumber } from '../utils/calc';
 import AssetImg from '../components/AssetImg';
 import ResourceLines from '../components/ResourceLines';
@@ -395,7 +396,6 @@ export default function HeroesPage() {
 
   return (
     <div className="app-container">
-<ShowMaxedToggle hasMaxed={hasMaxedItems} />
       {toast && <div className="hero-toast hero-toast-error">{toast}</div>}
 
 
@@ -437,6 +437,8 @@ export default function HeroesPage() {
           })}
         </div>
       </div>
+
+      <PageOptionsBar hasMaxed={hasMaxedItems} />
 
       <div className="items-grid cards-grid">
         {heroes.filter((h) => {

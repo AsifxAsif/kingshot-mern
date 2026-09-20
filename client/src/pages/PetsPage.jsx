@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext';
 import { useScoreRules } from '../hooks/useScoreRules';
 import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
+import PageOptionsBar from '../components/PageOptionsBar';
 import { parseCost, formatNumber, getUpgradeSteps, getLevelsFromArray } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import { useSiteConfig, applyOrder } from '../hooks/useSiteConfig';
@@ -296,8 +297,9 @@ export default function PetsPage() {
 
   return (
     <div className="app-container pets-page">
-      <ShowMaxedToggle hasMaxed={hasMaxedItems} />
       <TamingMarksCard vault={vault} />
+
+      <PageOptionsBar hasMaxed={hasMaxedItems} />
 
       <div className="items-grid cards-grid">
         {cards.filter((c) => showMaxed || !isAtMaxLevel(c.from, c.levels)).map((c) => (

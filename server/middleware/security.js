@@ -8,7 +8,6 @@ export function buildCors() {
 	const raw = process.env.CORS_ORIGINS || process.env.CLIENT_URL || '';
 	const list = raw.split(',').map((s) => s.trim()).filter(Boolean);
 	const isProd = process.env.NODE_ENV === 'production';
-
 	const allowed = (origin) => {
 		if (!origin) return true; // same-origin / server / curl
 		if (list.includes(origin)) return true;
@@ -19,7 +18,6 @@ export function buildCors() {
 		if (!isProd && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)) return true;
 		return false;
 	};
-
 	return cors({
 		origin(origin, cb) {
 			if (allowed(origin)) return cb(null, true);

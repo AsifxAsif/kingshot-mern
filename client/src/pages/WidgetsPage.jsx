@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext';
 import { useScoreRules } from '../hooks/useScoreRules';
 import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
+import PageOptionsBar from '../components/PageOptionsBar';
 
 import AssetImg from '../components/AssetImg';
 import CostStatus from '../components/CostStatus';
@@ -109,7 +110,6 @@ export default function WidgetsPage() {
 
   return (
     <div className="calculator-page">
-      <ShowMaxedToggle hasMaxed={hasMaxedItems} />
       <div className="inventory-card">
         <div className="buff-field" style={{ marginBottom: 12 }}>
           <label>Latest Hero Generation</label>
@@ -146,6 +146,8 @@ export default function WidgetsPage() {
           ))}
         </div>
       </div>
+
+      <PageOptionsBar hasMaxed={hasMaxedItems} />
 
       <div className="cards-grid">
         {ssrHeroes.filter((h) => {
