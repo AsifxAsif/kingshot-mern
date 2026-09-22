@@ -54,14 +54,18 @@ export async function register(req, res) {
 			});
 		}
 		// Only email + player UID must be unique (username may be shared)
-		const emailTaken = await User.findOne({ email }).select('_id').lean();
+		const emailTaken = await User.findOne({
+			email
+		}).select('_id').lean();
 		if (emailTaken) {
 			return res.status(409).json({
 				error: 'Email already exists',
 				code: 'EMAIL_EXISTS',
 			});
 		}
-		const uidTaken = await User.findOne({ gameId }).select('_id').lean();
+		const uidTaken = await User.findOne({
+			gameId
+		}).select('_id').lean();
 		if (uidTaken) {
 			return res.status(409).json({
 				error: 'Player UID already registered',
@@ -93,7 +97,9 @@ export async function register(req, res) {
 						code: 'GAME_ID_EXISTS',
 					});
 				}
-				return res.status(409).json({ error: 'Account already exists' });
+				return res.status(409).json({
+					error: 'Account already exists'
+				});
 			}
 			throw createErr;
 		}
@@ -137,13 +143,19 @@ export async function login(req, res) {
 		const email = sanitizeEmail(raw);
 		let user = null;
 		if (email) {
-			user = await User.findOne({ email });
+			user = await User.findOne({
+				email
+			});
 		} else {
 			const uname = sanitizeUsername(raw);
 			if (!uname) {
-				return res.status(400).json({ error: 'email/username and password required' });
+				return res.status(400).json({
+					error: 'email/username and password required'
+				});
 			}
-			const matches = await User.find({ username: uname }).limit(2);
+			const matches = await User.find({
+				username: uname
+			}).limit(2);
 			if (matches.length > 1) {
 				return res.status(400).json({
 					error: 'Multiple accounts share this username — sign in with your email',

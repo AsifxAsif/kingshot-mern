@@ -1,10 +1,15 @@
-import { Router } from 'express';
+import {
+	Router
+} from 'express';
 import * as dataController from '../controllers/dataController.js';
 import * as presetController from '../controllers/presetController.js';
 import * as authController from '../controllers/authController.js';
 import * as siteConfigController from '../controllers/siteConfigController.js';
 import * as playerController from '../controllers/playerController.js';
-import { authLimiter, writeLimiter } from '../middleware/security.js';
+import {
+	authLimiter,
+	writeLimiter
+} from '../middleware/security.js';
 const router = Router();
 router.post('/auth/register', authLimiter, authController.register);
 router.post('/auth/login', authLimiter, authController.login);

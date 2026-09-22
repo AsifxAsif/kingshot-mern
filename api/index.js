@@ -5,17 +5,20 @@
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import {
+	fileURLToPath
+} from 'url';
 import connectDB from '../server/config/db.js';
 import app from '../server/app.js';
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 // Only load local files; never override vars already set by Vercel
 function loadLocalEnv(filePath) {
 	try {
 		if (fs.existsSync(filePath)) {
-			dotenv.config({ path: filePath, override: false });
+			dotenv.config({
+				path: filePath,
+				override: false
+			});
 		}
 	} catch {
 		/* ignore */
@@ -23,9 +26,7 @@ function loadLocalEnv(filePath) {
 }
 loadLocalEnv(path.join(__dirname, '../server/.env'));
 loadLocalEnv(path.join(__dirname, '../.env'));
-
 let ready;
-
 async function ensureDB() {
 	if (!ready) {
 		ready = connectDB().catch((err) => {
@@ -35,7 +36,6 @@ async function ensureDB() {
 	}
 	return ready;
 }
-
 export default async function handler(req, res) {
 	try {
 		await ensureDB();
@@ -45,11 +45,9 @@ export default async function handler(req, res) {
 			ok: false,
 			error: 'Database unavailable',
 			detail: e?.message || String(e),
-			hint:
-				'Set MONGODB_URI in Vercel → Settings → Environment Variables (Production + Preview), allow Atlas 0.0.0.0/0, Redeploy.',
+			hint: 'Set MONGODB_URI in Vercel → Settings → Environment Variables (Production + Preview), allow Atlas 0.0.0.0/0, Redeploy.',
 		});
 	}
-
 	try {
 		const original = req.url || '/';
 		if (original === '/api/index' || original.startsWith('/api/index?')) {
@@ -61,6 +59,5 @@ export default async function handler(req, res) {
 	} catch {
 		/* ignore */
 	}
-
 	return app(req, res);
 }

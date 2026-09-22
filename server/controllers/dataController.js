@@ -1,25 +1,14 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { modelMap } from '../models/index.js';
-
+import {
+	fileURLToPath
+} from 'url';
+import {
+	modelMap
+} from '../models/index.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, '../data');
-const ALLOWED_COLLECTIONS = new Set([
-	'heroes',
-	'hero_gears',
-	'gov_gears',
-	'gov_charms',
-	'buildings',
-	'troops',
-	'war_academy',
-	'pets',
-	'misc',
-	'widgets',
-	'points',
-	'forgehammers',
-	'masters',
-]);
+const ALLOWED_COLLECTIONS = new Set(['heroes', 'hero_gears', 'gov_gears', 'gov_charms', 'buildings', 'troops', 'war_academy', 'pets', 'misc', 'widgets', 'points', 'forgehammers', 'masters', ]);
 const keyToFile = {
 	heroes: 'Hero.json',
 	hero_gears: 'Hero_Gear.json',
@@ -35,7 +24,6 @@ const keyToFile = {
 	forgehammers: 'Forgehammer.json',
 	masters: 'Masters.json',
 };
-
 /** Process-level cache — game catalogs rarely change at runtime */
 const memCache = new Map();
 
@@ -61,26 +49,26 @@ function resolveCollection(req) {
 	if (parts.length) return decodeURIComponent(parts[parts.length - 1]);
 	return null;
 }
-
 export const getCollection = async (req, res) => {
 	try {
 		const collection = resolveCollection(req);
 		if (!collection) {
-			return res.status(400).json({ message: 'Missing collection name in URL' });
+			return res.status(400).json({
+				message: 'Missing collection name in URL'
+			});
 		}
 		if (!ALLOWED_COLLECTIONS.has(collection)) {
-			return res.status(404).json({ message: 'Unknown collection' });
+			return res.status(404).json({
+				message: 'Unknown collection'
+			});
 		}
-
 		if (memCache.has(collection)) {
 			res.setHeader('Cache-Control', 'private, max-age=600');
 			res.setHeader('X-Data-Cache', 'HIT');
 			return res.json(memCache.get(collection));
 		}
-
 		// Prefer local JSON (instant) over Mongo for static game catalogs
 		let data = readLocalJson(collection);
-
 		if (!data) {
 			const Model = modelMap[collection];
 			if (Model) {
@@ -92,17 +80,19 @@ export const getCollection = async (req, res) => {
 				}
 			}
 		}
-
 		if (!data) {
-			return res.status(404).json({ message: `No data for ${collection}` });
+			return res.status(404).json({
+				message: `No data for ${collection}`
+			});
 		}
-
 		memCache.set(collection, data);
 		res.setHeader('Cache-Control', 'private, max-age=600');
 		res.setHeader('X-Data-Cache', 'MISS');
 		return res.json(data);
 	} catch (err) {
 		console.error('[data]', err?.message || err);
-		return res.status(500).json({ message: 'Failed to load collection' });
+		return res.status(500).json({
+			message: 'Failed to load collection'
+		});
 	}
 };
