@@ -1,14 +1,25 @@
 import fs from 'fs';
 import path from 'path';
-import {
-	fileURLToPath
-} from 'url';
-import {
-	modelMap
-} from '../models/index.js';
+import { fileURLToPath } from 'url';
+import { modelMap } from '../models/index.js';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, '../data');
-const ALLOWED_COLLECTIONS = new Set(['heroes', 'hero_gears', 'gov_gears', 'gov_charms', 'buildings', 'troops', 'war_academy', 'pets', 'misc', 'widgets', 'points', 'forgehammers', 'masters', ]);
+const ALLOWED_COLLECTIONS = new Set([
+	'heroes',
+	'hero_gears',
+	'gov_gears',
+	'gov_charms',
+	'buildings',
+	'troops',
+	'war_academy',
+	'pets',
+	'misc',
+	'widgets',
+	'points',
+	'forgehammers',
+	'masters',
+]);
 const keyToFile = {
 	heroes: 'Hero.json',
 	hero_gears: 'Hero_Gear.json',
@@ -25,86 +36,73 @@ const keyToFile = {
 	masters: 'Masters.json',
 };
 
+/** Process-level cache — game catalogs rarely change at runtime */
+const memCache = new Map();
+
 function readLocalJson(collection) {
 	const file = keyToFile[collection];
 	if (!file) return null;
 	const filePath = path.join(dataDir, file);
 	if (!fs.existsSync(filePath)) return null;
-	return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+	try {
+		return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+	} catch {
+		return null;
+	}
 }
 
 function resolveCollection(req) {
-	// 1) named route params
 	if (req.params?.collection) return String(req.params.collection);
 	if (req.params?.type) return String(req.params.type);
-	// 2) parse from URL: /api/data/buildings → buildings
 	const raw = (req.originalUrl || req.url || '').split('?')[0];
 	const parts = raw.split('/').filter(Boolean);
-	// find "data" segment, take next
 	const idx = parts.findIndex((p) => p === 'data');
 	if (idx >= 0 && parts[idx + 1]) return decodeURIComponent(parts[idx + 1]);
-	// last segment fallback
 	if (parts.length) return decodeURIComponent(parts[parts.length - 1]);
 	return null;
 }
+
 export const getCollection = async (req, res) => {
 	try {
 		const collection = resolveCollection(req);
-		console.log('[data]', req.method, req.originalUrl, '→ collection=', collection, 'params=', req.params);
 		if (!collection) {
-			return res.status(400).json({
-				message: 'Missing collection name in URL'
-			});
+			return res.status(400).json({ message: 'Missing collection name in URL' });
 		}
-		// Only allowlist keys — blocks path tricks / unexpected collection names
 		if (!ALLOWED_COLLECTIONS.has(collection)) {
-			return res.status(404).json({
-				message: 'Unknown collection'
-			});
+			return res.status(404).json({ message: 'Unknown collection' });
 		}
-		const Model = modelMap[collection];
-		// Try Mongo first; never fail the request if DB is down
-		if (Model) {
-			try {
-				const doc = await Model.findOne().lean();
-				if (doc?.data) {
-					return res.json(doc.data);
+
+		if (memCache.has(collection)) {
+			res.setHeader('Cache-Control', 'private, max-age=600');
+			res.setHeader('X-Data-Cache', 'HIT');
+			return res.json(memCache.get(collection));
+		}
+
+		// Prefer local JSON (instant) over Mongo for static game catalogs
+		let data = readLocalJson(collection);
+
+		if (!data) {
+			const Model = modelMap[collection];
+			if (Model) {
+				try {
+					const doc = await Model.findOne().lean();
+					if (doc?.data) data = doc.data;
+				} catch (dbErr) {
+					console.warn(`[data] ${collection}: Mongo read failed`, dbErr?.message || dbErr);
 				}
-			} catch (dbErr) {
-				console.warn(`[data] ${collection}: Mongo read failed (${dbErr.message}), using local JSON`);
 			}
 		}
-		const local = readLocalJson(collection);
-		if (local) {
-			console.warn(`[data] ${collection}: serving local JSON fallback`);
-			return res.json(local);
+
+		if (!data) {
+			return res.status(404).json({ message: `No data for ${collection}` });
 		}
-		return res.status(404).json({
-			message: `No data for ${collection}. Run: npm run seed (or ensure server/data JSON exists)`,
-		});
-	} catch (error) {
-		console.error(error);
-		// Last resort: try local JSON even on unexpected errors
-		try {
-			const collection = resolveCollection(req);
-			const local = collection && readLocalJson(collection);
-			if (local) return res.json(local);
-		} catch {
-			/* ignore */
-		}
-		res.status(500).json({
-			message: error.message
-		});
+
+		memCache.set(collection, data);
+		res.setHeader('Cache-Control', 'private, max-age=600');
+		res.setHeader('X-Data-Cache', 'MISS');
+		return res.json(data);
+	} catch (err) {
+		console.error('[data]', err?.message || err);
+		return res.status(500).json({ message: 'Failed to load collection' });
 	}
-};
-export const healthCheck = (req, res) => {
-	res.json({
-		status: 'ok',
-		time: new Date().toISOString()
-	});
-};
-export const listCollections = (req, res) => {
-	res.json({
-		collections: Object.keys(modelMap)
-	});
 };

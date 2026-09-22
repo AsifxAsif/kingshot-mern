@@ -763,13 +763,33 @@ export default function ProfilePage() {
       setError('');
       return;
     }
-    setLoading(true);
+    const cacheKey = `ks_player_payload_${user.gameId}`;
+    let hadCache = false;
+    try {
+      const raw = sessionStorage.getItem(cacheKey);
+      if (raw) {
+        const cached = JSON.parse(raw);
+        if (cached && cached.ok !== false) {
+          setPayload(cached);
+          setLoading(false);
+          hadCache = true;
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    if (!hadCache) setLoading(true);
     setError('');
     try {
       const data = await api.get('/player?include=base,heroes,ranks');
       setPayload(data);
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify(data));
+      } catch {
+        /* quota */
+      }
     } catch (err) {
-      setPayload(null);
+      if (!hadCache) setPayload(null);
       setError(err?.message || 'Failed to load player');
     } finally {
       setLoading(false);
@@ -784,6 +804,11 @@ export default function ProfilePage() {
     try {
       const data = await api.post('/player/refresh', {});
       setPayload(data);
+      try {
+        sessionStorage.setItem(`ks_player_payload_${user.gameId}`, JSON.stringify(data));
+      } catch {
+        /* ignore */
+      }
       const rem = Number(data?.refresh?.cooldown_remaining_sec);
       if (Number.isFinite(rem) && rem > 0) {
         cooldownEndRef.current = Date.now() + rem * 1000;
