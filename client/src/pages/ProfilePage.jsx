@@ -582,8 +582,10 @@ function Stat({ label, value, highlight }) {
 
 
 /**
- * Town Center from site profile tg_info only (no manual conversion).
- * short: "TG5" | label: "TG 5" | else raw town_center_level / stove_lv
+ * Town Center display:
+ * Prefer real tg_info.short / label / tg_level when present.
+ * If tg_info is missing or "—", convert town_center_level:
+ *   1–30 raw; 31–34 TG0-x; 35+ TG blocks of 5 (55 → TG5, 80 → TG10)
  */
 function readTgInfo(...sources) {
   for (const source of sources) {
@@ -594,22 +596,65 @@ function readTgInfo(...sources) {
   return null;
 }
 
+function isBlankTg(v) {
+  if (v == null) return true;
+  const s = String(v).trim();
+  return !s || s === '—' || s === '-' || s === '–' || s.toLowerCase() === 'null';
+}
+
+/**
+ * TC → TG display (game rules):
+ *   1–30  → raw level
+ *   31–34 → TG0-1 … TG0-4
+ *   35    → TG1
+ *   36–39 → TG1-1 … TG1-4
+ *   40    → TG2
+ *   … every +5 major TG …
+ *   55    → TG5
+ *   80    → TG10
+ */
+function levelToTgLabel(lv) {
+  const n = Math.floor(Number(lv));
+  if (!Number.isFinite(n) || n <= 0) return null;
+  if (n <= 30) return String(n);
+  if (n <= 34) return `TG0-${n - 30}`;
+  // n >= 35: blocks of 5 → TG1, TG1-1..TG1-4, TG2, ...
+  const offset = n - 35;
+  const major = Math.floor(offset / 5) + 1;
+  const sub = offset % 5;
+  if (sub === 0) return `TG${major}`;
+  return `TG${major}-${sub}`;
+}
+
+function readTownLevel(...sources) {
+  for (const source of sources) {
+    if (!source || typeof source !== 'object') continue;
+    const lv =
+      source.town_center_level ??
+      source.stove_lv ??
+      source.stoveLv ??
+      source.townCenterLevel;
+    if (lv != null && lv !== '') return lv;
+    // ranks payload sometimes nests under leaderboards only — also check raw
+  }
+  return null;
+}
+
 function tgShort(...sources) {
   const tg = readTgInfo(...sources);
   if (tg) {
-    if (tg.short != null && String(tg.short).trim() !== '') return String(tg.short).trim();
-    if (tg.label != null && String(tg.label).trim() !== '') {
-      return String(tg.label).replace(/\s+/g, '');
+    if (!isBlankTg(tg.short)) return String(tg.short).trim();
+    if (!isBlankTg(tg.label)) return String(tg.label).replace(/\s+/g, '');
+    if (tg.is_tg && tg.tg_level != null && !isBlankTg(tg.tg_level)) {
+      return `TG${tg.tg_level}`;
     }
-    if (tg.is_tg && tg.tg_level != null) return `TG${tg.tg_level}`;
+    // tg_info present but empty — fall through to level conversion
+    if (tg.stove_lv != null && !isBlankTg(tg.stove_lv)) {
+      return levelToTgLabel(tg.stove_lv);
+    }
   }
-  // Not TG / no tg_info — show real level only (never invent TG#)
-  for (const source of sources) {
-    if (!source || typeof source !== 'object') continue;
-    const lv = source.town_center_level ?? source.stove_lv ?? source.stoveLv;
-    if (lv != null && lv !== '') return String(lv);
-  }
-  return null;
+  const lv = readTownLevel(...sources);
+  return levelToTgLabel(lv);
 }
 
 /** Full number with commas — never K/M */
@@ -763,33 +808,13 @@ export default function ProfilePage() {
       setError('');
       return;
     }
-    const cacheKey = `ks_player_payload_${user.gameId}`;
-    let hadCache = false;
-    try {
-      const raw = sessionStorage.getItem(cacheKey);
-      if (raw) {
-        const cached = JSON.parse(raw);
-        if (cached && cached.ok !== false) {
-          setPayload(cached);
-          setLoading(false);
-          hadCache = true;
-        }
-      }
-    } catch {
-      /* ignore */
-    }
-    if (!hadCache) setLoading(true);
+    setLoading(true);
     setError('');
     try {
       const data = await api.get('/player?include=base,heroes,ranks');
       setPayload(data);
-      try {
-        sessionStorage.setItem(cacheKey, JSON.stringify(data));
-      } catch {
-        /* quota */
-      }
     } catch (err) {
-      if (!hadCache) setPayload(null);
+      setPayload(null);
       setError(err?.message || 'Failed to load player');
     } finally {
       setLoading(false);
@@ -804,11 +829,6 @@ export default function ProfilePage() {
     try {
       const data = await api.post('/player/refresh', {});
       setPayload(data);
-      try {
-        sessionStorage.setItem(`ks_player_payload_${user.gameId}`, JSON.stringify(data));
-      } catch {
-        /* ignore */
-      }
       const rem = Number(data?.refresh?.cooldown_remaining_sec);
       if (Number.isFinite(rem) && rem > 0) {
         cooldownEndRef.current = Date.now() + rem * 1000;

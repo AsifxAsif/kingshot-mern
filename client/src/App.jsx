@@ -81,8 +81,10 @@ export default function App() {
               <p>Loading preset…</p>
             </div>
           ) : (
-            <AppRoutes />
+            <>
+              <AppRoutes />
               <EventScoreSync />
+            </>
           )}
         </main>
       </div>
