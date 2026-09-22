@@ -105,6 +105,59 @@ function setSavedActiveName(name) {
   }
 }
 
+
+const PRESET_CACHE_PREFIX = 'kingshot_preset_cache_v1_';
+
+function presetCacheKey(userId, name) {
+  return `${PRESET_CACHE_PREFIX}${userId || 'u'}_${name || ''}`;
+}
+
+function readPresetCache(userId, name) {
+  if (!userId || !name || name === 'default') return null;
+  try {
+    const raw = localStorage.getItem(presetCacheKey(userId, name));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function writePresetCache(userId, name, doc) {
+  if (!userId || !name || name === 'default' || !doc) return;
+  try {
+    // Store only the fields we apply — avoid huge accidental blobs
+    const slim = {
+      vault: doc.vault || {},
+      troops: doc.troops || {},
+      buildings: doc.buildings || {},
+      heroes: doc.heroes || {},
+      heroGear: doc.heroGear || {},
+      govGear: doc.govGear || {},
+      govCharm: doc.govCharm || {},
+      pets: doc.pets || {},
+      warAcademy: doc.warAcademy || {},
+      masters: doc.masters || {},
+      widgets: doc.widgets || {},
+      misc: doc.misc || {},
+      planner: doc.planner || {},
+      heroShards: doc.heroShards || {},
+      heroWidgets: doc.heroWidgets || {},
+      heroFlowers: doc.heroFlowers || {},
+      lockedUpgrades: doc.lockedUpgrades || {},
+      settings: doc.settings || {},
+      pageScores: doc.pageScores || {},
+      eventPageScores: doc.eventPageScores || {},
+      _cachedAt: Date.now(),
+    };
+    localStorage.setItem(presetCacheKey(userId, name), JSON.stringify(slim));
+  } catch {
+    /* quota / private mode */
+  }
+}
+
+
 export function AppProvider({ children }) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -245,6 +298,8 @@ export function AppProvider({ children }) {
       const full = buildFullPayload(st, u);
       // Full document every time (server replaces preset document)
       await apiUpdate(name, { ...full, ...patch });
+      const uid = String(u.id || u._id || '');
+      writePresetCache(uid, name, { ...full, ...patch });
     } catch (e) {
       console.error('Save failed', e);
       pendingPatch.current = { ...patch, ...pendingPatch.current };
@@ -286,13 +341,13 @@ export function AppProvider({ children }) {
   }, [flushSave]);
 
   // Guests → local default. Logged-in → load existing presets only (no auto-create on login).
-  // Username_gameId is created only for newly registered users via createPrimaryForNewUser().
+  // Optimized: one list fetch, parallel getPreset, local cache for instant paint.
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      setLoading(true);
       if (!user) {
         if (!cancelled) {
+          setLoading(true);
           setCurrentName('default');
           setSavedActiveName('default');
           setState(loadLocalDefault());
@@ -302,29 +357,70 @@ export function AppProvider({ children }) {
         return;
       }
 
+      const userId = String(user.id || user._id || '');
+      const saved = getSavedActiveName();
+
+      // 1) Instant paint from last successful cache (if any)
+      if (saved && saved !== 'default') {
+        const cached = readPresetCache(userId, saved);
+        if (cached && !cancelled) {
+          setCurrentName(saved);
+          applyPresetDoc(cached);
+          setLoading(false); // unblock UI immediately
+        } else {
+          setLoading(true);
+        }
+      } else {
+        setLoading(true);
+      }
+
       try {
-        // Optional cleanup of legacy cloud "default"
-        const list0 = await listPresets().catch(() => []);
-        if ((list0 || []).some((p) => p.name === 'default')) {
-          try { await apiDelete('default'); } catch { /* ignore */ }
+        // 2) Parallel: list presets + fetch saved preset (avoid double listPresets)
+        const listPromise = listPresets().catch(() => []);
+        const savedPromise =
+          saved && saved !== 'default'
+            ? getPreset(saved).catch(() => null)
+            : Promise.resolve(null);
+
+        const [listRaw, savedDoc] = await Promise.all([listPromise, savedPromise]);
+
+        // Optional cleanup of legacy cloud "default" (non-blocking)
+        if ((listRaw || []).some((p) => p.name === 'default')) {
+          apiDelete('default').catch(() => {});
         }
 
-        const list = await refreshList();
-        const saved = getSavedActiveName();
+        const primary = primaryPresetName(user);
+        let list = (listRaw || []).filter((p) => p.name && p.name !== 'default');
+        list.sort((a, b) => {
+          if (primary && a.name === primary) return -1;
+          if (primary && b.name === primary) return 1;
+          return String(a.name).localeCompare(String(b.name));
+        });
+        if (!cancelled) setPresetList(list);
+
         let wanted =
           saved && saved !== 'default' && list.some((p) => p.name === saved)
             ? saved
             : list[0]?.name || null;
 
+        // If saved name was not in list but we got a doc, still use it
+        if (!wanted && savedDoc && saved && saved !== 'default') {
+          wanted = saved;
+        }
+
         if (wanted) {
-          const doc = await getPreset(wanted);
+          let doc = savedDoc;
+          // Only fetch again if we didn't already load this name
+          if (!doc || (saved && wanted !== saved)) {
+            doc = await getPreset(wanted);
+          }
           if (!cancelled) {
             setCurrentName(wanted);
             setSavedActiveName(wanted);
             applyPresetDoc(doc);
+            writePresetCache(userId, wanted, doc);
           }
         } else if (!cancelled) {
-          // Existing user with no presets yet — empty state until they create one
           setCurrentName('');
           setSavedActiveName('');
           setState({ ...EMPTY_STATE });
@@ -332,18 +428,19 @@ export function AppProvider({ children }) {
       } catch (e) {
         console.error('Preset load failed', e);
         if (!cancelled) {
-          const list = await refreshList().catch(() => []);
-          if (list[0]?.name) {
-            try {
+          try {
+            const list = await refreshList().catch(() => []);
+            if (list[0]?.name) {
               const doc = await getPreset(list[0].name);
               setCurrentName(list[0].name);
               setSavedActiveName(list[0].name);
               applyPresetDoc(doc);
-            } catch {
+              writePresetCache(userId, list[0].name, doc);
+            } else {
               setCurrentName('');
               setState({ ...EMPTY_STATE });
             }
-          } else {
+          } catch {
             setCurrentName('');
             setState({ ...EMPTY_STATE });
           }
