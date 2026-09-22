@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { api } from '../services/api';
 import { clearGameDataCache } from '../hooks/useGameData';
+import { useToast } from './ToastContext';
 
 const AuthContext = createContext(null);
 
@@ -35,6 +36,7 @@ function writeStoredToken(token) {
 }
 
 export function AuthProvider({ children }) {
+  const toast = useToast();
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => readStoredToken());
   const [authReady, setAuthReady] = useState(() => !readStoredToken()); // no token → ready as guest
@@ -83,6 +85,7 @@ export function AuthProvider({ children }) {
     const data = await api.post('/auth/login', { email, password });
     writeStoredToken(data.token);
     setToken(data.token);
+    toast.success('Signed in');
     setUser(data.user);
     setAuthOpen(false);
     setAuthMessage('');
@@ -94,6 +97,7 @@ export function AuthProvider({ children }) {
     const data = await api.post('/auth/register', { username, email, password, gameId });
     writeStoredToken(data.token);
     setToken(data.token);
+    toast.success('Account created');
     setUser(data.user);
     setAuthOpen(false);
     setAuthMessage('');
@@ -102,6 +106,7 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     clearGameDataCache();
+    toast.info('Signed out');
     setToken('');
     setUser(null);
     writeStoredToken('');

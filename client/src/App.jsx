@@ -8,8 +8,7 @@ import PageMeta from './components/PageMeta';
 import HelpFab from './components/HelpFab';
 import ErrorBoundary from './components/ErrorBoundary';
 import EventSidebar from './components/EventSidebar';
-import GameDataPrefetch from './components/GameDataPrefetch';
-import EventScoreSync from './components/EventScoreSync';
+import { PageSkeleton } from './components/Skeleton';
 
 const VaultPage = lazy(() => import('./pages/VaultPage'));
 const BuildingsPage = lazy(() => import('./pages/BuildingsPage'));
@@ -71,20 +70,15 @@ export default function App() {
         <EventSidebar />
         <Navbar />
         <AuthModal />
-        <GameDataPrefetch />
         <HelpFab />
         <PageMeta />
         <main className="app-container">
           {loading ? (
             <div className="page-loading">
-              <div className="spinner" />
-              <p>Loading preset…</p>
+              <PageSkeleton cards={4} />
             </div>
           ) : (
-            <>
-              <AppRoutes />
-              <EventScoreSync />
-            </>
+            <AppRoutes />
           )}
         </main>
       </div>

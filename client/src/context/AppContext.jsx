@@ -17,6 +17,7 @@ import {
 } from '../services/api';
 import { buildRemainingVault } from '../utils/resources';
 import { normalizeEventId } from '../utils/events';
+import { useToast } from './ToastContext';
 import { useAuth } from './AuthContext';
 
 const AppContext = createContext(null);
@@ -107,6 +108,7 @@ function setSavedActiveName(name) {
 
 export function AppProvider({ children }) {
   const { user } = useAuth();
+  const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [presetList, setPresetList] = useState([]);
@@ -303,43 +305,29 @@ export function AppProvider({ children }) {
       }
 
       try {
-        const saved = getSavedActiveName();
-        const listPromise = listPresets().catch(() => []);
-        const savedPromise =
-          saved && saved !== 'default'
-            ? getPreset(saved).catch(() => null)
-            : Promise.resolve(null);
-        const [listRaw, savedDoc] = await Promise.all([listPromise, savedPromise]);
-
-        if ((listRaw || []).some((p) => p.name === 'default')) {
-          apiDelete('default').catch(() => {});
+        // Optional cleanup of legacy cloud "default"
+        const list0 = await listPresets().catch(() => []);
+        if ((list0 || []).some((p) => p.name === 'default')) {
+          try { await apiDelete('default');
+        } catch { /* ignore */ }
         }
 
-        // Single list pass (no second listPresets via refreshList)
-        const primary = primaryPresetName(user);
-        let list = (listRaw || []).filter((p) => p.name && p.name !== 'default');
-        list.sort((a, b) => {
-          if (primary && a.name === primary) return -1;
-          if (primary && b.name === primary) return 1;
-          return String(a.name).localeCompare(String(b.name));
-        });
-        if (!cancelled) setPresetList(list);
-
+        const list = await refreshList();
+        const saved = getSavedActiveName();
         let wanted =
           saved && saved !== 'default' && list.some((p) => p.name === saved)
             ? saved
             : list[0]?.name || null;
-        if (!wanted && savedDoc && saved && saved !== 'default') wanted = saved;
 
         if (wanted) {
-          let doc = savedDoc && (!saved || saved === wanted) ? savedDoc : null;
-          if (!doc) doc = await getPreset(wanted);
+          const doc = await getPreset(wanted);
           if (!cancelled) {
             setCurrentName(wanted);
             setSavedActiveName(wanted);
             applyPresetDoc(doc);
           }
         } else if (!cancelled) {
+          // Existing user with no presets yet — empty state until they create one
           setCurrentName('');
           setSavedActiveName('');
           setState({ ...EMPTY_STATE });
@@ -390,6 +378,7 @@ export function AppProvider({ children }) {
       const body = { name: primary, displayName: uiLabel, ...buildFullPayload(local, u) };
       try {
         await apiCreate(body);
+        toast.success('Preset created');
       } catch {
         // already exists (re-register edge) — load it
         try {
@@ -492,10 +481,11 @@ export function AppProvider({ children }) {
           eventPageScores: next.eventPageScores,
           pageScores: next.pageScores,
         });
+        queueMicrotask(() => toast.info('Event switched — updating points…'));
         return next;
       });
     },
-    [scheduleSave]
+    [scheduleSave, toast]
   );
 
   const switchPreset = useCallback(
@@ -596,6 +586,7 @@ export function AppProvider({ children }) {
       }
       try {
         const updated = await apiRename(storageName, label);
+        toast.success('Preset renamed');
         await refreshList();
         if (updated?.name) {
           setSavedActiveName(updated.name);
@@ -624,6 +615,7 @@ export function AppProvider({ children }) {
       const primary = primaryPresetName(user);
       try {
         await apiDelete(name);
+      toast.success('Preset deleted');
         const list = await refreshList();
         if (currentNameRef.current === name) {
           const next = list[0];

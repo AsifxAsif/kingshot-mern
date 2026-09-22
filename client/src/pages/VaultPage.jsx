@@ -5,6 +5,7 @@ import { RESOURCE_ITEMS } from '../utils/calc';
 import { VAULT_EVENT_EXTRA } from '../utils/events';
 import AssetImg from '../components/AssetImg';
 import { resourceImg, asset } from '../utils/images';
+import { VaultSkeleton } from '../components/Skeleton';
 
 const HID = '__hid__';
 
@@ -104,6 +105,14 @@ export default function VaultPage() {
     () => buildVaultItems(orderArr, hiddenArr),
     [orderArr, hiddenArr]
   );
+
+  if (!cfgLoaded) {
+    return (
+      <div className="vault-section">
+        <VaultSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className="vault-section">

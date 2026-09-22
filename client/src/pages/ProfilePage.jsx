@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
+import { ProfileSkeleton } from '../components/Skeleton';
 import { api } from '../services/api';
 import { formatNumber } from '../utils/calc';
 import AssetImg from '../components/AssetImg';
@@ -582,10 +584,8 @@ function Stat({ label, value, highlight }) {
 
 
 /**
- * Town Center display:
- * Prefer real tg_info.short / label / tg_level when present.
- * If tg_info is missing or "—", convert town_center_level:
- *   1–30 raw; 31–34 TG0-x; 35+ TG blocks of 5 (55 → TG5, 80 → TG10)
+ * Town Center from site profile tg_info only (no manual conversion).
+ * short: "TG5" | label: "TG 5" | else raw town_center_level / stove_lv
  */
 function readTgInfo(...sources) {
   for (const source of sources) {
@@ -596,65 +596,22 @@ function readTgInfo(...sources) {
   return null;
 }
 
-function isBlankTg(v) {
-  if (v == null) return true;
-  const s = String(v).trim();
-  return !s || s === '—' || s === '-' || s === '–' || s.toLowerCase() === 'null';
-}
-
-/**
- * TC → TG display (game rules):
- *   1–30  → raw level
- *   31–34 → TG0-1 … TG0-4
- *   35    → TG1
- *   36–39 → TG1-1 … TG1-4
- *   40    → TG2
- *   … every +5 major TG …
- *   55    → TG5
- *   80    → TG10
- */
-function levelToTgLabel(lv) {
-  const n = Math.floor(Number(lv));
-  if (!Number.isFinite(n) || n <= 0) return null;
-  if (n <= 30) return String(n);
-  if (n <= 34) return `TG0-${n - 30}`;
-  // n >= 35: blocks of 5 → TG1, TG1-1..TG1-4, TG2, ...
-  const offset = n - 35;
-  const major = Math.floor(offset / 5) + 1;
-  const sub = offset % 5;
-  if (sub === 0) return `TG${major}`;
-  return `TG${major}-${sub}`;
-}
-
-function readTownLevel(...sources) {
-  for (const source of sources) {
-    if (!source || typeof source !== 'object') continue;
-    const lv =
-      source.town_center_level ??
-      source.stove_lv ??
-      source.stoveLv ??
-      source.townCenterLevel;
-    if (lv != null && lv !== '') return lv;
-    // ranks payload sometimes nests under leaderboards only — also check raw
-  }
-  return null;
-}
-
 function tgShort(...sources) {
   const tg = readTgInfo(...sources);
   if (tg) {
-    if (!isBlankTg(tg.short)) return String(tg.short).trim();
-    if (!isBlankTg(tg.label)) return String(tg.label).replace(/\s+/g, '');
-    if (tg.is_tg && tg.tg_level != null && !isBlankTg(tg.tg_level)) {
-      return `TG${tg.tg_level}`;
+    if (tg.short != null && String(tg.short).trim() !== '') return String(tg.short).trim();
+    if (tg.label != null && String(tg.label).trim() !== '') {
+      return String(tg.label).replace(/\s+/g, '');
     }
-    // tg_info present but empty — fall through to level conversion
-    if (tg.stove_lv != null && !isBlankTg(tg.stove_lv)) {
-      return levelToTgLabel(tg.stove_lv);
-    }
+    if (tg.is_tg && tg.tg_level != null) return `TG${tg.tg_level}`;
   }
-  const lv = readTownLevel(...sources);
-  return levelToTgLabel(lv);
+  // Not TG / no tg_info — show real level only (never invent TG#)
+  for (const source of sources) {
+    if (!source || typeof source !== 'object') continue;
+    const lv = source.town_center_level ?? source.stove_lv ?? source.stoveLv;
+    if (lv != null && lv !== '') return String(lv);
+  }
+  return null;
 }
 
 /** Full number with commas — never K/M */
@@ -763,6 +720,7 @@ function buildKingdomRankRows(ranks, player) {
 
 export default function ProfilePage() {
   const { user, setAuthOpen, setAuthMode, logout } = useAuth();
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
@@ -829,6 +787,7 @@ export default function ProfilePage() {
     try {
       const data = await api.post('/player/refresh', {});
       setPayload(data);
+      toast.success('Profile data refreshed');
       const rem = Number(data?.refresh?.cooldown_remaining_sec);
       if (Number.isFinite(rem) && rem > 0) {
         cooldownEndRef.current = Date.now() + rem * 1000;
@@ -994,9 +953,7 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {loading && !payload && (
-          <p className="hint">Fetching player data…</p>
-        )}
+        {loading && !payload && <ProfileSkeleton />}
 
         <div className="mp-identity">
           {avatarUrl ? (
