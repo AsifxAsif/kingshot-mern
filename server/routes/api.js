@@ -11,10 +11,12 @@ import {
 	writeLimiter
 } from '../middleware/security.js';
 const router = Router();
+// Public auth
 router.post('/auth/register', authLimiter, authController.register);
 router.post('/auth/login', authLimiter, authController.login);
 router.get('/auth/validate-game-id', authLimiter, authController.validateGameIdLookup);
 router.get('/site-config', siteConfigController.getSiteConfig);
+// Everything below requires a valid JWT
 router.use(authController.authRequired);
 router.get('/auth/me', authController.me);
 router.get('/player', playerController.getPlayer);

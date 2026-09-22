@@ -246,3 +246,74 @@ export function authRequired(req, res, next) {
 		next();
 	});
 }
+/**
+ * Public: verify Governor / player UID via MightPulse search.
+ * GET /api/auth/validate-game-id?q=1234567
+ * Must be registered BEFORE authRequired in routes.
+ */
+export async function validateGameIdLookup(req, res) {
+	try {
+		const raw = String(req.query?.q ?? '').trim();
+		const q = raw.replace(/\D/g, '');
+		if (!q || q.length < 7) {
+			return res.status(200).json({
+				ok: true,
+				valid: false,
+				error: 'Player UID must be at least 7 digits',
+			});
+		}
+		if (q.length > 20) {
+			return res.status(200).json({
+				ok: true,
+				valid: false,
+				error: 'Player UID is too long',
+			});
+		}
+		const url = `https://mightpulse.com/api/search?q=${encodeURIComponent(q)}&limit=40&live=0`;
+		const r = await fetch(url, {
+			method: 'GET',
+			headers: {
+				Accept: 'application/json',
+				Origin: 'https://mightpulse.com',
+				Referer: 'https://mightpulse.com/',
+				'User-Agent': 'Kingshot/1.0',
+			},
+		});
+		if (!r.ok) {
+			return res.status(502).json({
+				ok: false,
+				valid: false,
+				error: 'Could not verify UID right now',
+			});
+		}
+		const data = await r.json().catch(() => ({}));
+		const results = Array.isArray(data?.results) ? data.results : [];
+		const match = results.find(
+			(row) => String(row?.uid) === q || String(row?.fid) === q);
+		if (!match) {
+			return res.status(200).json({
+				ok: true,
+				valid: false,
+				error: 'UID not found — use your numeric Governor ID',
+			});
+		}
+		return res.status(200).json({
+			ok: true,
+			valid: true,
+			player: {
+				uid: match.uid ?? null,
+				fid: match.fid ?? null,
+				nick: match.nick_name || match.nick || null,
+				kid: match.kid ?? null,
+				alliance: match.alliance_abbr || match.alliance_name || null,
+			},
+		});
+	} catch (err) {
+		console.error('validateGameIdLookup error', err?.message || err);
+		return res.status(500).json({
+			ok: false,
+			valid: false,
+			error: 'UID verification failed',
+		});
+	}
+}
