@@ -1,28 +1,29 @@
 import { formatNumber } from '../utils/calc';
-import { computeAffordability, formatCostLines, vaultAmount } from '../utils/resources';
+import { formatCostLines, computeAffordability, vaultAmount } from '../utils/resources';
 import ResourceLines from './ResourceLines';
 
 /**
- * @param {object} props
- * @param {string[]} [props.lockReasons] — extra human reasons (prereq, mastery, etc.)
- * @param {boolean} [props.locked] — force locked messaging even if affordable
+ * @param {boolean} [hasSelection] — false → only emptyHint (no costs / upgrade prompt)
+ * @param {boolean} [atMax]
+ * @param {string[]} [lockReasons]
  */
 export default function CostStatus({
-  costs,
-  vault,
-  points,
   active,
-  steps,
-  lines: linesProp,
-  emptyHint = 'Select current and target levels',
+  hasSelection = true,
+  points,
+  stepsInfo = '',
+  costs = {},
+  vault = {},
   extra = null,
+  lines: linesProp = null,
+  emptyHint = 'Select current & target level',
+  atMax = false,
   lockReasons = null,
   locked = false,
 }) {
-  const stepsInfo =
-    steps != null && Number(steps) > 0 ? ` (${Number(steps)} steps)` : '';
+  if (atMax) return null;
 
-  if (!costs && !linesProp) {
+  if (!hasSelection) {
     return <div className="status-pane">{emptyHint}</div>;
   }
 

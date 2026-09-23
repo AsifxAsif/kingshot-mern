@@ -282,13 +282,9 @@ export default function MiscPage() {
           <span>GATHERING SETTINGS</span>
         </div>
         <div className="item-card-body">
-          <div className="buff-row gathering-settings-row" style={{ marginTop: 10 }}>
+          <div className="buff-row fields-2col" style={{ marginTop: 10 }}>
             <div className="buff-field">
-              <label>
-                <ImgLabel src={asset('gathering_speed.webp')} size={22}>
-                  March Units
-                </ImgLabel>
-              </label>
+              <label>March Units</label>
               <select
                 value={misc.marchUnits || '1'}
                 onChange={(e) => setField('marchUnits', e.target.value)}
@@ -320,51 +316,35 @@ export default function MiscPage() {
               </select>
               <small>Instant full-node gather · max 3 uses</small>
             </div>
-
-            <div
-              className="buff-field"
-              style={{ opacity: bisonGrip > 0 ? 1 : 0.45 }}
-            >
-              <label>
-                <ImgLabel src={resourceImg(bisonResource || 'bread')} size={22}>
-                  Bison Grip Resource
-                </ImgLabel>
-              </label>
-              <select
-                value={bisonResource}
-                disabled={!(bisonGrip > 0)}
-                onChange={(e) => setField('bisonResource', e.target.value)}
-              >
-                {RESOURCES.map((r) => (
-                  <option key={r} value={r}>
-                    {r.charAt(0).toUpperCase() + r.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div
-              className="buff-field"
-              style={{ opacity: bisonGrip > 0 ? 1 : 0.45 }}
-            >
-              <label>
-                <ImgLabel src={getNodeImage(bisonResource || 'bread')} size={22}>
-                  Bison Grip Node
-                </ImgLabel>
-              </label>
-              <select
-                value={bisonNode}
-                disabled={!(bisonGrip > 0)}
-                onChange={(e) => setField('bisonNode', e.target.value)}
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
+
+          {bisonGrip > 0 && (
+            <div className="buff-row fields-2col" style={{ marginTop: 10 }}>
+              <div className="buff-field">
+                <label>Bison Grip Resource</label>
+                <select
+                  value={bisonResource}
+                  onChange={(e) => setField('bisonResource', e.target.value)}
+                >
+                  {RESOURCES.map((r) => (
+                    <option key={r} value={r}>
+                      {r.charAt(0).toUpperCase() + r.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="buff-field">
+                <label>Bison Grip Node</label>
+                <select value={bisonNode} onChange={(e) => setField('bisonNode', e.target.value)}>
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
 
           {bisonGrip > 0 && (
             <div className="misc-lcd misc-lcd-center" style={{ marginTop: 10 }}>

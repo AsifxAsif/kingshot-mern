@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 
 const GLOBAL_SECTIONS = [
@@ -274,39 +275,79 @@ export default function HelpFab() {
     };
   }, [open, location.pathname]);
 
-  return (
-    <div className="help-fab-wrap">
-      {hint && !open && <div className="help-fab-hint">Help?</div>}
-      <button
-        type="button"
-        className="help-fab"
-        onClick={() => setOpen(true)}
-        aria-label="Open help"
-        title="Help"
-      >
-        ?
-      </button>
-      {open && (
+  // Lock background scroll while help is open
+  useEffect(() => {
+    if (!open) return undefined;
+    const prevOverflow = document.body.style.overflow;
+    const prevPadding = document.body.style.paddingRight;
+    const sb = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = 'hidden';
+    if (sb > 0) document.body.style.paddingRight = `${sb}px`;
+    document.body.classList.add('help-modal-open');
+
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        setOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKey, true);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.paddingRight = prevPadding;
+      document.body.classList.remove('help-modal-open');
+      window.removeEventListener('keydown', onKey, true);
+    };
+  }, [open]);
+
+  const close = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setOpen(false);
+  };
+
+  const modal = open
+    ? createPortal(
         <div
           className="help-overlay"
           role="dialog"
           aria-modal="true"
           aria-labelledby="help-modal-title"
-          onClick={() => setOpen(false)}
+          data-auth-allow
+          data-help-modal
+          onClick={close}
+          onWheel={(e) => e.stopPropagation()}
+          onTouchMove={(e) => {
+            // allow scroll only inside modal body
+            const body = e.target?.closest?.('.help-modal-body');
+            if (!body) e.preventDefault();
+          }}
         >
-          <div className="help-modal item-card" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="help-modal item-card"
+            data-auth-allow
+            data-help-modal
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
             <div className="item-card-header help-modal-header">
               <span id="help-modal-title">How to use this site</span>
               <button
                 type="button"
                 className="preset-btn help-close"
-                onClick={() => setOpen(false)}
+                data-auth-allow
+                onClick={close}
+                onMouseDown={(e) => e.stopPropagation()}
                 aria-label="Close help"
               >
                 Close
               </button>
             </div>
-            <div className="item-card-body help-modal-body">
+            <div className="item-card-body help-modal-body" data-auth-allow>
               <p className="help-lead">
                 Quick guide for the event calculator. Scroll for general tips
                 {pageHelp ? ' and help for the page you are on' : ''}.
@@ -329,8 +370,31 @@ export default function HelpFab() {
               ))}
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        </div>,
+        document.body
+      )
+    : null;
+
+  return (
+    <>
+      <div className="help-fab-wrap" data-auth-allow>
+        {hint && !open && <div className="help-fab-hint">Help?</div>}
+        <button
+          type="button"
+          className="help-fab"
+          data-auth-allow
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setOpen(true);
+          }}
+          aria-label="Open help"
+          title="Help"
+        >
+          ?
+        </button>
+      </div>
+      {modal}
+    </>
   );
 }

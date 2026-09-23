@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import {
@@ -23,11 +24,7 @@ export default function AuthModal() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [uidStatus, setUidStatus] = useState({
-    state: 'idle',
-    message: '',
-    player: null,
-  });
+  const [uidStatus, setUidStatus] = useState({ state: 'idle', message: '', player: null });
   const uidCheckTimer = useRef(null);
 
   useEffect(() => {
@@ -40,7 +37,6 @@ export default function AuthModal() {
   useEffect(() => {
     if (!authOpen || authMode !== 'register') return;
     if (uidCheckTimer.current) clearTimeout(uidCheckTimer.current);
-
     const local = validateGameId(gameId);
     if (!gameId) {
       setUidStatus({ state: 'idle', message: '', player: null });
@@ -50,19 +46,14 @@ export default function AuthModal() {
       setUidStatus({ state: 'invalid', message: local.error, player: null });
       return;
     }
-
     setUidStatus({ state: 'checking', message: 'Checking UID…', player: null });
     uidCheckTimer.current = setTimeout(async () => {
       try {
-        const data = await api.get(
-          `/auth/validate-game-id?q=${encodeURIComponent(local.value)}`
-        );
+        const data = await api.get(`/auth/validate-game-id?q=${encodeURIComponent(local.value)}`);
         if (data?.valid) {
           setUidStatus({
             state: 'valid',
-            message: data.player?.nick
-              ? `✓ Found: ${data.player.nick}`
-              : '✓ Valid player UID',
+            message: data.player?.nick ? `✓ Found: ${data.player.nick}` : '✓ Valid player UID',
             player: data.player || null,
           });
         } else {
@@ -80,21 +71,38 @@ export default function AuthModal() {
         });
       }
     }, 450);
-
     return () => {
       if (uidCheckTimer.current) clearTimeout(uidCheckTimer.current);
     };
   }, [gameId, authOpen, authMode]);
+
+
+  // Lock page scroll while auth modal is open
+  useEffect(() => {
+    if (!authOpen) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.body.classList.add('auth-modal-open');
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setAuthOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => {
+      document.body.style.overflow = prev;
+      document.body.classList.remove('auth-modal-open');
+      window.removeEventListener('keydown', onKey, true);
+    };
+  }, [authOpen, setAuthOpen]);
 
   if (!authOpen) return null;
 
   const onSafeChange = (setter, { digitsOnly = false, maxLen = 128 } = {}) => (e) => {
     const next = sanitizeFieldInput(e.target.value, { digitsOnly, maxLen });
     if (!digitsOnly && hasDangerousInput(e.target.value)) {
-      setFieldErrors((fe) => ({
-        ...fe,
-        general: 'Invalid characters are not allowed',
-      }));
+      setFieldErrors((fe) => ({ ...fe, general: 'Invalid characters are not allowed' }));
     }
     setter(next);
   };
@@ -119,11 +127,8 @@ export default function AuthModal() {
     } else {
       const em = validateEmail(email, { loginMode: true });
       if (!em.ok) errs.email = em.error;
-      if (hasDangerousInput(password)) {
-        errs.password = 'Password contains invalid characters';
-      } else if (!password) {
-        errs.password = 'Password is required';
-      }
+      if (hasDangerousInput(password)) errs.password = 'Password contains invalid characters';
+      else if (!password) errs.password = 'Password is required';
     }
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
@@ -136,12 +141,11 @@ export default function AuthModal() {
     setBusy(true);
     try {
       if (authMode === 'register') {
-        const gid = validateGameId(gameId).value;
         const data = await register(
           validateUsername(username).value,
           validateEmail(email).value,
           validatePassword(password).value,
-          gid
+          validateGameId(gameId).value
         );
         if (data?.user && createPrimaryForNewUser) {
           await createPrimaryForNewUser(data.user);
@@ -169,23 +173,32 @@ export default function AuthModal() {
   };
 
   const eyeOpen = (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
       <circle cx="12" cy="12" r="3" />
     </svg>
   );
   const eyeOff = (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
       <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
       <line x1="1" y1="1" x2="23" y2="23" />
     </svg>
   );
 
-  return (
-    <div className="auth-overlay" data-auth-modal onClick={() => setAuthOpen(false)}>
-      <div className="auth-modal" data-auth-modal onClick={(e) => e.stopPropagation()}>
-        <div className="auth-modal-tabs" role="tablist">
+  return createPortal(
+    <div
+      className="auth-overlay"
+      data-auth-modal
+      onClick={() => setAuthOpen(false)}
+    >
+      <div
+        className="auth-modal"
+        data-auth-modal
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+<div className="auth-modal-tabs" role="tablist">
           <button
             type="button"
             role="tab"
@@ -236,7 +249,6 @@ export default function AuthModal() {
                     <span className="auth-modal-error">{fieldErrors.username}</span>
                   ) : null}
                 </div>
-
                 <div className="auth-modal-field">
                   <label htmlFor="auth-gameid">Player UID (Governor ID)</label>
                   <input
@@ -245,7 +257,6 @@ export default function AuthModal() {
                     onChange={onSafeChange(setGameId, { digitsOnly: true, maxLen: 20 })}
                     required
                     inputMode="numeric"
-                    pattern="[0-9]*"
                     maxLength={20}
                     placeholder="Min. 7 digits"
                     autoComplete="off"
@@ -295,32 +306,19 @@ export default function AuthModal() {
                   onChange={(e) => {
                     const next = sanitizeFieldInput(e.target.value, { maxLen: 128 });
                     setPassword(next);
-                    if (authMode === 'register') {
-                      if (!next) {
-                        setFieldErrors((fe) => ({ ...fe, password: undefined }));
-                      } else {
-                        const v = validatePassword(next);
-                        setFieldErrors((fe) => ({
-                          ...fe,
-                          password: v.ok ? undefined : v.error,
-                        }));
-                      }
+                    if (authMode === 'register' && next) {
+                      const v = validatePassword(next);
+                      setFieldErrors((fe) => ({
+                        ...fe,
+                        password: v.ok ? undefined : v.error,
+                      }));
                     } else {
                       setFieldErrors((fe) => ({ ...fe, password: undefined }));
                     }
                   }}
-                  onBlur={() => {
-                    if (authMode !== 'register' || !password) return;
-                    const v = validatePassword(password);
-                    if (!v.ok) {
-                      setFieldErrors((fe) => ({ ...fe, password: v.error }));
-                    }
-                  }}
                   required
                   minLength={authMode === 'register' ? 8 : 1}
-                  autoComplete={
-                    authMode === 'login' ? 'current-password' : 'new-password'
-                  }
+                  autoComplete={authMode === 'login' ? 'current-password' : 'new-password'}
                   placeholder={
                     authMode === 'register' ? '8+ chars, letters + numbers' : '••••••••'
                   }
@@ -330,7 +328,6 @@ export default function AuthModal() {
                   className="auth-modal-eye"
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  title={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? eyeOff : eyeOpen}
                 </button>
@@ -367,5 +364,7 @@ export default function AuthModal() {
         </div>
       </div>
     </div>
+  ,
+  document.body
   );
 }

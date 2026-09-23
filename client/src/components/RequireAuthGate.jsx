@@ -41,6 +41,8 @@ export default function RequireAuthGate({ children }) {
       if (!el?.closest) return false;
       if (el.closest('[data-auth-modal]')) return true;
       if (el.closest('[data-auth-allow]')) return true;
+      if (el.closest('[data-help-modal]')) return true;
+      if (el.closest('.help-overlay, .help-modal, .help-fab-wrap')) return true;
       return false;
     };
 

@@ -1,4 +1,3 @@
-import PageOptionsBar from '../components/PageOptionsBar';
 import { useMemo, useEffect } from 'react';
 import { useSiteConfig, applyOrder } from '../hooks/useSiteConfig';
 import { useGameData } from '../hooks/useGameData';
@@ -10,6 +9,7 @@ import { sequentialAfford, sumActiveCosts, vaultAmount } from '../utils/resource
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
 import { LevelSelects } from '../components/LevelSelects';
+import CollapsibleSection from '../components/CollapsibleSection';
 import PrereqList from '../components/PrereqList';
 import {
   resourceImg,
@@ -401,13 +401,8 @@ function splitEmblemCost(masterId, need, emblemsMap, useGeneral) {
 /** Inventory strip at top of Masters page — emblems only (affinity gifts live on Vault) */
 function MastersInventory({ mastersList, emblems, setEmblem, selectedId, onSelect }) {
   return (
-    <div className="item-card" style={{ marginBottom: 16, gridColumn: '1 / -1' }}>
-      <div className="item-card-header">
-        <span>Master emblems</span>
-        <small style={{ marginLeft: 'auto', opacity: 0.7, fontWeight: 400 }}>
-          Click a master to show upgrades · type in the box for emblem count
-        </small>
-      </div>
+    <CollapsibleSection title="Master emblems" defaultOpen={false} className="masters-inventory-collapse">
+      <div className="item-card inventory-card-inner" style={{ marginBottom: 0, gridColumn: '1 / -1' }}>
       <div className="item-card-body">
         <div className="vault-grid">
           {mastersList.map((m) => {
@@ -479,7 +474,8 @@ function MastersInventory({ mastersList, emblems, setEmblem, selectedId, onSelec
           })}
         </div>
       </div>
-    </div>
+      </div>
+    </CollapsibleSection>
   );
 }
 
@@ -1286,6 +1282,45 @@ export default function MastersPage() {
 
   return (
     <div className="app-container masters-page">
+      <div
+        className="buff-panel"
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: 16,
+          marginBottom: 12,
+          padding: '10px 14px',
+        }}
+      >
+        <label
+          className="checkbox-label"
+          title="When on, Upgrade is blocked until Affinity prerequisites are met"
+        >
+          <input
+            className="checkbox"
+            type="checkbox"
+            checked={prereqEnabled}
+            onChange={(e) => setPrereqEnabled(e.target.checked)}
+          />{' '}
+          Enforce prerequisite checks
+        </label>
+        {hasMaxedSkills ? (
+          <label
+            className="checkbox-label"
+            title="Hide skill cards that are already at max level (Affinity card always stays visible)"
+          >
+            <input
+              className="checkbox"
+              type="checkbox"
+              checked={hideMaxedSkills}
+              onChange={(e) => setHideMaxedSkills(e.target.checked)}
+            />{' '}
+            Hide maxed skills
+          </label>
+        ) : null}
+      </div>
+
       <MastersInventory
         mastersList={mastersList}
         emblems={emblems}
@@ -1300,17 +1335,6 @@ export default function MastersPage() {
             __selectedMaster: id,
           }))
         }
-      />
-
-      <PageOptionsBar
-        showPrereq
-        prereqEnabled={prereqEnabled}
-        onPrereqChange={setPrereqEnabled}
-        prereqTitle="When on, Upgrade is blocked until Affinity / skill prerequisites are met"
-        hasMaxed={hasMaxedSkills}
-        hideMaxedMode
-        hideMaxed={hideMaxedSkills}
-        onHideMaxedChange={setHideMaxedSkills}
       />
 
       {sections

@@ -1,12 +1,7 @@
-/**
- * Client-side auth field rules (mirrored on server).
- */
 const DANGEROUS_RE = /[=;'"`\\]|--|\/\*|\*\/|\b(OR|AND|UNION|SELECT|INSERT|UPDATE|DELETE|DROP|EXEC|SCRIPT)\b/i;
-export const KNOWN_EMAIL_DOMAINS = new Set(['gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.uk', 'yahoo.co.in', 'ymail.com', 'outlook.com', 'hotmail.com', 'live.com', 'msn.com', 'icloud.com', 'me.com', 'mac.com', 'proton.me', 'protonmail.com', 'aol.com', 'mail.com', 'zoho.com', 'gmx.com', 'gmx.net', 'fastmail.com', 'tutanota.com', 'hey.com', 'pm.me', ]);
+export const KNOWN_EMAIL_DOMAINS = new Set(['gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.uk', 'ymail.com', 'outlook.com', 'hotmail.com', 'live.com', 'msn.com', 'icloud.com', 'me.com', 'mac.com', 'proton.me', 'protonmail.com', 'aol.com', 'mail.com', 'zoho.com', 'gmx.com', 'gmx.net', 'fastmail.com', 'tutanota.com', 'hey.com', 'pm.me', ]);
 export function hasDangerousInput(value) {
-	const s = String(value ?? '');
-	if (!s) return false;
-	return DANGEROUS_RE.test(s);
+	return DANGEROUS_RE.test(String(value ?? ''));
 }
 export function sanitizeFieldInput(value, {
 	digitsOnly = false,
@@ -15,8 +10,7 @@ export function sanitizeFieldInput(value, {
 	let s = String(value ?? '');
 	if (digitsOnly) s = s.replace(/\D/g, '');
 	else s = s.replace(/[\u0000-\u001F\u007F]/g, '');
-	if (s.length > maxLen) s = s.slice(0, maxLen);
-	return s;
+	return s.length > maxLen ? s.slice(0, maxLen) : s;
 }
 export function validateUsername(username) {
 	const u = String(username ?? '').trim();
@@ -62,19 +56,15 @@ export function validateEmail(email, {
 		};
 	}
 	const e = raw.toLowerCase();
-	if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {
-		return {
-			ok: false,
-			error: 'Email must include @ and a domain (e.g. name@gmail.com)'
-		};
-	}
+	if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return {
+		ok: false,
+		error: 'Email must include @ and a domain'
+	};
 	const domain = e.split('@').pop();
-	if (!KNOWN_EMAIL_DOMAINS.has(domain)) {
-		return {
-			ok: false,
-			error: 'Use a well-known email provider (Gmail, Yahoo, Outlook, iCloud, Proton, …)'
-		};
-	}
+	if (!KNOWN_EMAIL_DOMAINS.has(domain)) return {
+		ok: false,
+		error: 'Use a well-known email provider (Gmail, Yahoo, Outlook, …)'
+	};
 	return {
 		ok: true,
 		value: e
@@ -90,12 +80,10 @@ export function validatePassword(password) {
 		ok: false,
 		error: 'Password must be 8–128 characters'
 	};
-	if (!/[A-Za-z]/.test(p) || !/[0-9]/.test(p)) {
-		return {
-			ok: false,
-			error: 'Password needs letters and numbers'
-		};
-	}
+	if (!/[A-Za-z]/.test(p) || !/[0-9]/.test(p)) return {
+		ok: false,
+		error: 'Password needs letters and numbers'
+	};
 	return {
 		ok: true,
 		value: p

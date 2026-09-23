@@ -1,3 +1,4 @@
+import CollapsibleSection from '../components/CollapsibleSection';
 import { useSiteConfig, applyOrder } from '../hooks/useSiteConfig';
 import { useMemo, useEffect, useCallback, useState } from 'react';
 import { useGameData } from '../hooks/useGameData';
@@ -5,7 +6,6 @@ import { useApp } from '../context/AppContext';
 import { useScoreRules } from '../hooks/useScoreRules';
 import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems } from '../components/ShowMaxedToggle';
-import PageOptionsBar from '../components/PageOptionsBar';
 import { parseCost, formatNumber } from '../utils/calc';
 import AssetImg from '../components/AssetImg';
 import ResourceLines from '../components/ResourceLines';
@@ -396,14 +396,16 @@ export default function HeroesPage() {
 
   return (
     <div className="app-container">
+<ShowMaxedToggle hasMaxed={hasMaxedItems} />
       {toast && <div className="hero-toast hero-toast-error">{toast}</div>}
 
 
-      <div className="inventory-card">
+      <CollapsibleSection title="Shard inventory" defaultOpen={false}>
+      <div className="inventory-card inventory-card-inner">
         <div className="buff-row" style={{ marginBottom: 12 }}>
-          <div className="buff-field">
-            <label>Latest Hero Generation</label>
-            <select value={maxGen} onChange={(e) => setMaxGen(e.target.value)}>
+          <div className="buff-field inventory-gen-field">
+            <label htmlFor="hero-max-gen">Latest Hero Generation</label>
+            <select id="hero-max-gen" value={maxGen} onChange={(e) => setMaxGen(e.target.value)}>
               {[1, 2, 3, 4, 5, 6, 7, 8].map((g) => (
                 <option key={g} value={g}>Gen {g}</option>
               ))}
@@ -437,8 +439,7 @@ export default function HeroesPage() {
           })}
         </div>
       </div>
-
-      <PageOptionsBar hasMaxed={hasMaxedItems} />
+      </CollapsibleSection>
 
       <div className="items-grid cards-grid">
         {heroes.filter((h) => {

@@ -1,10 +1,10 @@
+import CollapsibleSection from '../components/CollapsibleSection';
 import { useMemo, useEffect } from 'react';
 import { useGameData } from '../hooks/useGameData';
 import { useApp } from '../context/AppContext';
 import { useScoreRules } from '../hooks/useScoreRules';
 import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
-import PageOptionsBar from '../components/PageOptionsBar';
 
 import AssetImg from '../components/AssetImg';
 import CostStatus from '../components/CostStatus';
@@ -110,9 +110,11 @@ export default function WidgetsPage() {
 
   return (
     <div className="calculator-page">
-      <div className="inventory-card">
-        <div className="buff-field" style={{ marginBottom: 12 }}>
-          <label>Latest Hero Generation</label>
+      <ShowMaxedToggle hasMaxed={hasMaxedItems} />
+      <CollapsibleSection title="Widget inventory" defaultOpen={false}>
+      <div className="inventory-card inventory-card-inner">
+        <div className="buff-field inventory-gen-field">
+          <label htmlFor="widget-max-gen">Latest Hero Generation</label>
           <select value={maxGen} onChange={(e) => setMaxGen(e.target.value)}>
             {genOptions.map((g) => (
               <option key={g} value={g}>
@@ -146,8 +148,7 @@ export default function WidgetsPage() {
           ))}
         </div>
       </div>
-
-      <PageOptionsBar hasMaxed={hasMaxedItems} />
+      </CollapsibleSection>
 
       <div className="cards-grid">
         {ssrHeroes.filter((h) => {
@@ -194,7 +195,7 @@ export default function WidgetsPage() {
                   onFrom={(v) => setUpgrade(h.name, 'from', v)}
                   onTo={(v) => setUpgrade(h.name, 'to', v)}
                 />
-                {from < (levels[levels.length - 1] ?? 0) && (
+                {to > from && from < (levels[levels.length - 1] ?? 0) && (
                   <label
                     className="checkbox-label"
                     style={{ opacity: canAfford || !widgetsNeeded ? 1 : 0.5 }}
@@ -212,20 +213,24 @@ export default function WidgetsPage() {
                   active={!!s.active && canAfford}
                   hasSelection={to > from}
                   atMax={from >= (levels[levels.length - 1] ?? 0)}
-                  points={points}
+                  points={to > from ? points : 0}
                   emptyHint="Select current & target widget level"
-                  lines={[
-                    {
-                      key: 'widgets',
-                      label: 'widgets',
-                      need: widgetsNeeded,
-                      have: inv,
-                      left,
-                      deficit: left < 0,
-                      img: resourceImg('widgets'),
-                      fallbacks: [heroWidgetImg(h.name), ...heroWidgetFallbacks(h.name)],
-                    },
-                  ]}
+                  lines={
+                    to > from
+                      ? [
+                          {
+                            key: 'widgets',
+                            label: 'widgets',
+                            need: widgetsNeeded,
+                            have: inv,
+                            left,
+                            deficit: left < 0,
+                            img: resourceImg('widgets'),
+                            fallbacks: [heroWidgetImg(h.name), ...heroWidgetFallbacks(h.name)],
+                          },
+                        ]
+                      : null
+                  }
                 />
               </div>
             </div>
