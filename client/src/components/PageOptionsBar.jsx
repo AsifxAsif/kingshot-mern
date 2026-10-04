@@ -1,8 +1,8 @@
 import { useApp } from '../context/AppContext';
 
 /**
- * Shared page toolbar: prerequisite toggle + show-maxed toggle.
- * Always the same placement/style at the top of calculator content.
+ * Shared page toolbar: prerequisite toggle + show/hide-maxed toggle.
+ * Single place for style and placement on every calculator page.
  */
 export default function PageOptionsBar({
   className = '',
@@ -34,41 +34,44 @@ export default function PageOptionsBar({
     }));
   };
 
-  const showMaxedControl = hideMaxedMode ? true : hasMaxed;
-  // In hideMaxedMode always show the control when hasMaxed; in normal mode only if hasMaxed
-  if (!showPrereq && !hasMaxed && !(hideMaxedMode && hasMaxed)) {
+  const showPrereqControl = showPrereq && typeof onPrereqChange === 'function';
+  const showMaxedControl = hideMaxedMode
+    ? hasMaxed && typeof onHideMaxedChange === 'function'
+    : hasMaxed;
+
+  if (!showPrereqControl && !showMaxedControl) {
     return null;
   }
 
   return (
     <div className={`page-options-bar show-maxed-bar ${className}`.trim()}>
-      {showPrereq && typeof onPrereqChange === 'function' ? (
-        <label className="checkbox-label show-maxed-label" title={prereqTitle}>
+      {showPrereqControl ? (
+        <label className="checkbox-label page-options-label show-maxed-label" title={prereqTitle}>
           <input
             className="checkbox"
             type="checkbox"
             checked={!!prereqEnabled}
             onChange={(e) => onPrereqChange(e.target.checked)}
-          />{' '}
-          Enforce prerequisite checks
+          />
+          <span>Enforce prerequisite checks</span>
         </label>
       ) : null}
 
-      {hasMaxed && !hideMaxedMode ? (
-        <label className="checkbox-label show-maxed-label" title={maxedTitle}>
+      {showMaxedControl && !hideMaxedMode ? (
+        <label className="checkbox-label page-options-label show-maxed-label" title={maxedTitle}>
           <input
             className="checkbox"
             type="checkbox"
             checked={showMaxed}
             onChange={(e) => setShowMaxed(e.target.checked)}
-          />{' '}
-          {maxedLabel}
+          />
+          <span>{maxedLabel}</span>
         </label>
       ) : null}
 
-      {hasMaxed && hideMaxedMode ? (
+      {showMaxedControl && hideMaxedMode ? (
         <label
-          className="checkbox-label show-maxed-label"
+          className="checkbox-label page-options-label show-maxed-label"
           title="When on, skill cards already at max level are hidden"
         >
           <input
@@ -76,13 +79,13 @@ export default function PageOptionsBar({
             type="checkbox"
             checked={!!hideMaxed}
             onChange={(e) => onHideMaxedChange?.(e.target.checked)}
-          />{' '}
-          Hide maxed skills
+          />
+          <span>Hide maxed skills</span>
         </label>
       ) : null}
 
       {!hideMaxedMode && hasMaxed && !showMaxed ? (
-        <small className="show-maxed-hint">Maxed cards are hidden</small>
+        <small className="show-maxed-hint page-options-hint">Maxed cards are hidden</small>
       ) : null}
     </div>
   );

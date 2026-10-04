@@ -15,6 +15,7 @@ import { LevelSelects } from '../components/LevelSelects';
 import { buildingImg } from '../utils/images';
 import { collectStepRequirements, evaluateRequirements } from '../utils/prerequisites';
 import PrereqList from '../components/PrereqList';
+import { PageSkeleton } from '../components/Skeleton';
 
 const RESOURCE_KEYS = [
   'bread', 'wood', 'stone', 'iron', 'gold',
@@ -115,7 +116,7 @@ export default function BuildingsPage() {
           if (costs[k]) costs[k] = Math.ceil(costs[k] * (1 - saulPct / 100));
         }
       }
-      const buffedTime = applyBuildingSpeedupBuffs(totalTime, buffs);
+      const buffedTime = applyBuildingSpeedupBuffs(totalTime, buffs, steps.length);
       const speedupMins = s.speedup ? secondsToSpeedupMinutes(buffedTime) : 0;
       // Speedup is allocated specific → general inside sequentialAfford (not baked here)
       Object.keys(costs).forEach((k) => { if (!costs[k]) delete costs[k]; });
@@ -182,7 +183,7 @@ export default function BuildingsPage() {
 
   usePublishPageScore('buildings', totalActivePoints);
 
-  if (loading) return <div className="page-loading"><div className="spinner" /><p>Loading buildings…</p></div>;
+  if (loading) return <div className="page-loading"><PageSkeleton cards={8} label="Loading buildings" /></div>;
   if (error) return <div className="page-error"><p>{error}</p></div>;
 
   return (

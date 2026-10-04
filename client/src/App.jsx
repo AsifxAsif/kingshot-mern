@@ -27,8 +27,7 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 function PageFallback() {
   return (
     <div className="page-loading">
-      <div className="spinner" />
-      <p>Loading…</p>
+      <PageSkeleton cards={6} label="Loading page" />
     </div>
   );
 }

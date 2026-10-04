@@ -12,6 +12,7 @@ import AssetImg from '../components/AssetImg';
 import { LevelSelects } from '../components/LevelSelects';
 import GroupCard from '../components/GroupCard';
 import { asset, troopImg } from '../utils/images';
+import { PageSkeleton } from '../components/Skeleton';
 
 /** 6 slot types × 3 charms = 18 (matches old site) */
 const CHARM_GROUPS = [
@@ -257,8 +258,7 @@ export default function GovCharmPage() {
   if (loading)
     return (
       <div className="page-loading">
-        <div className="spinner" />
-        <p>Loading…</p>
+        <PageSkeleton cards={6} label="Loading" />
       </div>
     );
   if (error)

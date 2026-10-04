@@ -36,9 +36,9 @@ export function securityHeaders() {
 			directives: {
 				defaultSrc: ["'self'"],
 				scriptSrc: ["'self'", 'https://cdnjs.cloudflare.com'],
-				styleSrc: ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com'],
+				styleSrc: ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://fonts.googleapis.com', 'https://fonts.cdnfonts.com'],
 				imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
-				fontSrc: ["'self'", 'https://cdnjs.cloudflare.com', 'data:'],
+				fontSrc: ["'self'", 'https://cdnjs.cloudflare.com', 'https://fonts.gstatic.com', 'https://fonts.cdnfonts.com', 'data:'],
 				connectSrc: ["'self'", 'https:', ...(process.env.API_CSP_CONNECT || '').split(',').filter(Boolean)],
 				objectSrc: ["'none'"],
 				frameAncestors: ["'none'"],

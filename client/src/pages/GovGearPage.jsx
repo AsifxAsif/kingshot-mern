@@ -13,6 +13,7 @@ import AssetImg from '../components/AssetImg';
 import { LevelSelects } from '../components/LevelSelects';
 import GroupCard from '../components/GroupCard';
 import { asset, troopImg } from '../utils/images';
+import { PageSkeleton } from '../components/Skeleton';
 
 const GEAR_PIECES = ['Helmet', 'Watch', 'Armor', 'Pant', 'Belt', 'Weapon'];
 const GEAR_GROUPS = [
@@ -194,7 +195,7 @@ export default function GovGearPage() {
 
   usePublishPageScore('govGear', totalPoints);
 
-  if (loading) return <div className="page-loading"><div className="spinner" /><p>Loading…</p></div>;
+  if (loading) return <div className="page-loading"><PageSkeleton cards={6} label="Loading governor gear" /></div>;
   if (error) return <div className="page-error"><p>{error}</p></div>;
 
   return (

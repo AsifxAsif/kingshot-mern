@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import AssetImg from './AssetImg';
 import { asset } from '../utils/images';
+import { initialCollapsibleOpen } from './CollapsibleSection';
 
 /** Collapsible speedup buff card – mirrors original buildings / troops / war-academy HTML */
 
 export function BuildingBuffPanel() {
   const { state, updateSection } = useApp();
   const b = state.settings?.buildingBuffs || {};
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(() => initialCollapsibleOpen(false));
 
   const set = (field, value) => {
     updateSection('settings', (prev) => ({
@@ -121,19 +122,6 @@ export function BuildingBuffPanel() {
             &nbsp;|&nbsp;
             <strong>Resource Cost Reduction:</strong> <span>{resourcePct}%</span>
           </div>
-          <div className="checkbox-group" style={{ marginTop: 12, borderTop: '1px solid rgba(0,0,0,0.08)', paddingTop: 10 }}>
-            <label className="checkbox-label" title="When on, Upgrade is blocked until current-level prerequisites are met">
-              <input
-                className="checkbox" type="checkbox"
-                checked={b.prereqCheck !== false}
-                onChange={(e) => set('prereqCheck', e.target.checked)}
-              />
-              {' '}Enforce prerequisite checks
-            </label>
-            <small style={{ display: 'block', opacity: 0.75, marginTop: 4 }}>
-              Uses each building&apos;s selected <strong>current</strong> level. Turn off to freely estimate points without changing currents.
-            </small>
-          </div>
         </div>
       )}
     </div>
@@ -143,7 +131,7 @@ export function BuildingBuffPanel() {
 export function TrainingBuffPanel() {
   const { state, updateSection } = useApp();
   const t = state.settings?.trainingBuffs || {};
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(() => initialCollapsibleOpen(false));
 
   const set = (field, value) => {
     updateSection('settings', (prev) => ({
@@ -222,7 +210,7 @@ export function TrainingBuffPanel() {
 export function ResearchBuffPanel() {
   const { state, updateSection } = useApp();
   const r = state.settings?.researchBuffs || {};
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(() => initialCollapsibleOpen(false));
 
   const set = (field, value) => {
     updateSection('settings', (prev) => ({
@@ -282,19 +270,6 @@ export function ResearchBuffPanel() {
           </div>
           <div className="buff-total">
             <strong>Total Speedup Buff:</strong> <span>{total}%</span>
-          </div>
-          <div className="checkbox-group" style={{ marginTop: 12, borderTop: '1px solid rgba(0,0,0,0.08)', paddingTop: 10 }}>
-            <label className="checkbox-label" title="When on, Upgrade is blocked until current-level prerequisites are met">
-              <input
-                className="checkbox" type="checkbox"
-                checked={r.prereqCheck !== false}
-                onChange={(e) => set('prereqCheck', e.target.checked)}
-              />
-              {' '}Enforce prerequisite checks
-            </label>
-            <small style={{ display: 'block', opacity: 0.75, marginTop: 4 }}>
-              Uses each tech/building&apos;s selected <strong>current</strong> level. Turn off to freely estimate points without changing currents.
-            </small>
           </div>
         </div>
       )}

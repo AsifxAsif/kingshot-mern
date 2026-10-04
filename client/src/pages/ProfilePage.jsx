@@ -584,14 +584,27 @@ function Stat({ label, value, highlight }) {
 
 
 /**
- * Town Center from site profile tg_info only (no manual conversion).
- * short: "TG5" | label: "TG 5" | else raw town_center_level / stove_lv
+ * Town Center label from MightPulse site profile.
+ * Prefer tg_info.short ("TG5") / label ("TG 5"), then flat tg_label / level_label / tg,
+ * else raw town_center_level / stove_lv (never invent TG from stove alone).
  */
+function isBlankTgLabel(v) {
+  if (v == null) return true;
+  const s = String(v).trim();
+  return !s || s === '—' || s === '-' || s.toLowerCase() === 'null' || s.toLowerCase() === 'undefined';
+}
+
 function readTgInfo(...sources) {
   for (const source of sources) {
     if (!source || typeof source !== 'object') continue;
     const tg = source.tg_info || source.tgInfo;
-    if (tg && typeof tg === 'object') return tg;
+    if (tg && typeof tg === 'object') {
+      // Ignore empty stub from fid lookup: { is_tg: false, label: "—" }
+      if (tg.is_tg === true) return tg;
+      if (!isBlankTgLabel(tg.short) || !isBlankTgLabel(tg.label) || tg.tg_level != null) {
+        return tg;
+      }
+    }
   }
   return null;
 }
@@ -599,13 +612,31 @@ function readTgInfo(...sources) {
 function tgShort(...sources) {
   const tg = readTgInfo(...sources);
   if (tg) {
-    if (tg.short != null && String(tg.short).trim() !== '') return String(tg.short).trim();
-    if (tg.label != null && String(tg.label).trim() !== '') {
-      return String(tg.label).replace(/\s+/g, '');
+    if (!isBlankTgLabel(tg.short)) return String(tg.short).trim();
+    if (!isBlankTgLabel(tg.label)) return String(tg.label).replace(/\s+/g, '');
+    if (tg.is_tg && tg.tg_level != null && tg.tg_level !== '') {
+      return `TG${tg.tg_level}`;
     }
-    if (tg.is_tg && tg.tg_level != null) return `TG${tg.tg_level}`;
   }
-  // Not TG / no tg_info — show real level only (never invent TG#)
+
+  // Flat fields on player / payload / ranks (site API root keys)
+  for (const source of sources) {
+    if (!source || typeof source !== 'object') continue;
+    if (!isBlankTgLabel(source.tg_label)) {
+      return String(source.tg_label).replace(/\s+/g, '');
+    }
+    if (!isBlankTgLabel(source.level_label)) {
+      return String(source.level_label).replace(/\s+/g, '');
+    }
+    if (source.tg != null && source.tg !== '' && Number(source.tg) > 0) {
+      return `TG${source.tg}`;
+    }
+    if (source.tg_level != null && source.tg_level !== '' && Number(source.tg_level) > 0) {
+      return `TG${source.tg_level}`;
+    }
+  }
+
+  // Not TG / no tg fields — show real stove / town center level only
   for (const source of sources) {
     if (!source || typeof source !== 'object') continue;
     const lv = source.town_center_level ?? source.stove_lv ?? source.stoveLv;
@@ -672,8 +703,13 @@ function buildKingdomRankRows(ranks, player) {
     {
       key: 'tc',
       label: 'Town Center Level',
-      rank: formatRankLabel(null, ranks.town_center_rank),
-      value: tgShort(ranks, player) || fmtFull(ranks.town_center_level),
+      rank: formatRankLabel(
+        null,
+        ranks.town_center_rank ?? ranks.stove_rank ?? player?.stove_rank
+      ),
+      value:
+        tgShort(player, ranks) ||
+        fmtFull(ranks.town_center_level ?? ranks.stove_lv ?? player?.stove_lv),
     },
     {
       key: 'migrant',
@@ -718,10 +754,32 @@ function buildKingdomRankRows(ranks, player) {
   return rows;
 }
 
+
+/** Format in-game nicknames for the web.
+ * Prefer the real Unicode string (including combining marks like U+035D).
+ * Rendering depends on a single font that contains both the rare base
+ * (e.g. Coptic ⳻/⳺) and the combining mark — on Windows that is
+ * "Segoe UI Historic" (same as MS Word). See .mp-nick font stack.
+ */
+function formatPlayerDisplayName(raw) {
+  if (raw == null || raw === '') return null;
+  let s = String(raw);
+  try {
+    s = s.normalize('NFC');
+  } catch {
+    /* ignore */
+  }
+  return s;
+}
+
+
+
 export default function ProfilePage() {
   const { user, setAuthOpen, setAuthMode, logout } = useAuth();
   const toast = useToast();
-  const [loading, setLoading] = useState(false);
+  // Start loading immediately when a Governor ID exists so local auth fields
+  // never flash under the skeleton before MightPulse data arrives.
+  const [loading, setLoading] = useState(() => Boolean(user?.gameId));
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [payload, setPayload] = useState(null);
@@ -764,10 +822,13 @@ export default function ProfilePage() {
     if (!user?.gameId) {
       setPayload(null);
       setError('');
+      setLoading(false);
       return;
     }
     setLoading(true);
     setError('');
+    // Drop any previous payload so only the skeleton shows (no stale / local DB fields)
+    setPayload(null);
     try {
       const data = await api.get('/player?include=base,heroes,ranks');
       setPayload(data);
@@ -874,8 +935,18 @@ export default function ProfilePage() {
     return null;
   })();
 
-  const displayName = player.nick_name || player.nickname || user?.username || 'Player';
-  const govId = payload?.governor_id || player.governor_id || player.fid || user?.gameId || '—';
+  // Only use in-game names from MightPulse — never fall back to local auth username
+  // while the profile payload is still loading (that caused the flash under the skeleton).
+  // Keep special symbols (⳻ ⳺ …); drop combining marks that only tofu on the web
+  const displayName = formatPlayerDisplayName(
+    player.nick_name ??
+      player.nickname ??
+      player.name ??
+      player.player_name ??
+      null
+  );
+  const govId =
+    payload?.governor_id || player.governor_id || player.fid || null;
 
   const cooldownActive = cooldownLeft > 0;
   const cooldownLabel = (() => {
@@ -886,6 +957,10 @@ export default function ProfilePage() {
     const r = s % 60;
     return `Refresh ${m}:${String(r).padStart(2, '0')}`;
   })();
+
+  // Show skeleton until live player payload is ready (hide local DB / auth fields)
+  const showSkeleton = Boolean(user?.gameId) && !payload && !error;
+  const playerReady = Boolean(payload);
 
   if (!user) {
     return (
@@ -916,7 +991,7 @@ export default function ProfilePage() {
 
   return (
     <div className="profile-page">
-      {/* Identity — single card, no duplicate fields */}
+      {/* Header always visible; player body only after MightPulse payload loads */}
       <div className="inventory-card">
         <div className="inventory-card-header profile-header-row">
           <h2 style={{ margin: 0 }}>Profile</h2>
@@ -953,90 +1028,92 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {loading && !payload && <ProfileSkeleton />}
+        {showSkeleton && <ProfileSkeleton />}
 
-        <div className="mp-identity">
-          {avatarUrl ? (
-            <img
-              className="mp-avatar"
-              src={avatarUrl}
-              alt={displayName}
-              referrerPolicy="no-referrer"
-              onError={(e) => {
-                // last-chance: if URL somehow still has /cdn, strip and retry once
-                const el = e.currentTarget;
-                if (!el.dataset.retried) {
-                  el.dataset.retried = '1';
-                  const fixed = el.src
-                    .replace(/\/cdn\/avatar\//i, '/avatar/')
-                    .replace(
-                      /https?:\/\/[^/]+\/cdn\/avatar\//i,
-                      'https://got-global-avatar.akamaized.net/avatar/'
-                    );
-                  if (fixed !== el.src) {
-                    el.src = fixed;
-                    return;
-                  }
-                }
-                el.style.display = 'none';
-                const ph = el.nextElementSibling;
-                if (ph) ph.style.display = 'flex';
-              }}
-            />
-          ) : null}
-          <div
-            className="mp-avatar mp-avatar-placeholder"
-            style={{ display: avatarUrl ? 'none' : 'flex' }}
-          >
-            {String(displayName).slice(0, 1).toUpperCase()}
-          </div>
-
-          <div className="mp-identity-main">
-            <div className="mp-nick">{displayName}</div>
-            <div className="mp-sub">
-              Governor #{govId}
-              {player.kid != null && <> · Kingdom {player.kid}</>}
-              {player.vip != null && <> · VIP {player.vip}</>}
-            </div>
-            {alliance && (
-              <div className="mp-alliance">
-                [{alliance.abbr}] {alliance.name}
-                {alliance.rank_label ? ` · ${alliance.rank_label}` : ''}
+        {playerReady && (
+          <>
+            <div className="mp-identity">
+              {avatarUrl ? (
+                <img
+                  className="mp-avatar"
+                  src={avatarUrl}
+                  alt={displayName || 'Player'}
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    // last-chance: if URL somehow still has /cdn, strip and retry once
+                    const el = e.currentTarget;
+                    if (!el.dataset.retried) {
+                      el.dataset.retried = '1';
+                      const fixed = el.src
+                        .replace(/\/cdn\/avatar\//i, '/avatar/')
+                        .replace(
+                          /https?:\/\/[^/]+\/cdn\/avatar\//i,
+                          'https://got-global-avatar.akamaized.net/avatar/'
+                        );
+                      if (fixed !== el.src) {
+                        el.src = fixed;
+                        return;
+                      }
+                    }
+                    el.style.display = 'none';
+                    const ph = el.nextElementSibling;
+                    if (ph) ph.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div
+                className="mp-avatar mp-avatar-placeholder"
+                style={{ display: avatarUrl ? 'none' : 'flex' }}
+              >
+                {(() => { const s = String(displayName || '?'); try { const seg = typeof Intl !== 'undefined' && Intl.Segmenter ? [...new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(s)][0]?.segment : null; return (seg || [...s][0] || '?'); } catch { return [...s][0] || '?'; } })()}
               </div>
-            )}
-            <div className="mp-account-line">
-              <span>{user.username}</span>
-              <span className="mp-dot">·</span>
-              <span>{user.email || '—'}</span>
+
+              <div className="mp-identity-main">
+                <div className="mp-nick">{displayName || '—'}</div>
+                <div className="mp-sub">
+                  {govId != null && govId !== '' ? <>Governor #{govId}</> : 'Governor —'}
+                  {player.kid != null && <> · Kingdom {player.kid}</>}
+                  {player.vip != null && <> · VIP {player.vip}</>}
+                </div>
+                {alliance && (
+                  <div className="mp-alliance">
+                    [{alliance.abbr}] {alliance.name}
+                    {alliance.rank_label ? ` · ${alliance.rank_label}` : ''}
+                  </div>
+                )}
+                <div className="mp-account-line">
+                  <span>{user.username}</span>
+                  <span className="mp-dot">·</span>
+                  <span>{user.email || '—'}</span>
+                </div>
+              </div>
+
+              <div className="mp-fresh">
+                {payload?.fresh === false && <span className="mp-badge">Cached</span>}
+                {payload?.age_seconds != null && (
+                  <span className="hint">Data age {Math.round(payload.age_seconds / 60)}m</span>
+                )}
+              </div>
             </div>
-          </div>
 
-          <div className="mp-fresh">
-            {payload?.fresh === false && <span className="mp-badge">Cached</span>}
-            {payload?.age_seconds != null && (
-              <span className="hint">Data age {Math.round(payload.age_seconds / 60)}m</span>
-            )}
-          </div>
-        </div>
-
-        {payload && (
-          <div className="mp-stats-grid" style={{ marginTop: 14 }}>
-            <Stat label="Power" value={fmt(player.power)} highlight />
-            <Stat label="Town Center" value={tgShort(player, ranks, payload) || '—'} />
-            <Stat label="Kills" value={fmt(player.kills)} />
-            <Stat
-              label="Alliance"
-              value={
-                alliance
-                  ? `[${alliance.abbr || ''}] ${alliance.name || ''}`.trim()
-                  : '—'
-              }
-            />
-          </div>
+            <div className="mp-stats-grid" style={{ marginTop: 14 }}>
+              <Stat label="Power" value={fmt(player.power)} highlight />
+              <Stat label="Town Center" value={tgShort(player, ranks, payload) || '—'} />
+              <Stat label="Kills" value={fmt(player.kills)} />
+              <Stat
+                label="Alliance"
+                value={
+                  alliance
+                    ? `[${alliance.abbr || ''}] ${alliance.name || ''}`.trim()
+                    : '—'
+                }
+              />
+            </div>
+          </>
         )}
       </div>
 
-      {payload && (
+      {playerReady && (
         <>
           {ranks && (
             <div className="inventory-card">

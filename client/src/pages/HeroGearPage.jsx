@@ -11,6 +11,7 @@ import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
 import { asset } from '../utils/images';
 import { LevelSelects } from '../components/LevelSelects';
+import { PageSkeleton } from '../components/Skeleton';
 
 function newId(prefix) {
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
@@ -337,8 +338,7 @@ export default function HeroGearPage() {
   if (loading || forgeLoading)
     return (
       <div className="page-loading">
-        <div className="spinner" />
-        <p>Loading…</p>
+        <PageSkeleton cards={6} label="Loading" />
       </div>
     );
   if (error)
@@ -359,7 +359,7 @@ export default function HeroGearPage() {
             const canAfford = seq.get(c.id)?.canAfford ?? true;
             const gearVault = seq.get(c.id)?.vaultBefore || vault;
             return (
-              <div className="item-card" key={c.id} style={{ marginBottom: 12 }}>
+              <div className="item-card" key={c.id}>
                 <div className="item-card-header">
                   <AssetImg src={c.displayImg} size={50} />
                   <span>Hero Gear #{idx + 1}</span>
@@ -539,7 +539,7 @@ export default function HeroGearPage() {
             const canAfford = seq.get(c.id)?.canAfford ?? true;
             const forgeVault = seq.get(c.id)?.vaultBefore || vault;
             return (
-              <div className="item-card" key={c.id} style={{ marginBottom: 12 }}>
+              <div className="item-card" key={c.id}>
                 <div className="item-card-header">
                   <AssetImg src={asset('forge_hammer.webp')} size={50} />
                   <span>Forgehammer #{idx + 1}</span>

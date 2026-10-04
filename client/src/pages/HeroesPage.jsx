@@ -10,6 +10,7 @@ import { parseCost, formatNumber } from '../utils/calc';
 import AssetImg from '../components/AssetImg';
 import ResourceLines from '../components/ResourceLines';
 import { heroImg, resourceImg } from '../utils/images';
+import { PageSkeleton } from '../components/Skeleton';
 
 const FLOWERS_CONFIG = [
   { id: 0, values: ['0.1', '0.2', '0.3', '0.4', '0.5', '1.0'] },
@@ -391,7 +392,7 @@ export default function HeroesPage() {
     [heroes, flowerStates]
   );
 
-  if (loading) return <div className="page-loading"><div className="spinner" /><p>Loading heroes…</p></div>;
+  if (loading) return <div className="page-loading"><PageSkeleton cards={6} label="Loading" /></div>;
   if (error) return <div className="page-error"><p>{error}</p></div>;
 
   return (

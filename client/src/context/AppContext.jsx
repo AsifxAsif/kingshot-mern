@@ -226,39 +226,89 @@ export function AppProvider({ children }) {
    * is written on each save so nothing lives only in browser memory.
    * Guests cannot persist — RequireAuthGate requires login.
    */
+  /**
+   * Resolve Mongo preset name for the logged-in user.
+   * Never leave saves on "default" / empty — use Username_gameId primary.
+   */
+  const resolveCloudPresetName = useCallback((preferred) => {
+    const u = userRef.current;
+    if (!u) return null;
+    const n = String(preferred || currentNameRef.current || '').trim();
+    if (n && n !== 'default') return n;
+    return primaryPresetName(u);
+  }, []);
+
   const flushSave = useCallback(async () => {
-    const name = currentNameRef.current;
     const u = userRef.current;
     const st = stateRef.current;
     const patch = { ...pendingPatch.current };
     pendingPatch.current = {};
 
     if (!u) {
-      // Not logged in: do not treat localStorage as a real preset store
+      // Guests: mirror calculator state to localStorage only
+      saveLocalDefault(st);
       return;
     }
-    if (!name || name === 'default') {
-      // Logged-in users should always have a named Mongo preset
-      return;
+
+    let name = resolveCloudPresetName(currentNameRef.current);
+    if (!name) return;
+
+    // Keep refs / UI in sync if we had to fall back to primary
+    if (currentNameRef.current !== name) {
+      currentNameRef.current = name;
+      setCurrentName(name);
+      setSavedActiveName(name);
     }
 
     setSaving(true);
     try {
       const full = buildFullPayload(st, u);
-      // Full document every time (server replaces preset document)
+      // Full document every time so every input / level / checkbox is stored
       await apiUpdate(name, { ...full, ...patch });
     } catch (e) {
       console.error('Save failed', e);
-      pendingPatch.current = { ...patch, ...pendingPatch.current };
+      // Create primary on first write if missing
+      try {
+        const primary = primaryPresetName(u);
+        if (primary) {
+          const body = {
+            name: primary,
+            displayName: String(u.username || 'user').replace(/[^a-zA-Z0-9_\-.]/g, '_').slice(0, 32) || 'preset',
+            ...buildFullPayload(st, u),
+            ...patch,
+          };
+          try {
+            await apiCreate(body);
+          } catch {
+            await apiUpdate(primary, { ...buildFullPayload(st, u), ...patch });
+          }
+          currentNameRef.current = primary;
+          setCurrentName(primary);
+          setSavedActiveName(primary);
+        }
+      } catch (e2) {
+        console.error('Create/save primary failed', e2);
+        pendingPatch.current = { ...patch, ...pendingPatch.current };
+      }
     } finally {
       setSaving(false);
     }
-  }, [buildFullPayload]);
+  }, [buildFullPayload, resolveCloudPresetName]);
 
   const scheduleSave = useCallback(
     (name, patch) => {
-      if (!userRef.current) return;
-      if (!name || name === 'default') return;
+      const u = userRef.current;
+      if (!u) {
+        // Guest: still persist locally so inputs survive refresh
+        pendingPatch.current = { ...pendingPatch.current, ...(patch || {}) };
+        if (saveTimer.current) clearTimeout(saveTimer.current);
+        saveTimer.current = setTimeout(() => {
+          saveLocalDefault(stateRef.current);
+        }, 150);
+        return;
+      }
+      const cloudName = resolveCloudPresetName(name);
+      if (!cloudName) return;
       pendingPatch.current = { ...pendingPatch.current, ...(patch || {}) };
       if (saveTimer.current) clearTimeout(saveTimer.current);
       // Short debounce; full snapshot still sent on flush
@@ -266,7 +316,7 @@ export function AppProvider({ children }) {
         flushSave();
       }, 150);
     },
-    [flushSave]
+    [flushSave, resolveCloudPresetName]
   );
 
   // Flush on tab hide / unload so last clicks are not lost
@@ -327,10 +377,43 @@ export function AppProvider({ children }) {
             applyPresetDoc(doc);
           }
         } else if (!cancelled) {
-          // Existing user with no presets yet — empty state until they create one
-          setCurrentName('');
-          setSavedActiveName('');
-          setState({ ...EMPTY_STATE });
+          // No cloud presets yet — create primary Username_gameId and persist full state
+          const primary = primaryPresetName(user);
+          const local = loadLocalDefault();
+          const uiLabel =
+            String(user.username || 'user')
+              .replace(/[^a-zA-Z0-9_\-.]/g, '_')
+              .slice(0, 32) || 'preset';
+          if (primary) {
+            try {
+              await apiCreate({
+                name: primary,
+                displayName: uiLabel,
+                ...buildFullPayload(local, user),
+              });
+            } catch {
+              try {
+                await apiUpdate(primary, buildFullPayload(local, user));
+              } catch {
+                /* ignore */
+              }
+            }
+            try {
+              const doc = await getPreset(primary);
+              setCurrentName(primary);
+              setSavedActiveName(primary);
+              applyPresetDoc(doc);
+              await refreshList();
+            } catch {
+              setCurrentName(primary);
+              setSavedActiveName(primary);
+              setState({ ...EMPTY_STATE, ...local });
+            }
+          } else {
+            setCurrentName('');
+            setSavedActiveName('');
+            setState({ ...EMPTY_STATE });
+          }
         }
       } catch (e) {
         console.error('Preset load failed', e);
@@ -357,7 +440,7 @@ export function AppProvider({ children }) {
     return () => {
       cancelled = true;
     };
-  }, [user, refreshList]);
+  }, [user, refreshList, buildFullPayload]);
 
   /**
    * Only for NEW registrations: create Username_gameId preset once.

@@ -10,6 +10,7 @@ import AssetImg from '../components/AssetImg';
 import CostStatus from '../components/CostStatus';
 import { LevelSelects } from '../components/LevelSelects';
 import { heroWidgetImg, heroWidgetFallbacks, resourceImg } from '../utils/images';
+import { PageSkeleton } from '../components/Skeleton';
 
 export default function WidgetsPage() {
   const { data: widgetsData, loading: lw } = useGameData('widgets');
@@ -103,8 +104,7 @@ export default function WidgetsPage() {
   if (lw || lh)
     return (
       <div className="page-loading">
-        <div className="spinner" />
-        <p>Loading…</p>
+        <PageSkeleton cards={6} label="Loading widgets" />
       </div>
     );
 

@@ -12,6 +12,7 @@ import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
 import { LevelSelects } from '../components/LevelSelects';
 import { petImg, resourceImg } from '../utils/images';
+import { PageSkeleton } from '../components/Skeleton';
 
 const RES = [
   'pet_food',
@@ -81,7 +82,7 @@ function TamingMarksCard({ vault }) {
   };
 
   return (
-    <div className="item-card" style={{ marginBottom: 16, gridColumn: '1 / -1' }}>
+    <div className="item-card" style={{ gridColumn: '1 / -1' }}>
       <div className="item-card-header">
         <AssetImg src={resourceImg('advanced_taming_mark')} size={40} alt="Taming Marks" />
         <span>TAMING MARKS POINTS</span>
@@ -284,8 +285,7 @@ export default function PetsPage() {
   if (loading)
     return (
       <div className="page-loading">
-        <div className="spinner" />
-        <p>Loading…</p>
+        <PageSkeleton cards={6} label="Loading" />
       </div>
     );
   if (error)

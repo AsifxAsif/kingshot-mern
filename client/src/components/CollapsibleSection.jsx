@@ -1,5 +1,23 @@
 import { useState } from 'react';
 
+/** Tablet / desktop: ≥769px (matches site CSS). Mobile stays collapsed by default. */
+export const DESKTOP_MQ = '(min-width: 769px)';
+
+/**
+ * Initial open state for collapsible input cards.
+ * - preferOpen true → always start open
+ * - otherwise open on PC/tablet, collapsed on mobile only
+ */
+export function initialCollapsibleOpen(preferOpen = false) {
+  if (preferOpen) return true;
+  if (typeof window === 'undefined') return false;
+  try {
+    return window.matchMedia(DESKTOP_MQ).matches;
+  } catch {
+    return false;
+  }
+}
+
 export default function CollapsibleSection({
   title,
   defaultOpen = false,
@@ -7,7 +25,7 @@ export default function CollapsibleSection({
   className = '',
   badge = null,
 }) {
-  const [open, setOpen] = useState(!!defaultOpen);
+  const [open, setOpen] = useState(() => initialCollapsibleOpen(!!defaultOpen));
   return (
     <div className={`collapsible-section inventory-collapsible ${open ? '' : 'collapsed'} ${className}`.trim()}>
       <div

@@ -11,6 +11,8 @@ import AssetImg from '../components/AssetImg';
 import { LevelSelects } from '../components/LevelSelects';
 import CollapsibleSection from '../components/CollapsibleSection';
 import PrereqList from '../components/PrereqList';
+import PageOptionsBar from '../components/PageOptionsBar';
+import { MastersSkeleton } from '../components/Skeleton';
 import {
   resourceImg,
   resourceImgFallbacks,
@@ -206,28 +208,41 @@ function affinityReqLabel(master, milestoneLevel) {
 }
 
 /**
- * Skills unlock at the *status* step after milestone N (e.g. Affinity 40 → Casual 1),
- * not merely at numeric level N.
+ * Skills unlock / level-up at the *status* step after milestone N
+ * (e.g. Affinity 40 → Casual 1), not merely at numeric level N.
+ *
+ * When a status rank exists for that milestone, the player must be on that
+ * status step (or later). Numeric-only level N without the status does NOT count.
+ * When no status exists for the milestone, numeric level >= N is enough.
  */
 function meetsAffinityStatusReq(master, currentValue, milestoneLevel) {
   const need = levelNum(milestoneLevel);
   if (need <= 0) return true;
   const steps = affinitySteps(master);
   const curIdx = stepIndex(steps, currentValue);
-  // Prefer status rank (Acquaintance 1, Casual 1, …) when present
+  const status = affinityStatusStep(master, need);
+
   if (curIdx >= 0) {
-    const status = affinityStatusStep(master, need);
+    // Prefer status rank (Acquaintance 1, Casual 1, …) when present
     if (status) {
       const reqIdx = steps.findIndex((s) => s.key === status.key);
-      if (reqIdx >= 0 && curIdx >= reqIdx) return true;
+      if (reqIdx >= 0) return curIdx >= reqIdx;
+      // Status defined but missing from steps — fall through
     }
-    // Numeric level step at or past the milestone also counts
+    // No status step for this milestone: numeric level at or past need is enough
     const lvIdx = steps.findIndex((s) => s.kind === 'level' && s.level === need);
-    if (lvIdx >= 0 && curIdx >= lvIdx) return true;
-    // Current step’s numeric rank
-    if ((steps[curIdx]?.level || 0) >= need) return true;
+    if (lvIdx >= 0) return curIdx >= lvIdx;
+    return (steps[curIdx]?.level || 0) >= need;
   }
-  // Fallback: parse bare numbers / labels
+
+  // Fallback when current value isn't a known step label
+  if (status) {
+    // Require at least the milestone rank; without a resolvable step index we
+    // cannot prove the status was entered, so treat pure numbers carefully:
+    // only pass if numeric value is strictly past the milestone (player moved on)
+    const curNum = affinityNumericValue(master, currentValue);
+    return curNum > need;
+  }
   const curNum = affinityNumericValue(master, currentValue);
   return curNum >= need;
 }
@@ -374,6 +389,26 @@ function skillLevelAffinityReq(skill, targetLv) {
     }
   }
   return req;
+}
+
+/** State key must match skill.id when present (e.g. skill70011), not skill1/skill2 */
+function skillStateKey(skill, idx) {
+  return `skill${skill?.id != null && skill.id !== '' ? skill.id : idx + 1}`;
+}
+
+/**
+ * Effective current skill level for Total Skill Lv. / Skill power sums.
+ * Locked skills count as 0. Unlocked skills with empty/0 from count as 1
+ * (matches the UI default once a skill is unlocked).
+ */
+function effectiveSkillFromLevel(skill, ss, master, curAffVal) {
+  const unlockAff = parseAffinityReqNumber(skill?.unlock);
+  if (unlockAff > 0 && !meetsAffinityStatusReq(master, curAffVal, unlockAff)) {
+    return 0;
+  }
+  const rawFrom = ss?.from;
+  if (rawFrom == null || rawFrom === '' || String(rawFrom) === '0') return 1;
+  return levelNum(rawFrom);
 }
 
 function emblemVaultKey(masterId) {
@@ -1010,11 +1045,33 @@ export default function MastersPage() {
             prereqsMet: true,
           });
         }
+        const curAffVal = (ms.affinity || {}).from ?? '0';
+
+        // Precompute Total Skill Lv. / Skill power once per master using correct state keys
+        let totalSkillLv = 0;
+        let skillPower = 0;
+        (master.skills || []).forEach((skillRow, si) => {
+          const sk = skillStateKey(skillRow, si);
+          const fromLv = effectiveSkillFromLevel(skillRow, ms[sk], master, curAffVal);
+          totalSkillLv += fromLv;
+          for (const row of skillRow.levels || []) {
+            const rl = Number(row.level) || 0;
+            if (rl > 0 && rl <= fromLv) skillPower += parseCost(row.power);
+          }
+        });
+
         (master.skills || []).forEach((skill, idx) => {
-          const key = `skill${skill.id || idx + 1}`;
+          const key = skillStateKey(skill, idx);
           const ss = ms[key] || {};
           const levels = skillLevels(skill);
-          // Unlocked skills start at Lv 1 (not 0)
+          // Unlock affinity gate (status step at milestone, e.g. Affinity 40 → Casual 1)
+          const unlockAff = parseAffinityReqNumber(skill.unlock);
+          const unlockLabel =
+            unlockAff > 0 ? affinityReqLabel(master, unlockAff) : skill.unlock || '';
+          const unlockUnmet =
+            unlockAff > 0 && !meetsAffinityStatusReq(master, curAffVal, unlockAff);
+          // Unlocked skills start at Lv 1 (not 0). Locked skills still default UI to 1
+          // for planning, but Total Skill sum counts them as 0 via effectiveSkillFromLevel.
           const rawFrom = ss.from;
           const from =
             rawFrom == null || rawFrom === '' || String(rawFrom) === '0'
@@ -1055,7 +1112,6 @@ export default function MastersPage() {
           const basePoints = manuscripts * (SCORE_RULES.master_manuscript || 0);
 
           const needAff = to ? skillLevelAffinityReq(skill, to) : 0;
-          const curAffVal = (ms.affinity || {}).from ?? '0';
           const prereqItems = [];
           if (needAff > 0) {
             const met = meetsAffinityStatusReq(master, curAffVal, needAff);
@@ -1072,62 +1128,52 @@ export default function MastersPage() {
           }
 
           // Non-affinity gates: Total Skill Lv. / Skill power
+          // Only requirements on levels you are upgrading into (from, to]
           if (to) {
-            let totalSkillLv = 0;
-            for (let si = 0; si < (master.skills || []).length; si++) {
-              const sk = `skill${si + 1}`;
-              totalSkillLv += levelNum((ms[sk] || {}).from || 0);
-            }
-            let skillPower = 0;
-            for (let si = 0; si < (master.skills || []).length; si++) {
-              const skillRow = master.skills[si];
-              const sk = `skill${si + 1}`;
-              const fromLv = levelNum((ms[sk] || {}).from || 0);
-              for (const row of skillRow.levels || []) {
-                const rl = Number(row.level) || 0;
-                if (rl > 0 && rl <= fromLv) skillPower += parseCost(row.power);
-              }
-            }
+            const fromN = levelNum(from);
             const tgt = levelNum(to);
+            // Deduplicate same Total Skill / Skill power need (keep highest only)
+            let bestTotalNeed = 0;
+            let bestPowerNeed = 0;
             for (const row of skill.levels || []) {
               const rl = Number(row.level) || 0;
-              if (rl <= 0 || rl > tgt || !row.requirement) continue;
+              if (rl <= fromN || rl > tgt || !row.requirement) continue;
               const text = String(row.requirement).trim();
               if (/Affinity\s*\d+/i.test(text)) continue;
               const tsm = text.match(/Total\s*Skill\s*Lv\.?\s*(\d+)/i);
               const pm = text.match(/Skill\s*power\s*(\d+)/i);
-              if (tsm) {
-                const need = parseInt(tsm[1], 10);
-                prereqItems.push({
-                  raw: text,
-                  name: 'Total Skill Lv.',
-                  level: need,
-                  have: totalSkillLv,
-                  met: totalSkillLv >= need,
-                  tracked: true,
-                  detail: totalSkillLv >= need ? undefined : `have ${totalSkillLv}, need ${need}`,
-                });
-              } else if (pm) {
-                const need = parseInt(pm[1], 10);
-                prereqItems.push({
-                  raw: text,
-                  name: 'Skill power',
-                  level: need,
-                  have: skillPower,
-                  met: skillPower >= need,
-                  tracked: true,
-                  detail: skillPower >= need ? undefined : `have ${skillPower}, need ${need}`,
-                });
-              }
+              if (tsm) bestTotalNeed = Math.max(bestTotalNeed, parseInt(tsm[1], 10));
+              else if (pm) bestPowerNeed = Math.max(bestPowerNeed, parseInt(pm[1], 10));
+            }
+            if (bestTotalNeed > 0) {
+              prereqItems.push({
+                raw: `Total Skill Lv. ${bestTotalNeed}`,
+                name: 'Total Skill Lv.',
+                level: bestTotalNeed,
+                have: totalSkillLv,
+                met: totalSkillLv >= bestTotalNeed,
+                tracked: true,
+                detail:
+                  totalSkillLv >= bestTotalNeed
+                    ? undefined
+                    : `have ${totalSkillLv}, need ${bestTotalNeed}`,
+              });
+            }
+            if (bestPowerNeed > 0) {
+              prereqItems.push({
+                raw: `Skill power ${bestPowerNeed}`,
+                name: 'Skill power',
+                level: bestPowerNeed,
+                have: skillPower,
+                met: skillPower >= bestPowerNeed,
+                tracked: true,
+                detail:
+                  skillPower >= bestPowerNeed
+                    ? undefined
+                    : `have ${skillPower}, need ${bestPowerNeed}`,
+              });
             }
           }
-
-          // Unlock is the status step at the milestone (Affinity 40 → Casual 1)
-          const unlockAff = parseAffinityReqNumber(skill.unlock);
-          const unlockLabel =
-            unlockAff > 0 ? affinityReqLabel(master, unlockAff) : skill.unlock || '';
-          const unlockUnmet =
-            unlockAff > 0 && !meetsAffinityStatusReq(master, curAffVal, unlockAff);
 
           raw.push({
             id: `${id}__${key}`,
@@ -1254,8 +1300,7 @@ export default function MastersPage() {
   if (loading) {
     return (
       <div className="page-loading">
-        <div className="spinner" />
-        <p>Loading…</p>
+        <MastersSkeleton />
       </div>
     );
   }
@@ -1282,44 +1327,16 @@ export default function MastersPage() {
 
   return (
     <div className="app-container masters-page">
-      <div
-        className="buff-panel"
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          gap: 16,
-          marginBottom: 12,
-          padding: '10px 14px',
-        }}
-      >
-        <label
-          className="checkbox-label"
-          title="When on, Upgrade is blocked until Affinity prerequisites are met"
-        >
-          <input
-            className="checkbox"
-            type="checkbox"
-            checked={prereqEnabled}
-            onChange={(e) => setPrereqEnabled(e.target.checked)}
-          />{' '}
-          Enforce prerequisite checks
-        </label>
-        {hasMaxedSkills ? (
-          <label
-            className="checkbox-label"
-            title="Hide skill cards that are already at max level (Affinity card always stays visible)"
-          >
-            <input
-              className="checkbox"
-              type="checkbox"
-              checked={hideMaxedSkills}
-              onChange={(e) => setHideMaxedSkills(e.target.checked)}
-            />{' '}
-            Hide maxed skills
-          </label>
-        ) : null}
-      </div>
+      <PageOptionsBar
+        showPrereq
+        prereqEnabled={prereqEnabled}
+        onPrereqChange={setPrereqEnabled}
+        prereqTitle="When on, Upgrade is blocked until Affinity / Total Skill prerequisites are met"
+        hasMaxed={hasMaxedSkills}
+        hideMaxedMode
+        hideMaxed={hideMaxedSkills}
+        onHideMaxedChange={setHideMaxedSkills}
+      />
 
       <MastersInventory
         mastersList={mastersList}
@@ -1346,7 +1363,7 @@ export default function MastersPage() {
         })
         .map((group) => {
           return (
-            <div className="item-card" key={group.id} style={{ marginBottom: 16 }}>
+            <div className="item-card" key={group.id}>
               <div className="item-card-header" style={{ flexWrap: 'wrap', gap: 8 }}>
                 <AssetImg
                   src={masterImg(group.id)}

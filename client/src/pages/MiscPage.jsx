@@ -7,6 +7,7 @@ import { parseCost, parseTimeToSeconds, formatNumber, formatSecondsToTime } from
 import AssetImg from '../components/AssetImg';
 import { asset, resourceImg } from '../utils/images';
 import { getGatherRate } from '../utils/events';
+import { PageSkeleton } from '../components/Skeleton';
 
 const RESOURCES = ['bread', 'wood', 'stone', 'iron'];
 
@@ -218,8 +219,7 @@ export default function MiscPage() {
   if (loading)
     return (
       <div className="page-loading">
-        <div className="spinner" />
-        <p>Loading…</p>
+        <PageSkeleton cards={6} label="Loading" />
       </div>
     );
   if (error)
@@ -233,7 +233,7 @@ export default function MiscPage() {
     <div className="app-container misc-page">
       {/* Roulette — only if event scores it */}
       {rouletteScores && (
-      <div className="item-card" style={{ marginBottom: 16 }}>
+      <div className="item-card">
         <div className="item-card-header">
           <AssetImg src={asset('hero_roulette.webp')} size={40} />
           <span>HERO ROULETTE</span>
@@ -276,7 +276,7 @@ export default function MiscPage() {
       )}
 
       {/* Gathering settings */}
-      <div className="item-card" style={{ marginBottom: 16 }}>
+      <div className="item-card">
         <div className="item-card-header">
           <AssetImg src={asset('gathering_speed.webp')} size={40} />
           <span>GATHERING SETTINGS</span>
@@ -550,7 +550,7 @@ export default function MiscPage() {
 
       {/* Event-specific missions (KvK / AB only when scored) */}
       {(SCORE_RULES.intel_mission || SCORE_RULES.escort_truck || SCORE_RULES.gem || SCORE_RULES.terror_rally) > 0 && (
-        <div className="item-card" style={{ marginTop: 16, marginBottom: 16 }}>
+        <div className="item-card">
           <div className="item-card-header">
             <span>EVENT MISSIONS ({(activeEventId || 'sg').toUpperCase()})</span>
           </div>

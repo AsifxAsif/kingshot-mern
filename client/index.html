@@ -19,7 +19,7 @@
 		<meta name="format-detection" content="telephone=no" />
 		<meta name="referrer" content="strict-origin-when-cross-origin" />
 		<!-- Security / privacy (also set by server Helmet when API is used) -->
-		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.cdnfonts.com; img-src 'self' data: blob: https:; font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.cdnfonts.com; connect-src 'self' https: http://localhost:5000; object-src 'none'; base-uri 'self'; form-action 'self';" />
+		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.cdnfonts.com https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.cdnfonts.com https://fonts.gstatic.com; connect-src 'self' https: http://localhost:5000; object-src 'none'; base-uri 'self'; form-action 'self';" />
 		<meta http-equiv="X-Content-Type-Options" content="nosniff" />
 		<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()" />
 		<!-- Open Graph -->
@@ -39,6 +39,10 @@
 		<meta name="apple-mobile-web-app-title" content="Kingshot Calc" />
 		<link rel="icon" href="/favicon.ico" />
 		<link rel="apple-touch-icon" href="/favicon.ico" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<!-- Broad Unicode coverage for game nicknames (Coptic, symbols, styled letters, emoji) -->
+		<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+Coptic&family=Noto+Sans+Symbols:wght@400;700&family=Noto+Sans+Symbols+2&display=swap" rel="stylesheet" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 	</head>
 

@@ -69,6 +69,9 @@ async function loadUserGameId(req) {
 /**
  * Site player profile — includes tg_info.short (TG5), upload_image, etc.
  * GET https://mightpulse.com/api/players/{uid}
+ *
+ * IMPORTANT: Must use internal **uid**, not Governor ID (fid).
+ * Looking up by fid returns a stub profile with empty tg_info (label "—").
  */
 async function fetchSiteProfile(uid) {
 	if (!uid) return null;
@@ -84,32 +87,79 @@ async function fetchSiteProfile(uid) {
 		return null;
 	}
 }
+/** True when site profile has usable Town Center / TG data */
+function siteHasTgInfo(site) {
+	if (!site || typeof site !== 'object') return false;
+	const tg = site.tg_info || site.tgInfo;
+	if (tg && typeof tg === 'object') {
+		if (tg.is_tg === true) return true;
+		const short = tg.short != null ? String(tg.short).trim() : '';
+		const label = tg.label != null ? String(tg.label).trim() : '';
+		if (short && short !== '—' && short.toLowerCase() !== 'null') return true;
+		if (label && label !== '—' && label.toLowerCase() !== 'null') return true;
+		if (tg.tg_level != null && tg.tg_level !== '') return true;
+	}
+	if (site.tg_label != null && String(site.tg_label).trim() && String(site.tg_label).trim() !== '—') return true;
+	if (site.level_label != null && String(site.level_label).trim() && String(site.level_label).trim() !== '—') return true;
+	if (site.tg != null && site.tg !== '') return true;
+	if (site.tg_level != null && site.tg_level !== '') return true;
+	if (site.town_center_level != null && site.town_center_level !== '') return true;
+	if (site.stove_lv != null && site.stove_lv !== '') return true;
+	return false;
+}
 /**
- * Merge site fields (tg_info, upload_image, …) onto v1 payload.player
+ * Merge site fields (tg_info, upload_image, TG labels, …) onto v1 payload.player
  */
 function mergeSiteIntoPayload(payload, site) {
 	if (!payload || !site) return payload;
 	const player = payload.player && typeof payload.player === 'object' ? {
 		...payload.player
 	} : {};
-	if (site.tg_info) {
+	// Prefer full site TG block
+	if (site.tg_info && typeof site.tg_info === 'object') {
 		player.tg_info = site.tg_info;
 	}
+	// Flat TG fields from site API (always useful for the UI)
+	const copyIf = (key, ...aliases) => {
+		const val = site[key] ?? aliases.reduce((a, k) => (a != null ? a : site[k]), null);
+		if (val != null && val !== '') {
+			player[key] = val;
+		}
+	};
+	copyIf('tg');
+	copyIf('tg_label');
+	copyIf('tg_level');
+	copyIf('level_label');
+	copyIf('town_center_level');
+	copyIf('stove_lv');
+	copyIf('stove_rank');
 	if (site.upload_image && !player.upload_image) {
 		player.upload_image = site.upload_image;
+	}
+	if (site.avatar_url && !player.avatar_url) {
+		player.avatar_url = site.avatar_url;
 	}
 	if (site.image && !player.image) {
 		player.image = site.image;
 	}
-	// Keep stove_lv if useful
-	if (site.stove_lv != null && player.stove_lv == null) {
-		player.stove_lv = site.stove_lv;
+	if (site.uid != null && player.uid == null) {
+		player.uid = site.uid;
+	}
+	if (site.fid != null && player.fid == null) {
+		player.fid = site.fid;
 	}
 	return {
 		...payload,
 		player,
-		// also expose at root for convenience
-		tg_info: site.tg_info || payload.tg_info || null,
+		// expose TG at root for ProfilePage fallbacks
+		tg_info: player.tg_info || site.tg_info || payload.tg_info || null,
+		tg: site.tg ?? payload.tg ?? null,
+		tg_label: site.tg_label || payload.tg_label || null,
+		tg_level: site.tg_level ?? payload.tg_level ?? null,
+		level_label: site.level_label || payload.level_label || null,
+		town_center_level: site.town_center_level ?? payload.town_center_level ?? null,
+		stove_lv: site.stove_lv ?? payload.stove_lv ?? null,
+		uid: site.uid ?? payload.uid ?? player.uid ?? null,
 	};
 }
 async function fetchPlayerPayload(gameId, include, {
@@ -156,8 +206,6 @@ async function fetchPlayerPayload(gameId, include, {
 		include: includeStr
 	});
 	const url = `${MIGHTPULSE_API}/players/${encodeURIComponent(gameId)}?${params}`;
-	// Start site profile in parallel (try governor id first; refine with uid if needed)
-	const sitePromise = fetchSiteProfile(gameId);
 	const upstream = await fetch(url, {
 		method: 'GET',
 		headers: {
@@ -183,17 +231,36 @@ async function fetchPlayerPayload(gameId, include, {
 		fetchedAt: new Date().toISOString(),
 		...data,
 	};
-	const uid = String(body.uid ?? body.player?.uid ?? gameId);
-	UID_CACHE.set(String(gameId), {
-		uid,
-		expires: Date.now() + PLAYER_CACHE_TTL_MS
-	});
+	// Prefer internal uid from v1 — site API by Governor ID (fid) returns empty TG
+	const uid = String(body.uid ?? body.player?.uid ?? body.player?.id ?? '');
+	const resolvedUid = uid && uid !== String(gameId) ? uid : '';
+	if (resolvedUid) {
+		UID_CACHE.set(String(gameId), {
+			uid: resolvedUid,
+			expires: Date.now() + PLAYER_CACHE_TTL_MS
+		});
+	}
 	try {
-		let site = await sitePromise;
-		if (!site && uid && uid !== String(gameId)) {
-			site = await fetchSiteProfile(uid);
+		// Always load site profile by **uid** when available (full tg_info).
+		// Fallback to gameId only if uid is unknown — and re-fetch if TG is empty.
+		let site = resolvedUid ? await fetchSiteProfile(resolvedUid) : null;
+		if (!siteHasTgInfo(site)) {
+			const alt = await fetchSiteProfile(resolvedUid || gameId);
+			if (siteHasTgInfo(alt)) site = alt;
+			else if (!site) site = alt;
+		}
+		// If still no TG and we only tried gameId, try extracting uid from site stub
+		if (!siteHasTgInfo(site) && site?.uid && String(site.uid) !== String(gameId)) {
+			const byUid = await fetchSiteProfile(site.uid);
+			if (siteHasTgInfo(byUid)) site = byUid;
 		}
 		if (site) body = mergeSiteIntoPayload(body, site);
+		if (site?.uid) {
+			UID_CACHE.set(String(gameId), {
+				uid: String(site.uid),
+				expires: Date.now() + PLAYER_CACHE_TTL_MS
+			});
+		}
 	} catch (e) {
 		console.warn('[player] site profile skip:', e?.message || e);
 	}

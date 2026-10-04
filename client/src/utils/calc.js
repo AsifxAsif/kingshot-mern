@@ -430,17 +430,20 @@ export function sortLevels(levels) {
 	return [...levels].sort((a, b) => convertLevelToNumeric(a) - convertLevelToNumeric(b));
 }
 /** Apply building speedup buffs (from original app.js applyBuildingSpeedupBuffs) */
-export function applyBuildingSpeedupBuffs(originalSeconds, buffs = {}) {
+export function applyBuildingSpeedupBuffs(originalSeconds, buffs = {}, stepCount = 1) {
 	if (!originalSeconds || originalSeconds <= 0) return 0;
 	let remaining = originalSeconds;
+	// 1) Additive construction speed %
 	const totalPercent = (parseFloat(buffs.buildingPct) || 0) + (parseFloat(buffs.wolfPet) || 0) + (parseFloat(buffs.kingPos) || 0) + (buffs.groundWorks ? 10 : 0);
 	if (totalPercent > 0) remaining = remaining / (1 + totalPercent / 100);
-	// Pan's artifact: fixed hours off
+	// 2) Double Time: −20% duration after speed %
+	if (buffs.doubleTime) remaining = remaining * 0.8;
+	// 3) Pan's skill last: fixed time off per upgrade step (not once for the whole range)
 	if (buffs.pansArtifact) {
 		const pansSec = parseTimeToSeconds(String(buffs.pansArtifact));
-		remaining = Math.max(0, remaining - pansSec);
+		const steps = Math.max(1, Math.floor(Number(stepCount) || 1));
+		remaining = Math.max(0, remaining - pansSec * steps);
 	}
-	if (buffs.doubleTime) remaining = remaining / 1.2;
 	return Math.max(1, Math.ceil(remaining));
 }
 /** Apply training speedup buffs */

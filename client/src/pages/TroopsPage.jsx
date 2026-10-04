@@ -14,6 +14,7 @@ import CostStatus from '../components/CostStatus';
 import GroupCard from '../components/GroupCard';
 import { LevelSelects } from '../components/LevelSelects';
 import { troopImg, resourceImg } from '../utils/images';
+import { PageSkeleton } from '../components/Skeleton';
 
 const TYPES = ['Infantry', 'Cavalry', 'Archer'];
 
@@ -180,7 +181,7 @@ export default function TroopsPage() {
     return false;
   }, [data, troopsState]);
 
-  if (loading) return <div className="page-loading"><div className="spinner" /><p>Loading troops…</p></div>;
+  if (loading) return <div className="page-loading"><PageSkeleton cards={6} label="Loading" /></div>;
   if (error) return <div className="page-error"><p>{error}</p></div>;
 
   return (
@@ -267,7 +268,7 @@ export default function TroopsPage() {
       </GroupCard>
       </div>
 
-      <div className="group-columns group-columns-1" style={{ marginTop: 16 }}>
+      <div className="group-columns group-columns-1">
       <GroupCard title="Promotion" iconSrc={troopImg('Cavalry')} iconAlt="Promotion">
       <div className="cards-grid cards-grid-3">
         {TYPES.map((type) => {
