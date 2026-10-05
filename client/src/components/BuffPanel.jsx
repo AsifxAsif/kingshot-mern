@@ -85,16 +85,19 @@ export function BuildingBuffPanel() {
               </select>
             </div>
           </div>
-          <div className="checkbox-group" style={{ marginBottom: 12 }}>
-            <label className="checkbox-label">
+          {/* DOM order = desktop: Ground Works → Saul → Double Time.
+              Mobile CSS reorders: Saul full row, then GW + DT side by side. */}
+          <div className="building-buff-extra" style={{ marginBottom: 12 }}>
+            <label className="checkbox-label building-buff-gw">
               <input
-                className="checkbox" type="checkbox"
+                className="checkbox"
+                type="checkbox"
                 checked={!!b.groundWorks}
                 onChange={(e) => set('groundWorks', e.target.checked)}
               />
               <AssetImg src={asset('ground_works_icon.webp')} size={24} /> Ground Works (+10%)
             </label>
-            <div className="buff-field" style={{ minWidth: 180 }}>
+            <div className="buff-field building-buff-saul">
               <label>
                 <AssetImg src={asset('saul_resourceful_icon.webp')} size={24} /> Saul&apos;s Resourceful
               </label>
@@ -108,9 +111,10 @@ export function BuildingBuffPanel() {
               </select>
               <small>Reduces resource costs</small>
             </div>
-            <label className="checkbox-label">
+            <label className="checkbox-label building-buff-dt">
               <input
-                className="checkbox" type="checkbox"
+                className="checkbox"
+                type="checkbox"
                 checked={!!b.doubleTime}
                 onChange={(e) => set('doubleTime', e.target.checked)}
               />

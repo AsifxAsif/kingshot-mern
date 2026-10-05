@@ -10,6 +10,14 @@ const SPEEDUP_KEYS = new Set([
   'general_speedup',
 ]);
 
+const SPEEDUP_LABELS = {
+  training_speedup: 'Training speedup',
+  building_speedup: 'Building speedup',
+  research_speedup: 'Research speedup',
+  master_speedup: 'Master speedup',
+  general_speedup: 'General speedup',
+};
+
 function formatNeed(key, need) {
   if (need == null || need === '') return '';
   if (SPEEDUP_KEYS.has(key)) {
@@ -39,10 +47,15 @@ export default function ResourceLines({ lines = [], active = false }) {
     <div className="cost-grid">
       {lines.map((line) => {
         const key = line.key || line.label || '';
-        let label = line.label || String(key).replace(/_/g, ' ');
-        if (!line.label && key.startsWith('master_emblem_')) {
-          const name = key.slice('master_emblem_'.length);
-          label = `${name.charAt(0).toUpperCase()}${name.slice(1)} emblem`;
+        let label = line.label;
+        if (!label) {
+          if (SPEEDUP_LABELS[key]) label = SPEEDUP_LABELS[key];
+          else if (key.startsWith('master_emblem_')) {
+            const name = key.slice('master_emblem_'.length);
+            label = `${name.charAt(0).toUpperCase()}${name.slice(1)} emblem`;
+          } else {
+            label = String(key).replace(/_/g, ' ');
+          }
         }
         const need = line.need;
         const have = line.have != null ? Number(line.have) : null;
@@ -68,7 +81,6 @@ export default function ResourceLines({ lines = [], active = false }) {
         const isShort = deficit || (left != null && left < 0);
 
         if (active) {
-          // Upgrade locked: show stock left after paying this cost
           if (left != null) {
             statusText = isShort
               ? `${formatAmt(key, left)} short`
@@ -79,7 +91,6 @@ export default function ResourceLines({ lines = [], active = false }) {
             statusClass = deficit ? 'text-deficit' : 'text-remaining';
           }
         } else {
-          // Not locked yet: show real vault stock (no subtract for this card)
           if (have != null) {
             statusText = `${formatAmt(key, have)} in vault`;
             statusClass = isShort ? 'text-deficit' : 'text-remaining';

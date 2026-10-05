@@ -235,7 +235,7 @@ export default function Navbar() {
     setModal({
       type: 'confirm',
       title: 'Delete preset',
-      message: `Delete preset "${deleteLabel}" from the database?\n\nThis permanently removes that preset. This cannot be undone.`,
+      message: `Delete preset "${deleteLabel}"?\n\nA backup will be kept for 30 days. You can restore it from Profile → Preset backups.`,
       confirmLabel: 'Delete',
       danger: true,
       onConfirm: async () => {
@@ -288,7 +288,7 @@ export default function Navbar() {
     setModal({
       type: 'confirm',
       title: 'Reset all data',
-      message: `Reset ALL data on preset "${presetLabel}"?\n\nThis clears every page in this preset (vault, upgrades, scores). This cannot be undone.`,
+      message: `Reset ALL data on preset "${presetLabel}"?\n\nThis clears every page in this preset. A backup will be kept for 30 days under Profile → Preset backups.`,
       confirmLabel: 'Reset all',
       danger: true,
       onConfirm: async () => {
@@ -353,21 +353,6 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Mobile preset menu toggle */}
-        <button
-          type="button"
-          className={`preset-hamburger${presetOpen ? ' active' : ''}`}
-          aria-label="Preset menu"
-          title="Presets"
-          onClick={() => {
-            setPresetOpen((v) => !v);
-            setMenuOpen(false);
-          }}
-        >
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden>
-            <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.2 7.2 0 00-1.62-.94l-.36-2.54A.48.48 0 0014 2h-4a.48.48 0 00-.48.41l-.36 2.54c-.59.24-1.13.55-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.65 8.87a.49.49 0 00.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.77 14.5a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.3.59.22l2.39-.96c.5.39 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h4c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.55 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 00-.12-.61l-2.03-1.58zM12 15.5A3.5 3.5 0 1112 8.5a3.5 3.5 0 010 7z"/>
-          </svg>
-        </button>
       </div>
 
       <div className="navbar-row-2">
@@ -385,56 +370,98 @@ export default function Navbar() {
         </div>
 
         <div className="preset-controls">
-          <div className={`preset-dropdown${presetOpen ? ' show' : ''}`} id="presetDropdown">
-            <select
-              id="presetSelect"
-              className="preset-select"
-              value={currentName}
-              onChange={(e) => switchPreset(e.target.value)}
-            >
-              {presetList.map((p) => (
-                <option key={p.name} value={p.name}>
-                  {stripGameIdSuffix(p.displayName || p.name, p.name)}
-                </option>
-              ))}
-            </select>
-            <button type="button" className="preset-btn" onClick={handleNew} title="Create New Preset">
-              New
-            </button>
-            <button type="button" className="preset-btn" onClick={handleRename} title="Rename preset">
-              Rename
-            </button>
-            <button type="button" className="preset-btn btn-delete" onClick={handleDelete} title="Delete Preset">
-              Delete
-            </button>
+          {/* Desktop only: preset dropdown outside hamburger */}
+          <select
+            id="presetSelectDesktop"
+            className="preset-select preset-select-desktop"
+            value={currentName}
+            onChange={(e) => switchPreset(e.target.value)}
+            title="Active preset"
+          >
+            {presetList.map((p) => (
+              <option key={p.name} value={p.name}>
+                {stripGameIdSuffix(p.displayName || p.name, p.name)}
+              </option>
+            ))}
+          </select>
+
+          <div className="preset-actions-wrap">
             <button
               type="button"
-              className="btn-reset"
-              onClick={handleResetPage}
-              title="Reset this page only"
+              className={`preset-hamburger preset-actions-toggle${presetOpen ? ' active' : ''}`}
+              aria-label="Preset menu"
+              title="Preset menu"
+              aria-expanded={presetOpen}
+              onClick={() => {
+                setPresetOpen((v) => !v);
+                setMenuOpen(false);
+              }}
             >
-              Reset page
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden>
+                <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96a7.2 7.2 0 00-1.62-.94l-.36-2.54A.48.48 0 0014 2h-4a.48.48 0 00-.48.41l-.36 2.54c-.59.24-1.13.55-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.65 8.87a.49.49 0 00.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.77 14.5a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.3.59.22l2.39-.96c.5.39 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h4c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.55 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 00-.12-.61l-2.03-1.58zM12 15.5A3.5 3.5 0 1112 8.5a3.5 3.5 0 010 7z"/>
+              </svg>
             </button>
-            <button type="button" className="btn-reset" onClick={handleResetFull} title="Reset entire preset">
-              Reset all
-            </button>
-            {user ? (
-              <button type="button" className="preset-btn" data-auth-allow onClick={logout} title={user.email}>
-                {user.username} · Logout
+            <div
+              className={`preset-actions-menu${presetOpen ? ' show' : ''}`}
+              id="presetDropdown"
+              role="menu"
+            >
+              {/* Mobile only: preset dropdown inside hamburger menu */}
+              <select
+                id="presetSelectMobile"
+                className="preset-select preset-select-mobile"
+                value={currentName}
+                onChange={(e) => {
+                  switchPreset(e.target.value);
+                  setPresetOpen(false);
+                }}
+                title="Active preset"
+              >
+                {presetList.map((p) => (
+                  <option key={p.name} value={p.name}>
+                    {stripGameIdSuffix(p.displayName || p.name, p.name)}
+                  </option>
+                ))}
+              </select>
+              <button type="button" className="preset-btn" onClick={() => { handleNew(); setPresetOpen(false); }} title="Create New Preset">
+                New
               </button>
-            ) : (
+              <button type="button" className="preset-btn" onClick={() => { handleRename(); setPresetOpen(false); }} title="Rename preset">
+                Rename
+              </button>
+              <button type="button" className="preset-btn btn-delete" onClick={() => { handleDelete(); setPresetOpen(false); }} title="Delete Preset">
+                Delete
+              </button>
               <button
                 type="button"
-                className="preset-btn"
-                data-auth-allow
-                onClick={() => {
-                  setAuthMode('login');
-                  setAuthOpen(true);
-                }}
+                className="btn-reset"
+                onClick={() => { handleResetPage(); setPresetOpen(false); }}
+                title="Reset this page only"
               >
-                Login
+                Reset page
               </button>
-            )}
+              <button type="button" className="btn-reset" onClick={() => { handleResetFull(); setPresetOpen(false); }} title="Reset entire preset">
+                Reset all
+              </button>
+              {user ? (
+                <button type="button" className="preset-btn" data-auth-allow onClick={() => { logout(); setPresetOpen(false); }} title={user.username || user.email || 'Logout'}>
+                  Logout
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="preset-btn"
+                  data-auth-allow
+                  onClick={() => {
+                    setAuthMode('login');
+                    setAuthOpen(true);
+                    setPresetOpen(false);
+                  }}
+                >
+                  Login
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -4,6 +4,8 @@ import {
 } from '../utils/validate.js';
 import {
 	Preset,
+	PresetBackup,
+	PRESET_BACKUP_TTL_MS,
 	User
 } from '../models/index.js';
 
@@ -97,6 +99,39 @@ function pickPresetBody(body = {}) {
 		if (body[key] !== undefined) out[key] = body[key];
 	}
 	return out;
+}
+const PRESET_DATA_KEYS = ['username', 'gameId', 'displayName', 'vault', 'troops', 'buildings', 'heroes', 'heroGear', 'govGear', 'govCharm', 'pets', 'warAcademy', 'masters', 'widgets', 'misc', 'planner', 'heroShards', 'heroWidgets', 'heroFlowers', 'lockedUpgrades', 'settings', 'pageScores', 'eventPageScores'];
+/** Snapshot a preset document into preset_backups (30-day TTL). */
+async function createPresetBackup(presetDoc, userId, reason = 'delete') {
+	if (!presetDoc || !userId) return null;
+	const plain = typeof presetDoc.toObject === 'function' ? presetDoc.toObject() : {
+		...presetDoc
+	};
+	const expiresAt = new Date(Date.now() + (PRESET_BACKUP_TTL_MS || 30 * 24 * 60 * 60 * 1000));
+	const data = {};
+	for (const k of PRESET_DATA_KEYS) {
+		if (plain[k] !== undefined) data[k] = plain[k];
+	}
+	const backup = await PresetBackup.create({
+		userId,
+		originalName: plain.name || '',
+		displayName: plain.displayName || plain.name || '',
+		reason: reason === 'reset' ? 'reset' : 'delete',
+		expiresAt,
+		...data,
+	});
+	return backup;
+}
+/** Remove expired backups (TTL index is primary; this is a safety sweep). */
+export async function purgeExpiredBackups(userId = null) {
+	const q = {
+		expiresAt: {
+			$lte: new Date()
+		}
+	};
+	if (userId) q.userId = userId;
+	const result = await PresetBackup.deleteMany(q);
+	return result.deletedCount || 0;
 }
 export const listPresets = async (req, res) => {
 	try {
@@ -297,15 +332,29 @@ export const deletePreset = async (req, res) => {
 			message: 'Login required',
 			code: 'AUTH_REQUIRED'
 		});
-		const result = await Preset.findOneAndDelete({
+		const existing = await Preset.findOne({
 			userId: req.user.id,
 			name
 		});
-		if (!result) return res.status(404).json({
+		if (!existing) return res.status(404).json({
 			message: 'Preset not found'
 		});
+		// Soft-backup before permanent delete (kept 30 days)
+		let backupId = null;
+		try {
+			const backup = await createPresetBackup(existing, req.user.id, 'delete');
+			backupId = backup?._id || null;
+		} catch (be) {
+			console.error('backup on delete failed', be);
+		}
+		await Preset.deleteOne({
+			userId: req.user.id,
+			name
+		});
 		res.json({
-			ok: true
+			ok: true,
+			backedUp: Boolean(backupId),
+			backupId
 		});
 	} catch (error) {
 		res.status(500).json({
@@ -383,6 +432,232 @@ export const renamePreset = async (req, res) => {
 		const obj = existing.toObject();
 		obj.displayName = displayNameFromStorage(obj.name, obj.gameId, obj.displayName);
 		res.json(obj);
+	} catch (error) {
+		res.status(500).json({
+			message: clientError(error)
+		});
+	}
+};
+/** Reset preset to empty after creating a 30-day backup */
+export const resetPresetWithBackup = async (req, res) => {
+	try {
+		const name = sanitizePresetName(req.params.name);
+		if (!name) {
+			return res.status(400).json({
+				message: 'Invalid preset name'
+			});
+		}
+		if (!req.user?.id) {
+			return res.status(401).json({
+				message: 'Login required',
+				code: 'AUTH_REQUIRED'
+			});
+		}
+		const existing = await Preset.findOne({
+			userId: req.user.id,
+			name
+		});
+		if (!existing) {
+			return res.status(404).json({
+				message: 'Preset not found'
+			});
+		}
+		let backupId = null;
+		try {
+			const backup = await createPresetBackup(existing, req.user.id, 'reset');
+			backupId = backup?._id || null;
+		} catch (be) {
+			console.error('backup on reset failed', be);
+		}
+		const emptyData = {
+			vault: {},
+			troops: {},
+			buildings: {},
+			heroes: {},
+			heroGear: {},
+			govGear: {},
+			govCharm: {},
+			pets: {},
+			warAcademy: {},
+			masters: {},
+			widgets: {},
+			misc: {},
+			planner: {},
+			heroShards: {},
+			heroWidgets: {},
+			heroFlowers: {},
+			lockedUpgrades: {},
+			settings: existing.settings || {},
+			pageScores: {},
+			eventPageScores: {},
+		};
+		// Keep identity
+		const ordered = orderedPresetDoc({
+			userId: req.user.id,
+			name,
+			username: existing.username || req.user.username || '',
+			gameId: existing.gameId || '',
+			data: {
+				...emptyData,
+				displayName: existing.displayName || '',
+			},
+		});
+		const toWrite = {
+			...ordered,
+			updatedAt: new Date()
+		};
+		if (existing.createdAt) toWrite.createdAt = existing.createdAt;
+		await Preset.findOneAndReplace({
+			userId: req.user.id,
+			name
+		}, toWrite, {
+			upsert: true,
+			new: true,
+			runValidators: true
+		});
+		res.json({
+			ok: true,
+			backedUp: Boolean(backupId),
+			backupId
+		});
+	} catch (error) {
+		console.error('resetPresetWithBackup', error);
+		res.status(500).json({
+			message: clientError(error)
+		});
+	}
+};
+/** List non-expired backups for the logged-in user */
+export const listPresetBackups = async (req, res) => {
+	try {
+		if (!req.user?.id) {
+			return res.status(401).json({
+				message: 'Login required',
+				code: 'AUTH_REQUIRED'
+			});
+		}
+		await purgeExpiredBackups(req.user.id);
+		const rows = await PresetBackup.find({
+			userId: req.user.id,
+			expiresAt: {
+				$gt: new Date()
+			},
+		}).sort({
+			createdAt: -1
+		}).select('originalName displayName reason expiresAt createdAt username gameId').lean();
+		res.json(rows.map((r) => ({
+			id: String(r._id),
+			originalName: r.originalName,
+			displayName: r.displayName || r.originalName,
+			reason: r.reason,
+			expiresAt: r.expiresAt,
+			createdAt: r.createdAt,
+			username: r.username,
+			gameId: r.gameId,
+		})));
+	} catch (error) {
+		res.status(500).json({
+			message: clientError(error)
+		});
+	}
+};
+/** Restore a backup into an active preset (creates or overwrites by originalName) */
+export const restorePresetBackup = async (req, res) => {
+	try {
+		if (!req.user?.id) {
+			return res.status(401).json({
+				message: 'Login required',
+				code: 'AUTH_REQUIRED'
+			});
+		}
+		const id = String(req.params.id || '').trim();
+		if (!id) return res.status(400).json({
+			message: 'Invalid backup id'
+		});
+		const backup = await PresetBackup.findOne({
+			_id: id,
+			userId: req.user.id
+		}).lean();
+		if (!backup) {
+			return res.status(404).json({
+				message: 'Backup not found or expired'
+			});
+		}
+		if (backup.expiresAt && new Date(backup.expiresAt) <= new Date()) {
+			await PresetBackup.deleteOne({
+				_id: id
+			});
+			return res.status(410).json({
+				message: 'Backup expired'
+			});
+		}
+		const name = sanitizePresetName(backup.originalName) || backup.originalName;
+		if (!name) {
+			return res.status(400).json({
+				message: 'Backup has invalid preset name'
+			});
+		}
+		const data = {};
+		for (const k of PRESET_DATA_KEYS) {
+			if (backup[k] !== undefined) data[k] = backup[k];
+		}
+		const ordered = orderedPresetDoc({
+			userId: req.user.id,
+			name,
+			username: data.username || req.user.username || '',
+			gameId: data.gameId || '',
+			data,
+		});
+		const existing = await Preset.findOne({
+			userId: req.user.id,
+			name
+		}).lean();
+		const toWrite = {
+			...ordered,
+			updatedAt: new Date()
+		};
+		if (existing?.createdAt) toWrite.createdAt = existing.createdAt;
+		const preset = await Preset.findOneAndReplace({
+			userId: req.user.id,
+			name
+		}, toWrite, {
+			upsert: true,
+			new: true,
+			runValidators: true
+		});
+		res.json({
+			ok: true,
+			preset: preset,
+			name,
+			displayName: data.displayName || name,
+		});
+	} catch (error) {
+		console.error('restorePresetBackup', error);
+		res.status(500).json({
+			message: clientError(error)
+		});
+	}
+};
+/** Manually dismiss a backup before TTL */
+export const deletePresetBackup = async (req, res) => {
+	try {
+		if (!req.user?.id) {
+			return res.status(401).json({
+				message: 'Login required',
+				code: 'AUTH_REQUIRED'
+			});
+		}
+		const id = String(req.params.id || '').trim();
+		const result = await PresetBackup.findOneAndDelete({
+			_id: id,
+			userId: req.user.id
+		});
+		if (!result) return res.status(404).json({
+			message: 'Backup not found'
+		});
+		res.json({
+			ok: true
+		});
 	} catch (error) {
 		res.status(500).json({
 			message: clientError(error)

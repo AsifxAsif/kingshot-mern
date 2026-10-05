@@ -255,12 +255,7 @@ export default function BuildingsPage() {
                 vault={c.vaultBefore || baseVault}
                 extra={
                   c.steps.length > 0 ? (
-                    <div>
-                      Time: {formatSecondsToTime(c.buffedTime)}
-                      {c.buffedTime !== c.totalTime && (
-                        <span style={{ opacity: 0.7 }}> (base {formatSecondsToTime(c.totalTime)})</span>
-                      )}
-                    </div>
+                    <div className="status-time-line">⏱️ {formatSecondsToTime(c.buffedTime)}</div>
                   ) : null
                 }
               />

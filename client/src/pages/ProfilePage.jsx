@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useApp } from '../context/AppContext';
 import { ProfileSkeleton } from '../components/Skeleton';
-import { api } from '../services/api';
+import AppModal from '../components/AppModal';
+import { api, listPresetBackups, deletePresetBackup } from '../services/api';
 import { formatNumber } from '../utils/calc';
 import AssetImg from '../components/AssetImg';
 import {
@@ -777,13 +779,91 @@ function formatPlayerDisplayName(raw) {
 export default function ProfilePage() {
   const { user, setAuthOpen, setAuthMode, logout } = useAuth();
   const toast = useToast();
+  const { restoreFromBackup } = useApp();
   // Start loading immediately when a Governor ID exists so local auth fields
   // never flash under the skeleton before MightPulse data arrives.
   const [loading, setLoading] = useState(() => Boolean(user?.gameId));
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [payload, setPayload] = useState(null);
+  const [backups, setBackups] = useState([]);
+  const [backupsLoading, setBackupsLoading] = useState(false);
+  const [backupBusy, setBackupBusy] = useState(null);
+  const [modal, setModal] = useState(null);
+  const closeModal = () => setModal(null);
   const [cooldownLeft, setCooldownLeft] = useState(0);
+
+  const loadBackups = useCallback(async () => {
+    if (!user) {
+      setBackups([]);
+      return;
+    }
+    setBackupsLoading(true);
+    try {
+      const rows = await listPresetBackups();
+      setBackups(Array.isArray(rows) ? rows : []);
+    } catch (e) {
+      console.error(e);
+      setBackups([]);
+    } finally {
+      setBackupsLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadBackups();
+  }, [loadBackups]);
+
+  const handleRestoreBackup = (id, label) => {
+    if (!id) return;
+    const name = label || 'this preset';
+    setModal({
+      type: 'confirm',
+      title: 'Restore backup',
+      message: `Restore backup "${name}"?\n\nThis will overwrite the preset with the same name if it already exists.`,
+      confirmLabel: 'Restore',
+      onConfirm: async () => {
+        closeModal();
+        setBackupBusy(id);
+        try {
+          await restoreFromBackup(id);
+          await loadBackups();
+          // toast is also fired inside restoreFromBackup
+        } catch (e) {
+          toast.error(e.message || 'Restore failed');
+        } finally {
+          setBackupBusy(null);
+        }
+      },
+    });
+  };
+
+  const handleDismissBackup = (id, label) => {
+    if (!id) return;
+    const name = label || 'this backup';
+    setModal({
+      type: 'confirm',
+      title: 'Delete backup',
+      message: `Delete backup "${name}" permanently?\n\nThis cannot be undone. The 30-day recovery copy will be removed from the database.`,
+      confirmLabel: 'Delete backup',
+      danger: true,
+      onConfirm: async () => {
+        closeModal();
+        setBackupBusy(id);
+        try {
+          await deletePresetBackup(id);
+          toast.success('Backup deleted');
+          await loadBackups();
+        } catch (e) {
+          toast.error(e.message || 'Failed to delete backup');
+        } finally {
+          setBackupBusy(null);
+        }
+      },
+    });
+  };
+
+
   const [cooldownTotal, setCooldownTotal] = useState(600);
   const timerRef = useRef(null);
   const cooldownEndRef = useRef(0);
@@ -1148,6 +1228,88 @@ export default function ProfilePage() {
           </div>
         </>
       )}
+
+      {/* Preset backups (30-day soft delete / reset recovery) */}
+      <div className="inventory-card preset-backups-card">
+        <div className="inventory-card-header profile-header-row">
+          <h3 style={{ margin: 0 }}>Preset backups</h3>
+          <button
+            type="button"
+            className="preset-btn"
+            onClick={loadBackups}
+            disabled={backupsLoading}
+          >
+            {backupsLoading ? 'Loading…' : 'Refresh'}
+          </button>
+        </div>
+        <p className="hint" style={{ marginTop: 0 }}>
+          When you delete or reset a preset, a backup is kept for <strong>30 days</strong>. Restore it here
+          before it expires.
+        </p>
+        {backupsLoading && !backups.length ? (
+          <p className="hint">Loading backups…</p>
+        ) : !backups.length ? (
+          <p className="hint">No backups yet.</p>
+        ) : (
+          <div className="preset-backup-list">
+            {backups.map((b) => {
+              const exp = b.expiresAt ? new Date(b.expiresAt) : null;
+              const daysLeft =
+                exp != null
+                  ? Math.max(0, Math.ceil((exp.getTime() - Date.now()) / (24 * 60 * 60 * 1000)))
+                  : null;
+              const created = b.createdAt ? new Date(b.createdAt) : null;
+              return (
+                <div className="preset-backup-row" key={b.id}>
+                  <div className="preset-backup-meta">
+                    <div className="preset-backup-name">
+                      {b.displayName || b.originalName || 'Preset'}
+                    </div>
+                    <div className="hint">
+                      {b.reason === 'reset' ? 'Reset' : 'Deleted'}
+                      {created ? ` · ${created.toLocaleString()}` : ''}
+                      {daysLeft != null ? ` · ${daysLeft}d left` : ''}
+                    </div>
+                  </div>
+                  <div className="preset-backup-actions">
+                    <button
+                      type="button"
+                      className="preset-btn"
+                      disabled={backupBusy === b.id}
+                      onClick={() => handleRestoreBackup(b.id, b.displayName || b.originalName)}
+                    >
+                      Restore
+                    </button>
+                    <button
+                      type="button"
+                      className="preset-btn btn-delete"
+                      disabled={backupBusy === b.id}
+                      onClick={() => handleDismissBackup(b.id, b.displayName || b.originalName)}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+
+      <AppModal
+        open={!!modal}
+        title={modal?.title || ''}
+        message={modal?.message || ''}
+        mode={modal?.type || 'confirm'}
+        confirmLabel={modal?.confirmLabel || 'OK'}
+        cancelLabel="Cancel"
+        danger={!!modal?.danger}
+        onCancel={closeModal}
+        onConfirm={() => modal?.onConfirm?.()}
+      />
+
     </div>
   );
 }
+

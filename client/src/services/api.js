@@ -89,28 +89,18 @@ export async function renamePreset(name, displayName) {
 		displayName
 	});
 }
-/** Reset preset fields to empty (keeps name) — used by AppContext resetCurrent */
+/** Reset preset to empty after server-side 30-day backup */
 export async function resetPreset(name) {
-	const empty = {
-		vault: {},
-		troops: {},
-		buildings: {},
-		heroes: {},
-		heroGear: {},
-		govGear: {},
-		govCharm: {},
-		pets: {},
-		warAcademy: {},
-		widgets: {},
-		misc: {},
-		heroShards: {},
-		heroWidgets: {},
-		heroFlowers: {},
-		lockedUpgrades: {},
-		settings: {},
-		pageScores: {},
-	};
-	return api.put(`/presets/${encodeURIComponent(name)}`, empty);
+	return api.post(`/presets/${encodeURIComponent(name)}/reset`, {});
+}
+export async function listPresetBackups() {
+	return api.get('/preset-backups');
+}
+export async function restorePresetBackup(id) {
+	return api.post(`/preset-backups/${encodeURIComponent(id)}/restore`, {});
+}
+export async function deletePresetBackup(id) {
+	return api.delete(`/preset-backups/${encodeURIComponent(id)}`);
 }
 export async function fetchGameData(type) {
 	return api.get(`/data/${type}`);

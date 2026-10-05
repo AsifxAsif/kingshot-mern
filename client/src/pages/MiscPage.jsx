@@ -282,9 +282,13 @@ export default function MiscPage() {
           <span>GATHERING SETTINGS</span>
         </div>
         <div className="item-card-body">
-          <div className="buff-row fields-2col" style={{ marginTop: 10 }}>
+          <div className="buff-row gather-settings-row" style={{ marginTop: 10 }}>
             <div className="buff-field">
-              <label>March Units</label>
+              <label>
+                <ImgLabel src={asset('gathering_speed.webp')} size={22}>
+                  March Units
+                </ImgLabel>
+              </label>
               <select
                 value={misc.marchUnits || '1'}
                 onChange={(e) => setField('marchUnits', e.target.value)}
@@ -316,35 +320,44 @@ export default function MiscPage() {
               </select>
               <small>Instant full-node gather · max 3 uses</small>
             </div>
-          </div>
 
-          {bisonGrip > 0 && (
-            <div className="buff-row fields-2col" style={{ marginTop: 10 }}>
-              <div className="buff-field">
-                <label>Bison Grip Resource</label>
-                <select
-                  value={bisonResource}
-                  onChange={(e) => setField('bisonResource', e.target.value)}
-                >
-                  {RESOURCES.map((r) => (
-                    <option key={r} value={r}>
-                      {r.charAt(0).toUpperCase() + r.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="buff-field">
-                <label>Bison Grip Node</label>
-                <select value={bisonNode} onChange={(e) => setField('bisonNode', e.target.value)}>
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                    <option key={n} value={n}>
-                      {n}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className={`buff-field${bisonGrip > 0 ? '' : ' is-disabled'}`}>
+              <label>
+                <ImgLabel src={resourceImg(bisonResource || 'bread')} size={22}>
+                  Bison Grip Resource
+                </ImgLabel>
+              </label>
+              <select
+                value={bisonResource}
+                disabled={bisonGrip <= 0}
+                onChange={(e) => setField('bisonResource', e.target.value)}
+              >
+                {RESOURCES.map((r) => (
+                  <option key={r} value={r}>
+                    {r.charAt(0).toUpperCase() + r.slice(1)}
+                  </option>
+                ))}
+              </select>
             </div>
-          )}
+            <div className={`buff-field${bisonGrip > 0 ? '' : ' is-disabled'}`}>
+              <label>
+                <ImgLabel src={getNodeImage(bisonResource || 'bread')} size={22}>
+                  Bison Grip Node
+                </ImgLabel>
+              </label>
+              <select
+                value={bisonNode}
+                disabled={bisonGrip <= 0}
+                onChange={(e) => setField('bisonNode', e.target.value)}
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
 
           {bisonGrip > 0 && (
             <div className="misc-lcd misc-lcd-center" style={{ marginTop: 10 }}>
@@ -492,53 +505,27 @@ export default function MiscPage() {
                 {!c.nodeData ? (
                   'Select resource type, node level, and skill level'
                 ) : (
-                  <div className="misc-status-stack">
+                                    <div className="misc-status-stack">
                     <div className="img-label">
                       <AssetImg src={resourceImg(c.resource)} size={22} />
                       <strong>
-                        {c.resource.charAt(0).toUpperCase() + c.resource.slice(1)} - Level {c.node}
+                        {c.resource.charAt(0).toUpperCase() + c.resource.slice(1)} · Lv {c.node}
                       </strong>
                     </div>
                     <div>
                       Resource: <strong>{formatNumber(c.resourceAmount)}</strong>
                     </div>
-                    <div className="img-label">
-                      <AssetImg src={c.skillImg} size={20} />
-                      <span>
-                        {c.skillTitle}: Level {c.skill} (+{c.skillBonus}%)
-                      </span>
-                    </div>
-                    <div>Speed Buff: +{c.speed}%</div>
-                    <div>Total Bonus: +{c.totalBonus}%</div>
-                    <div>
-                      Time: <strong>{formatSecondsToTime(c.timeSeconds)}</strong>
-                      {c.originalTime !== c.timeSeconds && (
-                        <span style={{ opacity: 0.7 }}>
+                    <div className="status-time-line">
+                      ⏱️ {formatSecondsToTime(c.timeSeconds)}
+                      {c.rounds > 1 ? (
+                        <span>
                           {' '}
-                          (original: {formatSecondsToTime(c.originalTime)})
+                          · ×{c.rounds} rounds
                         </span>
-                      )}
+                      ) : null}
                     </div>
                     <div>
-                      Points / round: <strong>+{formatNumber(c.pointsPerRound)}</strong>
-                    </div>
-                    <div>
-                      Rounds: <strong>×{c.rounds}</strong>
-                      {c.timeSeconds > 0 && (
-                        <span style={{ opacity: 0.75 }}>
-                          {' '}
-                          (≈ {formatSecondsToTime(c.timeSeconds * c.rounds)} total time)
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      Points: <strong>+{formatNumber(c.points)}</strong>
-                      {c.rounds > 1 && (
-                        <span style={{ opacity: 0.75 }}>
-                          {' '}
-                          ({formatNumber(c.pointsPerRound)} × {c.rounds})
-                        </span>
-                      )}
+                      <strong className="status-pts">+{formatNumber(c.points)} pts</strong>
                     </div>
                   </div>
                 )}

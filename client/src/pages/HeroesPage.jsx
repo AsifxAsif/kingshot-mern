@@ -396,7 +396,7 @@ export default function HeroesPage() {
   if (error) return <div className="page-error"><p>{error}</p></div>;
 
   return (
-    <div className="app-container">
+    <div className="app-container heroes-page">
 <ShowMaxedToggle hasMaxed={hasMaxedItems} />
       {toast && <div className="hero-toast hero-toast-error">{toast}</div>}
 
@@ -479,16 +479,15 @@ export default function HeroesPage() {
           let status = 'Select current & target (petals)';
           if (result) {
             if (result.error) {
+              // Short error only — no shard math breakdown
               status = result.message || 'Insufficient shards';
               if (result.needGeneral && result.canEnableGeneral && !useGen) {
-                status += ` — enable General Shards (${generalType.replace(/_/g, ' ')})`;
+                status += ' — enable General Shards';
               }
             } else {
-              status = `${result.from} → ${result.to}: ${result.heroShardsUsed}/${result.heroShardsNeeded} hero shards`;
-              if (result.generalUsed > 0) {
-                status += ` + ${result.generalUsed} ${generalType.replace(/_/g, ' ')} (after hero shards)`;
-              }
-              status += ` → ${formatNumber(result.stepPoints)} pts`;
+              // Clean status: ACTIVE/ESTIMATED + pts only (costs shown via ResourceLines if any)
+              const pts = result.stepPoints > 0 ? ` +${formatNumber(result.stepPoints)} pts` : '';
+              status = (s.active ? 'ACTIVE' : 'ESTIMATED') + pts;
             }
           }
 
@@ -596,7 +595,10 @@ export default function HeroesPage() {
                       ? ` +${formatNumber(result.stepPoints)} pts`
                       : ''}
                   </div>
-                  <div style={{ marginBottom: 4 }}>{status}</div>
+                  {/* Errors / empty hint only — no shard math prose */}
+                  {(result?.error || !result) && (
+                    <div style={{ marginBottom: 4 }}>{status}</div>
+                  )}
                   {result && (result.heroShardsNeeded > 0 || result.shortage > 0 || result.generalUsed > 0) && (() => {
                     const haveHero = parseCost(shards[h.name]);
                     const needHeroTotal = result.heroShardsNeeded ?? 0;

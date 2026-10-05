@@ -167,6 +167,135 @@ presetSchema.index({
 	unique: true
 });
 export const Preset = mongoose.models.Preset || mongoose.model('Preset', presetSchema);
+// Soft backups of presets (delete / reset) — auto-expire after 30 days
+const BACKUP_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const presetBackupSchema = new mongoose.Schema({
+	userId: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User',
+		required: true,
+		index: true
+	},
+	originalName: {
+		type: String,
+		required: true,
+		trim: true
+	},
+	displayName: {
+		type: String,
+		default: '',
+		trim: true
+	},
+	reason: {
+		type: String,
+		enum: ['delete', 'reset'],
+		default: 'delete'
+	},
+	username: {
+		type: String,
+		default: ''
+	},
+	gameId: {
+		type: String,
+		default: ''
+	},
+	vault: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	troops: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	buildings: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	heroes: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	heroGear: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	govGear: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	govCharm: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	pets: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	warAcademy: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	masters: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	widgets: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	misc: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	planner: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	heroShards: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	heroWidgets: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	heroFlowers: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	lockedUpgrades: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	settings: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	pageScores: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	eventPageScores: {
+		type: mongoose.Schema.Types.Mixed,
+		default: {}
+	},
+	expiresAt: {
+		type: Date,
+		required: true,
+		index: true
+	},
+}, {
+	timestamps: true,
+	collection: 'preset_backups'
+});
+// MongoDB TTL index — documents removed automatically when expiresAt is past
+presetBackupSchema.index({
+	expiresAt: 1
+}, {
+	expireAfterSeconds: 0
+});
+export const PresetBackup = mongoose.models.PresetBackup || mongoose.model('PresetBackup', presetBackupSchema);
+export const PRESET_BACKUP_TTL_MS = BACKUP_TTL_MS;
 export {
 	User
 }

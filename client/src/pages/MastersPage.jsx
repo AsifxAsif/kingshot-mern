@@ -856,7 +856,7 @@ function UpgradeRow({
                   {formatSecondsToTime(c.learningSeconds)}
                 </div>
                 <div>
-                  Time left to train:{' '}
+                  ⏱️ Time left:{' '}
                   <strong>
                     {c.remainingSeconds > 0
                       ? formatSecondsToTime(c.remainingSeconds)

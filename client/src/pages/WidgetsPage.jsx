@@ -109,7 +109,7 @@ export default function WidgetsPage() {
     );
 
   return (
-    <div className="calculator-page">
+    <div className="calculator-page widgets-page">
       <ShowMaxedToggle hasMaxed={hasMaxedItems} />
       <CollapsibleSection title="Widget inventory" defaultOpen={false}>
       <div className="inventory-card inventory-card-inner">

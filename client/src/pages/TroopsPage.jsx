@@ -253,10 +253,7 @@ export default function TroopsPage() {
                   emptyHint="Select tier & quantity"
                   extra={card ? (
                     <div>
-                      Time: {formatSecondsToTime(applyTrainingSpeedupBuffs(card.timeSec, trainBuffs))}
-                      {applyTrainingSpeedupBuffs(card.timeSec, trainBuffs) !== card.timeSec && (
-                        <span style={{ opacity: 0.7 }}> (base {formatSecondsToTime(card.timeSec)})</span>
-                      )}
+                      <span className="status-time-line">⏱️ {formatSecondsToTime(applyTrainingSpeedupBuffs(card.timeSec, trainBuffs))}</span>
                     </div>
                   ) : null}
                 />
@@ -354,10 +351,7 @@ export default function TroopsPage() {
                   emptyHint="Select from → to & quantity"
                   extra={card ? (
                     <div>
-                      Time: {formatSecondsToTime(card.buffedTime ?? applyTrainingSpeedupBuffs(card.timeSec, trainBuffs))}
-                      {(card.buffedTime ?? applyTrainingSpeedupBuffs(card.timeSec, trainBuffs)) !== card.timeSec && (
-                        <span style={{ opacity: 0.7 }}> (base {formatSecondsToTime(card.timeSec)})</span>
-                      )}
+                      <span className="status-time-line">⏱️ {formatSecondsToTime(card.buffedTime ?? applyTrainingSpeedupBuffs(card.timeSec, trainBuffs))}</span>
                     </div>
                   ) : null}
                 />

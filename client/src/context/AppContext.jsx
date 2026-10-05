@@ -14,6 +14,9 @@ import {
   renamePreset as apiRename,
   updatePreset as apiUpdate,
   deletePreset as apiDelete,
+  resetPreset as apiResetPreset,
+  restorePresetBackup as apiRestoreBackup,
+  listPresetBackups as apiListBackups,
 } from '../services/api';
 import { buildRemainingVault } from '../utils/resources';
 import { normalizeEventId } from '../utils/events';
@@ -106,8 +109,29 @@ function setSavedActiveName(name) {
   }
 }
 
+/** Match localStorage active name to a cloud preset (exact, displayName, or _gameId suffix). */
+function resolveSavedPresetName(list, saved) {
+  if (!saved || saved === 'default') return null;
+  const rows = list || [];
+  if (rows.some((p) => p.name === saved)) return saved;
+  const byDisplay = rows.find(
+    (p) => p.displayName && String(p.displayName) === String(saved)
+  );
+  if (byDisplay?.name) return byDisplay.name;
+  // "foo" matches storage "foo_12345"
+  const byPrefix = rows.find(
+    (p) =>
+      p.name &&
+      (String(p.name).startsWith(String(saved) + '_') ||
+        String(saved).startsWith(String(p.name) + '_'))
+  );
+  if (byPrefix?.name) return byPrefix.name;
+  return null;
+}
+
+
 export function AppProvider({ children }) {
-  const { user } = useAuth();
+  const { user, authReady } = useAuth();
   const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -337,16 +361,23 @@ export function AppProvider({ children }) {
     };
   }, [flushSave]);
 
-  // Guests → local default. Logged-in → load existing presets only (no auto-create on login).
-  // Username_gameId is created only for newly registered users via createPrimaryForNewUser().
+  // Wait for auth to finish before touching localStorage active preset.
+  // Previously: user=null while /auth/me loads → setSavedActiveName('default') wiped the selection.
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      if (!authReady) {
+        setLoading(true);
+        return;
+      }
+
       setLoading(true);
       if (!user) {
+        // True guest (no token) — only then use local default
         if (!cancelled) {
           setCurrentName('default');
-          setSavedActiveName('default');
+          // Do NOT force localStorage to 'default' if a cloud name was stored;
+          // only guests without a token use the local default key.
           setState(loadLocalDefault());
           await refreshList();
           setLoading(false);
@@ -358,20 +389,22 @@ export function AppProvider({ children }) {
         // Optional cleanup of legacy cloud "default"
         const list0 = await listPresets().catch(() => []);
         if ((list0 || []).some((p) => p.name === 'default')) {
-          try { await apiDelete('default');
-        } catch { /* ignore */ }
+          try {
+            await apiDelete('default');
+          } catch {
+            /* ignore */
+          }
         }
 
         const list = await refreshList();
         const saved = getSavedActiveName();
-        let wanted =
-          saved && saved !== 'default' && list.some((p) => p.name === saved)
-            ? saved
-            : list[0]?.name || null;
+        // Prefer last selected preset (localStorage); do not always fall back to primary
+        let wanted = resolveSavedPresetName(list, saved) || list[0]?.name || null;
 
         if (wanted) {
           const doc = await getPreset(wanted);
           if (!cancelled) {
+            currentNameRef.current = wanted;
             setCurrentName(wanted);
             setSavedActiveName(wanted);
             applyPresetDoc(doc);
@@ -440,7 +473,7 @@ export function AppProvider({ children }) {
     return () => {
       cancelled = true;
     };
-  }, [user, refreshList, buildFullPayload]);
+  }, [user, authReady, refreshList, buildFullPayload]);
 
   /**
    * Only for NEW registrations: create Username_gameId preset once.
@@ -573,17 +606,22 @@ export function AppProvider({ children }) {
 
   const switchPreset = useCallback(
     async (name) => {
-      // flush current before switch
+      if (!name) return;
+      // Flush CURRENT preset, then switch — never write into the target by mistake
       if (saveTimer.current) {
         clearTimeout(saveTimer.current);
         saveTimer.current = null;
       }
       await flushSave();
+      pendingPatch.current = {};
+
+      // Sync ref BEFORE any further saves so isolation is preserved
+      currentNameRef.current = name;
+      setSavedActiveName(name);
+      setCurrentName(name);
 
       setLoading(true);
       try {
-        setSavedActiveName(name);
-        setCurrentName(name);
         if (!user) {
           setState(loadLocalDefault());
         } else {
@@ -591,7 +629,6 @@ export function AppProvider({ children }) {
             const doc = await getPreset(name);
             applyPresetDoc(doc);
           } catch {
-            // create empty in mongo via next save
             setState({ ...EMPTY_STATE });
             await apiUpdate(name, buildFullPayload(EMPTY_STATE, user));
           }
@@ -617,43 +654,36 @@ export function AppProvider({ children }) {
         return;
       }
       try {
-        // Snapshot current calculator state into the new preset
+        // Save the OLD preset first so its data is not lost / mixed
+        if (saveTimer.current) {
+          clearTimeout(saveTimer.current);
+          saveTimer.current = null;
+        }
+        await flushSave();
+        pendingPatch.current = {};
+
+        // Snapshot current calculator state into the NEW preset document only
         const body = {
           name: n,
+          displayName: n,
           username: user.username || '',
           gameId: user.gameId || '',
-          vault: state.vault,
-          troops: state.troops,
-          buildings: state.buildings,
-          heroes: state.heroes,
-          heroGear: state.heroGear,
-          govGear: state.govGear,
-          govCharm: state.govCharm,
-          pets: state.pets,
-          warAcademy: state.warAcademy,
-          masters: state.masters,
-          widgets: state.widgets,
-          misc: state.misc,
-          planner: state.planner,
-          heroShards: state.heroShards,
-          heroWidgets: state.heroWidgets,
-          heroFlowers: state.heroFlowers,
-          lockedUpgrades: state.lockedUpgrades,
-          settings: state.settings,
-          pageScores: state.pageScores,
-          eventPageScores: state.eventPageScores,
+          ...buildFullPayload(stateRef.current, user),
         };
         const created = await apiCreate(body);
         const storageName = created?.name || n;
-        await refreshList();
+
+        // Point all future saves at the NEW preset (ref must update synchronously)
+        currentNameRef.current = storageName;
         setSavedActiveName(storageName);
         setCurrentName(storageName);
-        // stay on same state (already copied)
+        await refreshList();
+        toast.success('Preset created');
       } catch (e) {
-        alert(e.message || 'Create failed');
+        toast.error(e.message || 'Create failed');
       }
     },
-    [user, state, refreshList]
+    [user, refreshList, flushSave, buildFullPayload, toast]
   );
 
   const renamePreset = useCallback(
@@ -677,7 +707,7 @@ export function AppProvider({ children }) {
         }
         return updated;
       } catch (e) {
-        alert(e.message || 'Rename failed');
+        toast.error(e.message || 'Rename failed');
         return null;
       }
     },
@@ -698,7 +728,7 @@ export function AppProvider({ children }) {
       const primary = primaryPresetName(user);
       try {
         await apiDelete(name);
-      toast.success('Preset deleted');
+      toast.success('Preset deleted — backup saved for 30 days');
         const list = await refreshList();
         if (currentNameRef.current === name) {
           const next = list[0];
@@ -718,28 +748,34 @@ export function AppProvider({ children }) {
           }
         }
       } catch (e) {
-        alert(e.message || 'Delete failed');
+        toast.error(e.message || 'Delete failed');
       }
     },
     [user, refreshList, buildFullPayload]
   );
 
-  /** Reset entire active preset (all pages) */
+  /** Reset entire active preset (all pages) — server keeps a 30-day backup */
   const resetPresetFull = useCallback(async () => {
     const empty = { ...EMPTY_STATE };
-    setState(empty);
-    stateRef.current = empty;
-    if (!user || currentNameRef.current === 'default') {
+    if (!user || !currentNameRef.current || currentNameRef.current === 'default') {
+      setState(empty);
+      stateRef.current = empty;
       saveLocalDefault(empty);
       return;
     }
     try {
-      await apiUpdate(currentNameRef.current, buildFullPayload(empty, user));
+      await apiResetPreset(currentNameRef.current);
+      setState(empty);
+      stateRef.current = empty;
+      toast.success('Preset reset — backup saved for 30 days');
     } catch (e) {
       console.error(e);
+      // Fallback local clear if API fails
+      setState(empty);
+      stateRef.current = empty;
       throw e;
     }
-  }, [user, buildFullPayload]);
+  }, [user, toast]);
 
   const resetCurrentPage = useCallback(() => {
     const path = window.location.pathname || '/';
@@ -760,7 +796,7 @@ export function AppProvider({ children }) {
     else keys = [];
 
     const label = path === '/' ? 'Vault' : path.replace('/', '').replace(/-/g, ' ');
-    if (!confirm(`Reset only the "${label}" page?`)) return;
+    // Confirmation is handled by Navbar AppModal — do not use window.confirm here
 
     setState((prev) => {
       const next = { ...prev };
@@ -790,7 +826,8 @@ export function AppProvider({ children }) {
       scheduleSave(currentNameRef.current, patch);
       return next;
     });
-  }, [scheduleSave]);
+    toast.success('Page data reset');
+  }, [scheduleSave, toast]);
 
   // Strongest Governor = sum of page scores only (matches old site)
   const globalScore = useMemo(() => {
@@ -843,6 +880,43 @@ export function AppProvider({ children }) {
     [state.vault, state.lockedUpgrades]
   );
 
+
+  /** Restore a 30-day backup into an active preset and open it */
+  const restoreFromBackup = useCallback(
+    async (backupId) => {
+      if (!user) {
+        alert('Login required');
+        return null;
+      }
+      try {
+        if (saveTimer.current) {
+          clearTimeout(saveTimer.current);
+          saveTimer.current = null;
+        }
+        await flushSave();
+        const result = await apiRestoreBackup(backupId);
+        const name = result?.name || result?.preset?.name;
+        if (!name) throw new Error('Restore did not return preset name');
+        await refreshList();
+        setSavedActiveName(name);
+        setCurrentName(name);
+        try {
+          const doc = await getPreset(name);
+          applyPresetDoc(doc);
+        } catch {
+          if (result?.preset) applyPresetDoc(result.preset);
+        }
+        toast.success('Preset restored from backup');
+        return name;
+      } catch (e) {
+        console.error(e);
+        alert(e.message || 'Restore failed');
+        return null;
+      }
+    },
+    [user, flushSave, refreshList, toast]
+  );
+
   const value = {
     loading,
     saving,
@@ -856,6 +930,7 @@ export function AppProvider({ children }) {
     createPrimaryForNewUser,
     deletePreset,
     resetPresetFull,
+    restoreFromBackup,
     resetCurrent: resetCurrentPage,
     resetCurrentPage,
     updateSection,

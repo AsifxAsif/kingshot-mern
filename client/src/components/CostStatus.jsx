@@ -69,28 +69,30 @@ export default function CostStatus({
     cls += ' status-info';
   }
 
+  // Clean lock reasons only (no calculation essays)
   const reasons = [];
   if (!canAfford) {
-    reasons.push('Not enough items in Vault for this upgrade — add stock or lower the target.');
+    reasons.push('Not enough items in Vault for this upgrade.');
   }
   for (const r of extraReasons) {
     if (!reasons.includes(r)) reasons.push(r);
   }
 
+  const showPts = points != null && Number(points) > 0;
+
   return (
     <div className={cls}>
       <div>
         <strong>{label}</strong>
-        {points != null && canAfford && !blocked && <> +{formatNumber(points)} pts</>}
-        {points != null && blocked && points > 0 && (
-          <> (would be +{formatNumber(points)} pts)</>
+        {showPts && (
+          <>
+            {' '}
+            <span className="status-pts">+{formatNumber(points)} pts</span>
+          </>
         )}
       </div>
       {extra}
       <ResourceLines lines={lines} active={!!active && canAfford && !locked} />
-      {!active && canAfford && !blocked && (
-        <span className="text-remaining">Check Upgrade to lock these points</span>
-      )}
       {reasons.length > 0 && (
         <ul className="lock-reason-list">
           {reasons.map((r, i) => (
