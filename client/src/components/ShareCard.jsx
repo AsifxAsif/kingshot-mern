@@ -124,8 +124,31 @@ function truncate(ctx, text, maxW) {
   return `${t}…`;
 }
 
+/** Group actives by page section, preserve SECTION_SCAN order */
+function groupActivesByPage(actives) {
+  const map = new Map();
+  for (const u of actives) {
+    const key = u.section || 'Other';
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(u);
+  }
+  const ordered = [];
+  const seen = new Set();
+  for (const [, label] of SECTION_SCAN) {
+    if (map.has(label)) {
+      ordered.push([label, map.get(label)]);
+      seen.add(label);
+    }
+  }
+  // Forgehammer / any other
+  for (const [k, list] of map) {
+    if (!seen.has(k)) ordered.push([k, list]);
+  }
+  return ordered;
+}
+
 /**
- * Share PNG — multi-column tables, high-res, all actives + resources (no +N more).
+ * Share PNG — per-page upgrade tables + aligned resource grid.
  */
 export function useShareCardPng() {
   const { state, globalScore, currentName } = useApp();
@@ -140,6 +163,7 @@ export function useShareCardPng() {
       const eventId = String(state.settings?.activeEvent || 'sg').toUpperCase();
       const nick = user?.username || currentName || 'Governor';
       const actives = collectActiveUpgrades(state);
+      const byPage = groupActivesByPage(actives);
       const resources = aggregateLockedResources(state.lockedUpgrades);
       const scoreRows = Object.entries(PAGE_LABELS)
         .map(([k, label]) => [k, label, Number(scores[k]) || 0])
@@ -150,39 +174,47 @@ export function useShareCardPng() {
       );
       const icons = Object.fromEntries(iconEntries);
 
-      // High-res: logical landscape-ish width, 3× scale → sharp PNG (~2880–3840 wide)
       const SCALE = 3;
       const LW = 1280;
       const pad = 40;
-      const gap = 16;
+      const gap = 14;
 
-      // Column counts for tables
+      // Layout metrics
       const scoreCols = 3;
-      const activeCols = 3;
       const resCols = 4;
+      const upgradeCols = 2; // within each page table: name | levels
 
       const scoreRowsN = Math.ceil(scoreRows.length / scoreCols) || 0;
-      const activeRowsN = Math.ceil(actives.length / activeCols) || (actives.length ? 0 : 1);
+      const scoreRowH = 28;
+      const resRowH = 40;
       const resRowsN = Math.ceil(resources.length / resCols) || (resources.length ? 0 : 1);
+      const pageTitleH = 30;
+      const pageHeaderH = 22;
+      const upgRowH = 26;
+      const pageGap = 18;
+      const sectionGap = 26;
+
+      let upgradesBlockH = 0;
+      if (!byPage.length) {
+        upgradesBlockH = 28;
+      } else {
+        for (const [, list] of byPage) {
+          upgradesBlockH += pageTitleH + pageHeaderH + list.length * upgRowH + pageGap;
+        }
+      }
 
       const headerH = 150;
-      const sectionTitleH = 36;
-      const scoreRowH = 30;
-      const activeRowH = 28;
-      const resRowH = 36;
-      const sectionGap = 28;
-
       const logicalH =
         headerH +
-        sectionTitleH +
+        36 +
         scoreRowsN * scoreRowH +
         sectionGap +
-        sectionTitleH +
-        activeRowsN * activeRowH +
+        36 +
+        upgradesBlockH +
         sectionGap +
-        sectionTitleH +
+        36 +
         resRowsN * resRowH +
-        50;
+        48;
 
       const W = LW * SCALE;
       const H = Math.round(logicalH * SCALE);
@@ -222,11 +254,11 @@ export function useShareCardPng() {
       ctx.fillText('Total event points (all pages)', pad, y);
       y += 36;
 
-      // --- Page scores table (3 columns) ---
+      // Page scores
       ctx.fillStyle = '#f0d78c';
       ctx.font = 'bold 18px system-ui, Segoe UI, sans-serif';
       ctx.fillText('Page scores', pad, y);
-      y += 28;
+      y += 26;
       if (!scoreRows.length) {
         ctx.fillStyle = '#9aa3b5';
         ctx.font = '15px system-ui, Segoe UI, sans-serif';
@@ -240,8 +272,8 @@ export function useShareCardPng() {
           const x = pad + col * (colW + gap);
           const yy = y + row * scoreRowH;
           const [, label, pts] = scoreRows[i];
-          ctx.fillStyle = '#9aa3b5';
           ctx.font = '15px system-ui, Segoe UI, sans-serif';
+          ctx.fillStyle = '#9aa3b5';
           ctx.textAlign = 'left';
           ctx.fillText(truncate(ctx, label, colW * 0.55), x, yy);
           ctx.fillStyle = '#e8ecf4';
@@ -249,10 +281,11 @@ export function useShareCardPng() {
           ctx.fillText(`${pts.toLocaleString()}`, x + colW, yy);
           ctx.textAlign = 'left';
         }
-        y += scoreRowsN * scoreRowH + sectionGap;
+        y += scoreRowsN * scoreRowH;
       }
+      y += sectionGap;
 
-      // --- Active upgrades table (3 columns) ---
+      // Active upgrades — one table per page
       ctx.fillStyle = '#f0d78c';
       ctx.font = 'bold 18px system-ui, Segoe UI, sans-serif';
       ctx.fillText(
@@ -261,72 +294,82 @@ export function useShareCardPng() {
         y
       );
       y += 28;
-      if (!actives.length) {
+
+      if (!byPage.length) {
         ctx.fillStyle = '#9aa3b5';
         ctx.font = '15px system-ui, Segoe UI, sans-serif';
         ctx.fillText('No upgrades marked Active', pad, y);
-        y += activeRowH + sectionGap;
+        y += 28;
       } else {
-        // Table header
-        const colW = (LW - pad * 2 - gap * (activeCols - 1)) / activeCols;
-        ctx.fillStyle = 'rgba(255,255,255,0.06)';
-        ctx.fillRect(pad - 4, y - 18, LW - pad * 2 + 8, 22);
-        ctx.fillStyle = '#8b93a7';
-        ctx.font = 'bold 12px system-ui, Segoe UI, sans-serif';
-        for (let c = 0; c < activeCols; c++) {
-          const x = pad + c * (colW + gap);
-          ctx.fillText('PAGE', x, y);
-          ctx.fillText('UPGRADE', x + colW * 0.28, y);
-          ctx.textAlign = 'right';
-          ctx.fillText('LEVELS', x + colW, y);
-          ctx.textAlign = 'left';
-        }
-        y += 22;
+        const tableW = LW - pad * 2;
+        const nameColW = tableW * 0.72;
+        const levelColW = tableW * 0.28;
 
-        for (let i = 0; i < actives.length; i++) {
-          const col = i % activeCols;
-          const row = Math.floor(i / activeCols);
-          const x = pad + col * (colW + gap);
-          const yy = y + row * activeRowH;
-          if (row % 2 === 0 && col === 0) {
-            // subtle row band across full width once per row
-            ctx.fillStyle = 'rgba(255,255,255,0.03)';
-            ctx.fillRect(pad - 4, yy - 16, LW - pad * 2 + 8, activeRowH);
-          }
-          const u = actives[i];
-          const range =
-            u.from != null && u.to != null && String(u.from) !== '' && String(u.to) !== ''
-              ? `${u.from}→${u.to}`
-              : '—';
-          ctx.font = '13px system-ui, Segoe UI, sans-serif';
-          ctx.fillStyle = '#9aa3b5';
-          ctx.fillText(truncate(ctx, u.section, colW * 0.26), x, yy);
-          ctx.fillStyle = '#e8ecf4';
-          ctx.fillText(truncate(ctx, u.name, colW * 0.42), x + colW * 0.28, yy);
-          ctx.fillStyle = '#c8d0e0';
-          ctx.textAlign = 'right';
-          ctx.fillText(truncate(ctx, range, colW * 0.28), x + colW, yy);
+        for (const [pageName, list] of byPage) {
+          // Page title bar
+          ctx.fillStyle = 'rgba(240, 200, 100, 0.12)';
+          ctx.fillRect(pad - 4, y - 18, tableW + 8, pageTitleH);
+          ctx.fillStyle = '#f0d78c';
+          ctx.font = 'bold 16px system-ui, Segoe UI, sans-serif';
           ctx.textAlign = 'left';
+          ctx.fillText(`${pageName}  (${list.length})`, pad, y);
+          y += pageTitleH - 4;
+
+          // Column headers
+          ctx.fillStyle = 'rgba(255,255,255,0.05)';
+          ctx.fillRect(pad - 4, y - 14, tableW + 8, pageHeaderH);
+          ctx.fillStyle = '#8b93a7';
+          ctx.font = 'bold 12px system-ui, Segoe UI, sans-serif';
+          ctx.fillText('UPGRADE', pad, y);
+          ctx.textAlign = 'right';
+          ctx.fillText('LEVELS', pad + tableW, y);
+          ctx.textAlign = 'left';
+          y += pageHeaderH;
+
+          list.forEach((u, idx) => {
+            if (idx % 2 === 0) {
+              ctx.fillStyle = 'rgba(255,255,255,0.03)';
+              ctx.fillRect(pad - 4, y - 16, tableW + 8, upgRowH);
+            }
+            const range =
+              u.from != null && u.to != null && String(u.from) !== '' && String(u.to) !== ''
+                ? `${u.from} → ${u.to}`
+                : '—';
+            ctx.font = '14px system-ui, Segoe UI, sans-serif';
+            ctx.fillStyle = '#e8ecf4';
+            ctx.textAlign = 'left';
+            ctx.fillText(truncate(ctx, u.name, nameColW - 8), pad, y);
+            ctx.fillStyle = '#c8d0e0';
+            ctx.textAlign = 'right';
+            ctx.fillText(range, pad + tableW, y);
+            ctx.textAlign = 'left';
+            y += upgRowH;
+          });
+          y += pageGap;
         }
-        y += activeRowsN * activeRowH + sectionGap;
       }
 
-      // --- Resources table (4 columns) ---
+      y += 8;
+
+      // Resources — aligned icon | name …… amount
       ctx.fillStyle = '#f0d78c';
       ctx.font = 'bold 18px system-ui, Segoe UI, sans-serif';
+      ctx.textAlign = 'left';
       ctx.fillText(
         resources.length ? `Resources used (${resources.length})` : 'Resources used',
         pad,
         y
       );
       y += 30;
+
       if (!resources.length) {
         ctx.fillStyle = '#9aa3b5';
         ctx.font = '15px system-ui, Segoe UI, sans-serif';
         ctx.fillText('Mark upgrades Active to include resource totals', pad, y);
       } else {
         const colW = (LW - pad * 2 - gap * (resCols - 1)) / resCols;
-        const iconSize = 22;
+        const iconSize = 24;
+        const amountW = 90; // reserved right edge for amounts
         for (let i = 0; i < resources.length; i++) {
           const col = i % resCols;
           const row = Math.floor(i / resCols);
@@ -334,22 +377,35 @@ export function useShareCardPng() {
           const yy = y + row * resRowH;
           const [key, amt] = resources[i];
           const icon = icons[key];
-          if (icon) ctx.drawImage(icon, x, yy - 16, iconSize, iconSize);
+
+          // Baseline for text/icons in this cell
+          const baseline = yy;
+          if (icon) {
+            ctx.drawImage(icon, x, baseline - 18, iconSize, iconSize);
+          }
           const label = String(key).replace(/_/g, ' ');
+          const nameX = x + iconSize + 8;
+          const amountX = x + colW;
+          const nameMaxW = colW - iconSize - 8 - amountW - 6;
+
           ctx.font = '14px system-ui, Segoe UI, sans-serif';
           ctx.fillStyle = '#e8ecf4';
-          ctx.fillText(truncate(ctx, label, colW - iconSize - 8), x + iconSize + 6, yy);
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'alphabetic';
+          ctx.fillText(truncate(ctx, label, nameMaxW), nameX, baseline);
+
           ctx.fillStyle = '#c8d0e0';
           ctx.textAlign = 'right';
-          ctx.fillText(formatNumber(amt), x + colW, yy + 14);
+          ctx.fillText(formatNumber(amt), amountX, baseline);
           ctx.textAlign = 'left';
         }
         y += resRowsN * resRowH;
       }
 
-      y += 24;
+      y += 28;
       ctx.fillStyle = '#6b7385';
       ctx.font = '12px system-ui, Segoe UI, sans-serif';
+      ctx.textAlign = 'left';
       ctx.fillText(new Date().toLocaleString(), pad, Math.min(y, logicalH - 20));
 
       ctx.setTransform(1, 0, 0, 1, 0, 0);
