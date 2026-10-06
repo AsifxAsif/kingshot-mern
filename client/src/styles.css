@@ -2253,7 +2253,8 @@ img.asset-img,
 		font-display: swap;
 		src: url("/fonts/NotoSansSymbols2-Regular.ttf") format("truetype");
 	}
-	--font-ui: "Satoshi", "Segoe UI Historic", "Segoe UI Symbol", "Segoe UI", "Noto Sans", "Apple Symbols", "Noto Sans Symbols", "Noto Sans Symbols 2", "Noto Sans Coptic", system-ui, -apple-system, sans-serif;
+	--font-ui: "Satoshi", "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Historic", "Segoe UI Symbol", "Segoe UI", "Noto Sans", "Apple Symbols", "Noto Sans Symbols", "Noto Sans Symbols 2", "Noto Sans Coptic", system-ui, -apple-system, sans-serif;
+	--font-emoji: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Symbol", "Noto Sans Symbols 2", "Apple Symbols", sans-serif;
 	--font-mono: "JetBrains Mono", "SF Mono", ui-monospace, monospace;
 	--navbar-height: 64px;
 	--transition-fast: 0.15s ease;
@@ -5583,4 +5584,13 @@ body.auth-modal-open {
 .sandbox-body {
 	border-radius: var(--radius-md, 10px);
 	min-height: 40vh;
+}
+/* Stars (⭐) and other emoji in level dropdowns (Gov Gear, etc.) */
+.level-controls select,
+.level-controls option,
+.buff-field select,
+.buff-field option,
+.item-card-body select,
+.item-card-body option {
+	font-family: "Satoshi", var(--font-emoji), var(--font-ui), system-ui, sans-serif;
 }
