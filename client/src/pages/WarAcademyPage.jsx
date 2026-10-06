@@ -612,7 +612,7 @@ export default function WarAcademyPage() {
 
   usePublishPageScore('warAcademy', totalActivePoints);
 
-  if (loading)
+  if (loading && !data)
     return (
       <div className="page-loading">
         <PageSkeleton cards={6} label="Loading" />

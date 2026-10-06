@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useApp } from './context/AppContext';
 import Navbar from './components/Navbar';
@@ -25,9 +25,10 @@ const MiscPage = lazy(() => import('./pages/MiscPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 
 function PageFallback() {
+  // Light fallback — route chunks are cached after first visit; avoid heavy skeleton flash
   return (
-    <div className="page-loading">
-      <PageSkeleton cards={6} label="Loading page" />
+    <div className="page-loading page-loading-lite" aria-busy="true">
+      <span className="hint">Loading…</span>
     </div>
   );
 }
@@ -60,9 +61,14 @@ function AppRoutes() {
 }
 
 export default function App() {
-  const { loading } = useApp();
+  const { loading, isOnline, sandboxActive, applySandbox, discardSandbox } = useApp();
+  // Only block the whole app on the *first* preset load — not on every page switch
+  const [bootstrapped, setBootstrapped] = useState(false);
+  useEffect(() => {
+    if (!loading) setBootstrapped(true);
+  }, [loading]);
+  const showBootSkeleton = !bootstrapped && loading;
 
-  // Always keep Navbar mounted so links work even while preset data loads
   return (
     <RequireAuthGate>
       <div className="app app-with-events">
@@ -72,9 +78,29 @@ export default function App() {
         <HelpFab />
         <PageMeta />
         <main className="app-container">
-          {loading ? (
+          {!isOnline && (
+            <div className="offline-banner" role="status">
+              <span className="conn-dot is-offline" />
+              Offline — using cached data. Changes save on this device and sync when you are back online.
+            </div>
+          )}
+          {showBootSkeleton ? (
             <div className="page-loading">
               <PageSkeleton cards={4} />
+            </div>
+          ) : sandboxActive ? (
+            <div className="sandbox-shell">
+              <div className="sandbox-banner" role="status">
+                <strong>Sandbox</strong>
+                <span>
+                  What-if mode: nothing is saved to your preset until you Apply (levels, vault, everything).
+                </span>
+                <button type="button" className="preset-btn" onClick={applySandbox}>Apply</button>
+                <button type="button" className="preset-btn btn-delete" onClick={discardSandbox}>Discard</button>
+              </div>
+              <div className="sandbox-body">
+                <AppRoutes />
+              </div>
             </div>
           ) : (
             <AppRoutes />

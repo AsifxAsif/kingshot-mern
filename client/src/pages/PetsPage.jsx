@@ -282,7 +282,7 @@ export default function PetsPage() {
     setPageLockedCosts('vault', {});
   }, [setPageScore, setPageLockedCosts]);
 
-  if (loading)
+  if (loading && !data)
     return (
       <div className="page-loading">
         <PageSkeleton cards={6} label="Loading" />

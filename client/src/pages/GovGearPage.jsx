@@ -195,7 +195,7 @@ export default function GovGearPage() {
 
   usePublishPageScore('govGear', totalPoints);
 
-  if (loading) return <div className="page-loading"><PageSkeleton cards={6} label="Loading governor gear" /></div>;
+  if (loading && !data) return <div className="page-loading"><PageSkeleton cards={6} label="Loading governor gear" /></div>;
   if (error) return <div className="page-error"><p>{error}</p></div>;
 
   return (

@@ -183,7 +183,7 @@ export default function BuildingsPage() {
 
   usePublishPageScore('buildings', totalActivePoints);
 
-  if (loading) return <div className="page-loading"><PageSkeleton cards={8} label="Loading buildings" /></div>;
+  if (loading && !data) return <div className="page-loading"><PageSkeleton cards={8} label="Loading buildings" /></div>;
   if (error) return <div className="page-error"><p>{error}</p></div>;
 
   return (

@@ -181,7 +181,7 @@ export default function TroopsPage() {
     return false;
   }, [data, troopsState]);
 
-  if (loading) return <div className="page-loading"><PageSkeleton cards={6} label="Loading" /></div>;
+  if (loading && !data) return <div className="page-loading"><PageSkeleton cards={6} label="Loading" /></div>;
   if (error) return <div className="page-error"><p>{error}</p></div>;
 
   return (

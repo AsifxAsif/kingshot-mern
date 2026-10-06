@@ -8,6 +8,7 @@ import PageOptionsBar from '../components/PageOptionsBar';
 import { parseCost } from '../utils/calc';
 import { sequentialAfford, sumActiveCosts } from '../utils/resources';
 import CostStatus from '../components/CostStatus';
+import GroupCard from '../components/GroupCard';
 import AssetImg from '../components/AssetImg';
 import { asset } from '../utils/images';
 import { LevelSelects } from '../components/LevelSelects';
@@ -354,7 +355,12 @@ export default function HeroGearPage() {
       <div className="hero-gear-two-col">
         {/* Column 1 — Gear */}
         <div className="hero-gear-col">
-          <div className="section-title">Hero Gear</div>
+          <GroupCard
+            title="Hero Gear"
+            iconSrc={asset('hero-gear-mythic.webp')}
+            iconAlt="Hero Gear"
+            bodyClassName="hero-gear-group-body"
+          >
           {gearCards.filter((c) => showMaxed || !isAtMaxLevel(c.from, levels)).map((c, idx) => {
             const canAfford = seq.get(c.id)?.canAfford ?? true;
             const gearVault = seq.get(c.id)?.vaultBefore || vault;
@@ -379,39 +385,21 @@ export default function HeroGearPage() {
                     className="level-selects gear-level-row"
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                      gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)',
                       gap: 10,
                       alignItems: 'end',
                       marginBottom: 8,
                     }}
                   >
-                    <div className="buff-field" style={{ margin: 0 }}>
-                      <label>Current Level</label>
-                      <select
-                        value={c.from ?? ''}
-                        onChange={(e) => setListItem('items', c.id, 'from', e.target.value)}
-                      >
-                        <option value="">—</option>
-                        {levels.map((lv) => (
-                          <option key={`from-${lv}`} value={lv}>
-                            {lv}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="buff-field" style={{ margin: 0 }}>
-                      <label>Target Level</label>
-                      <select
-                        value={c.to ?? ''}
-                        onChange={(e) => setListItem('items', c.id, 'to', e.target.value)}
-                      >
-                        <option value="">—</option>
-                        {levels.map((lv) => (
-                          <option key={`to-${lv}`} value={lv}>
-                            {lv}
-                          </option>
-                        ))}
-                      </select>
+                    <div style={{ minWidth: 0 }}>
+                      <LevelSelects
+                        levels={levels}
+                        from={c.from ?? ''}
+                        to={c.to ?? ''}
+                        onFrom={(v) => setListItem('items', c.id, 'from', v)}
+                        onTo={(v) => setListItem('items', c.id, 'to', v)}
+                        highest={levels[levels.length - 1]}
+                      />
                     </div>
                     <div className="buff-field" style={{ margin: 0 }}>
                       <label htmlFor={`gear-mastery-${c.id}`}>Mastery</label>
@@ -530,11 +518,17 @@ export default function HeroGearPage() {
           >
             + Add item
           </button>
+          </GroupCard>
         </div>
 
         {/* Column 2 — Forgehammer */}
         <div className="hero-gear-col">
-          <div className="section-title">Forgehammer Mastery</div>
+          <GroupCard
+            title="Forgehammer Mastery"
+            iconSrc={asset('forge_hammer.webp')}
+            iconAlt="Forgehammer Mastery"
+            bodyClassName="hero-gear-group-body"
+          >
           {forgeCards.filter((c) => showMaxed || !isAtMaxLevel(c.from, forgeLevels)).map((c, idx) => {
             const canAfford = seq.get(c.id)?.canAfford ?? true;
             const forgeVault = seq.get(c.id)?.vaultBefore || vault;
@@ -608,6 +602,7 @@ export default function HeroGearPage() {
           >
             + Add item
           </button>
+          </GroupCard>
         </div>
       </div>
     </div>

@@ -55,7 +55,7 @@ function buildVaultItems(orderArr, hiddenArr) {
 }
 
 export default function VaultPage() {
-  const { vault, updateVaultField } = useApp();
+  const { vault, updateVaultField, sandboxActive } = useApp();
   const { event, eventId } = useScoreRules();
   const extras = (VAULT_EVENT_EXTRA[eventId] || []).filter((x) => x.vault);
 
@@ -109,6 +109,11 @@ export default function VaultPage() {
   if (!cfgLoaded) {
     return (
       <div className="vault-section">
+      {sandboxActive && (
+        <p className="hint" style={{ marginBottom: 10 }}>
+          🧪 Sandbox active — values below are temporary until you Apply from the banner or preset menu.
+        </p>
+      )}
         <VaultSkeleton />
       </div>
     );

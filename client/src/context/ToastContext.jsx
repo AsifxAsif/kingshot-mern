@@ -12,8 +12,8 @@ const ICONS = {
 };
 
 /**
- * Bottom-right notifications for important actions.
- * toast.success / .error / .info / .warning(message, { durationMs? })
+ * toast.success / .error / .info / .warning(message, { durationMs?, action?: { label, onClick } })
+ * toast.undo(message, onUndo, { durationMs = 30000 })
  */
 export function ToastProvider({ children }) {
   const [items, setItems] = useState([]);
@@ -28,7 +28,6 @@ export function ToastProvider({ children }) {
     setItems((prev) =>
       prev.map((x) => (x.id === id ? { ...x, leaving: true } : x))
     );
-    // Allow exit animation, then remove
     setTimeout(() => {
       setItems((prev) => prev.filter((x) => x.id !== id));
     }, 220);
@@ -37,14 +36,19 @@ export function ToastProvider({ children }) {
   const push = useCallback(
     (type, message, opts = {}) => {
       const msg = String(message || '').trim();
-      if (!msg) return;
+      if (!msg) return null;
       const id = ++idSeq;
-      const durationMs = opts.durationMs ?? (type === 'error' ? 5200 : 3400);
-      setItems((prev) => [...prev.slice(-4), { id, type, message: msg, leaving: false }]);
+      const durationMs = opts.durationMs ?? (type === 'error' ? 5200 : opts.action ? 30000 : 3400);
+      const action = opts.action || null;
+      setItems((prev) => [
+        ...prev.slice(-4),
+        { id, type, message: msg, leaving: false, action },
+      ]);
       if (durationMs > 0) {
         const timer = setTimeout(() => dismiss(id), durationMs);
         timersRef.current.set(id, timer);
       }
+      return id;
     },
     [dismiss]
   );
@@ -62,6 +66,21 @@ export function ToastProvider({ children }) {
       error: (m, o) => push('error', m, o),
       info: (m, o) => push('info', m, o),
       warning: (m, o) => push('warning', m, o),
+      /** 30s undo toast with Undo + close */
+      undo: (message, onUndo, opts = {}) =>
+        push('warning', message, {
+          durationMs: opts.durationMs ?? 30000,
+          action: {
+            label: opts.undoLabel || 'Undo',
+            onClick: () => {
+              try {
+                onUndo?.();
+              } catch (e) {
+                console.error(e);
+              }
+            },
+          },
+        }),
       dismiss,
     }),
     [push, dismiss]
@@ -74,13 +93,25 @@ export function ToastProvider({ children }) {
         {items.map((t) => (
           <div
             key={t.id}
-            className={`toast toast-${t.type}${t.leaving ? ' toast-leaving' : ''}`}
+            className={`toast toast-${t.type}${t.leaving ? ' toast-leaving' : ''}${t.action ? ' toast-with-action' : ''}`}
             role="status"
           >
             <span className="toast-icon" aria-hidden>
               {ICONS[t.type] || ICONS.info}
             </span>
             <span className="toast-msg">{t.message}</span>
+            {t.action && (
+              <button
+                type="button"
+                className="toast-action"
+                onClick={() => {
+                  t.action.onClick?.();
+                  dismiss(t.id);
+                }}
+              >
+                {t.action.label || 'Undo'}
+              </button>
+            )}
             <button
               type="button"
               className="toast-close"
@@ -104,6 +135,7 @@ export function useToast() {
       error: () => {},
       info: () => {},
       warning: () => {},
+      undo: () => {},
       dismiss: () => {},
     };
   }

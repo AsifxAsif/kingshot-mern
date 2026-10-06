@@ -1,4 +1,7 @@
 import {
+	rejectOperatorInjection
+} from '../utils/validate.js';
+import {
 	Router
 } from 'express';
 import * as dataController from '../controllers/dataController.js';
@@ -18,6 +21,7 @@ router.get('/auth/validate-game-id', authLimiter, authController.validateGameIdL
 router.get('/site-config', siteConfigController.getSiteConfig);
 // Everything below requires a valid JWT
 router.use(authController.authRequired);
+router.use(rejectOperatorInjection);
 router.get('/auth/me', authController.me);
 router.get('/player', playerController.getPlayer);
 router.get('/player/refresh-status', playerController.getRefreshStatus);

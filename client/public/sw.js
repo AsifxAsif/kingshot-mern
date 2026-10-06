@@ -1,9 +1,3 @@
-/**
- * Kingshot asset cache
- * - Cache-first for images / fonts under /assets/ and common image extensions
- * - Does NOT cache HTML/JS (SPA + Vite HMR stay fresh)
- * - Survives normal reloads; hard reload may still bypass SW in some browsers
- */
 const CACHE = 'kingshot-assets-v4';
 const ASSET_RE = /\.(webp|png|jpg|jpeg|gif|svg|ico|woff2?|ttf|otf)(\?.*)?$/i;
 

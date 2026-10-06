@@ -37,9 +37,8 @@ function formatAmt(key, n) {
 
 /**
  * Shared cost rows.
- * lines: [{ key, need, have?, left?, deficit?, label?, img?, fallbacks? }]
- * active: true  → show remaining after this upgrade is locked
- * active: false → show stock in vault (do not subtract this card's cost)
+ * OK:     bread: 96M (3.78K in vault)
+ * Short:  bread: 96M (have 0 · 96M short)
  */
 export default function ResourceLines({ lines = [], active = false }) {
   if (!lines.length) return null;
@@ -79,25 +78,31 @@ export default function ResourceLines({ lines = [], active = false }) {
         let statusText = null;
         let statusClass = '';
         const isShort = deficit || (left != null && left < 0);
+        const shortAmt =
+          isShort && need != null && have != null
+            ? Math.max(0, Number(need) - Number(have))
+            : isShort && left != null
+              ? Math.abs(left)
+              : null;
 
-        if (active) {
+        if (isShort) {
+          // Bracket only: have + short (need stays on the label)
+          const parts = [];
+          if (have != null) parts.push(`have ${formatAmt(key, have)}`);
+          if (shortAmt != null) parts.push(`${formatAmt(key, shortAmt)} short`);
+          statusText = parts.length ? parts.join(' · ') : 'short';
+          statusClass = 'text-deficit';
+        } else if (active) {
           if (left != null) {
-            statusText = isShort
-              ? `${formatAmt(key, left)} short`
-              : `${formatAmt(key, left)} remaining`;
-            statusClass = isShort ? 'text-deficit' : 'text-remaining';
+            statusText = `${formatAmt(key, left)} remaining`;
+            statusClass = 'text-remaining';
           } else if (have != null) {
             statusText = `${formatAmt(key, have)} in vault`;
-            statusClass = deficit ? 'text-deficit' : 'text-remaining';
+            statusClass = 'text-remaining';
           }
-        } else {
-          if (have != null) {
-            statusText = `${formatAmt(key, have)} in vault`;
-            statusClass = isShort ? 'text-deficit' : 'text-remaining';
-          } else if (isShort && left != null) {
-            statusText = `${formatAmt(key, left)} short`;
-            statusClass = 'text-deficit';
-          }
+        } else if (have != null) {
+          statusText = `${formatAmt(key, have)} in vault`;
+          statusClass = 'text-remaining';
         }
 
         return (

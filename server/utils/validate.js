@@ -2,7 +2,8 @@ import validator from 'validator';
 const USERNAME_RE = /^[a-zA-Z0-9_\-.]{3,32}$/;
 const GAME_ID_RE = /^[0-9]{7,20}$/;
 const KNOWN_EMAIL_DOMAINS = new Set(['gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.uk', 'yahoo.co.in', 'ymail.com', 'outlook.com', 'hotmail.com', 'live.com', 'msn.com', 'icloud.com', 'me.com', 'mac.com', 'proton.me', 'protonmail.com', 'aol.com', 'mail.com', 'zoho.com', 'gmx.com', 'gmx.net', 'fastmail.com', 'tutanota.com', 'hey.com', 'pm.me', ]);
-const DANGEROUS_RE = /[=;'"`\\]|--|\/\*|\*\/|\b(OR|AND|UNION|SELECT|INSERT|UPDATE|DELETE|DROP|EXEC|SCRIPT)\b/i;
+/** SQL / NoSQL injection-ish patterns in free-text fields */
+const DANGEROUS_RE = /[=;'"`\\]|--|\/\*|\*\/|\b(OR|AND|UNION|SELECT|INSERT|UPDATE|DELETE|DROP|EXEC|SCRIPT|WHERE|FROM)\b/i;
 export function hasDangerousInput(value) {
 	const s = String(value ?? '');
 	if (!s) return false;
@@ -49,18 +50,47 @@ export function sanitizePresetName(name) {
 	if (hasDangerousInput(n)) return null;
 	return n;
 }
+/**
+ * Reject Mongo operator injection ($gt, $where, …) and dangerous keys.
+ * Safe for nested preset JSON.
+ */
 export function assertNoOperators(value, depth = 0) {
-	if (depth > 12) throw new Error('Payload too deep');
-	if (value && typeof value === 'object') {
-		if (Array.isArray(value)) {
-			for (const item of value) assertNoOperators(item, depth + 1);
-			return;
+	if (depth > 16) throw new Error('Payload too deep');
+	if (value == null) return;
+	if (typeof value === 'string') {
+		// Allow normal game strings; block only obvious injection payloads in short keys
+		return;
+	}
+	if (typeof value !== 'object') return;
+	if (Array.isArray(value)) {
+		for (const item of value) assertNoOperators(item, depth + 1);
+		return;
+	}
+	for (const key of Object.keys(value)) {
+		if (key.startsWith('$') || key.includes('.')) {
+			throw new Error('Invalid field name');
 		}
-		for (const key of Object.keys(value)) {
-			if (key.startsWith('$') || key.includes('.')) {
-				throw new Error('Invalid field name');
-			}
-			assertNoOperators(value[key], depth + 1);
+		if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+			throw new Error('Invalid field name');
 		}
+		assertNoOperators(value[key], depth + 1);
+	}
+}
+/**
+ * Express middleware — run on JSON body for all write routes.
+ */
+export function rejectOperatorInjection(req, res, next) {
+	try {
+		if (req.body && typeof req.body === 'object') {
+			assertNoOperators(req.body);
+		}
+		if (req.query && typeof req.query === 'object') {
+			assertNoOperators(req.query);
+		}
+		next();
+	} catch (e) {
+		return res.status(400).json({
+			message: e.message || 'Invalid request payload'
+		});
 	}
 }

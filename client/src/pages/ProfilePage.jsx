@@ -1031,11 +1031,11 @@ export default function ProfilePage() {
   const cooldownActive = cooldownLeft > 0;
   const cooldownLabel = (() => {
     if (refreshing) return 'Refreshing…';
-    if (!cooldownActive) return 'Refresh';
+    if (!cooldownActive) return 'Refresh 🔄️';
     const s = cooldownLeft;
     const m = Math.floor(s / 60);
     const r = s % 60;
-    return `Refresh ${m}:${String(r).padStart(2, '0')}`;
+    return `Cooldown ${m}:${String(r).padStart(2, '0')}`;
   })();
 
   // Show skeleton until live player payload is ready (hide local DB / auth fields)

@@ -343,7 +343,7 @@ export const deletePreset = async (req, res) => {
 		let backupId = null;
 		try {
 			const backup = await createPresetBackup(existing, req.user.id, 'delete');
-			backupId = backup?._id || null;
+			backupId = backup?._id ? String(backup._id) : null;
 		} catch (be) {
 			console.error('backup on delete failed', be);
 		}
@@ -465,7 +465,7 @@ export const resetPresetWithBackup = async (req, res) => {
 		let backupId = null;
 		try {
 			const backup = await createPresetBackup(existing, req.user.id, 'reset');
-			backupId = backup?._id || null;
+			backupId = backup?._id ? String(backup._id) : null;
 		} catch (be) {
 			console.error('backup on reset failed', be);
 		}

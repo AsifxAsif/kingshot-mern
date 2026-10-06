@@ -7,7 +7,8 @@ import {
 } from '../services/api';
 const cache = new Map();
 const inflight = new Map();
-const LS_PREFIX = 'ks_gamedata_v2_';
+const LS_PREFIX = 'ks_gamedata_v3_';
+const LS_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days browser cache
 export function clearGameDataCache() {
 	cache.clear();
 	inflight.clear();
@@ -15,29 +16,47 @@ export function clearGameDataCache() {
 		const keys = [];
 		for (let i = 0; i < sessionStorage.length; i++) {
 			const k = sessionStorage.key(i);
-			if (k && k.startsWith(LS_PREFIX)) keys.push(k);
+			if (k && (k.startsWith('ks_gamedata_') || k.startsWith(LS_PREFIX))) keys.push(k);
 		}
 		keys.forEach((k) => sessionStorage.removeItem(k));
+		for (let i = localStorage.length - 1; i >= 0; i--) {
+			const k = localStorage.key(i);
+			if (k && k.startsWith(LS_PREFIX)) localStorage.removeItem(k);
+		}
 	} catch {
 		/* ignore */
 	}
 }
 
-function readSession(name) {
+function readStored(name) {
 	try {
-		const raw = sessionStorage.getItem(LS_PREFIX + name);
+		const raw = localStorage.getItem(LS_PREFIX + name) || sessionStorage.getItem(LS_PREFIX + name);
 		if (!raw) return null;
-		return JSON.parse(raw);
+		const parsed = JSON.parse(raw);
+		if (parsed && parsed.__ts && Date.now() - parsed.__ts > LS_TTL_MS) return null;
+		return parsed?.data ?? parsed;
 	} catch {
 		return null;
 	}
 }
 
-function writeSession(name, data) {
+function writeStored(name, data) {
 	try {
-		sessionStorage.setItem(LS_PREFIX + name, JSON.stringify(data));
+		const payload = JSON.stringify({
+			__ts: Date.now(),
+			data
+		});
+		localStorage.setItem(LS_PREFIX + name, payload);
+		sessionStorage.setItem(LS_PREFIX + name, payload);
 	} catch {
-		/* quota */
+		try {
+			sessionStorage.setItem(LS_PREFIX + name, JSON.stringify({
+				__ts: Date.now(),
+				data
+			}));
+		} catch {
+			/* quota */
+		}
 	}
 }
 async function fetchCollection(name) {
@@ -45,7 +64,7 @@ async function fetchCollection(name) {
 	if (inflight.has(name)) return inflight.get(name);
 	const p = getCollection(name).then((data) => {
 		cache.set(name, data);
-		writeSession(name, data);
+		writeStored(name, data);
 		inflight.delete(name);
 		return data;
 	}).catch((e) => {
@@ -63,11 +82,13 @@ export function prefetchGameData(collections) {
 	});
 }
 export function useGameData(collection) {
-	const sessionHit = !cache.has(collection) ? readSession(collection) : null;
-	if (sessionHit && !cache.has(collection)) {
-		cache.set(collection, sessionHit);
+	// Hydrate memory cache from localStorage synchronously on first use
+	if (!cache.has(collection)) {
+		const stored = readStored(collection);
+		if (stored) cache.set(collection, stored);
 	}
 	const [data, setData] = useState(() => cache.get(collection) || null);
+	// Only "loading" when we have nothing to show yet
 	const [loading, setLoading] = useState(() => !cache.has(collection));
 	const [error, setError] = useState(null);
 	useEffect(() => {
@@ -76,7 +97,7 @@ export function useGameData(collection) {
 			setData(cache.get(collection));
 			setLoading(false);
 			setError(null);
-			// soft revalidate in background
+			// Soft revalidate in background — do not set loading true
 			fetchCollection(collection).then((d) => {
 				if (!cancelled) setData(d);
 			}).catch(() => {});
@@ -104,7 +125,7 @@ export function useGameData(collection) {
 	}, [collection]);
 	return {
 		data,
-		loading,
+		loading: loading && !data, // never block UI if cached data exists
 		error
 	};
 }

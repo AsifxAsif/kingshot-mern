@@ -3,6 +3,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import AppModal from './AppModal';
+import { useShareCardPng } from './ShareCard';
 import { EVENTS, normalizeEventId } from '../utils/events';
 
 const LINKS = [
@@ -64,12 +65,19 @@ export default function Navbar() {
     deletePreset,
     resetCurrentPage,
     resetPresetFull,
+    exportActivePreset,
+    importPresetData,
+    isOnline,
+    sandboxActive,
+    enterSandbox,
   } = useApp();
   const [menuOpen, setMenuOpen] = useState(false);
   const [presetOpen, setPresetOpen] = useState(false);
   /** @type {[{type, title, message, danger, defaultValue, confirmLabel}, function]} */
   const [modal, setModal] = useState(null);
   const closeModal = () => setModal(null);
+  const importFileRef = useRef(null);
+  const { downloadSharePng } = useShareCardPng();
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -225,6 +233,80 @@ export default function Navbar() {
     });
   };
 
+
+  const handleExport = () => {
+    try {
+      exportActivePreset();
+      setPresetOpen(false);
+    } catch (e) {
+      setModal({
+        type: 'alert',
+        title: 'Export failed',
+        message: e.message || 'Could not export preset',
+        confirmLabel: 'OK',
+        onConfirm: () => closeModal(),
+      });
+    }
+  };
+
+  const handleImportClick = () => {
+    importFileRef.current?.click();
+  };
+
+  const handleImportFile = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      let parsed;
+      try {
+        parsed = JSON.parse(String(reader.result || ''));
+      } catch {
+        setModal({
+          type: 'alert',
+          title: 'Import failed',
+          message: 'File is not valid JSON.',
+          confirmLabel: 'OK',
+          onConfirm: () => closeModal(),
+        });
+        return;
+      }
+      setModal({
+        type: 'confirm',
+        title: 'Import preset',
+        message: `Import "${file.name}" into the current preset "${displayNameOf(currentName)}"?\n\nThis overwrites the current calculator data, then saves to the database.`,
+        confirmLabel: 'Import',
+        danger: true,
+        onConfirm: async () => {
+          closeModal();
+          try {
+            await importPresetData(parsed);
+            setPresetOpen(false);
+          } catch (err) {
+            setModal({
+              type: 'alert',
+              title: 'Import failed',
+              message: err.message || 'Could not import preset',
+              confirmLabel: 'OK',
+              onConfirm: () => closeModal(),
+            });
+          }
+        },
+      });
+    };
+    reader.onerror = () => {
+      setModal({
+        type: 'alert',
+        title: 'Import failed',
+        message: 'Could not read the file.',
+        confirmLabel: 'OK',
+        onConfirm: () => closeModal(),
+      });
+    };
+    reader.readAsText(file);
+  };
+
   const handleDelete = () => {
     if (!user) {
       requireAuth('Login required to manage presets.');
@@ -371,6 +453,11 @@ export default function Navbar() {
 
         <div className="preset-controls">
           {/* Desktop only: preset dropdown outside hamburger */}
+          <span
+            className={`conn-dot${isOnline ? ' is-online' : ' is-offline'}`}
+            title={isOnline ? 'Online — saving to database' : 'Offline — saving on this device'}
+            aria-label={isOnline ? 'Online' : 'Offline'}
+          />
           <select
             id="presetSelectDesktop"
             className="preset-select preset-select-desktop"
@@ -427,10 +514,40 @@ export default function Navbar() {
                 New
               </button>
               <button type="button" className="preset-btn" onClick={() => { handleRename(); setPresetOpen(false); }} title="Rename preset">
-                Rename
+                ✏️ Rename
               </button>
+              <button type="button" className="preset-btn" onClick={handleExport} title="Download current preset as JSON">
+                📤 Export
+              </button>
+              <button type="button" className="preset-btn" onClick={handleImportClick} title="Import preset from JSON file">
+                📥 Import
+              </button>
+              <button
+                type="button"
+                className="preset-btn"
+                onClick={() => {
+                  downloadSharePng();
+                  setPresetOpen(false);
+                }}
+                title="Download read-only share card PNG"
+              >
+                Share
+              </button>
+              {!sandboxActive && (
+                <button
+                  type="button"
+                  className="preset-btn"
+                  onClick={() => {
+                    enterSandbox();
+                    setPresetOpen(false);
+                  }}
+                  title="What-if mode: try any changes without saving until Apply"
+                >
+                  Sandbox
+                </button>
+              )}
               <button type="button" className="preset-btn btn-delete" onClick={() => { handleDelete(); setPresetOpen(false); }} title="Delete Preset">
-                Delete
+                🗑️ Delete
               </button>
               <button
                 type="button"
@@ -466,6 +583,14 @@ export default function Navbar() {
         </div>
       </div>
     </div>
+    <input
+      ref={importFileRef}
+      type="file"
+      accept="application/json,.json"
+      style={{ display: 'none' }}
+      onChange={handleImportFile}
+      data-auth-allow
+    />
     <AppModal
       open={!!modal}
       title={modal?.title || ''}

@@ -37,6 +37,37 @@ export function primaryPresetName(user) {
   return `${u}_${g}`;
 }
 
+const OFFLINE_PENDING_KEY = 'ks_offline_pending_v1';
+
+function writeOfflinePending(name, data) {
+  try {
+    localStorage.setItem(
+      OFFLINE_PENDING_KEY,
+      JSON.stringify({ name, data, ts: Date.now() })
+    );
+  } catch {
+    /* quota */
+  }
+}
+
+function readOfflinePending() {
+  try {
+    const raw = localStorage.getItem(OFFLINE_PENDING_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function clearOfflinePending() {
+  try {
+    localStorage.removeItem(OFFLINE_PENDING_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
 const EMPTY_STATE = {
   vault: {},
   troops: {},
@@ -140,10 +171,20 @@ export function AppProvider({ children }) {
   const [state, setState] = useState(() =>
     getSavedActiveName() === 'default' ? loadLocalDefault() : { ...EMPTY_STATE }
   );
+  const [isOnline, setIsOnline] = useState(
+    () => (typeof navigator !== 'undefined' ? navigator.onLine : true)
+  );
+  /** Full-preset what-if: no saves until Apply */
+  const [sandboxActive, setSandboxActive] = useState(false);
+  const sandboxActiveRef = useRef(false);
+  const sandboxBaselineRef = useRef(null);
   const saveTimer = useRef(null);
   const pendingPatch = useRef({});
   const stateRef = useRef(state);
   stateRef.current = state;
+  sandboxActiveRef.current = sandboxActive;
+  /** Blocks cloud saves until a preset document has been loaded (prevents wiping DB with empty state). */
+  const hydratedRef = useRef(false);
   const currentNameRef = useRef(currentName);
   currentNameRef.current = currentName;
   const userRef = useRef(user);
@@ -152,8 +193,12 @@ export function AppProvider({ children }) {
   const applyPresetDoc = (doc) => {
     if (!doc) {
       setState({ ...EMPTY_STATE });
+      hydratedRef.current = true;
       return;
     }
+    hydratedRef.current = true;
+    setSandboxActive(false);
+    sandboxBaselineRef.current = null;
     const eventPageScores = doc.eventPageScores || {};
     const settings = doc.settings || {};
     const active =
@@ -274,6 +319,13 @@ export function AppProvider({ children }) {
       return;
     }
 
+    // Never push empty/boot state to Mongo before the real preset is loaded
+    if (!hydratedRef.current) {
+      pendingPatch.current = { ...patch, ...pendingPatch.current };
+      return;
+    }
+    if (sandboxActiveRef.current) return;
+
     let name = resolveCloudPresetName(currentNameRef.current);
     if (!name) return;
 
@@ -284,11 +336,19 @@ export function AppProvider({ children }) {
       setSavedActiveName(name);
     }
 
+    // Offline: persist full snapshot locally; sync when back online
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      writeOfflinePending(name, { ...st, ...patch });
+      setSaving(false);
+      return;
+    }
+
     setSaving(true);
     try {
       const full = buildFullPayload(st, u);
       // Full document every time so every input / level / checkbox is stored
       await apiUpdate(name, { ...full, ...patch });
+      clearOfflinePending();
     } catch (e) {
       console.error('Save failed', e);
       // Create primary on first write if missing
@@ -321,6 +381,7 @@ export function AppProvider({ children }) {
 
   const scheduleSave = useCallback(
     (name, patch) => {
+      if (sandboxActiveRef.current) return;
       const u = userRef.current;
       if (!u) {
         // Guest: still persist locally so inputs survive refresh
@@ -334,6 +395,11 @@ export function AppProvider({ children }) {
       const cloudName = resolveCloudPresetName(name);
       if (!cloudName) return;
       pendingPatch.current = { ...pendingPatch.current, ...(patch || {}) };
+      // Always keep a local offline mirror of the latest full state
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        const merged = { ...stateRef.current, ...pendingPatch.current };
+        writeOfflinePending(cloudName, merged);
+      }
       if (saveTimer.current) clearTimeout(saveTimer.current);
       // Short debounce; full snapshot still sent on flush
       saveTimer.current = setTimeout(() => {
@@ -361,6 +427,48 @@ export function AppProvider({ children }) {
     };
   }, [flushSave]);
 
+
+  // Online / offline: queue locally offline, push to DB when back online
+  useEffect(() => {
+    const goOnline = async () => {
+      setIsOnline(true);
+      const pending = readOfflinePending();
+      if (pending?.data && hydratedRef.current) {
+        try {
+          // Restore pending edits into state then flush
+          if (pending.data && typeof pending.data === 'object') {
+            setState((prev) => {
+              const next = { ...prev, ...pending.data };
+              stateRef.current = next;
+              return next;
+            });
+          }
+          await flushSave();
+          clearOfflinePending();
+          toast.success('Back online — changes synced to database');
+        } catch (e) {
+          console.error(e);
+          toast.error('Back online but sync failed — will retry on next save');
+        }
+      } else {
+        toast.info('Back online');
+      }
+    };
+    const goOffline = () => {
+      setIsOnline(false);
+      if (hydratedRef.current) {
+        writeOfflinePending(currentNameRef.current, stateRef.current);
+        toast.warning('You are offline — changes save on this device until you reconnect');
+      }
+    };
+    window.addEventListener('online', goOnline);
+    window.addEventListener('offline', goOffline);
+    return () => {
+      window.removeEventListener('online', goOnline);
+      window.removeEventListener('offline', goOffline);
+    };
+  }, [flushSave, toast]);
+
   // Wait for auth to finish before touching localStorage active preset.
   // Previously: user=null while /auth/me loads → setSavedActiveName('default') wiped the selection.
   useEffect(() => {
@@ -386,16 +494,9 @@ export function AppProvider({ children }) {
       }
 
       try {
-        // Optional cleanup of legacy cloud "default"
-        const list0 = await listPresets().catch(() => []);
-        if ((list0 || []).some((p) => p.name === 'default')) {
-          try {
-            await apiDelete('default');
-          } catch {
-            /* ignore */
-          }
-        }
-
+        // Do NOT auto-delete any cloud preset (including legacy "default").
+        // Accidental deletes wiped real user data; recovery is Profile → backups only.
+        hydratedRef.current = false;
         const list = await refreshList();
         const saved = getSavedActiveName();
         // Prefer last selected preset (localStorage); do not always fall back to primary
@@ -620,7 +721,6 @@ export function AppProvider({ children }) {
       setSavedActiveName(name);
       setCurrentName(name);
 
-      setLoading(true);
       try {
         if (!user) {
           setState(loadLocalDefault());
@@ -635,9 +735,7 @@ export function AppProvider({ children }) {
         }
       } catch (e) {
         console.error(e);
-        alert('Failed to load preset');
-      } finally {
-        setLoading(false);
+        toast.error('Failed to load preset');
       }
     },
     [user, flushSave, buildFullPayload]
@@ -720,19 +818,25 @@ export function AppProvider({ children }) {
       // Guest local default
       if (!user) {
         if (name === 'default') {
+          const prev = loadLocalDefault();
           saveLocalDefault({ ...EMPTY_STATE });
           setState({ ...EMPTY_STATE });
+          toast.undo('Local preset cleared', () => {
+            saveLocalDefault(prev);
+            setState(prev);
+            toast.success('Undo complete');
+          });
         }
         return;
       }
-      const primary = primaryPresetName(user);
       try {
-        await apiDelete(name);
-      toast.success('Preset deleted — backup saved for 30 days');
+        const result = await apiDelete(name);
+        const backupId = result?.backupId;
         const list = await refreshList();
         if (currentNameRef.current === name) {
           const next = list[0];
           if (next?.name) {
+            currentNameRef.current = next.name;
             setSavedActiveName(next.name);
             setCurrentName(next.name);
             try {
@@ -742,35 +846,83 @@ export function AppProvider({ children }) {
               setState({ ...EMPTY_STATE });
             }
           } else {
+            currentNameRef.current = '';
             setSavedActiveName('');
             setCurrentName('');
             setState({ ...EMPTY_STATE });
           }
         }
+        toast.undo(
+          'Preset deleted — backup saved for 30 days',
+          async () => {
+            if (!backupId) {
+              toast.error('No backup id to restore');
+              return;
+            }
+            try {
+              await apiRestoreBackup(backupId);
+              await refreshList();
+              const doc = await getPreset(name).catch(() => null);
+              if (doc) {
+                currentNameRef.current = name;
+                setSavedActiveName(name);
+                setCurrentName(name);
+                applyPresetDoc(doc);
+              }
+              toast.success('Preset restored');
+            } catch (e) {
+              toast.error(e.message || 'Undo failed');
+            }
+          }
+        );
       } catch (e) {
         toast.error(e.message || 'Delete failed');
       }
     },
-    [user, refreshList, buildFullPayload]
+    [user, refreshList, toast]
   );
 
   /** Reset entire active preset (all pages) — server keeps a 30-day backup */
   const resetPresetFull = useCallback(async () => {
     const empty = { ...EMPTY_STATE };
     if (!user || !currentNameRef.current || currentNameRef.current === 'default') {
+      const prev = { ...stateRef.current };
       setState(empty);
       stateRef.current = empty;
       saveLocalDefault(empty);
+      toast.undo('Preset cleared', () => {
+        setState(prev);
+        stateRef.current = prev;
+        saveLocalDefault(prev);
+        toast.success('Undo complete');
+      });
       return;
     }
+    const presetName = currentNameRef.current;
     try {
-      await apiResetPreset(currentNameRef.current);
+      const result = await apiResetPreset(presetName);
+      const backupId = result?.backupId;
       setState(empty);
       stateRef.current = empty;
-      toast.success('Preset reset — backup saved for 30 days');
+      toast.undo(
+        'Preset reset — backup saved for 30 days',
+        async () => {
+          if (!backupId) {
+            toast.error('No backup id to restore');
+            return;
+          }
+          try {
+            await apiRestoreBackup(backupId);
+            const doc = await getPreset(presetName);
+            applyPresetDoc(doc);
+            toast.success('Preset restored');
+          } catch (e) {
+            toast.error(e.message || 'Undo failed');
+          }
+        }
+      );
     } catch (e) {
       console.error(e);
-      // Fallback local clear if API fails
       setState(empty);
       stateRef.current = empty;
       throw e;
@@ -798,6 +950,20 @@ export function AppProvider({ children }) {
     const label = path === '/' ? 'Vault' : path.replace('/', '').replace(/-/g, ' ');
     // Confirmation is handled by Navbar AppModal — do not use window.confirm here
 
+    const snapshot = {
+      keys: [...keys],
+      scoreKey,
+      sections: {},
+      pageScores: stateRef.current.pageScores,
+      eventPageScores: stateRef.current.eventPageScores,
+    };
+    for (const k of keys) {
+      snapshot.sections[k] =
+        k === 'vault'
+          ? { ...(stateRef.current.vault || {}) }
+          : { ...(stateRef.current[k] || {}) };
+    }
+
     setState((prev) => {
       const next = { ...prev };
       for (const k of keys) {
@@ -811,7 +977,6 @@ export function AppProvider({ children }) {
       const patch = {};
       for (const k of keys) patch[k] = next[k];
       if (scoreKey) patch.pageScores = next.pageScores;
-      // Also persist per-event scores
       const eventId = String(next.settings?.activeEvent || 'sg').toLowerCase();
       if (scoreKey) {
         next.eventPageScores = {
@@ -826,7 +991,27 @@ export function AppProvider({ children }) {
       scheduleSave(currentNameRef.current, patch);
       return next;
     });
-    toast.success('Page data reset');
+
+    toast.undo(`"${label}" page reset`, () => {
+      setState((prev) => {
+        const next = { ...prev };
+        for (const k of snapshot.keys) {
+          next[k] = snapshot.sections[k] || {};
+        }
+        if (snapshot.pageScores) next.pageScores = snapshot.pageScores;
+        if (snapshot.eventPageScores) next.eventPageScores = snapshot.eventPageScores;
+        stateRef.current = next;
+        const patch = {};
+        for (const k of snapshot.keys) patch[k] = next[k];
+        if (snapshot.scoreKey) {
+          patch.pageScores = next.pageScores;
+          patch.eventPageScores = next.eventPageScores;
+        }
+        scheduleSave(currentNameRef.current, patch);
+        return next;
+      });
+      toast.success('Page restore complete');
+    });
   }, [scheduleSave, toast]);
 
   // Strongest Governor = sum of page scores only (matches old site)
@@ -869,6 +1054,67 @@ export function AppProvider({ children }) {
   }, [scheduleSave]);
 
   /** Vault after other pages' Active costs are reserved (exclude current page when checking itself) */
+
+  const enterSandbox = useCallback(() => {
+    try {
+      sandboxBaselineRef.current = JSON.parse(JSON.stringify(stateRef.current));
+    } catch {
+      sandboxBaselineRef.current = { ...stateRef.current };
+    }
+    setSandboxActive(true);
+    toast.info('Sandbox on — nothing is saved until you Apply');
+  }, [toast]);
+
+  const discardSandbox = useCallback(() => {
+    const base = sandboxBaselineRef.current;
+    if (base) {
+      let restored;
+      try {
+        restored = JSON.parse(JSON.stringify(base));
+      } catch {
+        restored = { ...base };
+      }
+      setState(restored);
+      stateRef.current = restored;
+    }
+    sandboxBaselineRef.current = null;
+    setSandboxActive(false);
+    pendingPatch.current = {};
+    toast.info('Sandbox discarded — preset restored');
+  }, [toast]);
+
+  const applySandbox = useCallback(() => {
+    sandboxBaselineRef.current = null;
+    setSandboxActive(false);
+    pendingPatch.current = {};
+    toast.success('Sandbox applied — saving to preset');
+    queueMicrotask(() => {
+      const st = stateRef.current;
+      scheduleSave(currentNameRef.current, {
+        vault: st.vault,
+        buildings: st.buildings,
+        troops: st.troops,
+        heroes: st.heroes,
+        heroGear: st.heroGear,
+        govGear: st.govGear,
+        govCharm: st.govCharm,
+        pets: st.pets,
+        warAcademy: st.warAcademy,
+        masters: st.masters,
+        widgets: st.widgets,
+        misc: st.misc,
+        planner: st.planner,
+        heroShards: st.heroShards,
+        heroWidgets: st.heroWidgets,
+        heroFlowers: st.heroFlowers,
+        lockedUpgrades: st.lockedUpgrades,
+        settings: st.settings,
+        pageScores: st.pageScores,
+        eventPageScores: st.eventPageScores,
+      });
+    });
+  }, [scheduleSave, toast]);
+
   const remainingVault = useMemo(
     () => buildRemainingVault(state.vault || {}, state.lockedUpgrades || {}, null),
     [state.vault, state.lockedUpgrades]
@@ -880,6 +1126,162 @@ export function AppProvider({ children }) {
     [state.vault, state.lockedUpgrades]
   );
 
+  /** Download current preset as JSON (local backup — works on free Mongo). */
+  const exportActivePreset = useCallback(() => {
+    const st = stateRef.current;
+    const name = currentNameRef.current || 'preset';
+    const payload = {
+      format: 'kingshot-preset',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      name,
+      displayName: name,
+      data: buildFullPayload(st, userRef.current),
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const safe = String(name).replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 48) || 'preset';
+    a.href = url;
+    a.download = `kingshot-preset-${safe}-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    try {
+      localStorage.setItem('ks_last_preset_export_ts', String(Date.now()));
+    } catch {
+      /* ignore */
+    }
+    toast.success('Preset exported');
+    return payload;
+  }, [buildFullPayload, toast]);
+
+  /**
+   * Import preset JSON into the *current* active preset and save to DB.
+   * Accepts either { format, data } wrapper or a raw state object.
+   */
+  const importPresetData = useCallback(
+    async (raw) => {
+      let doc = raw;
+      if (raw && typeof raw === 'object' && raw.data && typeof raw.data === 'object') {
+        doc = raw.data;
+      }
+      if (!doc || typeof doc !== 'object') {
+        throw new Error('Invalid preset file');
+      }
+      // Must have at least one known section
+      const keys = [
+        'vault', 'buildings', 'troops', 'heroes', 'heroGear', 'govGear', 'govCharm',
+        'pets', 'warAcademy', 'masters', 'widgets', 'misc', 'heroShards', 'heroWidgets',
+        'heroFlowers', 'settings', 'pageScores', 'eventPageScores', 'lockedUpgrades',
+      ];
+      if (!keys.some((k) => doc[k] != null && typeof doc[k] === 'object')) {
+        throw new Error('File is not a Kingshot preset export');
+      }
+
+      hydratedRef.current = true;
+      applyPresetDoc(doc);
+      stateRef.current = {
+        ...EMPTY_STATE,
+        vault: doc.vault || {},
+        troops: doc.troops || {},
+        buildings: doc.buildings || {},
+        heroes: doc.heroes || {},
+        heroGear: doc.heroGear || {},
+        govGear: doc.govGear || {},
+        govCharm: doc.govCharm || {},
+        pets: doc.pets || {},
+        warAcademy: doc.warAcademy || {},
+        masters: doc.masters || {},
+        widgets: doc.widgets || {},
+        misc: doc.misc || {},
+        planner: doc.planner || {},
+        heroShards: doc.heroShards || {},
+        heroWidgets: doc.heroWidgets || {},
+        heroFlowers: doc.heroFlowers || {},
+        lockedUpgrades: doc.lockedUpgrades || {},
+        settings: doc.settings || {},
+        pageScores: doc.pageScores || {},
+        eventPageScores: doc.eventPageScores || {},
+      };
+
+      const u = userRef.current;
+      if (u) {
+        const name = resolveCloudPresetName(currentNameRef.current);
+        if (name) {
+          await apiUpdate(name, buildFullPayload(stateRef.current, u));
+        }
+      } else {
+        saveLocalDefault(stateRef.current);
+      }
+      toast.success('Preset imported and saved');
+      return true;
+    },
+    [buildFullPayload, resolveCloudPresetName, toast]
+  );
+
+
+  // 15-day local JSON export reminder (free Atlas users need offline copies)
+  useEffect(() => {
+    if (!user) return undefined;
+    const DAY = 24 * 60 * 60 * 1000;
+    const INTERVAL = 15 * DAY;
+    const check = () => {
+      if (!hydratedRef.current) return;
+      let last = 0;
+      try {
+        last = parseInt(localStorage.getItem('ks_last_preset_export_ts') || '0', 10) || 0;
+      } catch {
+        last = 0;
+      }
+      const age = Date.now() - last;
+      if (last > 0 && age < INTERVAL) return;
+      // First-time: wait until user has been active (hydrated) — remind once
+      const snoozeKey = 'ks_export_remind_snooze';
+      try {
+        const snooze = parseInt(localStorage.getItem(snoozeKey) || '0', 10) || 0;
+        if (Date.now() - snooze < DAY) return; // don't spam same day after dismiss
+      } catch {
+        /* ignore */
+      }
+      toast.undo(
+        last <= 0
+          ? 'Tip: Export your preset as JSON for a free offline backup'
+          : 'It has been 15+ days since your last preset export',
+        () => {
+          try {
+            exportActivePreset();
+          } catch (e) {
+            console.error(e);
+          }
+        },
+        { durationMs: 20000, undoLabel: 'Export now' }
+      );
+      try {
+        localStorage.setItem(snoozeKey, String(Date.now()));
+      } catch {
+        /* ignore */
+      }
+    };
+    const t0 = setTimeout(check, 8000); // after UI settles
+    const id = setInterval(check, 6 * 60 * 60 * 1000); // re-check every 6h while open
+    return () => {
+      clearTimeout(t0);
+      clearInterval(id);
+    };
+  }, [user, toast, exportActivePreset]);
+
+  // Reassure user every 5 minutes that data is saved (logged-in + hydrated only)
+  useEffect(() => {
+    if (!user) return undefined;
+    const id = setInterval(() => {
+      if (!hydratedRef.current) return;
+      if (document.visibilityState === 'hidden') return;
+      toast.success('All changes saved', { durationMs: 2500 });
+    }, 5 * 60 * 1000);
+    return () => clearInterval(id);
+  }, [user, toast]);
 
   /** Restore a 30-day backup into an active preset and open it */
   const restoreFromBackup = useCallback(
@@ -931,6 +1333,8 @@ export function AppProvider({ children }) {
     deletePreset,
     resetPresetFull,
     restoreFromBackup,
+    exportActivePreset,
+    importPresetData,
     resetCurrent: resetCurrentPage,
     resetCurrentPage,
     updateSection,
@@ -940,6 +1344,11 @@ export function AppProvider({ children }) {
     remainingVault,
     remainingVaultExcluding,
     vault: state.vault,
+    sandboxActive,
+    enterSandbox,
+    discardSandbox,
+    applySandbox,
+    isOnline,
     setVault: (v) => updateSection('vault', v),
     updateVaultField: (id, val) =>
       updateSection('vault', (prev) => ({ ...prev, [id]: val })),

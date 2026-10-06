@@ -1,0 +1,29 @@
+{
+	"name": "Kingshot Event Calculator",
+	"short_name": "Kingshot Calc",
+	"description": "Strongest Governor event calculator for Kingshot — buildings, troops, heroes, masters, gear and gathering.",
+	"start_url": "/",
+	"scope": "/",
+	"display": "standalone",
+	"orientation": "any",
+	"background_color": "#e8e8e8",
+	"theme_color": "#12141a",
+	"categories": [
+		"games",
+		"utilities"
+	],
+	"icons": [
+		{
+			"src": "/favicon.ico",
+			"sizes": "48x48",
+			"type": "image/x-icon",
+			"purpose": "any"
+		},
+		{
+			"src": "/favicon.ico",
+			"sizes": "192x192",
+			"type": "image/x-icon",
+			"purpose": "any maskable"
+		}
+	]
+}

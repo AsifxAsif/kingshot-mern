@@ -1297,7 +1297,7 @@ export default function MastersPage() {
     return order.map((id) => map.get(id));
   }, [cards, hideMaxedSkills]);
 
-  if (loading) {
+  if (loading && !data) {
     return (
       <div className="page-loading">
         <MastersSkeleton />

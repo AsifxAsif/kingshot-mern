@@ -255,7 +255,7 @@ export default function GovCharmPage() {
 
     usePublishPageScore('govCharm', totalPoints);
 
-  if (loading)
+  if (loading && !data)
     return (
       <div className="page-loading">
         <PageSkeleton cards={6} label="Loading" />
