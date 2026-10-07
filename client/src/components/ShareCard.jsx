@@ -497,7 +497,9 @@ export function useShareCardPng() {
         for (const [pageName, list] of byPage) {
           const cols = pairColsFor(list.length);
           const rows = Math.ceil(list.length / cols) || 1;
-          const pairWidths = computePairWidths(ctx, list, cols, tableW, 8);
+          // Equal column widths (not content-hugging)
+          const pairW = tableW / cols;
+          const pairWidths = Array.from({ length: cols }, () => pairW);
           const pairGap = 8;
 
           const tableTop = y - 18;
@@ -541,8 +543,8 @@ export function useShareCardPng() {
             ctx.fillRect(pad - 6, dataTop + r * upgRowH, tableW + 12, upgRowH);
           }
 
-          ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-          ctx.lineWidth = 1;
+          ctx.strokeStyle = 'rgba(240, 200, 100, 0.55)';
+          ctx.lineWidth = 2.5;
           let vx = pad;
           for (let c = 0; c < cols - 1; c++) {
             vx += pairWidths[c];
@@ -615,8 +617,8 @@ export function useShareCardPng() {
           ctx.fillRect(pad - 6, resTop + r * resRowH, LW - pad * 2 + 12, resRowH);
         }
 
-        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(240, 200, 100, 0.55)';
+        ctx.lineWidth = 2.5;
         for (let c = 1; c < resCols; c++) {
           const vx = pad + c * (colW + gap) - gap / 2;
           ctx.beginPath();

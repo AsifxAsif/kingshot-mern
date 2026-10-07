@@ -302,25 +302,56 @@ function affinityEmblemCost(master, fromLv, toLv) {
   return total;
 }
 
-/** Greedy: spend highest-value affinity items first */
-function affinityPointsToItems(pointsNeeded) {
+/**
+ * Convert affinity points → gift items.
+ * Spend order: elite spices (1000) → silver goblet (100) → copper horn (10).
+ */
+function affinityPointsToItems(pointsNeeded, vault = {}) {
   let left = Math.max(0, Math.ceil(Number(pointsNeeded) || 0));
   const costs = {};
-  const elite = Math.floor(left / 1000);
-  if (elite > 0) {
-    costs.elite_spices = elite;
-    left -= elite * 1000;
+  if (left <= 0) return costs;
+
+  const have = (id) => Math.max(0, Math.floor(Number(vaultAmount(vault, id)) || 0));
+
+  // 1) Elite Spices — 1000 pts
+  const eliteUse = Math.min(have('elite_spices'), Math.floor(left / 1000));
+  if (eliteUse > 0) {
+    costs.elite_spices = eliteUse;
+    left -= eliteUse * 1000;
   }
-  const silver = Math.floor(left / 100);
-  if (silver > 0) {
-    costs.silver_goblet = silver;
-    left -= silver * 100;
+
+  // 2) Silver Goblet — 100 pts
+  const silverUse = Math.min(have('silver_goblet'), Math.floor(left / 100));
+  if (silverUse > 0) {
+    costs.silver_goblet = silverUse;
+    left -= silverUse * 100;
   }
-  const copper = Math.ceil(left / 10);
-  if (copper > 0) {
-    costs.copper_horn = copper;
-    left = 0;
+
+  // 3) Copper Horn — 10 pts
+  const copperUse = Math.min(have('copper_horn'), Math.floor(left / 10));
+  if (copperUse > 0) {
+    costs.copper_horn = copperUse;
+    left -= copperUse * 10;
   }
+
+  // Shortage remainder — same order
+  if (left > 0) {
+    if (left >= 1000) {
+      const e = Math.floor(left / 1000);
+      costs.elite_spices = (costs.elite_spices || 0) + e;
+      left -= e * 1000;
+    }
+    if (left >= 100) {
+      const s = Math.floor(left / 100);
+      costs.silver_goblet = (costs.silver_goblet || 0) + s;
+      left -= s * 100;
+    }
+    if (left > 0) {
+      costs.copper_horn = (costs.copper_horn || 0) + Math.ceil(left / 10);
+      left = 0;
+    }
+  }
+
   return costs;
 }
 
@@ -766,16 +797,19 @@ function UpgradeRow({
           <div className="checkbox-group">
             <label
               className={`checkbox-label${!c.canAfford || !c.to ? ' is-disabled' : ''}`}
-              style={{ opacity: (c.canAfford && c.prereqsMet) || !c.to ? 1 : 0.5 }}
-              title={!c.prereqsMet ? 'Prerequisites not met' : undefined}
+              style={{ opacity: c.canAfford || !c.to ? 1 : 0.5 }}
+              title={
+                !c.prereqsMet
+                  ? 'Prerequisites not met — you can still plan; points count only after prereqs are met'
+                  : undefined
+              }
             >
               <input
                 className="checkbox"
                 type="checkbox"
-                checked={!!c.active && c.canAfford && c.prereqsMet}
+                checked={!!c.active && c.canAfford}
                 disabled={
                   !c.to ||
-                  !c.prereqsMet ||
                   String(c.from) === String(c.to) ||
                   (!c.canAfford && !c.active)
                 }
@@ -816,8 +850,13 @@ function UpgradeRow({
           </div>
         )}
 
+        {c.active && c.canAfford && !c.prereqsMet ? (
+          <p className="hint prereq-plan-hint" style={{ margin: '6px 0', color: '#e6b422' }}>
+            Prerequisites not met — planning only (points not counted until met)
+          </p>
+        ) : null}
         <CostStatus
-          active={!!c.active && c.canAfford && c.prereqsMet}
+          active={!!c.countsForScore}
           hasSelection={!!c.to && String(c.from) !== String(c.to)}
           atMax={atMax}
           points={c.points}
@@ -982,6 +1021,15 @@ export default function MastersPage() {
 
   const cards = useMemo(() => {
     const raw = [];
+    // Running gift/emblem pool so later masters plan against what's left
+    let generalEmblemReserved = 0;
+    const runningGiftVault = {
+      ...vault,
+      copper_horn: vaultAmount(vault, 'copper_horn'),
+      silver_goblet: vaultAmount(vault, 'silver_goblet'),
+      elite_spices: vaultAmount(vault, 'elite_spices'),
+      general_emblem: vaultAmount(vault, 'general_emblem'),
+    };
     try {
       for (const master of mastersList) {
         const id = String(master.id || master.name || '').toLowerCase() || 'unknown';
@@ -1004,9 +1052,23 @@ export default function MastersPage() {
           const emblemsShort = Math.max(0, emblemsNeed - masterEmblemHave);
           // Only offer general emblem when this master's emblems are not enough
           const useGenEmblem = emblemsShort > 0 && !!ms.affinity?.useGeneralEmblem;
-          const costs = to ? { ...affinityPointsToItems(pts) } : {};
+          const costs = to ? { ...affinityPointsToItems(pts, runningGiftVault) } : {};
           if (emblemsNeed > 0) {
             Object.assign(costs, splitEmblemCost(id, emblemsNeed, emblems, useGenEmblem));
+          }
+          // When Upgrade is on, reserve gifts + general emblem from running pool
+          if (!!ms.affinity?.active) {
+            for (const k of ['copper_horn', 'silver_goblet', 'elite_spices', 'general_emblem']) {
+              if (costs[k]) {
+                runningGiftVault[k] = Math.max(
+                  0,
+                  (Number(runningGiftVault[k]) || 0) - (Number(costs[k]) || 0)
+                );
+              }
+            }
+            if (costs.general_emblem) {
+              generalEmblemReserved += Number(costs.general_emblem) || 0;
+            }
           }
           const basePoints = emblemsNeed * (SCORE_RULES.general_emblem || 0);
           const talentFrom = talentLevelFromAffinity(affinityNumericValue(master, from));
@@ -1077,16 +1139,9 @@ export default function MastersPage() {
             rawFrom == null || rawFrom === '' || String(rawFrom) === '0'
               ? '1'
               : String(rawFrom);
-          // Default target = next level after current (e.g. 1 → 2)
+          // Keep empty target so user can select "Target Level" placeholder (same as other pages).
+          // LevelSelects still auto-fills next level when Current changes.
           let to = ss.to != null && ss.to !== '' ? String(ss.to) : '';
-          if (!to && levels.length) {
-            const fi = levels.findIndex((lv) => String(lv) === String(from));
-            if (fi >= 0 && fi < levels.length - 1) {
-              to = String(levels[fi + 1]);
-            } else if (fi < 0 && levels.length > 1) {
-              to = String(levels[1]);
-            }
-          }
           const maxLv = skillMaxLevel(skill);
           const atSkillMax =
             maxLv > 0 && levelNum(from) >= maxLv && (!to || levelNum(to) <= levelNum(from));
@@ -1201,7 +1256,7 @@ export default function MastersPage() {
             speedupMins,
             speedupKey: speedupOn ? 'master_speedup' : null,
             speedupOn,
-            active: unlockUnmet && prereqEnabled ? false : !!ss.active,
+            active: !!ss.active,
             prereqItems,
             // Soft-lock only while prereq checks are enforced
             prereqsMet:
@@ -1222,7 +1277,8 @@ export default function MastersPage() {
       raw.map((c) => ({
         id: c.id,
         costs: c.costs,
-        active: c.active && c.prereqsMet,
+        // Share general emblem / gifts across masters whenever Upgrade is checked
+        active: !!c.active,
         speedupMins: c.speedupMins,
         speedupKey: c.speedupKey,
       })),
@@ -1231,16 +1287,20 @@ export default function MastersPage() {
 
     return raw.map((c) => {
       const a = afford.get(c.id) || { canAfford: true, vaultBefore: vault };
-      const canAfford = !!(a.canAfford && c.prereqsMet);
+      // Resource affordability only — prereqs no longer block the checkbox
+      const canAfford = !!a.canAfford;
       const resolvedCosts = a.resolvedCosts || c.costs;
       const usedSpd = a.speedupAlloc?.used ?? 0;
       const points =
         (c.basePoints || 0) + (usedSpd > 0 ? usedSpd * (SCORE_RULES.speedup_min ?? 0) : 0);
+      // Counts for score / vault lock only when prereqs are met (or checks off)
+      const countsForScore = !!(c.active && canAfford && c.prereqsMet);
       return {
         ...c,
         costs: resolvedCosts,
         points,
         canAfford,
+        countsForScore,
         vaultBefore: a.vaultBefore,
       };
     });
@@ -1249,7 +1309,7 @@ export default function MastersPage() {
 
 
   const totalActivePoints = useMemo(
-    () => cards.reduce((s, c) => s + (c.active && c.canAfford ? c.points : 0), 0),
+    () => cards.reduce((s, c) => s + (c.countsForScore ? c.points : 0), 0),
     [cards]
   );
 
@@ -1268,9 +1328,9 @@ export default function MastersPage() {
         for (const k of Object.keys(costs)) {
           if (k.startsWith('master_emblem_')) delete costs[k];
         }
-        return { id: c.id, costs, active: c.active && c.canAfford };
+        return { id: c.id, costs, active: !!c.countsForScore };
       }),
-      new Map(cards.map((c) => [c.id, { canAfford: c.canAfford }]))
+      new Map(cards.map((c) => [c.id, { canAfford: !!c.countsForScore }]))
     );
     setPageLockedCosts('masters', locked);
   }, [cards, setPageLockedCosts]);
