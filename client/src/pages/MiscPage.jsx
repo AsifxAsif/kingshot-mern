@@ -520,7 +520,8 @@ export default function MiscPage() {
                       {c.rounds > 1 ? (
                         <span>
                           {' '}
-                          · ×{c.rounds} rounds
+                          · ×{c.rounds} rounds ={' '}
+                          <strong>{formatSecondsToTime(c.timeSeconds * c.rounds)}</strong>
                         </span>
                       ) : null}
                     </div>

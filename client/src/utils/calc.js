@@ -265,15 +265,20 @@ export function formatNumber(n) {
 }
 export function formatSecondsToTime(totalSeconds) {
 	if (!totalSeconds || totalSeconds <= 0) return '0s';
-	const d = Math.floor(totalSeconds / 86400);
-	const h = Math.floor((totalSeconds % 86400) / 3600);
-	const m = Math.floor((totalSeconds % 3600) / 60);
-	const s = Math.floor(totalSeconds % 60);
+	let sec = Math.floor(Number(totalSeconds) || 0);
+	const d = Math.floor(sec / 86400);
+	sec %= 86400;
+	const h = Math.floor(sec / 3600);
+	sec %= 3600;
+	const m = Math.floor(sec / 60);
+	const s = sec % 60;
 	const parts = [];
 	if (d) parts.push(`${d}d`);
 	if (h) parts.push(`${h}h`);
 	if (m) parts.push(`${m}m`);
-	if (s && !d) parts.push(`${s}s`);
+	// Always show seconds when non-zero (including multi-day times)
+	if (s) parts.push(`${s}s`);
+	// If only zero units somehow, show 0s
 	return parts.join(' ') || '0s';
 }
 export function calcVaultScore(vault) {

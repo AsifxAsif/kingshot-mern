@@ -12,6 +12,7 @@ import { LevelSelects } from '../components/LevelSelects';
 import CollapsibleSection from '../components/CollapsibleSection';
 import PrereqList from '../components/PrereqList';
 import PageOptionsBar from '../components/PageOptionsBar';
+import { useShowMaxedItems } from '../components/ShowMaxedToggle';
 import { MastersSkeleton } from '../components/Skeleton';
 import {
   resourceImg,
@@ -655,7 +656,7 @@ function UpgradeRow({
               {c.unlockLabel || c.unlock || '—'}
             </strong>
             <div style={{ marginTop: 6, fontSize: '0.82rem' }}>
-              Turn off &quot;Enforce prerequisite checks&quot; to plan this skill early.
+              Turn off &quot;Enable prerequisite&quot; to plan this skill early.
             </div>
           </div>
         ) : (
@@ -1005,19 +1006,9 @@ export default function MastersPage() {
     }));
   };
 
-  /** Hide only maxed *skill* cards — affinity always stays visible */
-  const hideMaxedSkills =
-    !!(state.settings?.mastersBuffs || {}).hideMaxedSkills;
+  /** Same global toggle as other pages — hide maxed skill cards only */
+  const showMaxed = useShowMaxedItems();
 
-  const setHideMaxedSkills = (checked) => {
-    updateSection('settings', (prev) => ({
-      ...(prev || {}),
-      mastersBuffs: {
-        ...((prev || {}).mastersBuffs || {}),
-        hideMaxedSkills: !!checked,
-      },
-    }));
-  };
 
   const cards = useMemo(() => {
     const raw = [];
@@ -1342,7 +1333,7 @@ export default function MastersPage() {
     const map = new Map();
     for (const c of cards) {
       // Only hide maxed skill cards — never hide affinity
-      if (hideMaxedSkills && c.kind === 'skill' && c.atSkillMax) continue;
+      if (!showMaxed && c.kind === 'skill' && c.atSkillMax) continue;
       if (!map.has(c.masterId)) {
         map.set(c.masterId, {
           id: c.masterId,
@@ -1355,7 +1346,7 @@ export default function MastersPage() {
       map.get(c.masterId).cards.push(c);
     }
     return order.map((id) => map.get(id));
-  }, [cards, hideMaxedSkills]);
+  }, [cards, showMaxed]);
 
   if (loading && !data) {
     return (
@@ -1391,11 +1382,8 @@ export default function MastersPage() {
         showPrereq
         prereqEnabled={prereqEnabled}
         onPrereqChange={setPrereqEnabled}
-        prereqTitle="When on, Upgrade is blocked until Affinity / Total Skill prerequisites are met"
+        prereqTitle="When on, upgrades respect Affinity / Total Skill prerequisites"
         hasMaxed={hasMaxedSkills}
-        hideMaxedMode
-        hideMaxed={hideMaxedSkills}
-        onHideMaxedChange={setHideMaxedSkills}
       />
 
       <MastersInventory

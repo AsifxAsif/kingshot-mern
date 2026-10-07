@@ -24,7 +24,7 @@ const keyToFile = {
 	forgehammers: 'Forgehammer.json',
 	masters: 'Masters.json',
 };
-/** Process-level cache — game catalogs rarely change at runtime */
+/** Process-level cache */
 const memCache = new Map();
 
 function readLocalJson(collection) {
@@ -49,6 +49,19 @@ function resolveCollection(req) {
 	if (parts.length) return decodeURIComponent(parts[parts.length - 1]);
 	return null;
 }
+
+async function loadFromMongo(collection) {
+	const Model = modelMap[collection];
+	if (!Model) return null;
+	try {
+		const doc = await Model.findOne().lean();
+		if (doc?.data) return doc.data;
+	} catch (dbErr) {
+		console.warn(`[data] ${collection}: Mongo read failed`, dbErr?.message || dbErr);
+	}
+	return null;
+}
+
 export const getCollection = async (req, res) => {
 	try {
 		const collection = resolveCollection(req);
@@ -62,23 +75,27 @@ export const getCollection = async (req, res) => {
 				message: 'Unknown collection'
 			});
 		}
+
+		// ?refresh=1 or header forces reload from Mongo/file
+		const forceRefresh =
+			String(req.query?.refresh || '') === '1' ||
+			String(req.headers['x-data-refresh'] || '') === '1';
+		if (forceRefresh) {
+			memCache.delete(collection);
+		}
+
 		if (memCache.has(collection)) {
-			res.setHeader('Cache-Control', 'private, max-age=600');
+			res.setHeader('Cache-Control', 'private, max-age=60');
 			res.setHeader('X-Data-Cache', 'HIT');
 			return res.json(memCache.get(collection));
 		}
-		// Prefer local JSON (instant) over Mongo for static game catalogs
-		let data = readLocalJson(collection);
+
+		// Prefer MongoDB (your live catalog), fall back to local JSON files
+		let data = await loadFromMongo(collection);
+		let source = 'mongo';
 		if (!data) {
-			const Model = modelMap[collection];
-			if (Model) {
-				try {
-					const doc = await Model.findOne().lean();
-					if (doc?.data) data = doc.data;
-				} catch (dbErr) {
-					console.warn(`[data] ${collection}: Mongo read failed`, dbErr?.message || dbErr);
-				}
-			}
+			data = readLocalJson(collection);
+			source = 'file';
 		}
 		if (!data) {
 			return res.status(404).json({
@@ -86,8 +103,9 @@ export const getCollection = async (req, res) => {
 			});
 		}
 		memCache.set(collection, data);
-		res.setHeader('Cache-Control', 'private, max-age=600');
+		res.setHeader('Cache-Control', 'private, max-age=60');
 		res.setHeader('X-Data-Cache', 'MISS');
+		res.setHeader('X-Data-Source', source);
 		return res.json(data);
 	} catch (err) {
 		console.error('[data]', err?.message || err);

@@ -1,43 +1,51 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useApp } from './context/AppContext';
 import Navbar from './components/Navbar';
 import AuthModal from './components/AuthModal';
 import RequireAuthGate from './components/RequireAuthGate';
+import { useAuth } from './context/AuthContext';
+import { prefetchPlayer } from './services/playerCache';
+import { prefetchGameData } from './hooks/useGameData';
 import PageMeta from './components/PageMeta';
 import HelpFab from './components/HelpFab';
 import ErrorBoundary from './components/ErrorBoundary';
 import EventSidebar from './components/EventSidebar';
 import { PageSkeleton } from './components/Skeleton';
 
-const VaultPage = lazy(() => import('./pages/VaultPage'));
-const BuildingsPage = lazy(() => import('./pages/BuildingsPage'));
-const WarAcademyPage = lazy(() => import('./pages/WarAcademyPage'));
-const MastersPage = lazy(() => import('./pages/MastersPage'));
-const WidgetsPage = lazy(() => import('./pages/WidgetsPage'));
-const HeroesPage = lazy(() => import('./pages/HeroesPage'));
-const HeroGearPage = lazy(() => import('./pages/HeroGearPage'));
-const GovGearPage = lazy(() => import('./pages/GovGearPage'));
-const GovCharmPage = lazy(() => import('./pages/GovCharmPage'));
-const PetsPage = lazy(() => import('./pages/PetsPage'));
-const TroopsPage = lazy(() => import('./pages/TroopsPage'));
-const MiscPage = lazy(() => import('./pages/MiscPage'));
-const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+// Eager imports — all pages in the main bundle so route switches are instant
+import VaultPage from './pages/VaultPage';
+import BuildingsPage from './pages/BuildingsPage';
+import WarAcademyPage from './pages/WarAcademyPage';
+import MastersPage from './pages/MastersPage';
+import WidgetsPage from './pages/WidgetsPage';
+import HeroesPage from './pages/HeroesPage';
+import HeroGearPage from './pages/HeroGearPage';
+import GovGearPage from './pages/GovGearPage';
+import GovCharmPage from './pages/GovCharmPage';
+import PetsPage from './pages/PetsPage';
+import TroopsPage from './pages/TroopsPage';
+import MiscPage from './pages/MiscPage';
+import ProfilePage from './pages/ProfilePage';
 
-function PageFallback() {
-  // Light fallback — route chunks are cached after first visit; avoid heavy skeleton flash
-  return (
-    <div className="page-loading page-loading-lite" aria-busy="true">
-      <span className="hint">Loading…</span>
-    </div>
-  );
+/** Warm game catalogs + player profile as soon as the user is authenticated */
+function PrefetchOnBoot() {
+  const { user, isAuthenticated } = useAuth();
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    // All calculator JSON catalogs into memory + localStorage cache
+    prefetchGameData();
+    if (user?.gameId) {
+      prefetchPlayer().catch(() => {});
+    }
+  }, [isAuthenticated, user?.gameId]);
+  return null;
 }
 
 function AppRoutes() {
   const location = useLocation();
   return (
     <ErrorBoundary resetKey={location.pathname}>
-      <Suspense fallback={<PageFallback />}>
         <Routes>
           <Route path="/" element={<VaultPage />} />
           <Route path="/buildings" element={<BuildingsPage />} />
@@ -55,7 +63,6 @@ function AppRoutes() {
           {/* Fallback so unknown paths still render something */}
           <Route path="*" element={<VaultPage />} />
         </Routes>
-      </Suspense>
     </ErrorBoundary>
   );
 }
@@ -72,6 +79,7 @@ export default function App() {
   return (
     <RequireAuthGate>
       <div className="app app-with-events">
+        <PrefetchOnBoot />
         <EventSidebar />
         <Navbar />
         <AuthModal />

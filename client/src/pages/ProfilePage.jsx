@@ -5,6 +5,7 @@ import { useApp } from '../context/AppContext';
 import { ProfileSkeleton } from '../components/Skeleton';
 import AppModal from '../components/AppModal';
 import { api, listPresetBackups, deletePresetBackup } from '../services/api';
+import { getCachedPlayer, prefetchPlayer, setCachedPlayer, refreshPlayerRemote } from '../services/playerCache';
 import { formatNumber } from '../utils/calc';
 import AssetImg from '../components/AssetImg';
 import {
@@ -905,16 +906,25 @@ export default function ProfilePage() {
       setLoading(false);
       return;
     }
-    setLoading(true);
     setError('');
-    // Drop any previous payload so only the skeleton shows (no stale / local DB fields)
-    setPayload(null);
-    try {
-      const data = await api.get('/player?include=base,heroes,ranks');
-      setPayload(data);
-    } catch (err) {
+    // Instant paint from prefetched cache when available
+    const cached = getCachedPlayer();
+    if (cached) {
+      setPayload(cached);
+      setLoading(false);
+    } else {
+      setLoading(true);
       setPayload(null);
-      setError(err?.message || 'Failed to load player');
+    }
+    try {
+      const data = await prefetchPlayer({ force: !!cached }); // soft-revalidate if cache hit
+      setPayload(data);
+      setCachedPlayer(data);
+    } catch (err) {
+      if (!cached) {
+        setPayload(null);
+        setError(err?.message || 'Failed to load player');
+      }
     } finally {
       setLoading(false);
     }
@@ -926,7 +936,7 @@ export default function ProfilePage() {
     setRefreshing(true);
     setError('');
     try {
-      const data = await api.post('/player/refresh', {});
+      const data = await refreshPlayerRemote();
       setPayload(data);
       toast.success('Profile data refreshed');
       const rem = Number(data?.refresh?.cooldown_remaining_sec);
@@ -1015,9 +1025,6 @@ export default function ProfilePage() {
     return null;
   })();
 
-  // Only use in-game names from MightPulse — never fall back to local auth username
-  // while the profile payload is still loading (that caused the flash under the skeleton).
-  // Keep special symbols (⳻ ⳺ …); drop combining marks that only tofu on the web
   const displayName = formatPlayerDisplayName(
     player.nick_name ??
       player.nickname ??

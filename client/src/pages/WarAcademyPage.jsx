@@ -299,6 +299,80 @@ function WarAcademyTechCard({ c, setField, vault, nodeRef }) {
   );
 }
 
+
+function useIsMobile(maxWidth = 768) {
+  const [mobile, setMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia(`(max-width: ${maxWidth}px)`).matches : false
+  );
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${maxWidth}px)`);
+    const on = () => setMobile(mq.matches);
+    on();
+    mq.addEventListener?.('change', on);
+    mq.addListener?.(on);
+    return () => {
+      mq.removeEventListener?.('change', on);
+      mq.removeListener?.(on);
+    };
+  }, [maxWidth]);
+  return mobile;
+}
+
+/** Mobile tree node: icon + level selects; tap icon for full details */
+function WarAcademyCompactNode({ c, nodeRef, onOpen }) {
+  const maxLv =
+    c.levels.length > 0 ? String(c.levels[c.levels.length - 1]) : '?';
+  const atMax =
+    c.levels.length > 0 && String(c.from ?? '0') === String(maxLv);
+  const fromN = convertLevelToNumeric(c.from ?? '0');
+  const unlocked = fromN > 0 || atMax;
+  // In-game style: current/max on the icon (e.g. 2/12 or MAX)
+  const levelBadge = atMax ? 'MAX' : `${fromN || 0}/${maxLv}`;
+
+  return (
+    <div
+      ref={nodeRef}
+      className={`wa-compact-node${unlocked ? ' is-unlocked' : ''}${atMax ? ' is-maxed' : ''}${c.active ? ' is-active' : ''}`}
+      data-tech={c.name}
+    >
+      <button
+        type="button"
+        className="wa-compact-icon-btn"
+        onClick={() => onOpen(c)}
+        title={`${c.name} — ${levelBadge}`}
+        aria-label={`${c.name} ${levelBadge}`}
+      >
+        <AssetImg src={warAcademyImg(c.name)} size={78} alt="" />
+        <span className={`wa-compact-lv${atMax ? ' is-max' : ''}`}>{levelBadge}</span>
+        {c.active ? <span className="wa-compact-dot" aria-hidden /> : null}
+      </button>
+    </div>
+  );
+}
+
+function WarAcademyTechModal({ c, setField, vault, onClose }) {
+  if (!c) return null;
+  return (
+    <div className="wa-tech-modal-backdrop" role="presentation" onClick={onClose}>
+      <div
+        className="wa-tech-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label={c.name}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="wa-tech-modal-top">
+          <strong>{c.name}</strong>
+          <button type="button" className="wa-tech-modal-x" onClick={onClose} aria-label="Close">
+            ×
+          </button>
+        </div>
+        <WarAcademyTechCard c={c} setField={setField} vault={vault} />
+      </div>
+    </div>
+  );
+}
+
 function ResearchTree({
   troopTab,
   cardsByName,
@@ -307,41 +381,39 @@ function ResearchTree({
   vault,
 }) {
   const tree = WA_TREES[troopTab] || WA_TREES.Infantry;
+  const isMobile = useIsMobile(768);
+  const [detail, setDetail] = useState(null);
   const containerRef = useRef(null);
-  const nodeRefs = useRef({});
+  const nodeEls = useRef({});
   const [lines, setLines] = useState([]);
 
   const setNodeRef = useCallback((name, el) => {
-    if (el) nodeRefs.current[name] = el;
-    else delete nodeRefs.current[name];
+    if (el) nodeEls.current[name] = el;
+    else delete nodeEls.current[name];
   }, []);
 
   const measure = useCallback(() => {
-    const root = containerRef.current;
-    if (!root) return;
-    const rootBox = root.getBoundingClientRect();
+    const board = containerRef.current;
+    if (!board) return;
+    const br = board.getBoundingClientRect();
     const next = [];
     for (const edge of tree.edges) {
-      const fromEl = nodeRefs.current[edge.from];
-      const toEl = nodeRefs.current[edge.to];
-      if (!fromEl || !toEl) continue;
-      const a = fromEl.getBoundingClientRect();
-      const b = toEl.getBoundingClientRect();
-      const x1 = a.left + a.width / 2 - rootBox.left;
-      const y1 = a.bottom - rootBox.top;
-      const x2 = b.left + b.width / 2 - rootBox.left;
-      const y2 = b.top - rootBox.top;
-      const parentCard = cardsByName.get(edge.from);
-      const parentLv = convertLevelToNumeric(parentCard?.from ?? '0');
-      // Link is "live" when parent has reached the unlock level for this child
-      const active = parentLv >= edge.need;
+      const a = nodeEls.current[edge.from];
+      const b = nodeEls.current[edge.to];
+      if (!a || !b) continue;
+      const ar = a.getBoundingClientRect();
+      const bb = b.getBoundingClientRect();
+      const x1 = ar.left + ar.width / 2 - br.left;
+      const y1 = ar.bottom - br.top;
+      const x2 = bb.left + bb.width / 2 - br.left;
+      const y2 = bb.top - br.top;
+      const fromCard = cardsByName.get(edge.from);
+      const fromLv = convertLevelToNumeric(fromCard?.from ?? '0');
+      const active = fromLv >= (edge.need || 0);
       next.push({
         key: `${edge.from}->${edge.to}`,
         d: buildEdgePath(x1, y1, x2, y2),
         active,
-        need: edge.need,
-        from: edge.from,
-        to: edge.to,
       });
     }
     setLines(next);
@@ -349,19 +421,23 @@ function ResearchTree({
 
   useLayoutEffect(() => {
     measure();
-    const root = containerRef.current;
-    if (!root) return undefined;
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => measure()) : null;
-    if (ro) ro.observe(root);
+    if (ro && containerRef.current) ro.observe(containerRef.current);
     window.addEventListener('resize', measure);
-    // Re-measure after fonts/images settle
-    const t = setTimeout(measure, 80);
+    const t = setTimeout(measure, 50);
     return () => {
       if (ro) ro.disconnect();
       window.removeEventListener('resize', measure);
       clearTimeout(t);
     };
-  }, [measure, troopTab, showMaxed, cardsByName]);
+  }, [measure, troopTab, showMaxed, cardsByName, isMobile, detail]);
+
+  // Keep modal card in sync when levels change
+  useEffect(() => {
+    if (!detail?.name) return;
+    const fresh = cardsByName.get(detail.name);
+    if (fresh && fresh !== detail) setDetail(fresh);
+  }, [cardsByName, detail]);
 
   const visibleNodes = Object.entries(tree.nodes).filter(([name]) => {
     const c = cardsByName.get(name);
@@ -370,7 +446,6 @@ function ResearchTree({
     return true;
   });
 
-  // Group by row so same-row cards sit side-by-side with tight gaps (no empty columns)
   const rows = {};
   for (const [name, pos] of visibleNodes) {
     const r = pos.row;
@@ -392,46 +467,60 @@ function ResearchTree({
         : 'theme-infantry';
 
   return (
-    <div className={`wa-tree-board ${themeClass}`} ref={containerRef}>
-      <svg className="wa-tree-lines" aria-hidden>
-        {lines.map((ln) => (
-          <path
-            key={ln.key}
-            d={ln.d}
-            className={`wa-tree-line${ln.active ? ' is-active' : ''}`}
-            fill="none"
-          />
-        ))}
-      </svg>
-      <div className="wa-tree-grid">
-        {rowKeys.map((r) => {
-          const items = rows[r];
-          const n = items.length;
-          return (
-            <div
-              key={r}
-              className={`wa-tree-row wa-tree-row-n${n}`}
-              data-row={r}
-            >
-              {items.map(([name]) => {
-                const c = cardsByName.get(name);
-                if (!c) return null;
-                return (
-                  <div key={name} className="wa-tree-cell">
-                    <WarAcademyTechCard
-                      c={c}
-                      setField={setField}
-                      vault={vault}
-                      nodeRef={(el) => setNodeRef(name, el)}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })}
+    <>
+      <div className={`wa-tree-board ${themeClass}${isMobile ? ' is-mobile' : ''}`} ref={containerRef}>
+        <svg className="wa-tree-lines" aria-hidden>
+          {lines.map((ln) => (
+            <path
+              key={ln.key}
+              d={ln.d}
+              className={`wa-tree-line${ln.active ? ' is-active' : ''}`}
+              fill="none"
+            />
+          ))}
+        </svg>
+        <div className="wa-tree-grid">
+          {rowKeys.map((r) => {
+            const items = rows[r];
+            const n = items.length;
+            return (
+              <div key={r} className={`wa-tree-row wa-tree-row-n${n}`} data-row={r}>
+                {items.map(([name]) => {
+                  const c = cardsByName.get(name);
+                  if (!c) return null;
+                  return (
+                    <div key={name} className="wa-tree-cell">
+                      {isMobile ? (
+                        <WarAcademyCompactNode
+                          c={c}
+                          onOpen={setDetail}
+                          nodeRef={(el) => setNodeRef(name, el)}
+                        />
+                      ) : (
+                        <WarAcademyTechCard
+                          c={c}
+                          setField={setField}
+                          vault={vault}
+                          nodeRef={(el) => setNodeRef(name, el)}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
+      {isMobile && detail ? (
+        <WarAcademyTechModal
+          c={detail}
+          setField={setField}
+          vault={vault}
+          onClose={() => setDetail(null)}
+        />
+      ) : null}
+    </>
   );
 }
 

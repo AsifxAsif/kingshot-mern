@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { api } from '../services/api';
-import { clearGameDataCache } from '../hooks/useGameData';
+import { clearGameDataCache, prefetchGameData } from '../hooks/useGameData';
+import { clearPlayerCache, prefetchPlayer } from '../services/playerCache';
 import { useToast } from './ToastContext';
 
 const AuthContext = createContext(null);
@@ -59,6 +60,10 @@ export function AuthProvider({ children }) {
         if (cancelled) return;
         if (data?.user) {
           setUser(data.user);
+          prefetchGameData();
+          if (data.user.gameId) {
+            prefetchPlayer().catch(() => {});
+          }
         } else {
           setToken('');
           writeStoredToken('');
@@ -82,6 +87,7 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     clearGameDataCache();
+    clearPlayerCache();
     const data = await api.post('/auth/login', { email, password });
     writeStoredToken(data.token);
     setToken(data.token);
@@ -89,11 +95,14 @@ export function AuthProvider({ children }) {
     setUser(data.user);
     setAuthOpen(false);
     setAuthMessage('');
+    prefetchGameData();
+    if (data.user?.gameId) prefetchPlayer().catch(() => {});
     return data;
   };
 
   const register = async (username, email, password, gameId) => {
     clearGameDataCache();
+    clearPlayerCache();
     const data = await api.post('/auth/register', { username, email, password, gameId });
     writeStoredToken(data.token);
     setToken(data.token);
@@ -101,11 +110,14 @@ export function AuthProvider({ children }) {
     setUser(data.user);
     setAuthOpen(false);
     setAuthMessage('');
+    prefetchGameData();
+    if (data.user?.gameId) prefetchPlayer().catch(() => {});
     return data;
   };
 
   const logout = () => {
     clearGameDataCache();
+    clearPlayerCache();
     toast.info('Signed out');
     setToken('');
     setUser(null);

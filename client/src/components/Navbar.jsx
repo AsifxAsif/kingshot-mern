@@ -122,7 +122,7 @@ export default function Navbar() {
     ? parseInt(state.pageScores?.[pageScoreKey] || 0, 10) || 0
     : null;
   const activeEventId = normalizeEventId(state.settings?.activeEvent || 'sg') || 'sg';
-  const eventLabel = EVENTS[activeEventId]?.name || 'Strongest Governor';
+  const eventLabel = EVENTS[activeEventId]?.pointsLabel || EVENTS[activeEventId]?.name || 'SG Points';
   const orderedLinks = LINKS;
 
 
