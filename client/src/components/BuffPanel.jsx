@@ -35,7 +35,7 @@ export function BuildingBuffPanel() {
         <span className="toggle-icon">{open ? '▼' : '▶'}</span>
       </div>
       {open && (
-        <div className="collapsible-body">
+        <div className="collapsible-body building-buff-panel">
           <div className="buff-row">
             <div className="buff-field">
               <label>

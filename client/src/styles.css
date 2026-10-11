@@ -305,7 +305,7 @@
 	gap: 12px;
 	font-size: 0.85rem;
 	font-weight: 700;
-	border-radius: var(--radius-lg);
+	border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 	padding: 14px 18px;
 	align-items: center;
 	background: var(--surface-dark);
@@ -455,12 +455,17 @@
 .buff-row {
 	display: flex;
 	flex-wrap: wrap;
+	align-items: flex-start;
 	gap: 16px;
-	margin-bottom: 16px;
+	margin-bottom: 20px;
 }
 .buff-field {
 	flex: 1;
 	min-width: 200px;
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	margin: 0;
 }
 .buff-field label {
 	display: flex;
@@ -468,7 +473,8 @@
 	gap: 6px;
 	font-size: 0.75rem;
 	font-weight: 700;
-	margin-bottom: 4px;
+	margin-bottom: 6px;
+	min-height: 1.5rem;
 	color: var(--text-secondary);
 	line-height: 1.2;
 }
@@ -477,11 +483,15 @@
 	display: block;
 	flex-shrink: 0;
 	align-self: center;
+	width: 22px;
+	height: 22px;
+	object-fit: contain;
 }
 .buff-field input,
 .buff-field select {
 	width: 100%;
-	padding: 10px;
+	height: 42px;
+	padding: 8px 10px;
 	font-size: 0.85rem;
 	border-radius: var(--radius-sm);
 	background: var(--surface);
@@ -489,6 +499,19 @@
 	box-shadow: var(--shadow-inset);
 	transition: all var(--transition-fast);
 	font-weight: 700;
+	box-sizing: border-box;
+	margin: 0;
+}
+/* Helper text under a field — out of flow so sibling inputs stay aligned */
+.buff-field > small {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: calc(1.5rem + 6px + 42px + 2px);
+	font-size: 0.72rem;
+	line-height: 1.2;
+	opacity: 0.75;
+	pointer-events: none;
 }
 .buff-field input:focus,
 .buff-field select:focus {
@@ -1561,13 +1584,11 @@ a.nav-link {
 	background: var(--surface, #f0f0f0);
 	border: 1px solid var(--border-color);
 	border-radius: var(--radius, 16px);
-	padding: 14px;
-	margin-bottom: 16px;
+	/* padding/margin unified in “Unified parent/child card spacing” */
 	box-shadow: var(--shadow-extruded, 8px 8px 16px rgba(0, 0, 0, 0.08));
 }
 .inventory-card-header {
 	font-weight: 700;
-	margin-bottom: 10px;
 	font-size: 0.95rem;
 }
 /* ——— Hero rarity tiers ——— */
@@ -1938,7 +1959,7 @@ a.nav-link {
 	display: flex !important;
 	flex-direction: row !important;
 	flex-wrap: wrap;
-	gap: 12px;
+	gap: var(--nested-card-gap, 12px);
 	align-items: stretch;
 }
 .group-card-body-items-row > .group-card-item,
@@ -1955,7 +1976,7 @@ a.nav-link {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
-	gap: 10px;
+	gap: var(--nested-card-gap, 12px);
 }
 .group-card-body-items-row .gov-sub-group-items > .item-card {
 	flex: 1 1 180px;
@@ -1980,7 +2001,8 @@ a.nav-link {
 	cursor: pointer;
 	user-select: none;
 	border-bottom: 2px solid rgba(0, 0, 0, 0.06);
-	border-radius: var(--radius-lg);
+	/* Collapsible headers are fully rounded (all corners) */
+	border-radius: var(--radius-lg) !important;
 	transition: background var(--transition-fast);
 	gap: 10px;
 	background: var(--surface-dark, #d8d8d8) !important;
@@ -3943,10 +3965,10 @@ input.checkbox:disabled {
 .profile-header-row {
 	display: flex;
 	flex-wrap: wrap;
-	align-items: flex-start;
+	align-items: center;
 	justify-content: space-between;
 	gap: 12px;
-	margin-bottom: 14px;
+	margin-bottom: 0;
 }
 .mp-actions {
 	display: flex;
@@ -4321,9 +4343,7 @@ input.checkbox:disabled {
 	width: 100%;
 	max-width: none;
 }
-.profile-page .inventory-card {
-	margin-bottom: 16px;
-}
+
 .mp-identity {
 	display: flex;
 	flex-wrap: wrap;
@@ -5361,9 +5381,10 @@ body.auth-modal-open {
 		display: grid !important;
 		grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
 		flex-direction: unset !important;
-		align-items: start;
-		gap: 10px 12px !important;
+		align-items: start !important;
+		gap: 14px 12px !important;
 		width: 100%;
+		margin-bottom: 22px;
 	}
 	.buff-field,
 	.collapsible-body .buff-field,
@@ -5832,4 +5853,591 @@ body.auth-modal-open {
 .item-card-body select,
 .item-card-body option {
 	font-family: "Satoshi", var(--font-emoji), var(--font-ui), system-ui, sans-serif;
+}
+
+
+/* ---- PWA install prompt ---- */
+.pwa-install-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px 14px;
+	margin: 0 0 12px;
+	padding: 10px 14px;
+	border-radius: 12px;
+	background: linear-gradient(135deg, rgba(201, 162, 39, 0.18), rgba(91, 141, 239, 0.15));
+	border: 1px solid rgba(240, 215, 140, 0.35);
+	color: var(--text-primary, #e8ecf4);
+}
+.pwa-install-text {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+	flex: 1 1 200px;
+}
+.pwa-install-text strong {
+	font-size: 0.95rem;
+}
+.pwa-install-text span {
+	font-size: 0.82rem;
+	opacity: 0.9;
+}
+.pwa-install-actions {
+	display: flex;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+
+/* Hero gear — Mastery input (label under, square corners only on this field) */
+.mastery-field {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 4px;
+	min-width: 0;
+}
+.mastery-split-input {
+	display: flex;
+	align-items: stretch;
+	width: 100%;
+	border: 1px solid var(--border-color, rgba(0, 0, 0, 0.15));
+	border-radius: 8px;
+	overflow: hidden;
+	background: var(--surface, #fff);
+}
+/* Only the typed value field is square — beat global input[type=text] !important */
+.mastery-split-input .mastery-input-square,
+.buff-field.mastery-field input.mastery-input-square,
+.item-card-body .mastery-split-input input.mastery-input-square,
+input.mastery-input-square[type="text"] {
+	flex: 1 1 50%;
+	min-width: 0;
+	width: 100%;
+	height: 100%;
+	border: none !important;
+	border-radius: 0 !important;
+	outline: none !important;
+	box-shadow: none !important;
+	text-align: center !important;
+	background: transparent !important;
+	background-color: transparent !important;
+	padding: 9px 6px !important;
+}
+.mastery-need-badge {
+	flex: 1 1 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 6px;
+	border-left: 1px solid var(--border-color, rgba(0, 0, 0, 0.12));
+	font-size: 0.8rem;
+	font-weight: 600;
+	white-space: nowrap;
+	opacity: 0.55;
+	background: var(--hover-fill, rgba(0, 0, 0, 0.04));
+}
+.mastery-need-badge.is-met {
+	opacity: 1;
+	background: rgba(40, 167, 69, 0.12);
+	color: var(--success, #28a745);
+}
+.mastery-need-badge.is-short {
+	opacity: 1;
+	background: rgba(220, 53, 69, 0.12);
+	color: var(--danger, #dc3545);
+}
+.mastery-label-below {
+	display: block;
+	text-align: center;
+	font-size: 0.78rem;
+	font-weight: 600;
+	opacity: 0.85;
+	margin: 0;
+	order: 2;
+}
+
+
+/* Misc gather cards — skill + speed on one baseline */
+.misc-page .gather-skill-speed-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: end;
+	gap: 12px;
+}
+.misc-page .gather-skill-speed-row .buff-field {
+	flex: 1 1 140px;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	margin: 0;
+}
+.misc-page .gather-skill-speed-row .buff-field label {
+	min-height: 1.5rem;
+	display: flex;
+	align-items: center;
+	margin-bottom: 6px;
+}
+.misc-page .gather-skill-speed-row .buff-field select,
+.misc-page .gather-skill-speed-row .buff-field input {
+	width: 100%;
+	margin: 0;
+	height: 42px;
+	box-sizing: border-box;
+}
+
+
+/* === Global field alignment pass === */
+.fields-2col {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 16px;
+}
+.fields-2col > .buff-field {
+	flex: 1 1 180px;
+	min-width: 0;
+}
+
+/* Level selects side-by-side: same control height */
+.level-controls {
+	align-items: stretch;
+}
+.level-controls select,
+.level-controls input {
+	height: 42px;
+	box-sizing: border-box;
+}
+
+/* Misc gather settings + skill/speed */
+.misc-page .gather-settings-row,
+.misc-page .gather-skill-speed-row {
+	align-items: flex-start !important;
+}
+.misc-page .gather-settings-row .buff-field,
+.misc-page .gather-skill-speed-row .buff-field {
+	display: flex;
+	flex-direction: column;
+}
+.misc-page .gather-settings-row .buff-field select,
+.misc-page .gather-settings-row .buff-field input,
+.misc-page .gather-skill-speed-row .buff-field select,
+.misc-page .gather-skill-speed-row .buff-field input {
+	height: 42px;
+	box-sizing: border-box;
+}
+
+/* Pets taming / inventory gen rows */
+.pets-page .buff-row,
+.heroes-page .buff-row {
+	align-items: flex-start;
+}
+
+/* Vault grid items: label + input consistent */
+.vault-item {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+}
+.vault-item input {
+	height: 42px;
+	box-sizing: border-box;
+}
+
+
+
+/* ============================================================
+   Building buff card — restore prior alignment (override global pass)
+   ============================================================ */
+.building-buff-panel .buff-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: stretch;
+	gap: 16px;
+	margin-bottom: 16px;
+}
+.building-buff-panel .buff-field {
+	flex: 1;
+	min-width: 200px;
+	display: block;
+	position: static;
+	margin: 0;
+}
+.building-buff-panel .buff-field label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 0.75rem;
+	font-weight: 700;
+	margin-bottom: 4px;
+	min-height: 0;
+	line-height: 1.2;
+}
+.building-buff-panel .buff-field label img,
+.building-buff-panel .buff-field label .asset-img {
+	width: 24px !important;
+	height: 24px !important;
+	object-fit: contain;
+}
+.building-buff-panel .buff-field input,
+.building-buff-panel .buff-field select {
+	width: 100%;
+	height: auto;
+	min-height: 40px;
+	padding: 10px;
+	box-sizing: border-box;
+	margin: 0;
+}
+.building-buff-panel .buff-field > small {
+	position: static;
+	left: auto;
+	right: auto;
+	top: auto;
+	display: block;
+	margin-top: 4px;
+	font-size: 0.72rem;
+	line-height: 1.25;
+	opacity: 0.75;
+	pointer-events: auto;
+}
+.building-buff-panel .building-buff-extra {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px 18px;
+	margin-bottom: 12px;
+}
+.building-buff-panel .building-buff-saul {
+	flex: 1 1 180px;
+	min-width: 160px;
+	margin: 0;
+}
+.building-buff-panel .building-buff-gw,
+.building-buff-panel .building-buff-dt {
+	margin: 0;
+	display: inline-flex;
+	align-items: center;
+	align-self: center;
+	min-height: 40px;
+}
+@media (max-width: 768px) {
+	.building-buff-panel .buff-row {
+		display: grid !important;
+		grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+		gap: 12px 10px !important;
+		margin-bottom: 16px;
+	}
+	.building-buff-panel .buff-field {
+		min-width: 0 !important;
+		width: auto !important;
+	}
+	.building-buff-panel .building-buff-extra {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		align-items: start;
+		gap: 12px 10px;
+		width: 100%;
+	}
+	.building-buff-panel .building-buff-saul {
+		grid-column: 1 / -1;
+		grid-row: 1;
+		width: 100%;
+		max-width: 100%;
+	}
+	.building-buff-panel .building-buff-saul select {
+		width: 100%;
+		box-sizing: border-box;
+	}
+	.building-buff-panel .building-buff-gw {
+		grid-column: 1;
+		grid-row: 2;
+	}
+	.building-buff-panel .building-buff-dt {
+		grid-column: 2;
+		grid-row: 2;
+	}
+}
+
+
+/* ============================================================
+   Unified parent/child card spacing (all pages)
+   Parent cards share the same outer gap; nested children share one inner gap.
+   ============================================================ */
+:root {
+	--card-gap: 16px;
+	--nested-card-gap: 12px;
+	--card-pad-x: 16px;
+	--card-pad-y: 14px;
+	--card-header-pad-y: 12px;
+	--card-header-pad-x: 16px;
+}
+
+/* Top-level cards in a page — equal outer margin via parent gap only */
+.calculator-page > .item-card,
+.calculator-page > .inventory-card,
+.calculator-page > .group-card,
+.calculator-page > .collapsible-section,
+.calculator-page > .vault-section,
+.calculator-page > .page-options-bar,
+.misc-page > .item-card,
+.pets-page > .item-card {
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+	margin-top: 0 !important;
+	margin-bottom: var(--card-gap) !important;
+}
+
+/* Grids: spacing only from gap (no extra margin on children) */
+.items-grid,
+.hero-gear-grid,
+.gov-group-rows {
+	display: grid;
+	gap: var(--card-gap) !important;
+}
+.items-grid > .item-card,
+.items-grid > .group-card,
+.items-grid > .inventory-card,
+.hero-gear-grid > .item-card,
+.hero-gear-grid > .group-card,
+.gov-group-rows > .group-card {
+	margin: 0 !important;
+}
+
+/* Parent group shells — header/body split (padding on body, not zeroed shell) */
+.group-card {
+	padding: 0 !important;
+	margin-bottom: var(--card-gap) !important;
+	overflow: hidden;
+}
+/* Inventory cards: keep readable inner padding (profile + vault-style shells) */
+.inventory-card {
+	padding: 0 !important;
+	margin-bottom: var(--card-gap) !important;
+	overflow: hidden;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	border-radius: var(--radius-lg, 16px) !important;
+}
+.inventory-card > *:not(.inventory-card-header) {
+	margin: var(--card-pad-y, 14px) var(--card-pad-x, 16px) !important;
+}
+.group-card-header,
+.item-card-header {
+	padding: var(--card-header-pad-y) var(--card-header-pad-x) !important;
+	margin: 0 !important;
+}
+.inventory-card-header {
+	display: flex !important;
+	align-items: center !important;
+	flex-wrap: wrap;
+	gap: 10px;
+	padding: 12px 16px !important;
+	margin: 0 !important;
+	font-weight: 700 !important;
+	font-size: 0.95rem !important;
+	background: linear-gradient(180deg, #f7f5f0 0%, #efece6 100%) !important;
+	border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.08)) !important;
+	box-sizing: border-box;
+	color: var(--text-primary) !important;
+	border-radius: var(--radius-lg, 16px) var(--radius-lg, 16px) 0 0 !important;
+}
+.group-card-body {
+	padding: var(--card-pad-y) var(--card-pad-x) !important;
+	margin: 0 !important;
+}
+/* Nested grids inside inventory already sit in padded card — no extra pad */
+.inventory-card > .vault-grid,
+.inventory-card > .item-card-body {
+	padding: 0 !important;
+	margin: 0 !important;
+}
+
+/* Nested child cards inside a parent — one consistent gap */
+.group-card-body,
+.group-card-body-items-row,
+.group-card-body.group-card-body-row,
+.gov-sub-group-items,
+.inventory-card .items-grid,
+.inventory-card .vault-grid {
+	gap: var(--nested-card-gap) !important;
+}
+
+.group-card-body > .item-card,
+.group-card-body > .group-card-item,
+.group-card-body-items-row > .item-card,
+.group-card-body-items-row > .group-card-item,
+.group-card-body.group-card-body-row > .item-card,
+.group-card-body.group-card-body-row > .group-card-item,
+.gov-sub-group-items > .item-card,
+.inventory-card .item-card {
+	margin: 0 !important;
+}
+
+/* Child item card internal padding matches */
+.item-card-body {
+	padding: var(--card-pad-y) var(--card-pad-x) !important;
+	gap: 12px;
+	margin: 0 !important;
+}
+
+/* Collapsible buff parent cards */
+.collapsible-section {
+	margin-bottom: var(--card-gap) !important;
+}
+.collapsible-header {
+	padding: var(--card-header-pad-y) var(--card-header-pad-x) !important;
+}
+.collapsible-body {
+	padding: var(--card-pad-y) var(--card-pad-x) !important;
+	margin: 0 !important;
+}
+
+/* Gov sub-groups inside parent group cards */
+.gov-sub-group {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+.gov-sub-group-title {
+	padding: 8px var(--card-pad-x) 6px !important;
+	margin: 0 !important;
+}
+
+/* Remove one-off inline-looking uneven bottoms on gathering / misc stacks */
+.gathering-card,
+.misc-page .item-card {
+	margin-bottom: var(--card-gap) !important;
+}
+.misc-page .items-grid > .item-card,
+.pets-page .items-grid > .item-card {
+	margin-bottom: 0 !important;
+}
+
+@media (max-width: 768px) {
+	:root {
+		--card-gap: 12px;
+		--nested-card-gap: 10px;
+		--card-pad-x: 12px;
+		--card-pad-y: 12px;
+		--card-header-pad-y: 10px;
+		--card-header-pad-x: 12px;
+	}
+}
+
+
+/* Masters — tighter parent card padding around skill inputs */
+.masters-page > .item-card > .item-card-body {
+	padding: 10px 12px !important;
+	gap: 10px !important;
+}
+.masters-page > .item-card > .item-card-body > .items-grid,
+.masters-page > .item-card > .item-card-body > .cards-grid {
+	gap: 10px !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+.masters-page .item-card .item-card.group-card-item,
+.masters-page .item-card .group-card-item {
+	margin: 0 !important;
+}
+.masters-page .item-card .group-card-item > .item-card-body,
+.masters-page .item-card .item-card > .item-card-body {
+	padding: 10px 12px !important;
+}
+.masters-page .inventory-card-inner {
+	margin: 0 !important;
+}
+.masters-page .inventory-card-inner > .item-card-body {
+	padding: 8px 10px !important;
+}
+.masters-page .masters-inventory-collapse .collapsible-body {
+	padding: 10px 12px !important;
+}
+
+.profile-page .inventory-card {
+	margin-bottom: var(--card-gap, 16px) !important;
+	padding: 0 !important;
+	box-sizing: border-box;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	border-radius: var(--radius-lg, 16px) !important;
+}
+.profile-page .inventory-card-header {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 10px 12px;
+	width: 100%;
+	padding: 12px 16px !important;
+	margin: 0 !important;
+	font-weight: 700 !important;
+	font-size: 0.95rem !important;
+	background: linear-gradient(180deg, #f7f5f0 0%, #efece6 100%) !important;
+	border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.08)) !important;
+	box-sizing: border-box;
+	/* Rounded top corners match parent card */
+	border-radius: var(--radius-lg, 16px) var(--radius-lg, 16px) 0 0 !important;
+}
+.profile-page .inventory-card-header.profile-header-row {
+	align-items: center !important;
+	margin-bottom: 0 !important;
+}
+.profile-page .inventory-card-header h2,
+.profile-page .inventory-card-header h3 {
+	margin: 0 !important;
+	padding: 0 !important;
+	font-size: 1.05rem !important;
+	font-weight: 700 !important;
+	line-height: 1.3 !important;
+	color: inherit !important;
+}
+.profile-page .inventory-card-header .mp-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	margin-left: auto;
+}
+/* Body under header — top + side + bottom padding (not first-of-type; that skipped grids) */
+.profile-page .inventory-card > *:not(.inventory-card-header) {
+	margin: 14px 16px !important;
+}
+
+
+/* ============================================================
+   HEADER RADIUS RULES (final)
+   - Normal cards: top corners only (bottom square)
+   - Collapsible headers: all four corners rounded
+   ============================================================ */
+.item-card-header,
+.group-card-header,
+.inventory-card-header,
+.speedup-buff-header,
+.profile-page .inventory-card-header {
+	border-top-left-radius: var(--radius-lg, 16px) !important;
+	border-top-right-radius: var(--radius-lg, 16px) !important;
+	border-bottom-left-radius: 0 !important;
+	border-bottom-right-radius: 0 !important;
+}
+
+.collapsible-header,
+.collapsible-section > .collapsible-header,
+.speedup-buff-card > .collapsible-header,
+.collapsible-section.collapsed > .collapsible-header {
+	border-radius: var(--radius-lg, 16px) !important;
+	border-top-left-radius: var(--radius-lg, 16px) !important;
+	border-top-right-radius: var(--radius-lg, 16px) !important;
+	border-bottom-left-radius: var(--radius-lg, 16px) !important;
+	border-bottom-right-radius: var(--radius-lg, 16px) !important;
+}
+
+/* When collapsible is open, keep full header radius per product rule;
+   body sits below without competing corner radius on the header bottom */
+.collapsible-section:not(.collapsed) > .collapsible-header {
+	border-radius: var(--radius-lg, 16px) !important;
 }

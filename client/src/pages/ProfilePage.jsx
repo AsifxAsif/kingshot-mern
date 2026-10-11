@@ -8,6 +8,7 @@ import { api, listPresetBackups, deletePresetBackup } from '../services/api';
 import { getCachedPlayer, prefetchPlayer, setCachedPlayer, refreshPlayerRemote } from '../services/playerCache';
 import { formatNumber } from '../utils/calc';
 import AssetImg from '../components/AssetImg';
+import InstallPrompt from '../components/InstallPrompt';
 import {
   heroImg,
   heroWidgetImg,
@@ -1052,6 +1053,7 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="profile-page">
+          <InstallPrompt />
         <div className="inventory-card">
           <div className="inventory-card-header">
             <h2 style={{ margin: 0 }}>Profile</h2>
@@ -1078,6 +1080,7 @@ export default function ProfilePage() {
 
   return (
     <div className="profile-page">
+        <InstallPrompt />
       {/* Header always visible; player body only after MightPulse payload loads */}
       <div className="inventory-card">
         <div className="inventory-card-header profile-header-row">

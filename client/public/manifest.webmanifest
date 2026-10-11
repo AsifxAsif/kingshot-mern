@@ -1,29 +1,32 @@
 {
-	"name": "Kingshot Event Calculator",
-	"short_name": "Kingshot Calc",
-	"description": "Strongest Governor event calculator for Kingshot — buildings, troops, heroes, masters, gear and gathering.",
-	"start_url": "/",
-	"scope": "/",
-	"display": "standalone",
-	"orientation": "any",
-	"background_color": "#e8e8e8",
-	"theme_color": "#12141a",
-	"categories": [
-		"games",
-		"utilities"
-	],
-	"icons": [
-		{
-			"src": "/favicon.ico",
-			"sizes": "48x48",
-			"type": "image/x-icon",
-			"purpose": "any"
-		},
-		{
-			"src": "/favicon.ico",
-			"sizes": "192x192",
-			"type": "image/x-icon",
-			"purpose": "any maskable"
-		}
-	]
+  "name": "Kingshot Event Calculator",
+  "short_name": "Kingshot Calc",
+  "description": "Strongest Governor event calculator for Kingshot — buildings, troops, heroes, masters, gear and gathering.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#12141a",
+  "theme_color": "#12141a",
+  "categories": ["games", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
 }

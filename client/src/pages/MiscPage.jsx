@@ -465,10 +465,10 @@ export default function MiscPage() {
                 </div>
               </div>
 
-              <div className="buff-row">
+              <div className="buff-row gather-skill-speed-row">
                 <div className="buff-field">
                   <label>
-                    <ImgLabel src={c.skillImg} size={28}>
+                    <ImgLabel src={c.skillImg} size={22}>
                       {c.skillTitle}
                     </ImgLabel>
                   </label>
@@ -497,7 +497,6 @@ export default function MiscPage() {
                     onChange={(e) => setGatherCard(c.id, 'speed', e.target.value)}
                     style={{ textAlign: 'center' }}
                   />
-                  <small>Resource-specific speed buff %</small>
                 </div>
               </div>
 

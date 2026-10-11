@@ -53,17 +53,44 @@ function getPetAdvancementPoints(targetLevelStr, ptsPerUnit = 50) {
  * Inventory stays in Vault; this records how many marks you will spend.
  * Cost / remaining display matches CostStatus used on every other card.
  */
+/** Parse mark qty from text/number inputs (accepts K/M suffixes). */
+function parseMarkQty(v) {
+  if (v == null || v === '') return 0;
+  if (typeof v === 'number' && Number.isFinite(v)) return Math.max(0, Math.floor(v));
+  const n = parseCost(v);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+}
+
 function TamingMarksCard({ vault }) {
   const { state, updateSection } = useApp();
   const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
   const usage = state.settings?.tamingMarks || {};
 
-  const advancedQty = parseCost(usage.advanced);
-  const commonQty = parseCost(usage.common);
+  // Support legacy keys (advanced / common) and explicit mark keys
+  const advancedQty = parseMarkQty(
+    usage.advancedMarks ?? usage.advanced_taming_mark ?? usage.advanced
+  );
+  const commonQty = parseMarkQty(
+    usage.commonMarks ?? usage.common_taming_mark ?? usage.common
+  );
   const active = !!usage.active;
 
-  const advancedPts = advancedQty * (SCORE_RULES.advanced_taming_mark ?? 0);
-  const commonPts = commonQty * (SCORE_RULES.common_taming_mark ?? 0);
+  // Rates from live event table; hard fallback so Advanced never silently scores 0
+  const advRate =
+    Number(SCORE_RULES?.advanced_taming_mark) > 0
+      ? Number(SCORE_RULES.advanced_taming_mark)
+      : activeEventId === 'ab'
+        ? 9370
+        : 15000;
+  const commonRate =
+    Number(SCORE_RULES?.common_taming_mark) > 0
+      ? Number(SCORE_RULES.common_taming_mark)
+      : activeEventId === 'ab'
+        ? 680
+        : 1150;
+
+  const advancedPts = advancedQty * advRate;
+  const commonPts = commonQty * commonRate;
   const totalPts = advancedPts + commonPts;
 
   const costs = {};
@@ -72,13 +99,19 @@ function TamingMarksCard({ vault }) {
   const hasSelection = advancedQty > 0 || commonQty > 0;
 
   const setUsage = (field, value) => {
-    updateSection('settings', (prev) => ({
-      ...prev,
-      tamingMarks: {
-        ...(prev.tamingMarks || {}),
-        [field]: value,
-      },
-    }));
+    updateSection('settings', (prev) => {
+      const prevMarks =
+        prev?.tamingMarks && typeof prev.tamingMarks === 'object'
+          ? { ...prev.tamingMarks }
+          : {};
+      return {
+        ...(prev || {}),
+        tamingMarks: {
+          ...prevMarks,
+          [field]: value,
+        },
+      };
+    });
   };
 
   return (
@@ -97,12 +130,12 @@ function TamingMarksCard({ vault }) {
             <input
               type="text"
               placeholder="e.g. 5 or 1.2K"
-              value={usage.advanced ?? ''}
-              onChange={(e) => setUsage('advanced', e.target.value)}
+              value={usage.advancedMarks ?? usage.advanced ?? ''}
+              onChange={(e) => setUsage('advancedMarks', e.target.value)}
               style={{ textAlign: 'center', width: '100%' }}
             />
             <small style={{ opacity: 0.75 }}>
-              {formatNumber(SCORE_RULES.advanced_taming_mark)} pts each
+              {formatNumber(advRate)} pts each
             </small>
           </div>
 
@@ -114,12 +147,12 @@ function TamingMarksCard({ vault }) {
             <input
               type="text"
               placeholder="e.g. 20 or 500"
-              value={usage.common ?? ''}
-              onChange={(e) => setUsage('common', e.target.value)}
+              value={usage.commonMarks ?? usage.common ?? ''}
+              onChange={(e) => setUsage('commonMarks', e.target.value)}
               style={{ textAlign: 'center', width: '100%' }}
             />
             <small style={{ opacity: 0.75 }}>
-              {formatNumber(SCORE_RULES.common_taming_mark)} pts each
+              {formatNumber(commonRate)} pts each
             </small>
           </div>
         </div>
@@ -235,12 +268,27 @@ export default function PetsPage() {
     });
   }, [petNames, root, petsState, vault, SCORE_RULES, activeEventId]);
 
-  const tamingQtyAdv = parseCost(taming.advanced);
-  const tamingQtyCommon = parseCost(taming.common);
+  const tamingQtyAdv = parseMarkQty(
+    taming.advancedMarks ?? taming.advanced_taming_mark ?? taming.advanced
+  );
+  const tamingQtyCommon = parseMarkQty(
+    taming.commonMarks ?? taming.common_taming_mark ?? taming.common
+  );
   const tamingActive = !!taming.active;
+  const advRatePage =
+    Number(SCORE_RULES?.advanced_taming_mark) > 0
+      ? Number(SCORE_RULES.advanced_taming_mark)
+      : activeEventId === 'ab'
+        ? 9370
+        : 15000;
+  const commonRatePage =
+    Number(SCORE_RULES?.common_taming_mark) > 0
+      ? Number(SCORE_RULES.common_taming_mark)
+      : activeEventId === 'ab'
+        ? 680
+        : 1150;
   const tamingPoints = tamingActive
-    ? tamingQtyAdv * (SCORE_RULES.advanced_taming_mark ?? 0) +
-      tamingQtyCommon * (SCORE_RULES.common_taming_mark ?? 0)
+    ? tamingQtyAdv * advRatePage + tamingQtyCommon * commonRatePage
     : 0;
 
   const hasMaxedItems = useMemo(

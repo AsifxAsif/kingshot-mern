@@ -18,16 +18,22 @@ function newId(prefix) {
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
-/** Forgehammer Mastery required to enhance gear to `targetLv` (Red path). */
 /**
- * Forgehammer Mastery required for Red gear target level.
- * Mythic (≤100): none. Red: Mastery = target − 109 (min 1, max 20).
- * Examples: +110 → 1, +119 → 10, +120 → 11, +129 → 20, +200 → 20.
+ * Forgehammer Mastery required for Red gear target level (in-game).
+ * Mythic (≤100): none.
+ * Red bands (every +20 levels from 101):
+ *   101–119 → Mastery 10
+ *   120–139 → 11
+ *   140–159 → 12
+ *   160–179 → 13
+ *   180–199 → 14
+ *   200+    → 15
+ * Formula: 10 + floor((target − 100) / 20), capped at 20.
  */
 function masteryReqForGearLevel(targetLv) {
   const n = Number(targetLv) || 0;
   if (n <= 100) return 0;
-  return Math.min(20, Math.max(1, n - 109));
+  return Math.min(20, 10 + Math.floor((n - 100) / 20));
 }
 
 
@@ -387,7 +393,7 @@ export default function HeroGearPage() {
                       display: 'grid',
                       gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)',
                       gap: 10,
-                      alignItems: 'end',
+                      alignItems: 'start',
                       marginBottom: 8,
                     }}
                   >
@@ -401,22 +407,11 @@ export default function HeroGearPage() {
                         highest={levels[levels.length - 1]}
                       />
                     </div>
-                    <div className="buff-field" style={{ margin: 0 }}>
-                      <label htmlFor={`gear-mastery-${c.id}`}>Mastery</label>
-                      <div
-                        className="mastery-split-input"
-                        style={{
-                          display: 'flex',
-                          alignItems: 'stretch',
-                          width: '100%',
-                          border: '1px solid var(--border-color, rgba(0,0,0,0.15))',
-                          borderRadius: 8,
-                          overflow: 'hidden',
-                          background: 'var(--surface, #fff)',
-                        }}
-                      >
+                                        <div className="buff-field mastery-field" style={{ margin: 0 }}>
+                      <div className="mastery-split-input">
                         <input
                           id={`gear-mastery-${c.id}`}
+                          className="mastery-input-square"
                           type="text"
                           inputMode="numeric"
                           placeholder="0"
@@ -424,42 +419,15 @@ export default function HeroGearPage() {
                           onChange={(e) =>
                             setListItem('items', c.id, 'mastery', e.target.value)
                           }
-                          style={{
-                            flex: '1 1 50%',
-                            minWidth: 0,
-                            border: 'none',
-                            borderRadius: 0,
-                            outline: 'none',
-                            boxShadow: 'none',
-                            textAlign: 'center',
-                          }}
                         />
                         <div
-                          style={{
-                            flex: '1 1 50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: 4,
-                            padding: '0 8px',
-                            borderLeft: '1px solid var(--border-color, rgba(0,0,0,0.12))',
-                            background:
-                              c.needMastery > 0 && c.to
-                                ? c.prereqsMet !== false
-                                  ? 'rgba(40, 167, 69, 0.12)'
-                                  : 'rgba(220, 53, 69, 0.12)'
-                                : 'var(--hover-fill, rgba(0,0,0,0.04))',
-                            color:
-                              c.needMastery > 0 && c.to
-                                ? c.prereqsMet !== false
-                                  ? 'var(--success, #28a745)'
-                                  : 'var(--danger, #dc3545)'
-                                : 'inherit',
-                            fontSize: '0.8rem',
-                            fontWeight: 600,
-                            whiteSpace: 'nowrap',
-                            opacity: c.needMastery > 0 && c.to ? 1 : 0.55,
-                          }}
+                          className={`mastery-need-badge${
+                            c.needMastery > 0 && c.to
+                              ? c.prereqsMet !== false
+                                ? ' is-met'
+                                : ' is-short'
+                              : ''
+                          }`}
                           title={
                             c.needMastery > 0 && c.to
                               ? `Required Mastery Lv. ${c.needMastery}`
@@ -473,6 +441,9 @@ export default function HeroGearPage() {
                             : '—'}
                         </div>
                       </div>
+                      <label htmlFor={`gear-mastery-${c.id}`} className="mastery-label-below">
+                        Mastery
+                      </label>
                     </div>
                   </div>
                   {(() => {

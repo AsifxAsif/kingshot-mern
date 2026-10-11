@@ -140,6 +140,62 @@ function setSavedActiveName(name) {
   }
 }
 
+
+const PRESET_SNAP_PREFIX = 'ks_preset_snap_v1_';
+
+function snapKey(name) {
+  return PRESET_SNAP_PREFIX + String(name || 'default');
+}
+
+/** Full calculator state snapshot for instant paint on hard reload */
+function loadPresetSnapshot(name) {
+  try {
+    const raw = localStorage.getItem(snapKey(name));
+    if (!raw) {
+      if (name === 'default') return loadLocalDefault();
+      return null;
+    }
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+    return { ...EMPTY_STATE, ...parsed };
+  } catch {
+    return name === 'default' ? loadLocalDefault() : null;
+  }
+}
+
+function savePresetSnapshot(name, state) {
+  if (!name || !state) return;
+  try {
+    const payload = {
+      vault: state.vault || {},
+      troops: state.troops || {},
+      buildings: state.buildings || {},
+      heroes: state.heroes || {},
+      heroGear: state.heroGear || {},
+      govGear: state.govGear || {},
+      govCharm: state.govCharm || {},
+      pets: state.pets || {},
+      warAcademy: state.warAcademy || {},
+      masters: state.masters || {},
+      widgets: state.widgets || {},
+      misc: state.misc || {},
+      planner: state.planner || {},
+      heroShards: state.heroShards || {},
+      heroWidgets: state.heroWidgets || {},
+      heroFlowers: state.heroFlowers || {},
+      lockedUpgrades: state.lockedUpgrades || {},
+      settings: state.settings || {},
+      pageScores: state.pageScores || {},
+      eventPageScores: state.eventPageScores || {},
+      __ts: Date.now(),
+    };
+    localStorage.setItem(snapKey(name), JSON.stringify(payload));
+  } catch {
+    /* quota */
+  }
+}
+
+
 /** Match localStorage active name to a cloud preset (exact, displayName, or _gameId suffix). */
 function resolveSavedPresetName(list, saved) {
   if (!saved || saved === 'default') return null;
@@ -164,13 +220,18 @@ function resolveSavedPresetName(list, saved) {
 export function AppProvider({ children }) {
   const { user, authReady } = useAuth();
   const toast = useToast();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => {
+    // If we already have a local snapshot, paint UI immediately (no full-page skeleton)
+    const name = getSavedActiveName();
+    return !loadPresetSnapshot(name);
+  });
   const [saving, setSaving] = useState(false);
   const [presetList, setPresetList] = useState([]);
   const [currentName, setCurrentName] = useState(() => getSavedActiveName());
-  const [state, setState] = useState(() =>
-    getSavedActiveName() === 'default' ? loadLocalDefault() : { ...EMPTY_STATE }
-  );
+  const [state, setState] = useState(() => {
+    const name = getSavedActiveName();
+    return loadPresetSnapshot(name) || { ...EMPTY_STATE };
+  });
   const [isOnline, setIsOnline] = useState(
     () => (typeof navigator !== 'undefined' ? navigator.onLine : true)
   );
@@ -234,6 +295,36 @@ export function AppProvider({ children }) {
       pageScores,
       eventPageScores,
     });
+    // Instant hard-reload: keep last good snapshot in localStorage
+    try {
+      const n = currentNameRef.current || getSavedActiveName();
+      if (n) {
+        savePresetSnapshot(n, {
+          vault: doc.vault || {},
+          troops: doc.troops || {},
+          buildings: doc.buildings || {},
+          heroes: doc.heroes || {},
+          heroGear: doc.heroGear || {},
+          govGear: doc.govGear || {},
+          govCharm: doc.govCharm || {},
+          pets: doc.pets || {},
+          warAcademy: doc.warAcademy || {},
+          masters: doc.masters || {},
+          widgets: doc.widgets || {},
+          misc: doc.misc || {},
+          planner: doc.planner || {},
+          heroShards: doc.heroShards || {},
+          heroWidgets: doc.heroWidgets || {},
+          heroFlowers: doc.heroFlowers || {},
+          lockedUpgrades: doc.lockedUpgrades || {},
+          settings,
+          pageScores,
+          eventPageScores,
+        });
+      }
+    } catch {
+      /* */
+    }
   };
 
   /** Full snapshot of calculator state for MongoDB */
@@ -475,11 +566,16 @@ export function AppProvider({ children }) {
     let cancelled = false;
     (async () => {
       if (!authReady) {
-        setLoading(true);
+        // Keep snapshot UI visible; only show boot skeleton if no snapshot
+        if (!loadPresetSnapshot(getSavedActiveName())) setLoading(true);
         return;
       }
 
-      setLoading(true);
+      // Soft loading: if snapshot already painted, stay interactive while cloud syncs
+      const hasSnap = !!loadPresetSnapshot(getSavedActiveName());
+      if (!hasSnap) setLoading(true);
+      else setLoading(false);
+
       if (!user) {
         // True guest (no token) — only then use local default
         if (!cancelled) {
@@ -487,6 +583,7 @@ export function AppProvider({ children }) {
           // Do NOT force localStorage to 'default' if a cloud name was stored;
           // only guests without a token use the local default key.
           setState(loadLocalDefault());
+          savePresetSnapshot('default', loadLocalDefault());
           await refreshList();
           setLoading(false);
         }
@@ -629,6 +726,13 @@ export function AppProvider({ children }) {
         stateRef.current = next;
         // Persist entire preset to Mongo (full snapshot on flush)
         scheduleSave(currentNameRef.current, { [section]: nextSec });
+        // Keep local snapshot fresh for instant hard-reload
+        try {
+          const n = currentNameRef.current;
+          if (n) savePresetSnapshot(n, next);
+        } catch {
+          /* */
+        }
         return next;
       });
     },

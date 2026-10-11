@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useApp } from './context/AppContext';
 import Navbar from './components/Navbar';
@@ -13,31 +13,67 @@ import ErrorBoundary from './components/ErrorBoundary';
 import EventSidebar from './components/EventSidebar';
 import { PageSkeleton } from './components/Skeleton';
 
-// Eager imports — all pages in the main bundle so route switches are instant
-import VaultPage from './pages/VaultPage';
-import BuildingsPage from './pages/BuildingsPage';
-import WarAcademyPage from './pages/WarAcademyPage';
-import MastersPage from './pages/MastersPage';
-import WidgetsPage from './pages/WidgetsPage';
-import HeroesPage from './pages/HeroesPage';
-import HeroGearPage from './pages/HeroGearPage';
-import GovGearPage from './pages/GovGearPage';
-import GovCharmPage from './pages/GovCharmPage';
-import PetsPage from './pages/PetsPage';
-import TroopsPage from './pages/TroopsPage';
-import MiscPage from './pages/MiscPage';
-import ProfilePage from './pages/ProfilePage';
+// Lazy routes → smaller first paint on hard reload; prefetched right after idle
+const VaultPage = lazy(() => import('./pages/VaultPage'));
+const BuildingsPage = lazy(() => import('./pages/BuildingsPage'));
+const WarAcademyPage = lazy(() => import('./pages/WarAcademyPage'));
+const MastersPage = lazy(() => import('./pages/MastersPage'));
+const WidgetsPage = lazy(() => import('./pages/WidgetsPage'));
+const HeroesPage = lazy(() => import('./pages/HeroesPage'));
+const HeroGearPage = lazy(() => import('./pages/HeroGearPage'));
+const GovGearPage = lazy(() => import('./pages/GovGearPage'));
+const GovCharmPage = lazy(() => import('./pages/GovCharmPage'));
+const PetsPage = lazy(() => import('./pages/PetsPage'));
+const TroopsPage = lazy(() => import('./pages/TroopsPage'));
+const MiscPage = lazy(() => import('./pages/MiscPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 
-/** Warm game catalogs + player profile as soon as the user is authenticated */
+const PAGE_IMPORTS = [
+  () => import('./pages/VaultPage'),
+  () => import('./pages/BuildingsPage'),
+  () => import('./pages/WarAcademyPage'),
+  () => import('./pages/MastersPage'),
+  () => import('./pages/WidgetsPage'),
+  () => import('./pages/HeroesPage'),
+  () => import('./pages/HeroGearPage'),
+  () => import('./pages/GovGearPage'),
+  () => import('./pages/GovCharmPage'),
+  () => import('./pages/PetsPage'),
+  () => import('./pages/TroopsPage'),
+  () => import('./pages/MiscPage'),
+  () => import('./pages/ProfilePage'),
+];
+
+function PageFallback() {
+  return (
+    <div className="page-loading page-loading-lite" aria-busy="true">
+      <span className="hint">Loading…</span>
+    </div>
+  );
+}
+
+/** Warm catalogs + all page chunks after first paint (idle) */
 function PrefetchOnBoot() {
   const { user, isAuthenticated } = useAuth();
   useEffect(() => {
-    if (!isAuthenticated) return;
-    // All calculator JSON catalogs into memory + localStorage cache
-    prefetchGameData();
-    if (user?.gameId) {
-      prefetchPlayer().catch(() => {});
+    const run = () => {
+      prefetchGameData();
+      if (isAuthenticated && user?.gameId) {
+        prefetchPlayer().catch(() => {});
+      }
+      // Prefetch every page module so switches stay instant after first load
+      PAGE_IMPORTS.forEach((fn, i) => {
+        setTimeout(() => {
+          fn().catch(() => {});
+        }, 80 * i);
+      });
+    };
+    if (typeof requestIdleCallback === 'function') {
+      const id = requestIdleCallback(run, { timeout: 1200 });
+      return () => cancelIdleCallback(id);
     }
+    const t = setTimeout(run, 200);
+    return () => clearTimeout(t);
   }, [isAuthenticated, user?.gameId]);
   return null;
 }
@@ -46,6 +82,7 @@ function AppRoutes() {
   const location = useLocation();
   return (
     <ErrorBoundary resetKey={location.pathname}>
+      <Suspense fallback={<PageFallback />}>
         <Routes>
           <Route path="/" element={<VaultPage />} />
           <Route path="/buildings" element={<BuildingsPage />} />
@@ -63,6 +100,7 @@ function AppRoutes() {
           {/* Fallback so unknown paths still render something */}
           <Route path="*" element={<VaultPage />} />
         </Routes>
+      </Suspense>
     </ErrorBoundary>
   );
 }
