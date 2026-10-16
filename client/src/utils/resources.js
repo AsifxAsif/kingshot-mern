@@ -39,6 +39,12 @@ export const RESOURCE_ALIASES = {
 	mastermanuscript: 'master_manuscript',
 	generalemblem: 'general_emblem',
 	elitespices: 'elite_spices',
+	masterspeedup: 'master_speedup',
+	master_speedups: 'master_speedup',
+	masters_speedup: 'master_speedup',
+	generalspeedup: 'general_speedup',
+	general_speedups: 'general_speedup',
+	gen_speedup: 'general_speedup',
 	elite_spice: 'elite_spices',
 	silvergoblet: 'silver_goblet',
 	silver_goblets: 'silver_goblet',
@@ -195,6 +201,7 @@ export function allocateSpeedupMinutes(needMins, specificKey, vault = {}) {
 	}
 	let left = need;
 	const costs = {};
+	// Specific type first (e.g. master_speedup), then general_speedup
 	const specificHave = Math.max(0, vaultAmount(vault, specificKey));
 	const usedSpecific = Math.min(left, specificHave);
 	if (usedSpecific > 0) {
@@ -207,14 +214,9 @@ export function allocateSpeedupMinutes(needMins, specificKey, vault = {}) {
 		costs.general_speedup = usedGeneral;
 		left -= usedGeneral;
 	}
-	// Still short → show deficit on general if we already exhausted specific,
-	// otherwise on specific (so UI lists what is missing)
+	// Still short after both pools → deficit on general (fallback bucket)
 	if (left > 0) {
-		if (usedSpecific <= 0 && (usedGeneral > 0 || genHave <= 0)) {
-			costs.general_speedup = (costs.general_speedup || 0) + left;
-		} else {
-			costs[specificKey] = (costs[specificKey] || 0) + left;
-		}
+		costs.general_speedup = (costs.general_speedup || 0) + left;
 	}
 	return {
 		costs,

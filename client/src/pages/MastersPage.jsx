@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 import { useScoreRules } from '../hooks/useScoreRules';
 import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import { parseCost, formatNumber, formatSecondsToTime } from '../utils/calc';
-import { sequentialAfford, sumActiveCosts, vaultAmount } from '../utils/resources';
+import { sequentialAfford, sumActiveCosts, vaultAmount, computeAffordability } from '../utils/resources';
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
 import { LevelSelects } from '../components/LevelSelects';
@@ -304,53 +304,88 @@ function affinityEmblemCost(master, fromLv, toLv) {
 }
 
 /**
+ * Read gift stock from vault (supports numbers, "2.42K" strings, aliases).
+ */
+function giftStock(vault, id) {
+  if (!vault) return 0;
+  // Prefer explicit numeric field (running pool uses plain numbers)
+  const direct = vault[id];
+  if (direct != null && direct !== '') {
+    if (typeof direct === 'number' && Number.isFinite(direct)) {
+      return Math.max(0, Math.floor(direct));
+    }
+    const n = parseCost(direct);
+    if (n > 0) return Math.floor(n);
+  }
+  const via = vaultAmount(vault, id);
+  return Math.max(0, Math.floor(Number(via) || 0));
+}
+
+/** Total affinity points available from gift items in vault */
+function affinityPoolPoints(vault = {}) {
+  return (
+    giftStock(vault, 'elite_spices') * 1000 +
+    giftStock(vault, 'silver_goblet') * 100 +
+    giftStock(vault, 'copper_horn') * 10
+  );
+}
+
+/**
  * Convert affinity points → gift items.
  * Spend order: elite spices (1000) → silver goblet (100) → copper horn (10).
+ * Only spends what the vault actually has; any remaining shortfall is expressed
+ * as extra copper horns (never invents elite/silver the user does not own).
  */
 function affinityPointsToItems(pointsNeeded, vault = {}) {
   let left = Math.max(0, Math.ceil(Number(pointsNeeded) || 0));
   const costs = {};
   if (left <= 0) return costs;
 
-  const have = (id) => Math.max(0, Math.floor(Number(vaultAmount(vault, id)) || 0));
+  let elite = giftStock(vault, 'elite_spices');
+  let silver = giftStock(vault, 'silver_goblet');
+  let copper = giftStock(vault, 'copper_horn');
 
-  // 1) Elite Spices — 1000 pts
-  const eliteUse = Math.min(have('elite_spices'), Math.floor(left / 1000));
+  // 1) Elite Spices — use only owned stock
+  const eliteUse = Math.min(elite, Math.floor(left / 1000));
   if (eliteUse > 0) {
     costs.elite_spices = eliteUse;
     left -= eliteUse * 1000;
+    elite -= eliteUse;
   }
 
-  // 2) Silver Goblet — 100 pts
-  const silverUse = Math.min(have('silver_goblet'), Math.floor(left / 100));
+  // 2) Silver Goblet — use only owned stock
+  const silverUse = Math.min(silver, Math.floor(left / 100));
   if (silverUse > 0) {
     costs.silver_goblet = silverUse;
     left -= silverUse * 100;
+    silver -= silverUse;
   }
 
-  // 3) Copper Horn — 10 pts
-  const copperUse = Math.min(have('copper_horn'), Math.floor(left / 10));
-  if (copperUse > 0) {
+  // 3) Copper Horn — cover as much as owned stock allows
+  if (left > 0 && copper > 0) {
+    const needC = Math.ceil(left / 10);
+    const copperUse = Math.min(copper, needC);
     costs.copper_horn = copperUse;
     left -= copperUse * 10;
+    copper -= copperUse;
+    if (left < 0) left = 0;
   }
 
-  // Shortage remainder — same order
+  // 4) Partial remainder: burn one more silver/elite if still owned (avoid false short)
+  if (left > 0 && silver > 0) {
+    costs.silver_goblet = (costs.silver_goblet || 0) + 1;
+    left = Math.max(0, left - 100);
+    silver -= 1;
+  }
+  if (left > 0 && elite > 0) {
+    costs.elite_spices = (costs.elite_spices || 0) + 1;
+    left = Math.max(0, left - 1000);
+    elite -= 1;
+  }
+
+  // 5) True shortfall only — show as copper needed (smallest unit), not fake elite
   if (left > 0) {
-    if (left >= 1000) {
-      const e = Math.floor(left / 1000);
-      costs.elite_spices = (costs.elite_spices || 0) + e;
-      left -= e * 1000;
-    }
-    if (left >= 100) {
-      const s = Math.floor(left / 100);
-      costs.silver_goblet = (costs.silver_goblet || 0) + s;
-      left -= s * 100;
-    }
-    if (left > 0) {
-      costs.copper_horn = (costs.copper_horn || 0) + Math.ceil(left / 10);
-      left = 0;
-    }
+    costs.copper_horn = (costs.copper_horn || 0) + Math.ceil(left / 10);
   }
 
   return costs;
@@ -808,13 +843,21 @@ function UpgradeRow({
               <input
                 className="checkbox"
                 type="checkbox"
-                checked={!!c.active && c.canAfford}
+                checked={!!c.active && !!c.canAfford}
                 disabled={
                   !c.to ||
                   String(c.from) === String(c.to) ||
-                  (!c.canAfford && !c.active)
+                  !c.canAfford
                 }
-                onChange={(e) => setField(c.masterId, c.fieldKey, 'active', e.target.checked)}
+                title={
+                  !c.canAfford
+                    ? 'Not enough resources in Vault for this upgrade'
+                    : undefined
+                }
+                onChange={(e) => {
+                  if (!c.canAfford && e.target.checked) return;
+                  setField(c.masterId, c.fieldKey, 'active', e.target.checked);
+                }}
               />{' '}
               Upgrade
             </label>
@@ -1278,13 +1321,37 @@ export default function MastersPage() {
 
     return raw.map((c) => {
       const a = afford.get(c.id) || { canAfford: true, vaultBefore: vault };
-      // Resource affordability only — prereqs no longer block the checkbox
-      const canAfford = !!a.canAfford;
-      const resolvedCosts = a.resolvedCosts || c.costs;
+      const poolVault = a.vaultBefore || vault;
+      let resolvedCosts = { ...(a.resolvedCosts || c.costs || {}) };
+
+      // Affinity gifts: rebuild against vault snapshot (elite → silver → copper)
+      if (c.kind === 'affinity' && (c.affinityPtsNeeded || 0) > 0) {
+        const giftCosts = affinityPointsToItems(c.affinityPtsNeeded, poolVault);
+        for (const k of ['elite_spices', 'silver_goblet', 'copper_horn']) {
+          delete resolvedCosts[k];
+        }
+        resolvedCosts = { ...resolvedCosts, ...giftCosts };
+      }
+
+      // Full resource check (gifts + emblems + manuscripts + speedups)
+      // sequentialAfford already checked; re-check after gift rebuild so emblem short still blocks
+      let canAfford = computeAffordability(resolvedCosts, poolVault).canAfford;
+      if (c.kind === 'affinity' && (c.affinityPtsNeeded || 0) > 0) {
+        // Also require total gift-point pool covers affinity need
+        if (affinityPoolPoints(poolVault) < (c.affinityPtsNeeded || 0)) {
+          canAfford = false;
+        }
+      }
+      // Skill speedups: sequential already split master → general; shortfall blocks upgrade
+      if (c.speedupOn && c.speedupMins > 0) {
+        const alloc = a.speedupAlloc;
+        if (alloc && alloc.shortfall > 0) canAfford = false;
+      }
+
       const usedSpd = a.speedupAlloc?.used ?? 0;
       const points =
         (c.basePoints || 0) + (usedSpd > 0 ? usedSpd * (SCORE_RULES.speedup_min ?? 0) : 0);
-      // Counts for score / vault lock only when prereqs are met (or checks off)
+      // Score / vault lock only when upgrade is on AND fully affordable AND prereqs met
       const countsForScore = !!(c.active && canAfford && c.prereqsMet);
       return {
         ...c,
