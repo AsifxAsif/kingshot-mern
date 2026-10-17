@@ -566,15 +566,15 @@ export function AppProvider({ children }) {
     let cancelled = false;
     (async () => {
       if (!authReady) {
-        // Keep snapshot UI visible; only show boot skeleton if no snapshot
-        if (!loadPresetSnapshot(getSavedActiveName())) setLoading(true);
+        // Never flash skeleton if we already have a local preset snapshot
+        const hasSnap = !!loadPresetSnapshot(getSavedActiveName());
+        setLoading(!hasSnap);
         return;
       }
 
       // Soft loading: if snapshot already painted, stay interactive while cloud syncs
       const hasSnap = !!loadPresetSnapshot(getSavedActiveName());
-      if (!hasSnap) setLoading(true);
-      else setLoading(false);
+      setLoading(!hasSnap);
 
       if (!user) {
         // True guest (no token) — only then use local default
@@ -646,8 +646,10 @@ export function AppProvider({ children }) {
             setState({ ...EMPTY_STATE });
           }
         }
+        if (!cancelled) setLoading(false);
       } catch (e) {
         console.error('Preset load failed', e);
+        if (!cancelled) setLoading(false);
         if (!cancelled) {
           const list = await refreshList().catch(() => []);
           if (list[0]?.name) {

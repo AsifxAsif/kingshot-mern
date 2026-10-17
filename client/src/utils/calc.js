@@ -231,17 +231,21 @@ export const RESOURCE_ITEMS = [{
 }, ];
 /* parseCost moved */
 export function parseResourceValue(str) {
-	if (!str || typeof str !== 'string') return 0;
-	const s = str.trim().toUpperCase();
-	if (/[DHM]/.test(s) && !/[KM]/.test(s.replace(/[DHM\s]/g, ''))) {
-		let mins = 0;
+	if (str == null || str === '') return 0;
+	if (typeof str === 'number') return str;
+	const s = String(str).trim().toUpperCase();
+	// Time-like speedup strings: 3d 4h 12m 30s → minutes (ceil seconds)
+	if (/\d\s*[DHMS]/.test(s) && !/[K]/.test(s.replace(/[DHMS\s\d.]/g, ''))) {
+		let secs = 0;
 		const d = s.match(/(\d+)\s*D/);
 		const h = s.match(/(\d+)\s*H/);
-		const m = s.match(/(\d+)\s*M/);
-		if (d) mins += parseInt(d[1], 10) * 1440;
-		if (h) mins += parseInt(h[1], 10) * 60;
-		if (m) mins += parseInt(m[1], 10);
-		return mins;
+		const m = s.match(/(\d+)\s*M(?!S)/);
+		const secM = s.match(/(\d+)\s*S/);
+		if (d) secs += parseInt(d[1], 10) * 86400;
+		if (h) secs += parseInt(h[1], 10) * 3600;
+		if (m) secs += parseInt(m[1], 10) * 60;
+		if (secM) secs += parseInt(secM[1], 10);
+		if (secs > 0) return Math.ceil(secs / 60);
 	}
 	return parseCost(s);
 }

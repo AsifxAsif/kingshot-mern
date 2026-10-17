@@ -342,7 +342,7 @@ export default function HeroGearPage() {
 
     usePublishPageScore('heroGear', total);
 
-  if (loading || forgeLoading)
+  if ((loading && !data) || (forgeLoading && !forgeData))
     return (
       <div className="page-loading">
         <PageSkeleton cards={6} label="Loading" />

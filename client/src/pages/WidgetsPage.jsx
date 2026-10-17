@@ -101,7 +101,7 @@ export default function WidgetsPage() {
 
   usePublishPageScore('widgets', totalActivePoints);
 
-  if (lw || lh)
+  if ((lw && !widgetsData) || (lh && !heroesData))
     return (
       <div className="page-loading">
         <PageSkeleton cards={6} label="Loading widgets" />

@@ -45,11 +45,8 @@ const PAGE_IMPORTS = [
 ];
 
 function PageFallback() {
-  return (
-    <div className="page-loading page-loading-lite" aria-busy="true">
-      <span className="hint">Loading…</span>
-    </div>
-  );
+  // Keep layout stable on hard reload while lazy chunks resolve — no heavy skeleton
+  return <div className="page-fallback-lite" aria-busy="true" />;
 }
 
 /** Warm catalogs + all page chunks after first paint (idle) */
@@ -106,13 +103,21 @@ function AppRoutes() {
 }
 
 export default function App() {
-  const { loading, isOnline, sandboxActive, applySandbox, discardSandbox } = useApp();
-  // Only block the whole app on the *first* preset load — not on every page switch
-  const [bootstrapped, setBootstrapped] = useState(false);
+  const { loading, isOnline, sandboxActive, applySandbox, discardSandbox, state } = useApp();
+  // If local snapshot already painted state, never flash full-page skeleton on reload
+  const hasLocalPaint =
+    state &&
+    (Object.keys(state.vault || {}).length > 0 ||
+      Object.keys(state.buildings || {}).length > 0 ||
+      Object.keys(state.warAcademy || {}).length > 0 ||
+      Object.keys(state.masters || {}).length > 0 ||
+      Object.keys(state.settings || {}).length > 0);
+  const [bootstrapped, setBootstrapped] = useState(() => !!hasLocalPaint);
   useEffect(() => {
     if (!loading) setBootstrapped(true);
   }, [loading]);
-  const showBootSkeleton = !bootstrapped && loading;
+  // Only full-page skeleton when we have nothing cached to show
+  const showBootSkeleton = !bootstrapped && loading && !hasLocalPaint;
 
   return (
     <RequireAuthGate>

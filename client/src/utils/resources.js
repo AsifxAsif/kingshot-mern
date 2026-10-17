@@ -28,8 +28,12 @@ export const RESOURCE_ALIASES = {
 	truegolddust: 'truegold_dust',
 	temperedtruegold: 'tempered_truegold',
 	building_speedups: 'building_speedup',
+	buildingspeedup: 'building_speedup',
 	research_speedups: 'research_speedup',
+	researchspeedup: 'research_speedup',
+	research_speed: 'research_speedup',
 	training_speedups: 'training_speedup',
+	trainingspeedup: 'training_speedup',
 	petfood: 'pet_food',
 	growthmanual: 'growth_manual',
 	nutrientpotion: 'nutrient_potion',
@@ -259,30 +263,22 @@ export function sequentialAfford(items, baseVault = {}) {
 		if (item.speedupMins > 0 && item.speedupKey) {
 			speedupAlloc = allocateSpeedupMinutes(item.speedupMins, item.speedupKey, vaultSnap);
 			for (const [k, v] of Object.entries(speedupAlloc.costs || {})) {
-				costs[k] = (costs[k] || 0) + v;
+				costs[k] = (costs[k] || 0) + (Number(v) || 0);
 			}
 		}
 		return { costs, speedupAlloc };
 	};
 
-	// Resolve each item's costs against full base vault (for speedup split baseline)
-	const costsById = new Map();
+	/**
+	 * True sequential shared vault:
+	 * each card sees remaining vault after prior *active* cards.
+	 * Speedups (research/building/training/master) are drawn from the pool once —
+	 * no more parallel “each active takes full research” which hid specific
+	 * speedups and only showed general_speedup in the UI.
+	 */
+	let runningVault = { ...(baseVault || {}) };
 	for (const item of list) {
-		const { costs, speedupAlloc } = resolvedFor(item, baseVault || {});
-		costsById.set(item.id, { costs, speedupAlloc });
-	}
-
-	// Active items always reserve their costs for others (even if they are short overall)
-	const activeIds = list.filter((i) => i.active).map((i) => i.id);
-
-	for (const item of list) {
-		const otherMaps = [];
-		for (const id of activeIds) {
-			if (id === item.id) continue;
-			otherMaps.push(costsById.get(id)?.costs || {});
-		}
-		const vaultBefore = subtractCosts(baseVault || {}, mergeCosts(otherMaps));
-		// Re-resolve speedups against shared vaultBefore
+		const vaultBefore = { ...runningVault };
 		const { costs, speedupAlloc } = resolvedFor(item, vaultBefore);
 		const { canAfford, remaining } = computeAffordability(costs, vaultBefore);
 		result.set(item.id, {
@@ -292,6 +288,10 @@ export function sequentialAfford(items, baseVault = {}) {
 			resolvedCosts: costs,
 			speedupAlloc,
 		});
+		// Active cards reserve resources for later cards (same page pool)
+		if (item.active) {
+			runningVault = subtractCosts(runningVault, costs);
+		}
 	}
 	return result;
 }
@@ -325,6 +325,20 @@ export function formatCostLines(costs, vault = {}) {
 			deficit: left < 0,
 		});
 	}
+	// Prefer specific speedups before general so UI shows research/building/training/master clearly
+	const spdOrder = {
+		research_speedup: 1,
+		building_speedup: 1,
+		training_speedup: 1,
+		master_speedup: 1,
+		general_speedup: 2,
+	};
+	lines.sort((a, b) => {
+		const ao = spdOrder[a.key] || 0;
+		const bo = spdOrder[b.key] || 0;
+		if (ao !== bo) return ao - bo;
+		return 0;
+	});
 	return lines;
 }
 export function nextLevel(levels, from, toNumeric = (x) => {
