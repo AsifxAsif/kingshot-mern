@@ -145,6 +145,7 @@ export default function TroopsPage() {
         card.points + (usedSpd > 0 ? usedSpd * (SCORE_RULES.speedup_min ?? 0) : 0);
       card.canAfford = a.canAfford;
       card.vaultBefore = a.vaultBefore;
+      card.sharedVault = a.sharedVault;
       card.speedupAlloc = a.speedupAlloc;
       if (card.active && a.canAfford) {
         out.totalPoints += card.points;
@@ -250,6 +251,7 @@ export default function TroopsPage() {
                   points={card?.points}
                   costs={card?.costs || {}}
                   vault={card?.vaultBefore || vault}
+                  sharedVault={card?.sharedVault}
                   emptyHint="Select tier & quantity"
                   extra={card ? (
                     <div>
@@ -348,6 +350,7 @@ export default function TroopsPage() {
                   points={card?.points}
                   costs={card?.costs || {}}
                   vault={card?.vaultBefore || vault}
+                  sharedVault={card?.sharedVault}
                   emptyHint="Select from → to & quantity"
                   extra={card ? (
                     <div>

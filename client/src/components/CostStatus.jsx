@@ -14,6 +14,7 @@ export default function CostStatus({
   stepsInfo = '',
   costs = {},
   vault = {},
+  sharedVault = null,
   extra = null,
   lines: linesProp = null,
   emptyHint = 'Select current & target level',
@@ -33,11 +34,18 @@ export default function CostStatus({
 
   let lines = linesProp;
   if (!lines) {
-    lines = formatCostLines(costs, vault).map((row) => ({
-      ...row,
-      have: vaultAmount(vault, row.key),
-      left: vaultAmount(vault, row.key) - (Number(row.need) || 0),
-    }));
+    const displayVault = sharedVault || vault;
+    lines = formatCostLines(costs, vault).map((row) => {
+      const need = Number(row.need) || 0;
+      const haveBefore = vaultAmount(vault, row.key);
+      const leftShared = vaultAmount(displayVault, row.key);
+      return {
+        ...row,
+        have: haveBefore,
+        left: leftShared,
+        deficit: haveBefore < need || leftShared < 0,
+      };
+    });
   }
 
   if ((!lines || lines.length === 0) && (points == null || points === 0) && !lockReasons?.length) {

@@ -264,7 +264,8 @@ export default function PetsPage() {
     );
     return raw.map((c) => {
       const a = afford.get(c.id) || { canAfford: true, vaultBefore: vault };
-      return { ...c, canAfford: a.canAfford, vaultBefore: a.vaultBefore };
+      return { ...c, canAfford: a.canAfford, vaultBefore: a.vaultBefore,
+        sharedVault: a.sharedVault };
     });
   }, [petNames, root, petsState, vault, SCORE_RULES, activeEventId]);
 
@@ -376,8 +377,8 @@ export default function PetsPage() {
                 <input
                   type="checkbox"
                   className="checkbox"
-                  checked={!!c.active && c.canAfford}
-                  disabled={!c.to || c.steps.length === 0 || !c.canAfford}
+                  checked={!!c.active}
+                  disabled={!c.to || c.steps.length === 0}
                   onChange={(e) => setField(c.name, 'active', e.target.checked)}
                 />{' '}
                 Upgrade
@@ -391,6 +392,7 @@ export default function PetsPage() {
                 stepsInfo={` (${c.steps.length} steps)`}
                 costs={c.costs}
                 vault={c.vaultBefore || vault}
+                            sharedVault={c.sharedVault}
               />
               </>
                 );

@@ -906,6 +906,7 @@ function UpgradeRow({
           points={c.points}
           costs={c.costs}
           vault={c.vaultBefore || vault}
+                            sharedVault={c.sharedVault}
           emptyHint={
             !c.prereqsMet
               ? 'Prerequisites not met'
@@ -1360,6 +1361,7 @@ export default function MastersPage() {
         canAfford,
         countsForScore,
         vaultBefore: a.vaultBefore,
+        sharedVault: a.sharedVault,
       };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

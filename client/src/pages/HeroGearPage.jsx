@@ -473,6 +473,7 @@ export default function HeroGearPage() {
                     stepsInfo={` (${c.steps.length} steps)`}
                     costs={c.costs}
                     vault={gearVault}
+                    sharedVault={seq.get(c.id)?.sharedVault}
                   />
                   </>
                     );
@@ -557,6 +558,7 @@ export default function HeroGearPage() {
                     stepsInfo={` (${c.steps.length} steps)`}
                     costs={c.costs}
                     vault={forgeVault}
+                    sharedVault={seq.get(c.id)?.sharedVault}
                   />
                   </>
                     );

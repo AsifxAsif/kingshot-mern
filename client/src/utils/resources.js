@@ -165,14 +165,19 @@ export function buildRemainingVault(vault = {}, lockedUpgrades = {}, excludePage
 	}
 	return out;
 }
-/** Subtract flat costs from vault (new object). */
+/** Subtract flat costs from vault (new object). Clears every key that maps to the same resource. */
 export function subtractCosts(vault = {}, costs = {}) {
-	const out = {
-		...vault
-	};
+	const out = { ...vault };
 	for (const [k, amt] of Object.entries(normalizeCostMap(costs))) {
 		const have = vaultAmount(out, k);
-		out[k] = Math.max(0, have - amt);
+		const left = Math.max(0, have - (Number(amt) || 0));
+		const nk = normalizeResourceKey(k);
+		out[nk] = left;
+		out[k] = left;
+		for (const vk of Object.keys(out)) {
+			if (vk === nk || vk === k) continue;
+			if (normalizeResourceKey(vk) === nk) out[vk] = left;
+		}
 	}
 	return out;
 }
@@ -270,31 +275,37 @@ export function sequentialAfford(items, baseVault = {}) {
 	};
 
 	/**
-	 * True sequential shared vault across ALL cards with a cost selection:
-	 * each card sees remaining after prior planned upgrades on this page
-	 * (active or not). Base vault already excludes other pages' locked costs
-	 * via remainingVaultExcluding. Speedups allocate from the running pool.
+	 * Sequential affordability: each card is checked against vault after prior
+	 * *active* spends (order matters).
+	 * Shared display remaining: after ALL *active* upgrades on this page only
+	 * (same leftover on every card). ESTIMATED selections do not zero the pool.
+	 * Base vault already excludes other pages' locked costs.
 	 */
 	const hasSpend = (costs) =>
 		Object.values(costs || {}).some((v) => (Number(v) || 0) > 0);
 
 	let runningVault = { ...(baseVault || {}) };
+	const resolvedList = [];
 	for (const item of list) {
 		const vaultBefore = { ...runningVault };
 		const { costs, speedupAlloc } = resolvedFor(item, vaultBefore);
 		const { canAfford, remaining } = computeAffordability(costs, vaultBefore);
-		result.set(item.id, {
-			canAfford,
-			vaultBefore,
-			remaining,
-			resolvedCosts: costs,
-			speedupAlloc,
-		});
-		// Any card with costs reserves the pool for later cards on this page
-		// (so remaining updates on every card, not only the last active one).
-		if (hasSpend(costs)) {
+		resolvedList.push({ item, costs, speedupAlloc, canAfford, remaining, vaultBefore });
+		// Only ACTIVE upgrades reserve the pool for later cards + shared remaining
+		if (item.active && hasSpend(costs)) {
 			runningVault = subtractCosts(runningVault, costs);
 		}
+	}
+	const sharedVault = { ...runningVault };
+	for (const row of resolvedList) {
+		result.set(row.item.id, {
+			canAfford: row.canAfford,
+			vaultBefore: row.vaultBefore,
+			remaining: row.remaining,
+			resolvedCosts: row.costs,
+			speedupAlloc: row.speedupAlloc,
+			sharedVault,
+		});
 	}
 	return result;
 }

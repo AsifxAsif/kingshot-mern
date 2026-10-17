@@ -155,6 +155,7 @@ export default function BuildingsPage() {
         points: pts,
         canAfford,
         vaultBefore: a.vaultBefore,
+        sharedVault: a.sharedVault,
         speedupAlloc: a.speedupAlloc,
       };
     });
@@ -225,8 +226,8 @@ export default function BuildingsPage() {
                   <input
                     className="checkbox"
                     type="checkbox"
-                    checked={!!c.active && c.canAfford && c.prereqsMet}
-                    disabled={!c.to || !c.prereqsMet || (!c.canAfford && !c.active)}
+                    checked={!!c.active}
+                    disabled={!c.to || (!c.prereqsMet && !c.active)}
                     onChange={(e) => setField(c.name, 'active', e.target.checked)}
                   />{' '}
                   Upgrade
@@ -247,12 +248,14 @@ export default function BuildingsPage() {
               )}
               <CostStatus
                 active={!!c.active && c.canAfford && c.prereqsMet}
-                hasSelection={!!c.to}
+                hasSelection={!!c.to && c.steps.length > 0}
                 atMax={atMax}
                 points={c.points}
                 stepsInfo={c.steps.length ? ` (${c.steps.length} steps)` : ''}
                 costs={c.costs}
                 vault={c.vaultBefore || baseVault}
+                sharedVault={c.sharedVault}
+                locked={!!c.active && (!c.canAfford || !c.prereqsMet)}
                 extra={
                   c.steps.length > 0 ? (
                     <div className="status-time-line">⏱️ {formatSecondsToTime(c.buffedTime)}</div>

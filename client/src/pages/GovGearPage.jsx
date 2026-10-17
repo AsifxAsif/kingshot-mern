@@ -166,7 +166,8 @@ export default function GovGearPage() {
     );
     return raw.map((c) => {
       const a = afford.get(c.id) || { canAfford: true, vaultBefore: vault };
-      return { ...c, canAfford: a.canAfford, vaultBefore: a.vaultBefore };
+      return { ...c, canAfford: a.canAfford, vaultBefore: a.vaultBefore,
+        sharedVault: a.sharedVault };
     });
   }, [gState, rows, order, vault, SCORE_RULES, activeEventId]);
 
@@ -245,7 +246,7 @@ export default function GovGearPage() {
                       <input
                         className="checkbox"
                         type="checkbox"
-                        checked={!!c.active && c.canAfford}
+                        checked={!!c.active}
                         disabled={!c.to || (!c.canAfford && !c.active)}
                         onChange={(e) => setPiece(name, 'active', e.target.checked)}
                       />{' '}
@@ -260,6 +261,7 @@ export default function GovGearPage() {
                       stepsInfo={c.steps?.length ? ` (${c.steps.length} steps)` : ''}
                       costs={c.costs}
                       vault={c.vaultBefore || vault}
+                            sharedVault={c.sharedVault}
                     />
                     </>
                       );

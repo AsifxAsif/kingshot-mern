@@ -228,7 +228,8 @@ export default function GovCharmPage() {
     );
     return raw.map((c) => {
       const a = afford.get(c.id) || { canAfford: true, vaultBefore: vault };
-      return { ...c, canAfford: a.canAfford, vaultBefore: a.vaultBefore };
+      return { ...c, canAfford: a.canAfford, vaultBefore: a.vaultBefore,
+        sharedVault: a.sharedVault };
     });
   }, [cState, rows, order, vault, allCharmNames, SCORE_RULES, activeEventId]);
 
@@ -362,7 +363,7 @@ export default function GovCharmPage() {
                             <input
                               className="checkbox"
                               type="checkbox"
-                              checked={!!c.active && c.canAfford}
+                              checked={!!c.active}
                               disabled={!c.to || (!c.canAfford && !c.active)}
                               onChange={(e) => setPiece(c.name, 'active', e.target.checked)}
                             />{' '}
@@ -377,6 +378,7 @@ export default function GovCharmPage() {
                             stepsInfo={` (${c.steps.length} steps)`}
                             costs={c.costs}
                             vault={c.vaultBefore || vault}
+                            sharedVault={c.sharedVault}
                           />
                           </>
                             );

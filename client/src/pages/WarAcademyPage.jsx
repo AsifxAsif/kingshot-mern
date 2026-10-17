@@ -288,6 +288,7 @@ function WarAcademyTechCard({ c, setField, vault, nodeRef }) {
           stepsInfo={c.steps.length ? ` (${c.steps.length} steps)` : ''}
           costs={c.costs}
           vault={c.vaultBefore || vault}
+                            sharedVault={c.sharedVault}
           extra={
             c.steps.length > 0 ? (
               <div className="status-time-line">⏱️ {formatSecondsToTime(c.buffedTime)}</div>
@@ -667,6 +668,7 @@ export default function WarAcademyPage() {
         points: pts,
         canAfford,
         vaultBefore: a.vaultBefore,
+        sharedVault: a.sharedVault,
         active: !!c.active && canAfford,
       };
     });

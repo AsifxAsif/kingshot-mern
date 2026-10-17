@@ -92,14 +92,10 @@ export default function ResourceLines({ lines = [], active = false }) {
           if (shortAmt != null) parts.push(`${formatAmt(key, shortAmt)} short`);
           statusText = parts.length ? parts.join(' · ') : 'short';
           statusClass = 'text-deficit';
-        } else if (active) {
-          if (left != null) {
-            statusText = `${formatAmt(key, left)} remaining`;
-            statusClass = 'text-remaining';
-          } else if (have != null) {
-            statusText = `${formatAmt(key, have)} in vault`;
-            statusClass = 'text-remaining';
-          }
+        } else if (left != null) {
+          // Shared sequential pool: always show remaining after this card's cost
+          statusText = `${formatAmt(key, left)} remaining`;
+          statusClass = 'text-remaining';
         } else if (have != null) {
           statusText = `${formatAmt(key, have)} in vault`;
           statusClass = 'text-remaining';
