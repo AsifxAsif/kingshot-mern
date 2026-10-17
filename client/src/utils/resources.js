@@ -270,12 +270,14 @@ export function sequentialAfford(items, baseVault = {}) {
 	};
 
 	/**
-	 * True sequential shared vault:
-	 * each card sees remaining vault after prior *active* cards.
-	 * Speedups (research/building/training/master) are drawn from the pool once —
-	 * no more parallel “each active takes full research” which hid specific
-	 * speedups and only showed general_speedup in the UI.
+	 * True sequential shared vault across ALL cards with a cost selection:
+	 * each card sees remaining after prior planned upgrades on this page
+	 * (active or not). Base vault already excludes other pages' locked costs
+	 * via remainingVaultExcluding. Speedups allocate from the running pool.
 	 */
+	const hasSpend = (costs) =>
+		Object.values(costs || {}).some((v) => (Number(v) || 0) > 0);
+
 	let runningVault = { ...(baseVault || {}) };
 	for (const item of list) {
 		const vaultBefore = { ...runningVault };
@@ -288,8 +290,9 @@ export function sequentialAfford(items, baseVault = {}) {
 			resolvedCosts: costs,
 			speedupAlloc,
 		});
-		// Active cards reserve resources for later cards (same page pool)
-		if (item.active) {
+		// Any card with costs reserves the pool for later cards on this page
+		// (so remaining updates on every card, not only the last active one).
+		if (hasSpend(costs)) {
 			runningVault = subtractCosts(runningVault, costs);
 		}
 	}
