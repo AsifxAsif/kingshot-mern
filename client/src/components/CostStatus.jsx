@@ -28,22 +28,30 @@ export default function CostStatus({
     return <div className="status-pane">{emptyHint}</div>;
   }
 
+  // vault = sequential pool *before* this card (used for short / canAfford)
+  // sharedVault = after all ACTIVE on the page (used for "X remaining" when affordable)
+  const poolAfterActives = sharedVault || vault;
+
   const { canAfford } = linesProp
     ? { canAfford: !linesProp.some((l) => l.deficit) }
     : computeAffordability(costs, vault);
 
   let lines = linesProp;
   if (!lines) {
-    const displayVault = sharedVault || vault;
     lines = formatCostLines(costs, vault).map((row) => {
       const need = Number(row.need) || 0;
+      // Affordability / short = can we pay THIS card from vault before it spends?
       const haveBefore = vaultAmount(vault, row.key);
-      const leftShared = vaultAmount(displayVault, row.key);
+      const deficit = need > 0 && haveBefore < need;
+      // Shared leftover after every ACTIVE upgrade (includes this card if active)
+      const afterAll = vaultAmount(poolAfterActives, row.key);
       return {
         ...row,
+        need,
         have: haveBefore,
-        left: leftShared,
-        deficit: haveBefore < need || leftShared < 0,
+        // If short: ResourceLines uses have + short. If OK: show afterAll remaining.
+        left: deficit ? haveBefore - need : afterAll,
+        deficit,
       };
     });
   }

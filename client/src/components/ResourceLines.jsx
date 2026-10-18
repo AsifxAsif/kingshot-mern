@@ -77,27 +77,35 @@ export default function ResourceLines({ lines = [], active = false }) {
 
         let statusText = null;
         let statusClass = '';
-        const isShort = deficit || (left != null && left < 0);
+        const needN = need != null && need !== '' ? Number(need) : null;
+        const haveN = have != null ? Number(have) : null;
+        const leftN = left != null ? Number(left) : haveN != null && needN != null ? haveN - needN : null;
+
+        // Short when need exceeds what is in the shared vault pool
+        const isShort =
+          deficit === true ||
+          (needN != null && haveN != null && needN > haveN) ||
+          (leftN != null && leftN < 0);
+
         const shortAmt =
-          isShort && need != null && have != null
-            ? Math.max(0, Number(need) - Number(have))
-            : isShort && left != null
-              ? Math.abs(left)
+          isShort && needN != null && haveN != null
+            ? Math.max(0, needN - haveN)
+            : isShort && leftN != null
+              ? Math.abs(leftN)
               : null;
 
         if (isShort) {
-          // Bracket only: have + short (need stays on the label)
+          // e.g. (have 180 · 105 short)
           const parts = [];
-          if (have != null) parts.push(`have ${formatAmt(key, have)}`);
+          if (haveN != null) parts.push(`have ${formatAmt(key, haveN)}`);
           if (shortAmt != null) parts.push(`${formatAmt(key, shortAmt)} short`);
           statusText = parts.length ? parts.join(' · ') : 'short';
           statusClass = 'text-deficit';
-        } else if (left != null) {
-          // Shared sequential pool: always show remaining after this card's cost
-          statusText = `${formatAmt(key, left)} remaining`;
+        } else if (leftN != null) {
+          statusText = `${formatAmt(key, leftN)} remaining`;
           statusClass = 'text-remaining';
-        } else if (have != null) {
-          statusText = `${formatAmt(key, have)} in vault`;
+        } else if (haveN != null) {
+          statusText = `${formatAmt(key, haveN)} in vault`;
           statusClass = 'text-remaining';
         }
 

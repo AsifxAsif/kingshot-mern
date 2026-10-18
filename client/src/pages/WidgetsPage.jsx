@@ -126,12 +126,14 @@ export default function WidgetsPage() {
         <div className="hero-shards-grid">
           {ssrHeroes.map((h) => (
             <div className="hero-shard-item" key={h.name}>
-              <AssetImg
-                src={heroWidgetImg(h.name)}
-                fallbacks={heroWidgetFallbacks(h.name)}
-                size={48}
-                alt={h.name}
-              />
+              <div className="ah-widget-frame ah-widget-frame--inv">
+                <AssetImg
+                  src={heroWidgetImg(h.name)}
+                  fallbacks={heroWidgetFallbacks(h.name)}
+                  size={48}
+                  alt={h.name}
+                />
+              </div>
               <span className="hero-shard-name" title={h.name}>
                 {h.name}
               </span>
@@ -174,12 +176,14 @@ export default function WidgetsPage() {
           return (
             <div className="item-card" key={h.name}>
               <div className="item-card-header">
-                <AssetImg
-                  src={heroWidgetImg(h.name)}
-                  fallbacks={heroWidgetFallbacks(h.name)}
-                  size={48}
-                  alt={h.name}
-                />
+                <div className="ah-widget-frame">
+                  <AssetImg
+                    src={heroWidgetImg(h.name)}
+                    fallbacks={heroWidgetFallbacks(h.name)}
+                    size={48}
+                    alt={h.name}
+                  />
+                </div>
                 <span>
                   {h.name}{' '}
                   <span style={{ opacity: 0.65, fontSize: '0.75rem', marginLeft: 10, justifycontent: 'flex-end' }}>

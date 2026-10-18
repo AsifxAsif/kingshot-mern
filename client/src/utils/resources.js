@@ -167,7 +167,9 @@ export function buildRemainingVault(vault = {}, lockedUpgrades = {}, excludePage
 }
 /** Subtract flat costs from vault (new object). Clears every key that maps to the same resource. */
 export function subtractCosts(vault = {}, costs = {}) {
-	const out = { ...vault };
+	const out = {
+		...vault
+	};
 	for (const [k, amt] of Object.entries(normalizeCostMap(costs))) {
 		const have = vaultAmount(out, k);
 		const left = Math.max(0, have - (Number(amt) || 0));
@@ -257,13 +259,14 @@ export function stripSpeedupKeys(costs = {}) {
 export function sequentialAfford(items, baseVault = {}) {
 	const list = items || [];
 	const result = new Map();
-
 	const resolvedFor = (item, vaultSnap) => {
 		let base = stripSpeedupKeys(item.costs || {});
 		if (!(item.speedupMins > 0 && item.speedupKey)) {
 			base = normalizeCostMap(item.costs || {});
 		}
-		let costs = { ...base };
+		let costs = {
+			...base
+		};
 		let speedupAlloc = null;
 		if (item.speedupMins > 0 && item.speedupKey) {
 			speedupAlloc = allocateSpeedupMinutes(item.speedupMins, item.speedupKey, vaultSnap);
@@ -271,9 +274,11 @@ export function sequentialAfford(items, baseVault = {}) {
 				costs[k] = (costs[k] || 0) + (Number(v) || 0);
 			}
 		}
-		return { costs, speedupAlloc };
+		return {
+			costs,
+			speedupAlloc
+		};
 	};
-
 	/**
 	 * Sequential affordability: each card is checked against vault after prior
 	 * *active* spends (order matters).
@@ -281,22 +286,39 @@ export function sequentialAfford(items, baseVault = {}) {
 	 * (same leftover on every card). ESTIMATED selections do not zero the pool.
 	 * Base vault already excludes other pages' locked costs.
 	 */
-	const hasSpend = (costs) =>
-		Object.values(costs || {}).some((v) => (Number(v) || 0) > 0);
-
-	let runningVault = { ...(baseVault || {}) };
+	const hasSpend = (costs) => Object.values(costs || {}).some((v) => (Number(v) || 0) > 0);
+	let runningVault = {
+		...(baseVault || {})
+	};
 	const resolvedList = [];
 	for (const item of list) {
-		const vaultBefore = { ...runningVault };
-		const { costs, speedupAlloc } = resolvedFor(item, vaultBefore);
-		const { canAfford, remaining } = computeAffordability(costs, vaultBefore);
-		resolvedList.push({ item, costs, speedupAlloc, canAfford, remaining, vaultBefore });
+		const vaultBefore = {
+			...runningVault
+		};
+		const {
+			costs,
+			speedupAlloc
+		} = resolvedFor(item, vaultBefore);
+		const {
+			canAfford,
+			remaining
+		} = computeAffordability(costs, vaultBefore);
+		resolvedList.push({
+			item,
+			costs,
+			speedupAlloc,
+			canAfford,
+			remaining,
+			vaultBefore
+		});
 		// Only ACTIVE upgrades reserve the pool for later cards + shared remaining
 		if (item.active && hasSpend(costs)) {
 			runningVault = subtractCosts(runningVault, costs);
 		}
 	}
-	const sharedVault = { ...runningVault };
+	const sharedVault = {
+		...runningVault
+	};
 	for (const row of resolvedList) {
 		result.set(row.item.id, {
 			canAfford: row.canAfford,
@@ -309,7 +331,6 @@ export function sequentialAfford(items, baseVault = {}) {
 	}
 	return result;
 }
-
 /** Sum costs of items that are active and affordable (uses resolvedCosts when present). */
 export function sumActiveCosts(items, affordMap) {
 	const locked = {};

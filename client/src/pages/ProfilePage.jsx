@@ -458,13 +458,15 @@ function WidgetTile({ heroName, hero }) {
   const lv = Number(widgetLv);
   return (
     <div className="ah-gear-tile ah-widget-tile">
-      <AssetImg
-        src={heroWidgetImg(heroName)}
-        fallbacks={heroWidgetFallbacks(heroName)}
-        size={56}
-        alt="widget"
-        className="ah-gear-img"
-      />
+      <div className="ah-widget-frame">
+        <AssetImg
+          src={heroWidgetImg(heroName)}
+          fallbacks={heroWidgetFallbacks(heroName)}
+          size={56}
+          alt="widget"
+          className="ah-gear-img"
+        />
+      </div>
       <span className="ah-gear-lv">
         Lv. {Number.isFinite(lv) ? lv : widgetLv || 0}
       </span>
@@ -534,10 +536,11 @@ function ArenaHeroCard({ hero, index }) {
         <p className="hint ah-gear-empty">No gear data</p>
       ) : (
         <div className="ah-gear-grid">
-          {hasWidget && <WidgetTile heroName={name} hero={hero} />}
+          {/* Gear pieces first; exclusive widget last (was first) */}
           {gear.map((g, i) => (
             <GearTile key={g.slot || g.name || g.eid || i} hero={hero} heroName={name} item={g} />
           ))}
+          {hasWidget && <WidgetTile heroName={name} hero={hero} />}
         </div>
       )}
     </article>
@@ -1210,15 +1213,34 @@ export default function ProfilePage() {
               <div className="inventory-card-header">
                 <h3 style={{ margin: 0 }}>Kingdom rankings</h3>
               </div>
-              <div className="kr-grid">
-                {buildKingdomRankRows(ranks, player).map((row) => (
+              {(() => {
+                const rows = buildKingdomRankRows(ranks, player);
+                const top = rows.slice(0, 2);
+                const rest = rows.slice(2);
+                const RankCard = ({ row }) => (
                   <div className="kr-row" key={row.key}>
                     <div className="kr-label">{row.label}</div>
                     <div className="kr-value">{row.value}</div>
                     <div className="kr-rank">{row.rank}</div>
                   </div>
-                ))}
-              </div>
+                );
+                return (
+                  <div className="kr-grid-wrap">
+                    <div className="kr-grid kr-grid-top">
+                      {top.map((row) => (
+                        <RankCard key={row.key} row={row} />
+                      ))}
+                    </div>
+                    {rest.length > 0 && (
+                      <div className="kr-grid kr-grid-rest">
+                        {rest.map((row) => (
+                          <RankCard key={row.key} row={row} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           )}
 

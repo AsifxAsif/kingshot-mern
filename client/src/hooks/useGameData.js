@@ -5,12 +5,10 @@ import {
 import {
 	getCollection
 } from '../services/api';
-
 const cache = new Map();
 const inflight = new Map();
 const LS_PREFIX = 'ks_gamedata_v4_';
 const LS_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days browser cache
-
 export function clearGameDataCache() {
 	cache.clear();
 	inflight.clear();
@@ -44,18 +42,23 @@ function readStored(name) {
 
 function writeStored(name, data) {
 	try {
-		const payload = JSON.stringify({ __ts: Date.now(), data });
+		const payload = JSON.stringify({
+			__ts: Date.now(),
+			data
+		});
 		localStorage.setItem(LS_PREFIX + name, payload);
 		sessionStorage.setItem(LS_PREFIX + name, payload);
 	} catch {
 		try {
-			sessionStorage.setItem(LS_PREFIX + name, JSON.stringify({ __ts: Date.now(), data }));
+			sessionStorage.setItem(LS_PREFIX + name, JSON.stringify({
+				__ts: Date.now(),
+				data
+			}));
 		} catch {
 			/* quota */
 		}
 	}
 }
-
 async function fetchCollection(name) {
 	if (cache.has(name)) return cache.get(name);
 	if (inflight.has(name)) return inflight.get(name);
@@ -71,7 +74,6 @@ async function fetchCollection(name) {
 	inflight.set(name, p);
 	return p;
 }
-
 /** Prefetch catalogs in background (call after login). */
 export function prefetchGameData(collections) {
 	const list = collections || ['heroes', 'hero_gears', 'forgehammers', 'buildings', 'troops', 'war_academy', 'masters', 'widgets', 'pets', 'misc', 'gov_gears', 'gov_charms', 'points', ];
@@ -79,7 +81,6 @@ export function prefetchGameData(collections) {
 		fetchCollection(c).catch(() => {});
 	});
 }
-
 export function useGameData(collection) {
 	// Hydrate memory cache from localStorage synchronously on first use
 	if (!cache.has(collection)) {
@@ -90,7 +91,6 @@ export function useGameData(collection) {
 	// Only "loading" when we have nothing to show yet
 	const [loading, setLoading] = useState(() => !cache.has(collection));
 	const [error, setError] = useState(null);
-
 	useEffect(() => {
 		let cancelled = false;
 		if (cache.has(collection)) {
@@ -123,7 +123,6 @@ export function useGameData(collection) {
 			cancelled = true;
 		};
 	}, [collection]);
-
 	return {
 		data,
 		loading: loading && !data, // never block UI if cached data exists
