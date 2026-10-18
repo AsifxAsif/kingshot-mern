@@ -280,45 +280,34 @@ export function sequentialAfford(items, baseVault = {}) {
 		};
 	};
 	/**
-	 * Sequential affordability: each card is checked against vault after prior
-	 * *active* spends (order matters).
-	 * Shared display remaining: after ALL *active* upgrades on this page only
-	 * (same leftover on every card). ESTIMATED selections do not zero the pool.
-	 * Base vault already excludes other pages' locked costs.
+	 * Sequential affordability (order matters).
+	 * - Each card is checked against vault *after prior ACTIVE+AFFORDABLE spends only*.
+	 * - ESTIMATED (not Upgrade) never drains the pool.
+	 * - Active but unaffordable does NOT drain the pool (no fake shortages downstream).
+	 * - sharedVault = leftover after all active+affordable on this page (same on every card).
+	 * Base vault already excludes other pages' locked costs via remainingVaultExcluding.
 	 */
 	const hasSpend = (costs) => Object.values(costs || {}).some((v) => (Number(v) || 0) > 0);
-	let runningVault = {
-		...(baseVault || {})
-	};
+	let runningVault = { ...(baseVault || {}) };
 	const resolvedList = [];
 	for (const item of list) {
-		const vaultBefore = {
-			...runningVault
-		};
-		const {
-			costs,
-			speedupAlloc
-		} = resolvedFor(item, vaultBefore);
-		const {
-			canAfford,
-			remaining
-		} = computeAffordability(costs, vaultBefore);
+		const vaultBefore = { ...runningVault };
+		const { costs, speedupAlloc } = resolvedFor(item, vaultBefore);
+		const { canAfford, remaining } = computeAffordability(costs, vaultBefore);
 		resolvedList.push({
 			item,
 			costs,
 			speedupAlloc,
 			canAfford,
 			remaining,
-			vaultBefore
+			vaultBefore,
 		});
-		// Only ACTIVE upgrades reserve the pool for later cards + shared remaining
-		if (item.active && hasSpend(costs)) {
+		// Spend only when Upgrade is on AND this card can actually pay
+		if (item.active && canAfford && hasSpend(costs)) {
 			runningVault = subtractCosts(runningVault, costs);
 		}
 	}
-	const sharedVault = {
-		...runningVault
-	};
+	const sharedVault = { ...runningVault };
 	for (const row of resolvedList) {
 		result.set(row.item.id, {
 			canAfford: row.canAfford,

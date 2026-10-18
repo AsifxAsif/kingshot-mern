@@ -251,6 +251,7 @@ export default function TroopsPage() {
                   points={card?.points}
                   costs={card?.costs || {}}
                   vault={card?.vaultBefore || vault}
+                      canAfford={card?.canAfford}
                   sharedVault={card?.sharedVault}
                   emptyHint="Select tier & quantity"
                   extra={card ? (
@@ -350,6 +351,7 @@ export default function TroopsPage() {
                   points={card?.points}
                   costs={card?.costs || {}}
                   vault={card?.vaultBefore || vault}
+                      canAfford={card?.canAfford}
                   sharedVault={card?.sharedVault}
                   emptyHint="Select from → to & quantity"
                   extra={card ? (

@@ -288,6 +288,7 @@ function WarAcademyTechCard({ c, setField, vault, nodeRef }) {
           stepsInfo={c.steps.length ? ` (${c.steps.length} steps)` : ''}
           costs={c.costs}
           vault={c.vaultBefore || vault}
+                      canAfford={c.canAfford}
                             sharedVault={c.sharedVault}
           extra={
             c.steps.length > 0 ? (

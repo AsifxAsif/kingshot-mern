@@ -261,6 +261,7 @@ export default function GovGearPage() {
                       stepsInfo={c.steps?.length ? ` (${c.steps.length} steps)` : ''}
                       costs={c.costs}
                       vault={c.vaultBefore || vault}
+                      canAfford={c.canAfford}
                             sharedVault={c.sharedVault}
                     />
                     </>

@@ -1,11 +1,14 @@
 import { formatNumber } from '../utils/calc';
-import { formatCostLines, computeAffordability, vaultAmount } from '../utils/resources';
+import { formatCostLines, computeAffordability, vaultAmount, normalizeCostMap } from '../utils/resources';
 import ResourceLines from './ResourceLines';
 
 /**
- * @param {boolean} [hasSelection] — false → only emptyHint (no costs / upgrade prompt)
- * @param {boolean} [atMax]
- * @param {string[]} [lockReasons]
+ * Resource status for one upgrade card.
+ *
+ * @param {object} costs — this card's costs
+ * @param {object} vault — sequential vault *before* this card (after prior active+affordable)
+ * @param {object} [sharedVault] — vault after all active+affordable on the page (display remaining)
+ * @param {boolean} [canAffordProp] — optional override from sequentialAfford (preferred)
  */
 export default function CostStatus({
   active,
@@ -15,6 +18,7 @@ export default function CostStatus({
   costs = {},
   vault = {},
   sharedVault = null,
+  canAfford: canAffordProp = null,
   extra = null,
   lines: linesProp = null,
   emptyHint = 'Select current & target level',
@@ -28,33 +32,35 @@ export default function CostStatus({
     return <div className="status-pane">{emptyHint}</div>;
   }
 
-  // vault = sequential pool *before* this card (used for short / canAfford)
-  // sharedVault = after all ACTIVE on the page (used for "X remaining" when affordable)
-  const poolAfterActives = sharedVault || vault;
-
-  const { canAfford } = linesProp
-    ? { canAfford: !linesProp.some((l) => l.deficit) }
-    : computeAffordability(costs, vault);
+  const poolBefore = vault || {};
+  const poolAfter = sharedVault || poolBefore;
+  const normCosts = normalizeCostMap(costs);
 
   let lines = linesProp;
   if (!lines) {
-    lines = formatCostLines(costs, vault).map((row) => {
+    lines = formatCostLines(normCosts, poolBefore).map((row) => {
       const need = Number(row.need) || 0;
-      // Affordability / short = can we pay THIS card from vault before it spends?
-      const haveBefore = vaultAmount(vault, row.key);
-      const deficit = need > 0 && haveBefore < need;
-      // Shared leftover after every ACTIVE upgrade (includes this card if active)
-      const afterAll = vaultAmount(poolAfterActives, row.key);
+      const have = vaultAmount(poolBefore, row.key);
+      const deficit = need > 0 && have < need;
+      const after = vaultAmount(poolAfter, row.key);
       return {
         ...row,
         need,
-        have: haveBefore,
-        // If short: ResourceLines uses have + short. If OK: show afterAll remaining.
-        left: deficit ? haveBefore - need : afterAll,
+        have,
+        // Short → negative left for ResourceLines; OK → shared leftover after actives
+        left: deficit ? have - need : after,
         deficit,
       };
     });
   }
+
+  // Single source of truth: any line short ⇒ cannot afford
+  const linesShort = lines.some((l) => l.deficit || (Number(l.need) > 0 && Number(l.have) < Number(l.need)));
+  const computed = computeAffordability(normCosts, poolBefore);
+  const canAfford =
+    canAffordProp != null
+      ? !!canAffordProp && !linesShort
+      : computed.canAfford && !linesShort;
 
   if ((!lines || lines.length === 0) && (points == null || points === 0) && !lockReasons?.length) {
     return (
@@ -85,7 +91,6 @@ export default function CostStatus({
     cls += ' status-info';
   }
 
-  // Clean lock reasons only (no calculation essays)
   const reasons = [];
   if (!canAfford) {
     reasons.push('Not enough items in Vault for this upgrade.');

@@ -473,6 +473,7 @@ export default function HeroGearPage() {
                     stepsInfo={` (${c.steps.length} steps)`}
                     costs={c.costs}
                     vault={gearVault}
+                    canAfford={seq.get(c.id)?.canAfford}
                     sharedVault={seq.get(c.id)?.sharedVault}
                   />
                   </>
@@ -558,6 +559,7 @@ export default function HeroGearPage() {
                     stepsInfo={` (${c.steps.length} steps)`}
                     costs={c.costs}
                     vault={forgeVault}
+                    canAfford={seq.get(c.id)?.canAfford}
                     sharedVault={seq.get(c.id)?.sharedVault}
                   />
                   </>

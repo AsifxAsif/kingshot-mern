@@ -906,6 +906,7 @@ function UpgradeRow({
           points={c.points}
           costs={c.costs}
           vault={c.vaultBefore || vault}
+                      canAfford={c.canAfford}
                             sharedVault={c.sharedVault}
           emptyHint={
             !c.prereqsMet

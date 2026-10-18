@@ -254,6 +254,7 @@ export default function BuildingsPage() {
                 stepsInfo={c.steps.length ? ` (${c.steps.length} steps)` : ''}
                 costs={c.costs}
                 vault={c.vaultBefore || baseVault}
+                      canAfford={c.canAfford}
                 sharedVault={c.sharedVault}
                 locked={!!c.active && (!c.canAfford || !c.prereqsMet)}
                 extra={

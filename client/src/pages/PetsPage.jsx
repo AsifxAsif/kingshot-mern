@@ -392,6 +392,7 @@ export default function PetsPage() {
                 stepsInfo={` (${c.steps.length} steps)`}
                 costs={c.costs}
                 vault={c.vaultBefore || vault}
+                      canAfford={c.canAfford}
                             sharedVault={c.sharedVault}
               />
               </>
