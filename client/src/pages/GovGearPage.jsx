@@ -162,7 +162,8 @@ export default function GovGearPage() {
     });
     const afford = sequentialAfford(
       raw.map((c) => ({ id: c.id, costs: c.costs, active: c.active })),
-      vault
+      vault,
+      { reverse: true }
     );
     return raw.map((c) => {
       const a = afford.get(c.id) || { canAfford: true, vaultBefore: vault };

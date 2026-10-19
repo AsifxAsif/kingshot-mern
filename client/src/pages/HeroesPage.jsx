@@ -149,7 +149,8 @@ function FlowerRow({ maxIdx, onPetalClick, type }) {
 export default function HeroesPage() {
   const { orders } = useSiteConfig();
   const { data, loading, error } = useGameData('heroes');
-  const { state, updateSection, setPageScore, vault } = useApp();
+  const { state, updateSection, setPageScore, vault, remainingVaultExcluding } = useApp();
+  const vaultForHeroes = remainingVaultExcluding('heroes');
   const { scoreRules: SCORE_RULES, eventId: activeEventId } = useScoreRules();
   const showMaxed = useShowMaxedItems();
   const maxGen = state.settings?.maxHeroGen ?? 8;
@@ -270,7 +271,7 @@ export default function HeroesPage() {
       const shortage = Math.max(0, heroShardsNeeded - availableHeroShards);
       const generalType = getGeneralShardType(hero.rarity);
       const generalPts = SCORE_RULES[generalType] || 0;
-      const vaultTotal = parseCost(vault?.[generalType]);
+      const vaultTotal = parseCost(vaultForHeroes?.[generalType] ?? vault?.[generalType]);
       const vaultLeft = Math.max(0, vaultTotal - (lockedGeneral[generalType] || 0));
 
       // Enough specific shards → no general needed
@@ -453,7 +454,7 @@ export default function HeroesPage() {
           const targVal = valueAtAbsIdx(fs.targetMaxIdx);
           const useGen = !!s.useGeneral;
           const generalType = getGeneralShardType(h.rarity);
-          const vaultTotal = parseCost(vault?.[generalType]);
+          const vaultTotal = parseCost(vaultForHeroes?.[generalType] ?? vault?.[generalType]);
           const preview = previewByHero[h.name];
           const result = s.active
             ? activeResults[h.name]

@@ -26,7 +26,23 @@ body {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
-	font-family: 'Courier New', Courier, monospace;
+}
+html, body {
+	font-family: 'Satoshi', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+	font-size: 16px;
+	line-height: 1.45;
+	-webkit-font-smoothing: antialiased;
+}
+/* Numbers / amounts use normal body font (not mono) */
+.mp-stat-val,
+.kr-value,
+.status-pts,
+.cost-line,
+.cost-line-label,
+.hero-shard-input,
+.vault-input,
+input, select, button, .preset-btn {
+	font-family: inherit;
 }
 /* Scrollbar */
 /* ============================================
@@ -1972,10 +1988,32 @@ a.nav-link {
 	flex-direction: row;
 	flex-wrap: wrap;
 	gap: var(--nested-card-gap, 12px);
+	width: 100%;
 }
 .group-card-body-items-row .gov-sub-group-items > .item-card {
-	flex: 1 1 180px;
-	min-width: 160px;
+	flex: 1 1 220px;
+	min-width: 200px;
+	max-width: 100%;
+}
+/* Mobile / narrow: charm & gear pieces always 1 column */
+@media (max-width: 900px) {
+	.group-card-body-items-row {
+		flex-direction: column !important;
+		flex-wrap: nowrap !important;
+	}
+	.group-card-body-items-row .gov-sub-group-items {
+		flex-direction: column !important;
+		flex-wrap: nowrap !important;
+	}
+	.group-card-body-items-row .gov-sub-group-items > .item-card,
+	.group-card-body-items-row > .group-card-item,
+	.group-card-body-items-row > .item-card,
+	.gov-sub-group-items > .item-card {
+		flex: 1 1 auto !important;
+		width: 100% !important;
+		min-width: 0 !important;
+		max-width: 100% !important;
+	}
 }
 /* === Buff panel contrast (all pages) === */
 .collapsible-section {
@@ -6344,4 +6382,15 @@ input.mastery-input-square[type="text"] {
 }
 .page-fallback-lite {
 	min-height: 120px;
+}
+
+
+/* Mobile: all upgrade cards stack in one column */
+@media (max-width: 900px) {
+	.gov-charm-grid,
+	.gov-gear-grid,
+	.cards-grid,
+	.items-grid {
+		grid-template-columns: 1fr !important;
+	}
 }

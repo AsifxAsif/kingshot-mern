@@ -256,17 +256,17 @@ export function stripSpeedupKeys(costs = {}) {
  *   speedupMins + speedupKey → allocate specific then general against vaultBefore
  * Result entries include resolvedCosts (with speedup split) for locking/display.
  */
-export function sequentialAfford(items, baseVault = {}) {
+export function sequentialAfford(items, baseVault = {}, options = {}) {
 	const list = items || [];
 	const result = new Map();
+	const reverse = !!options.reverse;
+
 	const resolvedFor = (item, vaultSnap) => {
 		let base = stripSpeedupKeys(item.costs || {});
 		if (!(item.speedupMins > 0 && item.speedupKey)) {
 			base = normalizeCostMap(item.costs || {});
 		}
-		let costs = {
-			...base
-		};
+		let costs = { ...base };
 		let speedupAlloc = null;
 		if (item.speedupMins > 0 && item.speedupKey) {
 			speedupAlloc = allocateSpeedupMinutes(item.speedupMins, item.speedupKey, vaultSnap);
@@ -274,59 +274,80 @@ export function sequentialAfford(items, baseVault = {}) {
 				costs[k] = (costs[k] || 0) + (Number(v) || 0);
 			}
 		}
-		return {
-			costs,
-			speedupAlloc
-		};
+		return { costs, speedupAlloc };
 	};
+
+	const hasSpend = (costs) =>
+		Object.values(costs || {}).some((v) => (Number(v) || 0) > 0);
+
 	/**
-	 * Sequential affordability (order matters).
-	 * - Each card is checked against vault *after prior ACTIVE+AFFORDABLE spends only*.
-	 * - ESTIMATED (not Upgrade) never drains the pool.
-	 * - Active but unaffordable does NOT drain the pool (no fake shortages downstream).
-	 * - sharedVault = leftover after all active+affordable on this page (same on every card).
-	 * Base vault already excludes other pages' locked costs via remainingVaultExcluding.
+	 * Two-pass exclusive lock:
+	 * Pass 1 — ACTIVE only (Upgrade on): in page order (or reverse), each card
+	 *   checks canAfford against vault before it, then ALWAYS locks full costs
+	 *   so no other card can use them.
+	 * Pass 2 — ESTIMATED (Upgrade off): see shared vault after all locks.
 	 */
-	const hasSpend = (costs) => Object.values(costs || {}).some((v) => (Number(v) || 0) > 0);
+	const activeItems = list.filter((i) => i.active);
+	const estimatedItems = list.filter((i) => !i.active);
+	const activeOrder = reverse ? [...activeItems].reverse() : [...activeItems];
+
 	let runningVault = { ...(baseVault || {}) };
-	const resolvedList = [];
-	for (const item of list) {
+	const byId = new Map();
+
+	for (const item of activeOrder) {
 		const vaultBefore = { ...runningVault };
 		const { costs, speedupAlloc } = resolvedFor(item, vaultBefore);
 		const { canAfford, remaining } = computeAffordability(costs, vaultBefore);
-		resolvedList.push({
-			item,
-			costs,
-			speedupAlloc,
+		byId.set(item.id, {
 			canAfford,
-			remaining,
 			vaultBefore,
+			remaining,
+			resolvedCosts: costs,
+			speedupAlloc,
 		});
-		// Spend only when Upgrade is on AND this card can actually pay
-		if (item.active && canAfford && hasSpend(costs)) {
+		// Lock full cost for this upgrade — exclusive, even if short
+		if (hasSpend(costs)) {
 			runningVault = subtractCosts(runningVault, costs);
 		}
 	}
+
 	const sharedVault = { ...runningVault };
-	for (const row of resolvedList) {
-		result.set(row.item.id, {
-			canAfford: row.canAfford,
-			vaultBefore: row.vaultBefore,
-			remaining: row.remaining,
-			resolvedCosts: row.costs,
-			speedupAlloc: row.speedupAlloc,
-			sharedVault,
+
+	for (const item of estimatedItems) {
+		const vaultBefore = { ...sharedVault };
+		const { costs, speedupAlloc } = resolvedFor(item, vaultBefore);
+		const { canAfford, remaining } = computeAffordability(costs, vaultBefore);
+		byId.set(item.id, {
+			canAfford,
+			vaultBefore,
+			remaining,
+			resolvedCosts: costs,
+			speedupAlloc,
 		});
+	}
+
+	for (const item of list) {
+		const row = byId.get(item.id) || {
+			canAfford: true,
+			vaultBefore: { ...(baseVault || {}) },
+			remaining: {},
+			resolvedCosts: normalizeCostMap(item.costs || {}),
+			speedupAlloc: null,
+		};
+		result.set(item.id, { ...row, sharedVault });
 	}
 	return result;
 }
-/** Sum costs of items that are active and affordable (uses resolvedCosts when present). */
+
 export function sumActiveCosts(items, affordMap) {
 	const locked = {};
 	for (const item of items || []) {
+		if (!item.active) continue;
 		const a = affordMap?.get(item.id);
-		if (!item.active || !a?.canAfford) continue;
-		const src = a.resolvedCosts || item.costs || {};
+		// Cross-page: only reserve what can actually be paid (canAfford)
+		// Same-page exclusive claim is handled inside sequentialAfford
+		if (a && a.canAfford === false) continue;
+		const src = a?.resolvedCosts || item.costs || {};
 		for (const [k, amt] of Object.entries(normalizeCostMap(src))) {
 			locked[k] = (locked[k] || 0) + amt;
 		}

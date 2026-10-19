@@ -1,14 +1,11 @@
 import { formatNumber } from '../utils/calc';
-import { formatCostLines, computeAffordability, vaultAmount, normalizeCostMap } from '../utils/resources';
+import { computeAffordability, vaultAmount, normalizeCostMap } from '../utils/resources';
 import ResourceLines from './ResourceLines';
 
 /**
- * Resource status for one upgrade card.
- *
- * @param {object} costs — this card's costs
- * @param {object} vault — sequential vault *before* this card (after prior active+affordable)
- * @param {object} [sharedVault] — vault after all active+affordable on the page (display remaining)
- * @param {boolean} [canAffordProp] — optional override from sequentialAfford (preferred)
+ * vault = sequential amount available to THIS card (before its own lock)
+ * sharedVault = leftover after every ACTIVE lock on the page
+ * canAfford = sequentialAfford result for this card
  */
 export default function CostStatus({
   active,
@@ -33,36 +30,36 @@ export default function CostStatus({
   }
 
   const poolBefore = vault || {};
-  const poolAfter = sharedVault || poolBefore;
-  const normCosts = normalizeCostMap(costs);
+  const poolAfter = sharedVault != null ? sharedVault : poolBefore;
+  const normCosts = normalizeCostMap(costs || {});
 
   let lines = linesProp;
   if (!lines) {
-    lines = formatCostLines(normCosts, poolBefore).map((row) => {
-      const need = Number(row.need) || 0;
-      const have = vaultAmount(poolBefore, row.key);
+    lines = Object.entries(normCosts).map(([key, needRaw]) => {
+      const need = Number(needRaw) || 0;
+      // What this card can still draw before its own spend
+      const have = vaultAmount(poolBefore, key);
+      const after = vaultAmount(poolAfter, key);
       const deficit = need > 0 && have < need;
-      const after = vaultAmount(poolAfter, row.key);
       return {
-        ...row,
+        key,
         need,
         have,
-        // Short → negative left for ResourceLines; OK → shared leftover after actives
+        // Short: show have + short. OK: leftover after all active locks
         left: deficit ? have - need : after,
         deficit,
       };
     });
   }
 
-  // Single source of truth: any line short ⇒ cannot afford
-  const linesShort = lines.some((l) => l.deficit || (Number(l.need) > 0 && Number(l.have) < Number(l.need)));
-  const computed = computeAffordability(normCosts, poolBefore);
+  const anyShort = lines.some(
+    (l) => Number(l.need) > 0 && Number(l.have) < Number(l.need)
+  );
+  const computedOk = computeAffordability(normCosts, poolBefore).canAfford;
   const canAfford =
-    canAffordProp != null
-      ? !!canAffordProp && !linesShort
-      : computed.canAfford && !linesShort;
+    canAffordProp != null ? !!canAffordProp && !anyShort : computedOk && !anyShort;
 
-  if ((!lines || lines.length === 0) && (points == null || points === 0) && !lockReasons?.length) {
+  if ((!lines || lines.length === 0) && (points == null || points === 0) && !(lockReasons || []).length) {
     return (
       <div className="status-pane status-info">
         Levels selected — no cost rows found for this range
@@ -81,6 +78,9 @@ export default function CostStatus({
   if (active && canAfford && !locked && extraReasons.length === 0) {
     label = `ACTIVE${stepsInfo}`;
     cls += ' status-ok';
+  } else if (active && !canAfford) {
+    label = `INSUFFICIENT RESOURCES${stepsInfo}`;
+    cls += ' status-error';
   } else if (blocked) {
     label = !canAfford
       ? `INSUFFICIENT RESOURCES${stepsInfo}`
@@ -99,7 +99,7 @@ export default function CostStatus({
     if (!reasons.includes(r)) reasons.push(r);
   }
 
-  const showPts = points != null && Number(points) > 0;
+  const showPts = points != null && Number(points) > 0 && canAfford;
 
   return (
     <div className={cls}>
