@@ -6392,3 +6392,52 @@ input.mastery-input-square[type="text"] {
 		grid-template-columns: 1fr !important;
 	}
 }
+/* Cost line status: brackets/dot black; have green; short red — same baseline as label */
+.cost-line {
+	display: flex !important;
+	align-items: center !important;
+	flex-wrap: wrap;
+	gap: 6px 8px !important;
+	line-height: 1.3 !important;
+}
+.cost-line-label {
+	display: inline-flex !important;
+	align-items: center !important;
+	line-height: 1.3 !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+.cost-status {
+	display: inline-flex !important;
+	align-items: center !important;
+	color: var(--text-primary, #1a1814);
+	font-weight: 600;
+	font-size: inherit;
+	line-height: 1.3 !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	white-space: nowrap;
+	vertical-align: middle;
+}
+.cost-status-sep {
+	color: var(--text-primary, #1a1814);
+	font-weight: 600;
+	line-height: inherit;
+	padding: 0 0.35em;
+	/* gap around the middle dot */
+	display: inline-block;
+}
+.cost-status .text-remaining,
+.cost-status .text-deficit {
+	display: inline !important;
+	line-height: inherit !important;
+	vertical-align: baseline;
+}
+.cost-status .text-remaining {
+	color: var(--color-success, #1a7a3a) !important;
+	font-weight: 700 !important;
+}
+.cost-status .text-deficit {
+	color: var(--color-danger, #c62828) !important;
+	font-weight: 700 !important;
+}

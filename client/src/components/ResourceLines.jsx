@@ -94,32 +94,51 @@ export default function ResourceLines({ lines = [], active = false }) {
               ? Math.abs(leftN)
               : null;
 
+        let statusNode = null;
         if (isShort) {
-          // e.g. (have 180 · 105 short)
-          const parts = [];
-          if (haveN != null) parts.push(`have ${formatAmt(key, haveN)}`);
-          if (shortAmt != null) parts.push(`${formatAmt(key, shortAmt)} short`);
-          statusText = parts.length ? parts.join(' · ') : 'short';
-          statusClass = 'text-deficit';
+          // (have 95 · 25 short) — have green, brackets/dot black, short red
+          statusNode = (
+            <span className="cost-status">
+              (
+              {haveN != null && (
+                <span className="text-remaining">have {formatAmt(key, haveN)}</span>
+              )}
+              {haveN != null && shortAmt != null && (
+                <span className="cost-status-sep" aria-hidden="true">·</span>
+              )}
+              {shortAmt != null ? (
+                <span className="text-deficit">{formatAmt(key, shortAmt)} short</span>
+              ) : (
+                <span className="text-deficit">short</span>
+              )}
+              )
+            </span>
+          );
         } else if (leftN != null) {
-          statusText = `${formatAmt(key, leftN)} remaining`;
-          statusClass = 'text-remaining';
+          statusNode = (
+            <span className="cost-status">
+              (<span className="text-remaining">{formatAmt(key, leftN)} remaining</span>)
+            </span>
+          );
         } else if (haveN != null) {
-          statusText = `${formatAmt(key, haveN)} in vault`;
-          statusClass = 'text-remaining';
+          statusNode = (
+            <span className="cost-status">
+              (<span className="text-remaining">{formatAmt(key, haveN)} in vault</span>)
+            </span>
+          );
         }
 
         return (
           <div
             key={`${key}-${label}`}
-            className={`cost-line${deficit ? ' cost-line-deficit' : ' cost-line-ok'}`}
+            className={`cost-line${isShort || deficit ? ' cost-line-deficit' : ' cost-line-ok'}`}
           >
             <AssetImg src={img} fallbacks={fallbacks} size={20} alt={label} />
             <span className="cost-line-label">
               {label}
               {need != null && need !== '' ? `: ${formatNeed(key, need)}` : ''}
             </span>
-            {statusText && <span className={statusClass}>({statusText})</span>}
+            {statusNode}
           </div>
         );
       })}
