@@ -6,7 +6,7 @@ import { usePublishPageScore } from '../hooks/usePublishPageScore';
 import ShowMaxedToggle, { useShowMaxedItems, isAtMaxLevel } from '../components/ShowMaxedToggle';
 import PageOptionsBar from '../components/PageOptionsBar';
 import { parseCost, formatNumber, getUpgradeSteps, getLevelsFromArray } from '../utils/calc';
-import { sequentialAfford, sumActiveCosts } from '../utils/resources';
+import { sequentialAfford, sumActiveCosts, computeAffordability, subtractCosts } from '../utils/resources';
 import { useSiteConfig, applyOrder } from '../hooks/useSiteConfig';
 import CostStatus from '../components/CostStatus';
 import AssetImg from '../components/AssetImg';
@@ -98,6 +98,13 @@ function TamingMarksCard({ vault }) {
   if (commonQty > 0) costs.common_taming_mark = commonQty;
   const hasSelection = advancedQty > 0 || commonQty > 0;
 
+  // Remaining after counting marks = vault − used (when Active)
+  const { canAfford: marksCanAfford } = computeAffordability(costs, vault || {});
+  const vaultAfterMarks =
+    active && hasSelection && marksCanAfford
+      ? subtractCosts(vault || {}, costs)
+      : vault || {};
+
   const setUsage = (field, value) => {
     updateSection('settings', (prev) => {
       const prevMarks =
@@ -157,24 +164,36 @@ function TamingMarksCard({ vault }) {
           </div>
         </div>
 
-        <label className="checkbox-label" style={{ marginTop: 12, display: 'inline-flex' }}>
+        <label
+          className={`checkbox-label${!hasSelection || !marksCanAfford ? ' is-disabled' : ''}`}
+          style={{
+            marginTop: 12,
+            display: 'inline-flex',
+            opacity: hasSelection && marksCanAfford ? 1 : 0.45,
+          }}
+        >
           <input
             className="checkbox"
             type="checkbox"
-            checked={active}
-            disabled={!hasSelection}
-            onChange={(e) => setUsage('active', e.target.checked)}
+            checked={!!active && hasSelection && marksCanAfford}
+            disabled={!hasSelection || !marksCanAfford}
+            onChange={(e) => {
+              if (e.target.checked && !marksCanAfford) return;
+              setUsage('active', e.target.checked);
+            }}
           />
           <span>Count taming mark points</span>
         </label>
 
-        {/* Same cost / vault remaining UI as every other upgrade card */}
+        {/* Remaining after Active = vault − marks used */}
         <CostStatus
-          active={active && hasSelection}
+          active={!!active && hasSelection && marksCanAfford}
           hasSelection={hasSelection}
           points={totalPts}
           costs={costs}
           vault={vault}
+          sharedVault={vaultAfterMarks}
+          canAfford={marksCanAfford}
           emptyHint="Enter how many marks you will use"
           extra={
             hasSelection ? (
