@@ -364,9 +364,12 @@ export default function GovCharmPage() {
                             <input
                               className="checkbox"
                               type="checkbox"
-                              checked={!!c.active}
-                              disabled={!c.to || (!c.canAfford && !c.active)}
-                              onChange={(e) => setPiece(c.name, 'active', e.target.checked)}
+                              checked={!!c.active && !!c.canAfford}
+                              disabled={!c.to || !c.canAfford}
+                              onChange={(e) => {
+                                if (e.target.checked && !c.canAfford) return;
+                                setPiece(c.name, 'active', e.target.checked);
+                              }}
                             />{' '}
                             Upgrade
                           </label>

@@ -314,8 +314,8 @@ export function sequentialAfford(items, baseVault = {}, options = {}) {
 			resolvedCosts: costs,
 			speedupAlloc,
 		});
-		// Lock full cost for this upgrade — exclusive, even if short
-		if (hasSpend(costs)) {
+		// Exclusive lock only when Upgrade is ON and fully affordable
+		if (canAfford && hasSpend(costs)) {
 			runningVault = subtractCosts(runningVault, costs);
 		}
 	}

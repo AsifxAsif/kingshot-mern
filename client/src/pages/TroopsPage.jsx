@@ -231,8 +231,11 @@ export default function TroopsPage() {
                     <input
                       className="checkbox" type="checkbox"
                       checked={!!s.active && !!card?.canAfford}
-                      disabled={!card || (!card.canAfford && !s.active)}
-                      onChange={(e) => setField(key, 'active', e.target.checked)}
+                      disabled={!card || !card.canAfford}
+                      onChange={(e) => {
+                        if (e.target.checked && !card?.canAfford) return;
+                        setField(key, 'active', e.target.checked);
+                      }}
                     />{' '}
                     Upgrade
                   </label>
@@ -329,8 +332,11 @@ export default function TroopsPage() {
                     <input
                       className="checkbox" type="checkbox"
                       checked={!!s.active && !!card?.canAfford}
-                      disabled={!card || (!card.canAfford && !s.active)}
-                      onChange={(e) => setField(key, 'active', e.target.checked)}
+                      disabled={!card || !card.canAfford}
+                      onChange={(e) => {
+                        if (e.target.checked && !card?.canAfford) return;
+                        setField(key, 'active', e.target.checked);
+                      }}
                     />{' '}
                     Upgrade
                   </label>

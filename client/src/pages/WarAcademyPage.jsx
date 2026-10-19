@@ -261,8 +261,11 @@ function WarAcademyTechCard({ c, setField, vault, nodeRef }) {
                 className="checkbox"
                 type="checkbox"
                 checked={!!c.active && c.canAfford && c.prereqsMet}
-                disabled={!c.to || !c.prereqsMet || (!c.canAfford && !c.active)}
-                onChange={(e) => setField(c.name, 'active', e.target.checked)}
+                disabled={!c.to || !c.prereqsMet || !c.canAfford}
+                onChange={(e) => {
+                  if (e.target.checked && (!c.canAfford || !c.prereqsMet)) return;
+                  setField(c.name, 'active', e.target.checked);
+                }}
               />{' '}
               Upgrade
             </label>

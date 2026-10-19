@@ -219,16 +219,25 @@ export default function BuildingsPage() {
               {!atMax && (
               <div className="checkbox-group">
                 <label
-                  className="checkbox-label"
+                  className={`checkbox-label${!c.to || !c.canAfford || !c.prereqsMet ? ' is-disabled' : ''}`}
                   style={{ opacity: (c.canAfford && c.prereqsMet) || !c.to ? 1 : 0.5 }}
-                  title={!c.prereqsMet ? 'Prerequisites not met' : undefined}
+                  title={
+                    !c.prereqsMet
+                      ? 'Prerequisites not met'
+                      : !c.canAfford
+                        ? 'Not enough resources in Vault'
+                        : undefined
+                  }
                 >
                   <input
                     className="checkbox"
                     type="checkbox"
-                    checked={!!c.active}
-                    disabled={!c.to || (!c.prereqsMet && !c.active)}
-                    onChange={(e) => setField(c.name, 'active', e.target.checked)}
+                    checked={!!c.active && c.canAfford && c.prereqsMet}
+                    disabled={!c.to || !c.canAfford || !c.prereqsMet}
+                    onChange={(e) => {
+                      if (e.target.checked && (!c.canAfford || !c.prereqsMet)) return;
+                      setField(c.name, 'active', e.target.checked);
+                    }}
                   />{' '}
                   Upgrade
                 </label>

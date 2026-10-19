@@ -208,7 +208,10 @@ export default function WidgetsPage() {
                       className="checkbox" type="checkbox"
                       checked={!!s.active && canAfford}
                       disabled={widgetsNeeded > 0 && !canAfford}
-                      onChange={(e) => setUpgrade(h.name, 'active', e.target.checked)}
+                      onChange={(e) => {
+                        if (e.target.checked && !canAfford) return;
+                        setUpgrade(h.name, 'active', e.target.checked);
+                      }}
                     />{' '}
                     Upgrade
                   </label>

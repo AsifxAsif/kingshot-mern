@@ -377,9 +377,12 @@ export default function PetsPage() {
                 <input
                   type="checkbox"
                   className="checkbox"
-                  checked={!!c.active}
-                  disabled={!c.to || c.steps.length === 0}
-                  onChange={(e) => setField(c.name, 'active', e.target.checked)}
+                  checked={!!c.active && !!c.canAfford}
+                  disabled={!c.to || c.steps.length === 0 || !c.canAfford}
+                  onChange={(e) => {
+                    if (e.target.checked && !c.canAfford) return;
+                    setField(c.name, 'active', e.target.checked);
+                  }}
                 />{' '}
                 Upgrade
               </label>
