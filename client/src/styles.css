@@ -6383,8 +6383,6 @@ input.mastery-input-square[type="text"] {
 .page-fallback-lite {
 	min-height: 120px;
 }
-
-
 /* Mobile: all upgrade cards stack in one column */
 @media (max-width: 900px) {
 	.gov-charm-grid,

@@ -49,7 +49,6 @@ function resolveCollection(req) {
 	if (parts.length) return decodeURIComponent(parts[parts.length - 1]);
 	return null;
 }
-
 async function loadFromMongo(collection) {
 	const Model = modelMap[collection];
 	if (!Model) return null;
@@ -61,7 +60,6 @@ async function loadFromMongo(collection) {
 	}
 	return null;
 }
-
 export const getCollection = async (req, res) => {
 	try {
 		const collection = resolveCollection(req);
@@ -75,21 +73,16 @@ export const getCollection = async (req, res) => {
 				message: 'Unknown collection'
 			});
 		}
-
 		// ?refresh=1 or header forces reload from Mongo/file
-		const forceRefresh =
-			String(req.query?.refresh || '') === '1' ||
-			String(req.headers['x-data-refresh'] || '') === '1';
+		const forceRefresh = String(req.query?.refresh || '') === '1' || String(req.headers['x-data-refresh'] || '') === '1';
 		if (forceRefresh) {
 			memCache.delete(collection);
 		}
-
 		if (memCache.has(collection)) {
 			res.setHeader('Cache-Control', 'private, max-age=60');
 			res.setHeader('X-Data-Cache', 'HIT');
 			return res.json(memCache.get(collection));
 		}
-
 		// Prefer MongoDB (your live catalog), fall back to local JSON files
 		let data = await loadFromMongo(collection);
 		let source = 'mongo';

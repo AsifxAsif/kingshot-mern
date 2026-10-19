@@ -260,13 +260,14 @@ export function sequentialAfford(items, baseVault = {}, options = {}) {
 	const list = items || [];
 	const result = new Map();
 	const reverse = !!options.reverse;
-
 	const resolvedFor = (item, vaultSnap) => {
 		let base = stripSpeedupKeys(item.costs || {});
 		if (!(item.speedupMins > 0 && item.speedupKey)) {
 			base = normalizeCostMap(item.costs || {});
 		}
-		let costs = { ...base };
+		let costs = {
+			...base
+		};
 		let speedupAlloc = null;
 		if (item.speedupMins > 0 && item.speedupKey) {
 			speedupAlloc = allocateSpeedupMinutes(item.speedupMins, item.speedupKey, vaultSnap);
@@ -274,12 +275,12 @@ export function sequentialAfford(items, baseVault = {}, options = {}) {
 				costs[k] = (costs[k] || 0) + (Number(v) || 0);
 			}
 		}
-		return { costs, speedupAlloc };
+		return {
+			costs,
+			speedupAlloc
+		};
 	};
-
-	const hasSpend = (costs) =>
-		Object.values(costs || {}).some((v) => (Number(v) || 0) > 0);
-
+	const hasSpend = (costs) => Object.values(costs || {}).some((v) => (Number(v) || 0) > 0);
 	/**
 	 * Two-pass exclusive lock:
 	 * Pass 1 — ACTIVE only (Upgrade on): in page order (or reverse), each card
@@ -290,14 +291,22 @@ export function sequentialAfford(items, baseVault = {}, options = {}) {
 	const activeItems = list.filter((i) => i.active);
 	const estimatedItems = list.filter((i) => !i.active);
 	const activeOrder = reverse ? [...activeItems].reverse() : [...activeItems];
-
-	let runningVault = { ...(baseVault || {}) };
+	let runningVault = {
+		...(baseVault || {})
+	};
 	const byId = new Map();
-
 	for (const item of activeOrder) {
-		const vaultBefore = { ...runningVault };
-		const { costs, speedupAlloc } = resolvedFor(item, vaultBefore);
-		const { canAfford, remaining } = computeAffordability(costs, vaultBefore);
+		const vaultBefore = {
+			...runningVault
+		};
+		const {
+			costs,
+			speedupAlloc
+		} = resolvedFor(item, vaultBefore);
+		const {
+			canAfford,
+			remaining
+		} = computeAffordability(costs, vaultBefore);
 		byId.set(item.id, {
 			canAfford,
 			vaultBefore,
@@ -310,13 +319,21 @@ export function sequentialAfford(items, baseVault = {}, options = {}) {
 			runningVault = subtractCosts(runningVault, costs);
 		}
 	}
-
-	const sharedVault = { ...runningVault };
-
+	const sharedVault = {
+		...runningVault
+	};
 	for (const item of estimatedItems) {
-		const vaultBefore = { ...sharedVault };
-		const { costs, speedupAlloc } = resolvedFor(item, vaultBefore);
-		const { canAfford, remaining } = computeAffordability(costs, vaultBefore);
+		const vaultBefore = {
+			...sharedVault
+		};
+		const {
+			costs,
+			speedupAlloc
+		} = resolvedFor(item, vaultBefore);
+		const {
+			canAfford,
+			remaining
+		} = computeAffordability(costs, vaultBefore);
 		byId.set(item.id, {
 			canAfford,
 			vaultBefore,
@@ -325,20 +342,23 @@ export function sequentialAfford(items, baseVault = {}, options = {}) {
 			speedupAlloc,
 		});
 	}
-
 	for (const item of list) {
 		const row = byId.get(item.id) || {
 			canAfford: true,
-			vaultBefore: { ...(baseVault || {}) },
+			vaultBefore: {
+				...(baseVault || {})
+			},
 			remaining: {},
 			resolvedCosts: normalizeCostMap(item.costs || {}),
 			speedupAlloc: null,
 		};
-		result.set(item.id, { ...row, sharedVault });
+		result.set(item.id, {
+			...row,
+			sharedVault
+		});
 	}
 	return result;
 }
-
 export function sumActiveCosts(items, affordMap) {
 	const locked = {};
 	for (const item of items || []) {
