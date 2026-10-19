@@ -103,7 +103,10 @@ function getSteps(rows, from, to, order) {
 }
 
 function nextLvl(levels, from, order) {
-  const fromO = order[String(from ?? '0')] ?? 0;
+  const key = String(from ?? '0');
+  const idx = levels.indexOf(key);
+  if (idx >= 0 && idx < levels.length - 1) return levels[idx + 1];
+  const fromO = order[key] ?? 0;
   for (const l of levels) {
     if ((order[l] ?? 0) > fromO) return l;
   }
@@ -124,13 +127,21 @@ export default function GovCharmPage() {
   const rows = data?.['GOV Charm'] || [];
   const order = useMemo(() => buildOrder(rows), [rows]);
   const levels = useMemo(() => {
-    const set = new Set(['0']);
+    // Include Level 5-1 … 5-4 etc. in data order for dropdowns
+    const ordered = ['0'];
+    const seen = new Set(['0']);
     for (const r of rows) {
-      if (r.current != null) set.add(String(r.current));
-      if (r.target != null) set.add(String(r.target));
+      for (const key of ['current', 'target']) {
+        const v = r[key];
+        if (v == null || v === 'null' || v === '') continue;
+        const s = String(v);
+        if (seen.has(s)) continue;
+        seen.add(s);
+        ordered.push(s);
+      }
     }
-    return Array.from(set).sort((a, b) => (order[a] ?? 0) - (order[b] ?? 0));
-  }, [rows, order, SCORE_RULES, activeEventId]);
+    return ordered;
+  }, [rows, SCORE_RULES, activeEventId]);
 
   const [groupSet, setGroupSet] = useState({});
 
@@ -351,6 +362,7 @@ export default function GovCharmPage() {
                             to={c.to ?? ''}
                             onFrom={(v) => setPiece(c.name, 'from', v)}
                             onTo={(v) => setPiece(c.name, 'to', v)}
+                            preserveOrder
                           />
                           {(() => {
                             const atMax = levels.length > 0 && String(c.from ?? '0') === String(levels[levels.length - 1]);

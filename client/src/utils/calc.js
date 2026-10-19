@@ -427,11 +427,34 @@ export function convertLevelToNumeric(level) {
 		if (subLevel > 0) numericValue += subLevel;
 		return numericValue;
 	}
+	// Gov Charm: Level 5, Level 5-1 … Level 5-4, Level 6
+	const charmMatch = levelStr.match(/^Level\s*(\d+)(?:-(\d+))?$/i);
+	if (charmMatch) {
+		const main = parseInt(charmMatch[1], 10);
+		const sub = charmMatch[2] ? parseInt(charmMatch[2], 10) : 0;
+		return main * 10 + sub;
+	}
 	// Pets: 10_Advancement → 10.5
 	const advMatch = levelStr.match(/^(\d+(?:\.\d+)?)[_ ]?Advancement$/i);
 	if (advMatch) return parseFloat(advMatch[1]) + 0.5;
 	const num = parseFloat(levelStr);
 	if (!Number.isNaN(num) && /^-?\d+(\.\d+)?$/.test(levelStr)) return num;
+	// Gov Gear sub-step: "Gold T2⭐⭐⭐-3" → base rank + sub/10
+	const gearSub = levelStr.match(/-(\d+)$/);
+	const subGear = gearSub ? parseInt(gearSub[1], 10) : 0;
+	const baseStr = gearSub ? levelStr.slice(0, gearSub.index) : levelStr;
+	let base = 0;
+	const lower = baseStr.toLowerCase();
+	if (lower.includes('green')) base = 10;
+	else if (lower.includes('blue')) base = 20;
+	else if (lower.includes('purple')) base = 30;
+	else if (lower.includes('gold')) base = 40;
+	else if (lower.includes('red')) base = 50;
+	const tm = baseStr.match(/T([0-9])/i);
+	if (tm) base += parseInt(tm[1], 10) * 5;
+	const stars = (baseStr.match(/⭐/g) || []).length;
+	base += stars;
+	if (base > 0) return base + subGear * 0.1;
 	const m = levelStr.match(/(\d+(?:\.\d+)?)/);
 	return m ? parseFloat(m[1]) : 0;
 }

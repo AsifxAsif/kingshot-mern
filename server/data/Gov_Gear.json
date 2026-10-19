@@ -210,259 +210,1283 @@
 		},
 		{
 			"current": "Gold T2⭐⭐⭐",
+			"target": "Gold T2⭐⭐⭐-1",
+			"satin": 12000,
+			"threads": 120,
+			"artisans": 24,
+			"point": 1250
+		},
+		{
+			"current": "Gold T2⭐⭐⭐-1",
+			"target": "Gold T2⭐⭐⭐-2",
+			"satin": 12000,
+			"threads": 120,
+			"artisans": 24,
+			"point": 1250
+		},
+		{
+			"current": "Gold T2⭐⭐⭐-2",
+			"target": "Gold T2⭐⭐⭐-3",
+			"satin": 12000,
+			"threads": 120,
+			"artisans": 24,
+			"point": 1250
+		},
+		{
+			"current": "Gold T2⭐⭐⭐-3",
+			"target": "Gold T2⭐⭐⭐-4",
+			"satin": 12000,
+			"threads": 120,
+			"artisans": 24,
+			"point": 1250
+		},
+		{
+			"current": "Gold T2⭐⭐⭐-4",
 			"target": "Gold T3",
-			"satin": 60000,
-			"threads": 600,
-			"artisans": 120,
-			"point": 6250
+			"satin": 12000,
+			"threads": 120,
+			"artisans": 24,
+			"point": 1250
 		},
 		{
 			"current": "Gold T3",
+			"target": "Gold T3-1",
+			"satin": 14000,
+			"threads": 140,
+			"artisans": 28,
+			"point": 1250
+		},
+		{
+			"current": "Gold T3-1",
+			"target": "Gold T3-2",
+			"satin": 14000,
+			"threads": 140,
+			"artisans": 28,
+			"point": 1250
+		},
+		{
+			"current": "Gold T3-2",
+			"target": "Gold T3-3",
+			"satin": 14000,
+			"threads": 140,
+			"artisans": 28,
+			"point": 1250
+		},
+		{
+			"current": "Gold T3-3",
+			"target": "Gold T3-4",
+			"satin": 14000,
+			"threads": 140,
+			"artisans": 28,
+			"point": 1250
+		},
+		{
+			"current": "Gold T3-4",
 			"target": "Gold T3⭐",
-			"satin": 70000,
-			"threads": 700,
-			"artisans": 140,
-			"point": 6250
+			"satin": 14000,
+			"threads": 140,
+			"artisans": 28,
+			"point": 1250
 		},
 		{
 			"current": "Gold T3⭐",
+			"target": "Gold T3⭐-1",
+			"satin": 16000,
+			"threads": 160,
+			"artisans": 32,
+			"point": 1250
+		},
+		{
+			"current": "Gold T3⭐-1",
+			"target": "Gold T3⭐-2",
+			"satin": 16000,
+			"threads": 160,
+			"artisans": 32,
+			"point": 1250
+		},
+		{
+			"current": "Gold T3⭐-2",
+			"target": "Gold T3⭐-3",
+			"satin": 16000,
+			"threads": 160,
+			"artisans": 32,
+			"point": 1250
+		},
+		{
+			"current": "Gold T3⭐-3",
+			"target": "Gold T3⭐-4",
+			"satin": 16000,
+			"threads": 160,
+			"artisans": 32,
+			"point": 1250
+		},
+		{
+			"current": "Gold T3⭐-4",
 			"target": "Gold T3⭐⭐",
-			"satin": 80000,
-			"threads": 800,
-			"artisans": 160,
-			"point": 6250
+			"satin": 16000,
+			"threads": 160,
+			"artisans": 32,
+			"point": 1250
 		},
 		{
 			"current": "Gold T3⭐⭐",
+			"target": "Gold T3⭐⭐-1",
+			"satin": 18000,
+			"threads": 180,
+			"artisans": 36,
+			"point": 1250
+		},
+		{
+			"current": "Gold T3⭐⭐-1",
+			"target": "Gold T3⭐⭐-2",
+			"satin": 18000,
+			"threads": 180,
+			"artisans": 36,
+			"point": 1250
+		},
+		{
+			"current": "Gold T3⭐⭐-2",
+			"target": "Gold T3⭐⭐-3",
+			"satin": 18000,
+			"threads": 180,
+			"artisans": 36,
+			"point": 1250
+		},
+		{
+			"current": "Gold T3⭐⭐-3",
+			"target": "Gold T3⭐⭐-4",
+			"satin": 18000,
+			"threads": 180,
+			"artisans": 36,
+			"point": 1250
+		},
+		{
+			"current": "Gold T3⭐⭐-4",
 			"target": "Gold T3⭐⭐⭐",
-			"satin": 90000,
-			"threads": 900,
-			"artisans": 180,
-			"point": 6250
+			"satin": 18000,
+			"threads": 180,
+			"artisans": 36,
+			"point": 1250
 		},
 		{
 			"current": "Gold T3⭐⭐⭐",
+			"target": "Gold T3⭐⭐⭐-1",
+			"satin": 21600,
+			"threads": 216,
+			"artisans": 44,
+			"point": 1250
+		},
+		{
+			"current": "Gold T3⭐⭐⭐-1",
+			"target": "Gold T3⭐⭐⭐-2",
+			"satin": 21600,
+			"threads": 216,
+			"artisans": 44,
+			"point": 1250
+		},
+		{
+			"current": "Gold T3⭐⭐⭐-2",
+			"target": "Gold T3⭐⭐⭐-3",
+			"satin": 21600,
+			"threads": 216,
+			"artisans": 44,
+			"point": 1250
+		},
+		{
+			"current": "Gold T3⭐⭐⭐-3",
+			"target": "Gold T3⭐⭐⭐-4",
+			"satin": 21600,
+			"threads": 216,
+			"artisans": 44,
+			"point": 1250
+		},
+		{
+			"current": "Gold T3⭐⭐⭐-4",
 			"target": "Red",
-			"satin": 108000,
-			"threads": 1080,
-			"artisans": 220,
-			"point": 6250
+			"satin": 21600,
+			"threads": 216,
+			"artisans": 44,
+			"point": 1250
 		},
 		{
 			"current": "Red",
+			"target": "Red-1",
+			"satin": 22800,
+			"threads": 228,
+			"artisans": 46,
+			"point": 1250
+		},
+		{
+			"current": "Red-1",
+			"target": "Red-2",
+			"satin": 22800,
+			"threads": 228,
+			"artisans": 46,
+			"point": 1250
+		},
+		{
+			"current": "Red-2",
+			"target": "Red-3",
+			"satin": 22800,
+			"threads": 228,
+			"artisans": 46,
+			"point": 1250
+		},
+		{
+			"current": "Red-3",
+			"target": "Red-4",
+			"satin": 22800,
+			"threads": 228,
+			"artisans": 46,
+			"point": 1250
+		},
+		{
+			"current": "Red-4",
 			"target": "Red⭐",
-			"satin": 114000,
-			"threads": 1140,
-			"artisans": 230,
-			"point": 6250
+			"satin": 22800,
+			"threads": 228,
+			"artisans": 46,
+			"point": 1250
 		},
 		{
 			"current": "Red⭐",
+			"target": "Red⭐-1",
+			"satin": 24200,
+			"threads": 242,
+			"artisans": 48,
+			"point": 1250
+		},
+		{
+			"current": "Red⭐-1",
+			"target": "Red⭐-2",
+			"satin": 24200,
+			"threads": 242,
+			"artisans": 48,
+			"point": 1250
+		},
+		{
+			"current": "Red⭐-2",
+			"target": "Red⭐-3",
+			"satin": 24200,
+			"threads": 242,
+			"artisans": 48,
+			"point": 1250
+		},
+		{
+			"current": "Red⭐-3",
+			"target": "Red⭐-4",
+			"satin": 24200,
+			"threads": 242,
+			"artisans": 48,
+			"point": 1250
+		},
+		{
+			"current": "Red⭐-4",
 			"target": "Red⭐⭐",
-			"satin": 121000,
-			"threads": 1210,
-			"artisans": 240,
-			"point": 6250
+			"satin": 24200,
+			"threads": 242,
+			"artisans": 48,
+			"point": 1250
 		},
 		{
 			"current": "Red⭐⭐",
+			"target": "Red⭐⭐-1",
+			"satin": 25600,
+			"threads": 256,
+			"artisans": 50,
+			"point": 1250
+		},
+		{
+			"current": "Red⭐⭐-1",
+			"target": "Red⭐⭐-2",
+			"satin": 25600,
+			"threads": 256,
+			"artisans": 50,
+			"point": 1250
+		},
+		{
+			"current": "Red⭐⭐-2",
+			"target": "Red⭐⭐-3",
+			"satin": 25600,
+			"threads": 256,
+			"artisans": 50,
+			"point": 1250
+		},
+		{
+			"current": "Red⭐⭐-3",
+			"target": "Red⭐⭐-4",
+			"satin": 25600,
+			"threads": 256,
+			"artisans": 50,
+			"point": 1250
+		},
+		{
+			"current": "Red⭐⭐-4",
 			"target": "Red⭐⭐⭐",
-			"satin": 128000,
-			"threads": 1280,
-			"artisans": 250,
-			"point": 6250
+			"satin": 25600,
+			"threads": 256,
+			"artisans": 50,
+			"point": 1250
 		},
 		{
 			"current": "Red⭐⭐⭐",
+			"target": "Red⭐⭐⭐-1",
+			"satin": 30800,
+			"threads": 308,
+			"artisans": 60,
+			"point": 1250
+		},
+		{
+			"current": "Red⭐⭐⭐-1",
+			"target": "Red⭐⭐⭐-2",
+			"satin": 30800,
+			"threads": 308,
+			"artisans": 60,
+			"point": 1250
+		},
+		{
+			"current": "Red⭐⭐⭐-2",
+			"target": "Red⭐⭐⭐-3",
+			"satin": 30800,
+			"threads": 308,
+			"artisans": 60,
+			"point": 1250
+		},
+		{
+			"current": "Red⭐⭐⭐-3",
+			"target": "Red⭐⭐⭐-4",
+			"satin": 30800,
+			"threads": 308,
+			"artisans": 60,
+			"point": 1250
+		},
+		{
+			"current": "Red⭐⭐⭐-4",
 			"target": "Red T1",
-			"satin": 154000,
-			"threads": 1540,
-			"artisans": 300,
-			"point": 6250
+			"satin": 30800,
+			"threads": 308,
+			"artisans": 60,
+			"point": 1250
 		},
 		{
 			"current": "Red T1",
+			"target": "Red T1-1",
+			"satin": 32600,
+			"threads": 326,
+			"artisans": 64,
+			"point": 1250
+		},
+		{
+			"current": "Red T1-1",
+			"target": "Red T1-2",
+			"satin": 32600,
+			"threads": 326,
+			"artisans": 64,
+			"point": 1250
+		},
+		{
+			"current": "Red T1-2",
+			"target": "Red T1-3",
+			"satin": 32600,
+			"threads": 326,
+			"artisans": 64,
+			"point": 1250
+		},
+		{
+			"current": "Red T1-3",
+			"target": "Red T1-4",
+			"satin": 32600,
+			"threads": 326,
+			"artisans": 64,
+			"point": 1250
+		},
+		{
+			"current": "Red T1-4",
 			"target": "Red T1⭐",
-			"satin": 163000,
-			"threads": 1630,
-			"artisans": 320,
-			"point": 6250
+			"satin": 32600,
+			"threads": 326,
+			"artisans": 64,
+			"point": 1250
 		},
 		{
 			"current": "Red T1⭐",
+			"target": "Red T1⭐-1",
+			"satin": 34600,
+			"threads": 346,
+			"artisans": 68,
+			"point": 1250
+		},
+		{
+			"current": "Red T1⭐-1",
+			"target": "Red T1⭐-2",
+			"satin": 34600,
+			"threads": 346,
+			"artisans": 68,
+			"point": 1250
+		},
+		{
+			"current": "Red T1⭐-2",
+			"target": "Red T1⭐-3",
+			"satin": 34600,
+			"threads": 346,
+			"artisans": 68,
+			"point": 1250
+		},
+		{
+			"current": "Red T1⭐-3",
+			"target": "Red T1⭐-4",
+			"satin": 34600,
+			"threads": 346,
+			"artisans": 68,
+			"point": 1250
+		},
+		{
+			"current": "Red T1⭐-4",
 			"target": "Red T1⭐⭐",
-			"satin": 173000,
-			"threads": 1730,
-			"artisans": 340,
-			"point": 6250
+			"satin": 34600,
+			"threads": 346,
+			"artisans": 68,
+			"point": 1250
 		},
 		{
 			"current": "Red T1⭐⭐",
+			"target": "Red T1⭐⭐-1",
+			"satin": 36600,
+			"threads": 366,
+			"artisans": 72,
+			"point": 1250
+		},
+		{
+			"current": "Red T1⭐⭐-1",
+			"target": "Red T1⭐⭐-2",
+			"satin": 36600,
+			"threads": 366,
+			"artisans": 72,
+			"point": 1250
+		},
+		{
+			"current": "Red T1⭐⭐-2",
+			"target": "Red T1⭐⭐-3",
+			"satin": 36600,
+			"threads": 366,
+			"artisans": 72,
+			"point": 1250
+		},
+		{
+			"current": "Red T1⭐⭐-3",
+			"target": "Red T1⭐⭐-4",
+			"satin": 36600,
+			"threads": 366,
+			"artisans": 72,
+			"point": 1250
+		},
+		{
+			"current": "Red T1⭐⭐-4",
 			"target": "Red T1⭐⭐⭐",
-			"satin": 183000,
-			"threads": 1830,
-			"artisans": 360,
-			"point": 6250
+			"satin": 36600,
+			"threads": 366,
+			"artisans": 72,
+			"point": 1250
 		},
 		{
 			"current": "Red T1⭐⭐⭐",
+			"target": "Red T1⭐⭐⭐-1",
+			"satin": 44000,
+			"threads": 440,
+			"artisans": 86,
+			"point": 1250
+		},
+		{
+			"current": "Red T1⭐⭐⭐-1",
+			"target": "Red T1⭐⭐⭐-2",
+			"satin": 44000,
+			"threads": 440,
+			"artisans": 86,
+			"point": 1250
+		},
+		{
+			"current": "Red T1⭐⭐⭐-2",
+			"target": "Red T1⭐⭐⭐-3",
+			"satin": 44000,
+			"threads": 440,
+			"artisans": 86,
+			"point": 1250
+		},
+		{
+			"current": "Red T1⭐⭐⭐-3",
+			"target": "Red T1⭐⭐⭐-4",
+			"satin": 44000,
+			"threads": 440,
+			"artisans": 86,
+			"point": 1250
+		},
+		{
+			"current": "Red T1⭐⭐⭐-4",
 			"target": "Red T2",
-			"satin": 220000,
-			"threads": 2200,
-			"artisans": 430,
-			"point": 6250
+			"satin": 44000,
+			"threads": 440,
+			"artisans": 86,
+			"point": 1250
 		},
 		{
 			"current": "Red T2",
+			"target": "Red T2-1",
+			"satin": 46600,
+			"threads": 466,
+			"artisans": 92,
+			"point": 1250
+		},
+		{
+			"current": "Red T2-1",
+			"target": "Red T2-2",
+			"satin": 46600,
+			"threads": 466,
+			"artisans": 92,
+			"point": 1250
+		},
+		{
+			"current": "Red T2-2",
+			"target": "Red T2-3",
+			"satin": 46600,
+			"threads": 466,
+			"artisans": 92,
+			"point": 1250
+		},
+		{
+			"current": "Red T2-3",
+			"target": "Red T2-4",
+			"satin": 46600,
+			"threads": 466,
+			"artisans": 92,
+			"point": 1250
+		},
+		{
+			"current": "Red T2-4",
 			"target": "Red T2⭐",
-			"satin": 233000,
-			"threads": 2330,
-			"artisans": 460,
-			"point": 6250
+			"satin": 46600,
+			"threads": 466,
+			"artisans": 92,
+			"point": 1250
 		},
 		{
 			"current": "Red T2⭐",
+			"target": "Red T2⭐-1",
+			"satin": 49400,
+			"threads": 494,
+			"artisans": 98,
+			"point": 1250
+		},
+		{
+			"current": "Red T2⭐-1",
+			"target": "Red T2⭐-2",
+			"satin": 49400,
+			"threads": 494,
+			"artisans": 98,
+			"point": 1250
+		},
+		{
+			"current": "Red T2⭐-2",
+			"target": "Red T2⭐-3",
+			"satin": 49400,
+			"threads": 494,
+			"artisans": 98,
+			"point": 1250
+		},
+		{
+			"current": "Red T2⭐-3",
+			"target": "Red T2⭐-4",
+			"satin": 49400,
+			"threads": 494,
+			"artisans": 98,
+			"point": 1250
+		},
+		{
+			"current": "Red T2⭐-4",
 			"target": "Red T2⭐⭐",
-			"satin": 247000,
-			"threads": 2470,
-			"artisans": 490,
-			"point": 6250
+			"satin": 49400,
+			"threads": 494,
+			"artisans": 98,
+			"point": 1250
 		},
 		{
 			"current": "Red T2⭐⭐",
+			"target": "Red T2⭐⭐-1",
+			"satin": 52800,
+			"threads": 528,
+			"artisans": 104,
+			"point": 1250
+		},
+		{
+			"current": "Red T2⭐⭐-1",
+			"target": "Red T2⭐⭐-2",
+			"satin": 52800,
+			"threads": 528,
+			"artisans": 104,
+			"point": 1250
+		},
+		{
+			"current": "Red T2⭐⭐-2",
+			"target": "Red T2⭐⭐-3",
+			"satin": 52800,
+			"threads": 528,
+			"artisans": 104,
+			"point": 1250
+		},
+		{
+			"current": "Red T2⭐⭐-3",
+			"target": "Red T2⭐⭐-4",
+			"satin": 52800,
+			"threads": 528,
+			"artisans": 104,
+			"point": 1250
+		},
+		{
+			"current": "Red T2⭐⭐-4",
 			"target": "Red T2⭐⭐⭐",
-			"satin": 264000,
-			"threads": 2640,
-			"artisans": 520,
-			"point": 6250
+			"satin": 52800,
+			"threads": 528,
+			"artisans": 104,
+			"point": 1250
 		},
 		{
 			"current": "Red T2⭐⭐⭐",
+			"target": "Red T2⭐⭐⭐-1",
+			"satin": 57600,
+			"threads": 576,
+			"artisans": 114,
+			"point": 1250
+		},
+		{
+			"current": "Red T2⭐⭐⭐-1",
+			"target": "Red T2⭐⭐⭐-2",
+			"satin": 57600,
+			"threads": 576,
+			"artisans": 114,
+			"point": 1250
+		},
+		{
+			"current": "Red T2⭐⭐⭐-2",
+			"target": "Red T2⭐⭐⭐-3",
+			"satin": 57600,
+			"threads": 576,
+			"artisans": 114,
+			"point": 1250
+		},
+		{
+			"current": "Red T2⭐⭐⭐-3",
+			"target": "Red T2⭐⭐⭐-4",
+			"satin": 57600,
+			"threads": 576,
+			"artisans": 114,
+			"point": 1250
+		},
+		{
+			"current": "Red T2⭐⭐⭐-4",
 			"target": "Red T3",
-			"satin": 288000,
-			"threads": 2880,
-			"artisans": 570,
-			"point": 6250
+			"satin": 57600,
+			"threads": 576,
+			"artisans": 114,
+			"point": 1250
 		},
 		{
 			"current": "Red T3",
+			"target": "Red T3-1",
+			"satin": 60400,
+			"threads": 604,
+			"artisans": 120,
+			"point": 1250
+		},
+		{
+			"current": "Red T3-1",
+			"target": "Red T3-2",
+			"satin": 60400,
+			"threads": 604,
+			"artisans": 120,
+			"point": 1250
+		},
+		{
+			"current": "Red T3-2",
+			"target": "Red T3-3",
+			"satin": 60400,
+			"threads": 604,
+			"artisans": 120,
+			"point": 1250
+		},
+		{
+			"current": "Red T3-3",
+			"target": "Red T3-4",
+			"satin": 60400,
+			"threads": 604,
+			"artisans": 120,
+			"point": 1250
+		},
+		{
+			"current": "Red T3-4",
 			"target": "Red T3⭐",
-			"satin": 302000,
-			"threads": 3020,
-			"artisans": 600,
-			"point": 6250
+			"satin": 60400,
+			"threads": 604,
+			"artisans": 120,
+			"point": 1250
 		},
 		{
 			"current": "Red T3⭐",
+			"target": "Red T3⭐-1",
+			"satin": 63400,
+			"threads": 634,
+			"artisans": 126,
+			"point": 1250
+		},
+		{
+			"current": "Red T3⭐-1",
+			"target": "Red T3⭐-2",
+			"satin": 63400,
+			"threads": 634,
+			"artisans": 126,
+			"point": 1250
+		},
+		{
+			"current": "Red T3⭐-2",
+			"target": "Red T3⭐-3",
+			"satin": 63400,
+			"threads": 634,
+			"artisans": 126,
+			"point": 1250
+		},
+		{
+			"current": "Red T3⭐-3",
+			"target": "Red T3⭐-4",
+			"satin": 63400,
+			"threads": 634,
+			"artisans": 126,
+			"point": 1250
+		},
+		{
+			"current": "Red T3⭐-4",
 			"target": "Red T3⭐⭐",
-			"satin": 317000,
-			"threads": 3170,
-			"artisans": 630,
-			"point": 6250
+			"satin": 63400,
+			"threads": 634,
+			"artisans": 126,
+			"point": 1250
 		},
 		{
 			"current": "Red T3⭐⭐",
+			"target": "Red T3⭐⭐-1",
+			"satin": 66600,
+			"threads": 666,
+			"artisans": 132,
+			"point": 1250
+		},
+		{
+			"current": "Red T3⭐⭐-1",
+			"target": "Red T3⭐⭐-2",
+			"satin": 66600,
+			"threads": 666,
+			"artisans": 132,
+			"point": 1250
+		},
+		{
+			"current": "Red T3⭐⭐-2",
+			"target": "Red T3⭐⭐-3",
+			"satin": 66600,
+			"threads": 666,
+			"artisans": 132,
+			"point": 1250
+		},
+		{
+			"current": "Red T3⭐⭐-3",
+			"target": "Red T3⭐⭐-4",
+			"satin": 66600,
+			"threads": 666,
+			"artisans": 132,
+			"point": 1250
+		},
+		{
+			"current": "Red T3⭐⭐-4",
 			"target": "Red T3⭐⭐⭐",
-			"satin": 333000,
-			"threads": 3330,
-			"artisans": 660,
-			"point": 6250
+			"satin": 66600,
+			"threads": 666,
+			"artisans": 132,
+			"point": 1250
 		},
 		{
 			"current": "Red T3⭐⭐⭐",
+			"target": "Red T3⭐⭐⭐-1",
+			"satin": 71600,
+			"threads": 716,
+			"artisans": 144,
+			"point": 1250
+		},
+		{
+			"current": "Red T3⭐⭐⭐-1",
+			"target": "Red T3⭐⭐⭐-2",
+			"satin": 71600,
+			"threads": 716,
+			"artisans": 144,
+			"point": 1250
+		},
+		{
+			"current": "Red T3⭐⭐⭐-2",
+			"target": "Red T3⭐⭐⭐-3",
+			"satin": 71600,
+			"threads": 716,
+			"artisans": 144,
+			"point": 1250
+		},
+		{
+			"current": "Red T3⭐⭐⭐-3",
+			"target": "Red T3⭐⭐⭐-4",
+			"satin": 71600,
+			"threads": 716,
+			"artisans": 144,
+			"point": 1250
+		},
+		{
+			"current": "Red T3⭐⭐⭐-4",
 			"target": "Red T4",
-			"satin": 358000,
-			"threads": 3580,
-			"artisans": 720,
-			"point": 6250
+			"satin": 71600,
+			"threads": 716,
+			"artisans": 144,
+			"point": 1250
 		},
 		{
 			"current": "Red T4",
+			"target": "Red T4-1",
+			"satin": 76800,
+			"threads": 768,
+			"artisans": 154,
+			"point": 1250
+		},
+		{
+			"current": "Red T4-1",
+			"target": "Red T4-2",
+			"satin": 76800,
+			"threads": 768,
+			"artisans": 154,
+			"point": 1250
+		},
+		{
+			"current": "Red T4-2",
+			"target": "Red T4-3",
+			"satin": 76800,
+			"threads": 768,
+			"artisans": 154,
+			"point": 1250
+		},
+		{
+			"current": "Red T4-3",
+			"target": "Red T4-4",
+			"satin": 76800,
+			"threads": 768,
+			"artisans": 154,
+			"point": 1250
+		},
+		{
+			"current": "Red T4-4",
 			"target": "Red T4⭐",
-			"satin": 384000,
-			"threads": 3840,
-			"artisans": 770,
-			"point": 6250
+			"satin": 76800,
+			"threads": 768,
+			"artisans": 154,
+			"point": 1250
 		},
 		{
 			"current": "Red T4⭐",
+			"target": "Red T4⭐-1",
+			"satin": 80600,
+			"threads": 806,
+			"artisans": 162,
+			"point": 1250
+		},
+		{
+			"current": "Red T4⭐-1",
+			"target": "Red T4⭐-2",
+			"satin": 80600,
+			"threads": 806,
+			"artisans": 162,
+			"point": 1250
+		},
+		{
+			"current": "Red T4⭐-2",
+			"target": "Red T4⭐-3",
+			"satin": 80600,
+			"threads": 806,
+			"artisans": 162,
+			"point": 1250
+		},
+		{
+			"current": "Red T4⭐-3",
+			"target": "Red T4⭐-4",
+			"satin": 80600,
+			"threads": 806,
+			"artisans": 162,
+			"point": 1250
+		},
+		{
+			"current": "Red T4⭐-4",
 			"target": "Red T4⭐⭐",
-			"satin": 403000,
-			"threads": 4030,
-			"artisans": 810,
-			"point": 6250
+			"satin": 80600,
+			"threads": 806,
+			"artisans": 162,
+			"point": 1250
 		},
 		{
 			"current": "Red T4⭐⭐",
+			"target": "Red T4⭐⭐-1",
+			"satin": 84600,
+			"threads": 846,
+			"artisans": 170,
+			"point": 1250
+		},
+		{
+			"current": "Red T4⭐⭐-1",
+			"target": "Red T4⭐⭐-2",
+			"satin": 84600,
+			"threads": 846,
+			"artisans": 170,
+			"point": 1250
+		},
+		{
+			"current": "Red T4⭐⭐-2",
+			"target": "Red T4⭐⭐-3",
+			"satin": 84600,
+			"threads": 846,
+			"artisans": 170,
+			"point": 1250
+		},
+		{
+			"current": "Red T4⭐⭐-3",
+			"target": "Red T4⭐⭐-4",
+			"satin": 84600,
+			"threads": 846,
+			"artisans": 170,
+			"point": 1250
+		},
+		{
+			"current": "Red T4⭐⭐-4",
 			"target": "Red T4⭐⭐⭐",
-			"satin": 423000,
-			"threads": 4230,
-			"artisans": 850,
-			"point": 6250
+			"satin": 84600,
+			"threads": 846,
+			"artisans": 170,
+			"point": 1250
 		},
 		{
 			"current": "Red T4⭐⭐⭐",
+			"target": "Red T4⭐⭐⭐-1",
+			"satin": 90200,
+			"threads": 902,
+			"artisans": 182,
+			"point": 1250
+		},
+		{
+			"current": "Red T4⭐⭐⭐-1",
+			"target": "Red T4⭐⭐⭐-2",
+			"satin": 90200,
+			"threads": 902,
+			"artisans": 182,
+			"point": 1250
+		},
+		{
+			"current": "Red T4⭐⭐⭐-2",
+			"target": "Red T4⭐⭐⭐-3",
+			"satin": 90200,
+			"threads": 902,
+			"artisans": 182,
+			"point": 1250
+		},
+		{
+			"current": "Red T4⭐⭐⭐-3",
+			"target": "Red T4⭐⭐⭐-4",
+			"satin": 90200,
+			"threads": 902,
+			"artisans": 182,
+			"point": 1250
+		},
+		{
+			"current": "Red T4⭐⭐⭐-4",
 			"target": "Red T5",
-			"satin": 451000,
-			"threads": 4510,
-			"artisans": 910,
-			"point": 6250
+			"satin": 90200,
+			"threads": 902,
+			"artisans": 182,
+			"point": 1250
 		},
 		{
 			"current": "Red T5",
+			"target": "Red T5-1",
+			"satin": 95800,
+			"threads": 958,
+			"artisans": 194,
+			"point": 1250
+		},
+		{
+			"current": "Red T5-1",
+			"target": "Red T5-2",
+			"satin": 95800,
+			"threads": 958,
+			"artisans": 194,
+			"point": 1250
+		},
+		{
+			"current": "Red T5-2",
+			"target": "Red T5-3",
+			"satin": 95800,
+			"threads": 958,
+			"artisans": 194,
+			"point": 1250
+		},
+		{
+			"current": "Red T5-3",
+			"target": "Red T5-4",
+			"satin": 95800,
+			"threads": 958,
+			"artisans": 194,
+			"point": 1250
+		},
+		{
+			"current": "Red T5-4",
 			"target": "Red T5⭐",
-			"satin": 479000,
-			"threads": 4790,
-			"artisans": 970,
-			"point": 6250
+			"satin": 95800,
+			"threads": 958,
+			"artisans": 194,
+			"point": 1250
 		},
 		{
 			"current": "Red T5⭐",
+			"target": "Red T5⭐-1",
+			"satin": 101400,
+			"threads": 1014,
+			"artisans": 206,
+			"point": 1250
+		},
+		{
+			"current": "Red T5⭐-1",
+			"target": "Red T5⭐-2",
+			"satin": 101400,
+			"threads": 1014,
+			"artisans": 206,
+			"point": 1250
+		},
+		{
+			"current": "Red T5⭐-2",
+			"target": "Red T5⭐-3",
+			"satin": 101400,
+			"threads": 1014,
+			"artisans": 206,
+			"point": 1250
+		},
+		{
+			"current": "Red T5⭐-3",
+			"target": "Red T5⭐-4",
+			"satin": 101400,
+			"threads": 1014,
+			"artisans": 206,
+			"point": 1250
+		},
+		{
+			"current": "Red T5⭐-4",
 			"target": "Red T5⭐⭐",
-			"satin": 507000,
-			"threads": 5070,
-			"artisans": 1030,
-			"point": 6250
+			"satin": 101400,
+			"threads": 1014,
+			"artisans": 206,
+			"point": 1250
 		},
 		{
 			"current": "Red T5⭐⭐",
+			"target": "Red T5⭐⭐-1",
+			"satin": 107000,
+			"threads": 1070,
+			"artisans": 218,
+			"point": 1250
+		},
+		{
+			"current": "Red T5⭐⭐-1",
+			"target": "Red T5⭐⭐-2",
+			"satin": 107000,
+			"threads": 1070,
+			"artisans": 218,
+			"point": 1250
+		},
+		{
+			"current": "Red T5⭐⭐-2",
+			"target": "Red T5⭐⭐-3",
+			"satin": 107000,
+			"threads": 1070,
+			"artisans": 218,
+			"point": 1250
+		},
+		{
+			"current": "Red T5⭐⭐-3",
+			"target": "Red T5⭐⭐-4",
+			"satin": 107000,
+			"threads": 1070,
+			"artisans": 218,
+			"point": 1250
+		},
+		{
+			"current": "Red T5⭐⭐-4",
 			"target": "Red T5⭐⭐⭐",
-			"satin": 535000,
-			"threads": 5350,
-			"artisans": 1090,
-			"point": 6250
+			"satin": 107000,
+			"threads": 1070,
+			"artisans": 218,
+			"point": 1250
 		},
 		{
 			"current": "Red T5⭐⭐⭐",
+			"target": "Red T5⭐⭐⭐-1",
+			"satin": 109600,
+			"threads": 1096,
+			"artisans": 222,
+			"point": 1250
+		},
+		{
+			"current": "Red T5⭐⭐⭐-1",
+			"target": "Red T5⭐⭐⭐-2",
+			"satin": 109600,
+			"threads": 1096,
+			"artisans": 222,
+			"point": 1250
+		},
+		{
+			"current": "Red T5⭐⭐⭐-2",
+			"target": "Red T5⭐⭐⭐-3",
+			"satin": 109600,
+			"threads": 1096,
+			"artisans": 222,
+			"point": 1250
+		},
+		{
+			"current": "Red T5⭐⭐⭐-3",
+			"target": "Red T5⭐⭐⭐-4",
+			"satin": 109600,
+			"threads": 1096,
+			"artisans": 222,
+			"point": 1250
+		},
+		{
+			"current": "Red T5⭐⭐⭐-4",
 			"target": "Red T6",
-			"satin": 548000,
-			"threads": 5480,
-			"artisans": 1110,
-			"point": 6250
+			"satin": 109600,
+			"threads": 1096,
+			"artisans": 222,
+			"point": 1250
 		},
 		{
 			"current": "Red T6",
+			"target": "Red T6-1",
+			"satin": 113000,
+			"threads": 1130,
+			"artisans": 228,
+			"point": 1250
+		},
+		{
+			"current": "Red T6-1",
+			"target": "Red T6-2",
+			"satin": 113000,
+			"threads": 1130,
+			"artisans": 228,
+			"point": 1250
+		},
+		{
+			"current": "Red T6-2",
+			"target": "Red T6-3",
+			"satin": 113000,
+			"threads": 1130,
+			"artisans": 228,
+			"point": 1250
+		},
+		{
+			"current": "Red T6-3",
+			"target": "Red T6-4",
+			"satin": 113000,
+			"threads": 1130,
+			"artisans": 228,
+			"point": 1250
+		},
+		{
+			"current": "Red T6-4",
 			"target": "Red T6⭐",
-			"satin": 565000,
-			"threads": 5650,
-			"artisans": 1140,
-			"point": 6250
+			"satin": 113000,
+			"threads": 1130,
+			"artisans": 228,
+			"point": 1250
 		},
 		{
 			"current": "Red T6⭐",
+			"target": "Red T6⭐-1",
+			"satin": 116400,
+			"threads": 1164,
+			"artisans": 234,
+			"point": 1250
+		},
+		{
+			"current": "Red T6⭐-1",
+			"target": "Red T6⭐-2",
+			"satin": 116400,
+			"threads": 1164,
+			"artisans": 234,
+			"point": 1250
+		},
+		{
+			"current": "Red T6⭐-2",
+			"target": "Red T6⭐-3",
+			"satin": 116400,
+			"threads": 1164,
+			"artisans": 234,
+			"point": 1250
+		},
+		{
+			"current": "Red T6⭐-3",
+			"target": "Red T6⭐-4",
+			"satin": 116400,
+			"threads": 1164,
+			"artisans": 234,
+			"point": 1250
+		},
+		{
+			"current": "Red T6⭐-4",
 			"target": "Red T6⭐⭐",
-			"satin": 582000,
-			"threads": 5820,
-			"artisans": 1170,
-			"point": 6250
+			"satin": 116400,
+			"threads": 1164,
+			"artisans": 234,
+			"point": 1250
 		},
 		{
 			"current": "Red T6⭐⭐",
+			"target": "Red T6⭐⭐-1",
+			"satin": 119800,
+			"threads": 1198,
+			"artisans": 242,
+			"point": 1250
+		},
+		{
+			"current": "Red T6⭐⭐-1",
+			"target": "Red T6⭐⭐-2",
+			"satin": 119800,
+			"threads": 1198,
+			"artisans": 242,
+			"point": 1250
+		},
+		{
+			"current": "Red T6⭐⭐-2",
+			"target": "Red T6⭐⭐-3",
+			"satin": 119800,
+			"threads": 1198,
+			"artisans": 242,
+			"point": 1250
+		},
+		{
+			"current": "Red T6⭐⭐-3",
+			"target": "Red T6⭐⭐-4",
+			"satin": 119800,
+			"threads": 1198,
+			"artisans": 242,
+			"point": 1250
+		},
+		{
+			"current": "Red T6⭐⭐-4",
 			"target": "Red T6⭐⭐⭐",
-			"satin": 599000,
-			"threads": 5990,
-			"artisans": 1210,
-			"point": 6250
+			"satin": 119800,
+			"threads": 1198,
+			"artisans": 242,
+			"point": 1250
 		}
 	]
 }

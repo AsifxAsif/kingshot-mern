@@ -90,13 +90,21 @@ export default function GovGearPage() {
   const rows = data?.['GOV Gear'] || [];
   const order = useMemo(() => buildOrder(rows), [rows]);
   const levels = useMemo(() => {
-    const set = new Set(['0']);
+    // Preserve data order so sub-steps (Gold T2⭐⭐⭐-1 … -4) appear in the dropdown
+    const ordered = ['0'];
+    const seen = new Set(['0']);
     for (const r of rows) {
-      if (r.current != null && r.current !== 'null') set.add(String(r.current));
-      if (r.target != null && r.target !== 'null') set.add(String(r.target));
+      for (const key of ['current', 'target']) {
+        const v = r[key];
+        if (v == null || v === 'null' || v === '') continue;
+        const s = String(v);
+        if (seen.has(s)) continue;
+        seen.add(s);
+        ordered.push(s);
+      }
     }
-    return Array.from(set).sort((a, b) => (order[a] ?? 0) - (order[b] ?? 0));
-  }, [rows, order, SCORE_RULES, activeEventId]);
+    return ordered;
+  }, [rows, SCORE_RULES, activeEventId]);
 
   const setPiece = (piece, field, value) => {
     if (!piece || !GEAR_PIECES.includes(piece)) return;
@@ -108,11 +116,16 @@ export default function GovGearPage() {
       }
       const cur = { ...(cleaned[piece] || {}), [field]: value };
       if (field === 'from') {
-        const fromO = order[String(value)] ?? 0;
-        for (const l of levels) {
-          if ((order[l] ?? 0) > fromO) {
-            cur.to = l;
-            break;
+        const idx = levels.indexOf(String(value ?? '0'));
+        if (idx >= 0 && idx < levels.length - 1) cur.to = levels[idx + 1];
+        else if (idx < 0) {
+          // fallback: first level above current in ordered list
+          const fromO = order[String(value)] ?? 0;
+          for (const l of levels) {
+            if ((order[l] ?? 0) > fromO) {
+              cur.to = l;
+              break;
+            }
           }
         }
         cur.active = false;
@@ -237,6 +250,7 @@ export default function GovGearPage() {
                       to={c.to ?? ''}
                       onFrom={(v) => setPiece(name, 'from', v)}
                       onTo={(v) => setPiece(name, 'to', v)}
+                      preserveOrder
                     />
                     {(() => {
                       const atMax = levels.length > 0 && String(c.from ?? '0') === String(levels[levels.length - 1]);
