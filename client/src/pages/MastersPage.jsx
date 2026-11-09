@@ -80,7 +80,6 @@ function parseEmblemFromAdvancement(adv) {
   return m ? parseInt(m[1], 10) : 0;
 }
 
-/** Extract status name from "5 Emblems · Acquaintance 1" */
 function advancementStatusName(adv) {
   if (!adv) return '';
   const parts = String(adv).split('·');
@@ -88,16 +87,6 @@ function advancementStatusName(adv) {
   return name || String(adv).trim();
 }
 
-/**
- * Affinity ladder as separate steps:
- *   0,1,…,9, 10, Acquaintance 1, 11,…, 90, Close 3, 91,…, 100, Kindred Soul
- *
- * Cost model (matches game data):
- *   - affinityCost on level N is the cost to advance FROM N (or its status) TO N+1
- *   - Status steps (Close 3, etc.) cost emblems to *enter*; the row’s affinityCost
- *     is paid when *leaving* that status toward the next numeric level
- *   Example: Close 3 → 91 uses level 90’s affinityCost (3500), NOT level 91’s (3550)
- */
 function affinitySteps(master) {
   const rows = [...(master?.affinity || [])].sort(
     (a, b) => (Number(a.level) || 0) - (Number(b.level) || 0)
@@ -208,14 +197,6 @@ function affinityReqLabel(master, milestoneLevel) {
   return `Affinity ${levelNum(milestoneLevel)}`;
 }
 
-/**
- * Skills unlock / level-up at the *status* step after milestone N
- * (e.g. Affinity 40 → Casual 1), not merely at numeric level N.
- *
- * When a status rank exists for that milestone, the player must be on that
- * status step (or later). Numeric-only level N without the status does NOT count.
- * When no status exists for the milestone, numeric level >= N is enough.
- */
 function meetsAffinityStatusReq(master, currentValue, milestoneLevel) {
   const need = levelNum(milestoneLevel);
   if (need <= 0) return true;
@@ -238,9 +219,6 @@ function meetsAffinityStatusReq(master, currentValue, milestoneLevel) {
 
   // Fallback when current value isn't a known step label
   if (status) {
-    // Require at least the milestone rank; without a resolvable step index we
-    // cannot prove the status was entered, so treat pure numbers carefully:
-    // only pass if numeric value is strictly past the milestone (player moved on)
     const curNum = affinityNumericValue(master, currentValue);
     return curNum > need;
   }
