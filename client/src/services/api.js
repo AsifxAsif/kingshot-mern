@@ -22,11 +22,12 @@ const BASE = resolveApiBase();
 function getToken() {
 	try {
 		// Stay logged in across browser restarts (until explicit Logout)
-		return (localStorage.getItem('kingshot_token') || sessionStorage.getItem('kingshot_token') || '');
+		return localStorage.getItem('kingshot_token') || sessionStorage.getItem('kingshot_token') || '';
 	} catch {
 		return '';
 	}
 }
+
 async function request(path, options = {}, tokenOverride) {
 	const token = tokenOverride !== undefined ? tokenOverride : getToken();
 	const headers = {
@@ -36,7 +37,7 @@ async function request(path, options = {}, tokenOverride) {
 	if (token) headers.Authorization = `Bearer ${token}`;
 	const res = await fetch(`${BASE}${path}`, {
 		...options,
-		headers
+		headers,
 	});
 	const data = await res.json().catch(() => ({}));
 	if (!res.ok) {
@@ -48,73 +49,112 @@ async function request(path, options = {}, tokenOverride) {
 	}
 	return data;
 }
+
 export const api = {
 	get: (path, token) => request(path, {}, token),
-	post: (path, body, token) => request(path, {
-		method: 'POST',
-		body: JSON.stringify(body)
-	}, token),
-	put: (path, body, token) => request(path, {
-		method: 'PUT',
-		body: JSON.stringify(body)
-	}, token),
-	delete: (path, token) => request(path, {
-		method: 'DELETE'
-	}, token),
+	post: (path, body, token) =>
+		request(
+			path,
+			{
+				method: 'POST',
+				body: JSON.stringify(body),
+			},
+			token
+		),
+	put: (path, body, token) =>
+		request(
+			path,
+			{
+				method: 'PUT',
+				body: JSON.stringify(body),
+			},
+			token
+		),
+	delete: (path, token) =>
+		request(
+			path,
+			{
+				method: 'DELETE',
+			},
+			token
+		),
 };
+
 export async function listPresets() {
 	return api.get('/presets');
 }
+
 export async function getPreset(name) {
 	return api.get(`/presets/${encodeURIComponent(name)}`);
 }
+
 export async function createPreset(body) {
 	// allow string name or full body
 	if (typeof body === 'string') {
 		return api.post('/presets', {
-			name: body
+			name: body,
 		});
 	}
 	return api.post('/presets', body);
 }
+
 export async function updatePreset(name, body) {
 	return api.put(`/presets/${encodeURIComponent(name)}`, body);
 }
+
 export async function deletePreset(name) {
 	return api.delete(`/presets/${encodeURIComponent(name)}`);
 }
+
 /** Rename UI label; server keeps storage name with _gameId */
 export async function renamePreset(name, displayName) {
 	return api.post(`/presets/${encodeURIComponent(name)}/rename`, {
-		displayName
+		displayName,
 	});
 }
+
 /** Reset preset to empty after server-side 30-day backup */
 export async function resetPreset(name) {
 	return api.post(`/presets/${encodeURIComponent(name)}/reset`, {});
 }
+
 export async function listPresetBackups() {
 	return api.get('/preset-backups');
 }
+
 export async function restorePresetBackup(id) {
 	return api.post(`/preset-backups/${encodeURIComponent(id)}/restore`, {});
 }
+
 export async function deletePresetBackup(id) {
 	return api.delete(`/preset-backups/${encodeURIComponent(id)}`);
 }
+
 export async function fetchGameData(type) {
 	return api.get(`/data/${type}`);
 }
+
 /** Alias used by useGameData.js */
 export async function getCollection(collection) {
 	return api.get(`/data/${collection}`);
 }
+
+/**
+ * Catalog fingerprint from the server.
+ * Changes after npm run seed / JSON replace so clients auto-clear game-data caches.
+ */
+export async function getCatalogVersion() {
+	return api.get('/catalog-version');
+}
+
 export async function register(body) {
 	return api.post('/auth/register', body);
 }
+
 export async function login(body) {
 	return api.post('/auth/login', body);
 }
+
 export async function me() {
 	return api.get('/auth/me');
 }

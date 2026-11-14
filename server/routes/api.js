@@ -1,32 +1,33 @@
-import {
-	rejectOperatorInjection
-} from '../utils/validate.js';
-import {
-	Router
-} from 'express';
+import { rejectOperatorInjection } from '../utils/validate.js';
+import { Router } from 'express';
 import * as dataController from '../controllers/dataController.js';
 import * as presetController from '../controllers/presetController.js';
 import * as authController from '../controllers/authController.js';
 import * as siteConfigController from '../controllers/siteConfigController.js';
 import * as playerController from '../controllers/playerController.js';
-import {
-	authLimiter,
-	writeLimiter
-} from '../middleware/security.js';
+import { authLimiter, writeLimiter } from '../middleware/security.js';
+
 const router = Router();
+
 // Public auth
 router.post('/auth/register', authLimiter, authController.register);
 router.post('/auth/login', authLimiter, authController.login);
 router.get('/auth/validate-game-id', authLimiter, authController.validateGameIdLookup);
 router.get('/site-config', siteConfigController.getSiteConfig);
+
 // Everything below requires a valid JWT
 router.use(authController.authRequired);
 router.use(rejectOperatorInjection);
+
 router.get('/auth/me', authController.me);
 router.get('/player', playerController.getPlayer);
 router.get('/player/refresh-status', playerController.getRefreshStatus);
 router.post('/player/refresh', writeLimiter, playerController.postRefresh);
+
+// Catalog version — clients compare this to localStorage and auto-clear stale game data
+router.get('/catalog-version', dataController.getCatalogVersion);
 router.get('/data/:collection', dataController.getCollection);
+
 router.get('/presets', presetController.listPresets);
 router.get('/preset-backups', presetController.listPresetBackups);
 router.post('/preset-backups/:id/restore', writeLimiter, presetController.restorePresetBackup);
@@ -37,4 +38,5 @@ router.put('/presets/:name', writeLimiter, presetController.updatePreset);
 router.post('/presets/:name/rename', writeLimiter, presetController.renamePreset);
 router.post('/presets/:name/reset', writeLimiter, presetController.resetPresetWithBackup);
 router.delete('/presets/:name', writeLimiter, presetController.deletePreset);
+
 export default router;
