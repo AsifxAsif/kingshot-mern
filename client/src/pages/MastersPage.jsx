@@ -80,6 +80,7 @@ function parseEmblemFromAdvancement(adv) {
   return m ? parseInt(m[1], 10) : 0;
 }
 
+/** Extract status name from "5 Emblems · Acquaintance 1" */
 function advancementStatusName(adv) {
   if (!adv) return '';
   const parts = String(adv).split('·');
@@ -87,6 +88,16 @@ function advancementStatusName(adv) {
   return name || String(adv).trim();
 }
 
+/**
+ * Affinity ladder as separate steps:
+ *   0,1,…,9, 10, Acquaintance 1, 11,…, 90, Close 3, 91,…, 100, Kindred Soul
+ *
+ * Cost model (matches game data):
+ *   - affinityCost on level N is the cost to advance FROM N (or its status) TO N+1
+ *   - Status steps (Close 3, etc.) cost emblems to *enter*; the row’s affinityCost
+ *     is paid when *leaving* that status toward the next numeric level
+ *   Example: Close 3 → 91 uses level 90’s affinityCost (3500), NOT level 91’s (3550)
+ */
 function affinitySteps(master) {
   const rows = [...(master?.affinity || [])].sort(
     (a, b) => (Number(a.level) || 0) - (Number(b.level) || 0)
@@ -197,6 +208,14 @@ function affinityReqLabel(master, milestoneLevel) {
   return `Affinity ${levelNum(milestoneLevel)}`;
 }
 
+/**
+ * Skills unlock / level-up at the *status* step after milestone N
+ * (e.g. Affinity 40 → Casual 1), not merely at numeric level N.
+ *
+ * When a status rank exists for that milestone, the player must be on that
+ * status step (or later). Numeric-only level N without the status does NOT count.
+ * When no status exists for the milestone, numeric level >= N is enough.
+ */
 function meetsAffinityStatusReq(master, currentValue, milestoneLevel) {
   const need = levelNum(milestoneLevel);
   if (need <= 0) return true;
@@ -219,6 +238,9 @@ function meetsAffinityStatusReq(master, currentValue, milestoneLevel) {
 
   // Fallback when current value isn't a known step label
   if (status) {
+    // Require at least the milestone rank; without a resolvable step index we
+    // cannot prove the status was entered, so treat pure numbers carefully:
+    // only pass if numeric value is strictly past the milestone (player moved on)
     const curNum = affinityNumericValue(master, currentValue);
     return curNum > need;
   }
@@ -573,6 +595,8 @@ function UpgradeRow({
   // Whole-card lock only when skill is not unlocked yet.
   // Level-up Affinity / Total Skill Lv. prereqs only disable the Upgrade button.
   const skillLocked = c.kind === 'skill' && c.unlockUnmet && prereqEnabled;
+  // When prerequisite check is on, unmet prereqs block Upgrade; when off, only warn
+  const prereqBlocks = prereqEnabled && c.prereqsMet === false;
 
   return (
     <div
@@ -674,7 +698,25 @@ function UpgradeRow({
           </div>
         ) : (
         <>
-        {c.kind === 'skill' && c.unlockUnmet && !prereqEnabled ? (
+        {c.kind === 'skill' && c.unlockUnmetNow && !c.unlockUnmet ? (
+          <div
+            className="status-pane"
+            style={{
+              margin: '0 0 10px',
+              padding: '10px 12px',
+              borderRadius: 8,
+              border: '1px dashed var(--border-color)',
+              color: 'var(--text-secondary)',
+              fontSize: '0.85rem',
+            }}
+          >
+            Unlocks with your planned affinity (
+            <strong style={{ color: 'var(--text-primary)' }}>
+              {c.unlockLabel || c.unlock || '—'}
+            </strong>
+            ). Not unlocked at current affinity yet.
+          </div>
+        ) : c.kind === 'skill' && c.unlockUnmet && !prereqEnabled ? (
           <div
             className="status-pane"
             style={{
@@ -690,7 +732,7 @@ function UpgradeRow({
             <strong style={{ color: 'var(--text-primary)' }}>
               {c.unlockLabel || c.unlock || '—'}
             </strong>
-            ). Planning mode — levels and costs are editable.
+            ). Set Affinity target higher, or plan with prerequisite check off.
           </div>
         ) : null}
 
@@ -746,7 +788,11 @@ function UpgradeRow({
           />
         )}
 
-        {prereqEnabled && c.prereqItems?.length > 0 && c.to ? <PrereqList items={c.prereqItems} /> : null}
+        {c.kind === 'skill' && c.to && c.prereqItems?.length > 0 ? (
+          <PrereqList items={c.prereqItems} warnOnly={!prereqEnabled} showAll />
+        ) : c.prereqItems?.some((it) => it && !it.met) ? (
+          <PrereqList items={c.prereqItems} warnOnly={!prereqEnabled} />
+        ) : null}
 
         {c.kind === 'skill' && !c.atSkillMax && c.pathToMax > 0 ? (
           <div className="learning-xp-block">
@@ -810,30 +856,37 @@ function UpgradeRow({
         {!atMax && (
           <div className="checkbox-group">
             <label
-              className={`checkbox-label${!c.canAfford || !c.to ? ' is-disabled' : ''}`}
-              style={{ opacity: c.canAfford || !c.to ? 1 : 0.5 }}
+              className={`checkbox-label${!c.canAfford || prereqBlocks || !c.to ? ' is-disabled' : ''}`}
+              style={{ opacity: (c.canAfford && !prereqBlocks) || !c.to ? 1 : 0.5 }}
               title={
-                !c.prereqsMet
-                  ? 'Prerequisites not met — you can still plan; points count only after prereqs are met'
-                  : undefined
+                prereqBlocks
+                  ? 'Prerequisites not met'
+                  : !c.prereqsMet
+                    ? 'Prerequisites not met (check is off — you can still plan)'
+                    : !c.canAfford
+                      ? 'Not enough resources in Vault for this upgrade'
+                      : undefined
               }
             >
               <input
                 className="checkbox"
                 type="checkbox"
-                checked={!!c.active && !!c.canAfford}
+                checked={!!c.active && !!c.canAfford && !prereqBlocks}
                 disabled={
                   !c.to ||
                   String(c.from) === String(c.to) ||
-                  !c.canAfford
+                  !c.canAfford ||
+                  prereqBlocks
                 }
                 title={
-                  !c.canAfford
-                    ? 'Not enough resources in Vault for this upgrade'
-                    : undefined
+                  prereqBlocks
+                    ? 'Prerequisites not met'
+                    : !c.canAfford
+                      ? 'Not enough resources in Vault for this upgrade'
+                      : undefined
                 }
                 onChange={(e) => {
-                  if (!c.canAfford && e.target.checked) return;
+                  if ((!c.canAfford || prereqBlocks) && e.target.checked) return;
                   setField(c.masterId, c.fieldKey, 'active', e.target.checked);
                 }}
               />{' '}
@@ -1121,14 +1174,22 @@ export default function MastersPage() {
             prereqsMet: true,
           });
         }
+        // Current affinity (from) vs planned affinity (target if set).
+        // Skill unlock + level gates are evaluated against the planned relationship
+        // so upgrading Affinity → Casual 1 unlocks matching skills/levels in the plan.
         const curAffVal = (ms.affinity || {}).from ?? '0';
+        const plannedAffVal =
+          ms.affinity?.to != null && String(ms.affinity.to) !== ''
+            ? String(ms.affinity.to)
+            : String(curAffVal);
 
         // Precompute Total Skill Lv. / Skill power once per master using correct state keys
+        // Use planned affinity so skills unlocked by the affinity target count in the plan
         let totalSkillLv = 0;
         let skillPower = 0;
         (master.skills || []).forEach((skillRow, si) => {
           const sk = skillStateKey(skillRow, si);
-          const fromLv = effectiveSkillFromLevel(skillRow, ms[sk], master, curAffVal);
+          const fromLv = effectiveSkillFromLevel(skillRow, ms[sk], master, plannedAffVal);
           totalSkillLv += fromLv;
           for (const row of skillRow.levels || []) {
             const rl = Number(row.level) || 0;
@@ -1145,6 +1206,8 @@ export default function MastersPage() {
           const unlockLabel =
             unlockAff > 0 ? affinityReqLabel(master, unlockAff) : skill.unlock || '';
           const unlockUnmet =
+            unlockAff > 0 && !meetsAffinityStatusReq(master, plannedAffVal, unlockAff);
+          const unlockUnmetNow =
             unlockAff > 0 && !meetsAffinityStatusReq(master, curAffVal, unlockAff);
           // Unlocked skills start at Lv 1 (not 0). Locked skills still default UI to 1
           // for planning, but Total Skill sum counts them as 0 via effectiveSkillFromLevel.
@@ -1180,68 +1243,75 @@ export default function MastersPage() {
             speedupOn && remainingSeconds > 0 ? Math.ceil(remainingSeconds / 60) : 0;
           const basePoints = manuscripts * (SCORE_RULES.master_manuscript || 0);
 
-          const needAff = to ? skillLevelAffinityReq(skill, to) : 0;
           const prereqItems = [];
-          if (needAff > 0) {
-            const met = meetsAffinityStatusReq(master, curAffVal, needAff);
-            const label = affinityReqLabel(master, needAff);
-            prereqItems.push({
-              raw: `Need ${label}`,
-              name: 'Affinity',
-              level: label,
-              have: curAffVal || '0',
-              met,
-              tracked: true,
-              detail: met ? undefined : `current affinity: ${curAffVal || '0'}`,
-            });
-          }
+          const fromN = levelNum(from);
+          const tgt = to ? levelNum(to) : 0;
 
-          // Non-affinity gates: Total Skill Lv. / Skill power
-          // Only requirements on levels you are upgrading into (from, to]
-          if (to) {
-            const fromN = levelNum(from);
-            const tgt = levelNum(to);
-            // Deduplicate same Total Skill / Skill power need (keep highest only)
-            let bestTotalNeed = 0;
-            let bestPowerNeed = 0;
+          // Level-up gates for the selected skill range (from, to] only.
+          // Unlock is shown on the card header — do not repeat it in Prerequisites.
+          if (to && tgt > fromN) {
+            const affNeeds = new Set();
+            const totalNeeds = new Set();
+            const powerNeeds = new Set();
             for (const row of skill.levels || []) {
               const rl = Number(row.level) || 0;
-              if (rl <= fromN || rl > tgt || !row.requirement) continue;
-              const text = String(row.requirement).trim();
-              if (/Affinity\s*\d+/i.test(text)) continue;
+              // Levels you are buying: after current, up to target (inclusive)
+              if (rl <= fromN || rl > tgt) continue;
+              const text = String(row.requirement || '').trim();
+              if (!text) continue;
+              const am = text.match(/Affinity\s*(\d+)/i);
               const tsm = text.match(/Total\s*Skill\s*Lv\.?\s*(\d+)/i);
               const pm = text.match(/Skill\s*power\s*(\d+)/i);
-              if (tsm) bestTotalNeed = Math.max(bestTotalNeed, parseInt(tsm[1], 10));
-              else if (pm) bestPowerNeed = Math.max(bestPowerNeed, parseInt(pm[1], 10));
+              if (am) affNeeds.add(parseInt(am[1], 10));
+              else if (tsm) totalNeeds.add(parseInt(tsm[1], 10));
+              else if (pm) powerNeeds.add(parseInt(pm[1], 10));
             }
-            if (bestTotalNeed > 0) {
+            // Fallback: some catalogs only mark a few milestone rows — use max Affinity
+            // required at or below target (still skip pure unlock if it equals unlock only
+            // and no higher gate exists in range... always include highest gate to target).
+            if (affNeeds.size === 0) {
+              const fallback = skillLevelAffinityReq(skill, to);
+              if (fallback > 0) affNeeds.add(fallback);
+            }
+            [...affNeeds].sort((a, b) => a - b).forEach((need) => {
+              // Unlock affinity is shown on the card header — omit from level-up list
+              if (unlockAff > 0 && need === unlockAff) return;
+              const met = meetsAffinityStatusReq(master, plannedAffVal, need);
+              const label = affinityReqLabel(master, need);
               prereqItems.push({
-                raw: `Total Skill Lv. ${bestTotalNeed}`,
+                raw: `Need ${label}`,
+                name: 'Affinity',
+                level: label,
+                have: plannedAffVal || '0',
+                met,
+                tracked: true,
+                detail: met
+                  ? undefined
+                  : `planned affinity: ${plannedAffVal || '0'} (now: ${curAffVal || '0'})`,
+              });
+            });
+            [...totalNeeds].sort((a, b) => a - b).forEach((need) => {
+              prereqItems.push({
+                raw: `Total Skill Lv. ${need}`,
                 name: 'Total Skill Lv.',
-                level: bestTotalNeed,
+                level: need,
                 have: totalSkillLv,
-                met: totalSkillLv >= bestTotalNeed,
+                met: totalSkillLv >= need,
                 tracked: true,
-                detail:
-                  totalSkillLv >= bestTotalNeed
-                    ? undefined
-                    : `have ${totalSkillLv}, need ${bestTotalNeed}`,
+                detail: totalSkillLv >= need ? undefined : `have ${totalSkillLv}, need ${need}`,
               });
-            }
-            if (bestPowerNeed > 0) {
+            });
+            [...powerNeeds].sort((a, b) => a - b).forEach((need) => {
               prereqItems.push({
-                raw: `Skill power ${bestPowerNeed}`,
+                raw: `Skill power ${need}`,
                 name: 'Skill power',
-                level: bestPowerNeed,
+                level: need,
                 have: skillPower,
-                met: skillPower >= bestPowerNeed,
+                met: skillPower >= need,
                 tracked: true,
-                detail:
-                  skillPower >= bestPowerNeed
-                    ? undefined
-                    : `have ${skillPower}, need ${bestPowerNeed}`,
+                detail: skillPower >= need ? undefined : `have ${skillPower}, need ${need}`,
               });
-            }
+            });
           }
 
           raw.push({
@@ -1272,13 +1342,11 @@ export default function MastersPage() {
             speedupOn,
             active: !!ss.active,
             prereqItems,
-            // Soft-lock only while prereq checks are enforced
-            prereqsMet:
-              unlockUnmet && prereqEnabled
-                ? false
-                : prereqEnabled
-                  ? prereqItems.filter((p) => p.tracked !== false).every((p) => p.met)
-                  : true,
+            plannedAffVal,
+            curAffVal,
+            unlockUnmetNow,
+            // Real status always (for warnings). Blocking uses planned affinity when target is set.
+            prereqsMet: !unlockUnmet && prereqItems.filter((p) => p.tracked !== false).every((p) => p.met),
           });
         });
       }

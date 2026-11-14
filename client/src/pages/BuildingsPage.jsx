@@ -124,7 +124,8 @@ export default function BuildingsPage() {
       const prereq = evaluateRequirements(reqRaw, bState, {});
       // Toggle lives on building buffs panel (default ON)
       const prereqEnabled = buffs.prereqCheck !== false;
-      const prereqsMet = prereqEnabled ? prereq.allMet : true;
+      // Always compute real status so UI can warn even when checks are off
+      const prereqsMet = !!prereq.allMet;
       return {
         id: name, name, levels, s, from, to, steps, costs, points,
         totalTime, buffedTime, speedupMins, active: !!s.active,
@@ -136,7 +137,7 @@ export default function BuildingsPage() {
       raw.map((c) => ({
         id: c.id,
         costs: c.costs,
-        active: c.active && c.prereqsMet,
+        active: !!c.active && (!c.prereqEnabled || c.prereqsMet),
         speedupMins: c.speedupMins,
         speedupKey: c.speedupKey,
       })),
@@ -144,7 +145,8 @@ export default function BuildingsPage() {
     );
     return raw.map((c) => {
       const a = afford.get(c.id) || { canAfford: true, vaultBefore: baseVault };
-      const canAfford = a.canAfford && c.prereqsMet;
+      const canAfford = a.canAfford;
+      const prereqBlocks = c.prereqEnabled && !c.prereqsMet;
       const resolvedCosts = a.resolvedCosts || c.costs;
       const usedSpd = a.speedupAlloc?.used ?? 0;
       const pts =
@@ -219,26 +221,28 @@ export default function BuildingsPage() {
               {!atMax && (
               <div className="checkbox-group">
                 <label
-                  className={`checkbox-label${!c.to || !c.canAfford || !c.prereqsMet ? ' is-disabled' : ''}`}
-                  style={{ opacity: (c.canAfford && c.prereqsMet) || !c.to ? 1 : 0.5 }}
+                  className={`checkbox-label${!c.to || !c.canAfford || c.prereqBlocks ? ' is-disabled' : ''}`}
+                  style={{ opacity: (c.canAfford && !c.prereqBlocks) || !c.to ? 1 : 0.5 }}
                   title={
-                    !c.prereqsMet
+                    c.prereqBlocks
                       ? 'Prerequisites not met'
                       : !c.canAfford
                         ? 'Not enough resources in Vault'
-                        : undefined
+                        : !c.prereqsMet
+                          ? 'Prerequisites not met (check is off — you can still plan)'
+                          : undefined
                   }
                 >
                   <input
                     className="checkbox"
                     type="checkbox"
-                    checked={!!c.active && c.canAfford && c.prereqsMet}
-                    disabled={!c.to || !c.canAfford || !c.prereqsMet}
+                    checked={!!c.active && c.canAfford && !c.prereqBlocks}
+                    disabled={!c.to || !c.canAfford || !!c.prereqBlocks}
                     onChange={(e) => {
-                      if (e.target.checked && (!c.canAfford || !c.prereqsMet)) return;
+                      if (e.target.checked && (!c.canAfford || c.prereqBlocks)) return;
                       setField(c.name, 'active', e.target.checked);
                     }}
-                  />{' '}
+                  />
                   Upgrade
                 </label>
                 <label className="checkbox-label">
@@ -252,11 +256,11 @@ export default function BuildingsPage() {
                 </label>
               </div>
               )}
-              {c.prereqEnabled && c.steps.length > 0 && c.prereq?.items?.length > 0 && (
-                <PrereqList items={c.prereq.items} />
+              {c.steps.length > 0 && c.prereq?.items?.some((it) => it && !it.met) && (
+                <PrereqList items={c.prereq.items} warnOnly={!c.prereqEnabled} />
               )}
               <CostStatus
-                active={!!c.active && c.canAfford && c.prereqsMet}
+                active={!!c.active && c.canAfford && !c.prereqBlocks}
                 hasSelection={!!c.to && c.steps.length > 0}
                 atMax={atMax}
                 points={c.points}
@@ -265,7 +269,7 @@ export default function BuildingsPage() {
                 vault={c.vaultBefore || baseVault}
                       canAfford={c.canAfford}
                 sharedVault={c.sharedVault}
-                locked={!!c.active && (!c.canAfford || !c.prereqsMet)}
+                locked={!!c.active && (!c.canAfford || !!c.prereqBlocks)}
                 extra={
                   c.steps.length > 0 ? (
                     <div className="status-time-line">⏱️ {formatSecondsToTime(c.buffedTime)}</div>

@@ -17,9 +17,12 @@ export function clearGameDataCache() {
 			if (k && (k.startsWith('ks_gamedata_') || k.startsWith(LS_PREFIX))) keys.push(k);
 		}
 		keys.forEach((k) => sessionStorage.removeItem(k));
+		// Only game-data catalog keys — never presets / auth / calculator snapshots
 		for (let i = localStorage.length - 1; i >= 0; i--) {
 			const k = localStorage.key(i);
-			if (k && (k.startsWith('ks_gamedata_') || k.startsWith(LS_PREFIX) || k === VERSION_KEY)) {
+			if (!k) continue;
+			if (k.startsWith('ks_preset') || k.startsWith('kingshot_') || k === 'ks_active_preset') continue;
+			if (k.startsWith('ks_gamedata_') || k.startsWith(LS_PREFIX) || k === VERSION_KEY) {
 				localStorage.removeItem(k);
 			}
 		}
