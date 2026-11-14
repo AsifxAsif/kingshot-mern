@@ -9420,7 +9420,7 @@
               "level": 3,
               "values": "+6% prep points · +1 daily reward tier",
               "requirement": null,
-              "learningXP": 129600,
+              "learningXP": 86400,
               "manuscripts": 1000,
               "power": null
             },
@@ -9428,7 +9428,7 @@
               "level": 4,
               "values": "+8% prep points · +1 daily reward tier",
               "requirement": null,
-              "learningXP": 259200,
+              "learningXP": 129600,
               "manuscripts": 1500,
               "power": null
             },
@@ -9436,7 +9436,7 @@
               "level": 5,
               "values": "+10% prep points · +1 daily reward tier",
               "requirement": null,
-              "learningXP": 432000,
+              "learningXP": 172800,
               "manuscripts": 2000,
               "power": null
             },
@@ -9444,7 +9444,7 @@
               "level": 6,
               "values": "+12% prep points · +2 daily reward tiers",
               "requirement": null,
-              "learningXP": 648000,
+              "learningXP": 216000,
               "manuscripts": 2500,
               "power": null
             },
@@ -9452,7 +9452,7 @@
               "level": 7,
               "values": "+14% prep points · +2 daily reward tiers",
               "requirement": null,
-              "learningXP": 907200,
+              "learningXP": 259200,
               "manuscripts": 3000,
               "power": null
             },
@@ -9460,7 +9460,7 @@
               "level": 8,
               "values": "+16% prep points · +2 daily reward tiers",
               "requirement": null,
-              "learningXP": 1209600,
+              "learningXP": 302400,
               "manuscripts": 3500,
               "power": null
             },
@@ -9468,7 +9468,7 @@
               "level": 9,
               "values": "+18% prep points · +2 daily reward tiers",
               "requirement": null,
-              "learningXP": 1555200,
+              "learningXP": 345600,
               "manuscripts": 4000,
               "power": null
             },
@@ -9476,7 +9476,7 @@
               "level": 10,
               "values": "+20% prep points · +3 daily reward tiers",
               "requirement": null,
-              "learningXP": 1944000,
+              "learningXP": 388800,
               "manuscripts": 4500,
               "power": null
             }
@@ -9508,7 +9508,7 @@
               "level": 3,
               "values": "+15% Kingdom Coins · +1 shop item",
               "requirement": null,
-              "learningXP": 180600,
+              "learningXP": 120600,
               "manuscripts": 1000,
               "power": null
             },
@@ -9516,7 +9516,7 @@
               "level": 4,
               "values": "+20% Kingdom Coins · +1 shop item",
               "requirement": null,
-              "learningXP": 361800,
+              "learningXP": 181200,
               "manuscripts": 1500,
               "power": null
             },
@@ -9524,7 +9524,7 @@
               "level": 5,
               "values": "+25% Kingdom Coins · +1 shop item",
               "requirement": null,
-              "learningXP": 603600,
+              "learningXP": 241800,
               "manuscripts": 2000,
               "power": null
             },
@@ -9532,7 +9532,7 @@
               "level": 6,
               "values": "+30% Kingdom Coins · +2 shop items",
               "requirement": null,
-              "learningXP": 906000,
+              "learningXP": 302400,
               "manuscripts": 2500,
               "power": null
             },
@@ -9540,7 +9540,7 @@
               "level": 7,
               "values": "+35% Kingdom Coins · +2 shop items",
               "requirement": null,
-              "learningXP": 1268400,
+              "learningXP": 362400,
               "manuscripts": 3000,
               "power": null
             },
@@ -9548,7 +9548,7 @@
               "level": 8,
               "values": "+40% Kingdom Coins · +2 shop items",
               "requirement": null,
-              "learningXP": 1691400,
+              "learningXP": 423000,
               "manuscripts": 3500,
               "power": null
             },
@@ -9556,7 +9556,7 @@
               "level": 9,
               "values": "+45% Kingdom Coins · +2 shop items",
               "requirement": null,
-              "learningXP": 2175000,
+              "learningXP": 483600,
               "manuscripts": 4000,
               "power": null
             },
@@ -9564,7 +9564,7 @@
               "level": 10,
               "values": "+50% Kingdom Coins · +3 shop items",
               "requirement": null,
-              "learningXP": 2719200,
+              "learningXP": 544200,
               "manuscripts": 4500,
               "power": null
             }
@@ -9596,7 +9596,7 @@
               "level": 3,
               "values": "+4.5% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 317400,
+              "learningXP": 207000,
               "manuscripts": 1500,
               "power": 156000
             },
@@ -9604,7 +9604,7 @@
               "level": 4,
               "values": "+6% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 621000,
+              "learningXP": 303600,
               "manuscripts": 2200,
               "power": 156000
             },
@@ -9612,7 +9612,7 @@
               "level": 5,
               "values": "+7.5% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 1035600,
+              "learningXP": 414600,
               "manuscripts": 3000,
               "power": 156000
             },
@@ -9620,7 +9620,7 @@
               "level": 6,
               "values": "+9% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 1560600,
+              "learningXP": 525000,
               "manuscripts": 3800,
               "power": 156000
             },
@@ -9628,7 +9628,7 @@
               "level": 7,
               "values": "+10.5% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 2182200,
+              "learningXP": 621600,
               "manuscripts": 4500,
               "power": 156000
             },
@@ -9636,7 +9636,7 @@
               "level": 8,
               "values": "+12% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 2901000,
+              "learningXP": 718800,
               "manuscripts": 5200,
               "power": 156000
             },
@@ -9644,7 +9644,7 @@
               "level": 9,
               "values": "+13.5% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 3730200,
+              "learningXP": 829200,
               "manuscripts": 6000,
               "power": 156000
             },
@@ -9652,7 +9652,7 @@
               "level": 10,
               "values": "+15% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 4669800,
+              "learningXP": 939600,
               "manuscripts": 6800,
               "power": 156000
             },
@@ -9660,7 +9660,7 @@
               "level": 11,
               "values": "+16.5% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 5706600,
+              "learningXP": 1036800,
               "manuscripts": 7500,
               "power": 156000
             },
@@ -9668,7 +9668,7 @@
               "level": 12,
               "values": "+18% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 6840000,
+              "learningXP": 1133400,
               "manuscripts": 8200,
               "power": 156000
             },
@@ -9676,7 +9676,7 @@
               "level": 13,
               "values": "+19.5% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 8083800,
+              "learningXP": 1243800,
               "manuscripts": 9000,
               "power": 156000
             },
@@ -9684,7 +9684,7 @@
               "level": 14,
               "values": "+21% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 9535200,
+              "learningXP": 1451400,
               "manuscripts": 10500,
               "power": 156000
             },
@@ -9692,7 +9692,7 @@
               "level": 15,
               "values": "+22.5% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 11193600,
+              "learningXP": 1658400,
               "manuscripts": 12000,
               "power": 156000
             },
@@ -9700,7 +9700,7 @@
               "level": 16,
               "values": "+24% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 12852000,
+              "learningXP": 1658400,
               "manuscripts": 12000,
               "power": 156000
             },
@@ -9708,7 +9708,7 @@
               "level": 17,
               "values": "+25.5% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 14718000,
+              "learningXP": 1866000,
               "manuscripts": 13500,
               "power": 156000
             },
@@ -9716,7 +9716,7 @@
               "level": 18,
               "values": "+27% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 16584000,
+              "learningXP": 1866000,
               "manuscripts": 13500,
               "power": 156000
             },
@@ -9724,7 +9724,7 @@
               "level": 19,
               "values": "+28.5% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 18657600,
+              "learningXP": 2073600,
               "manuscripts": 15000,
               "power": 156000
             },
@@ -9732,7 +9732,7 @@
               "level": 20,
               "values": "+30% Lethality & Health (KvK Battle)",
               "requirement": null,
-              "learningXP": 20731200,
+              "learningXP": 2073600,
               "manuscripts": 15000,
               "power": 156000
             }
@@ -9764,7 +9764,7 @@
               "level": 3,
               "values": "+22,500 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 357000,
+              "learningXP": 232800,
               "manuscripts": 1500,
               "power": 156000
             },
@@ -9772,7 +9772,7 @@
               "level": 4,
               "values": "+30,000 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 699000,
+              "learningXP": 342000,
               "manuscripts": 2200,
               "power": 156000
             },
@@ -9780,7 +9780,7 @@
               "level": 5,
               "values": "+37,500 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 1165200,
+              "learningXP": 466200,
               "manuscripts": 3000,
               "power": 156000
             },
@@ -9788,7 +9788,7 @@
               "level": 6,
               "values": "+45,000 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 1756200,
+              "learningXP": 591000,
               "manuscripts": 3800,
               "power": 156000
             },
@@ -9796,7 +9796,7 @@
               "level": 7,
               "values": "+52,500 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 2455800,
+              "learningXP": 699600,
               "manuscripts": 4500,
               "power": 156000
             },
@@ -9804,7 +9804,7 @@
               "level": 8,
               "values": "+60,000 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 3264000,
+              "learningXP": 808200,
               "manuscripts": 5200,
               "power": 156000
             },
@@ -9812,7 +9812,7 @@
               "level": 9,
               "values": "+67,500 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 4197000,
+              "learningXP": 933000,
               "manuscripts": 6000,
               "power": 156000
             },
@@ -9820,7 +9820,7 @@
               "level": 10,
               "values": "+75,000 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 5254200,
+              "learningXP": 1057200,
               "manuscripts": 6800,
               "power": 156000
             },
@@ -9828,7 +9828,7 @@
               "level": 11,
               "values": "+82,500 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 6420600,
+              "learningXP": 1166400,
               "manuscripts": 7500,
               "power": 156000
             },
@@ -9836,7 +9836,7 @@
               "level": 12,
               "values": "+90,000 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 7695600,
+              "learningXP": 1275000,
               "manuscripts": 8200,
               "power": 156000
             },
@@ -9844,7 +9844,7 @@
               "level": 13,
               "values": "+97,500 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 9094800,
+              "learningXP": 1399200,
               "manuscripts": 9000,
               "power": 156000
             },
@@ -9852,7 +9852,7 @@
               "level": 14,
               "values": "+105,000 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 10727400,
+              "learningXP": 1632600,
               "manuscripts": 10500,
               "power": 156000
             },
@@ -9860,7 +9860,7 @@
               "level": 15,
               "values": "+112,500 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 12593400,
+              "learningXP": 1866000,
               "manuscripts": 12000,
               "power": 156000
             },
@@ -9868,7 +9868,7 @@
               "level": 16,
               "values": "+120,000 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 14459400,
+              "learningXP": 1866000,
               "manuscripts": 12000,
               "power": 156000
             },
@@ -9876,7 +9876,7 @@
               "level": 17,
               "values": "+127,500 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 16558800,
+              "learningXP": 2099400,
               "manuscripts": 13500,
               "power": 156000
             },
@@ -9884,7 +9884,7 @@
               "level": 18,
               "values": "+135,000 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 18658200,
+              "learningXP": 2099400,
               "manuscripts": 13500,
               "power": 156000
             },
@@ -9892,7 +9892,7 @@
               "level": 19,
               "values": "+142,500 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 20991000,
+              "learningXP": 2332800,
               "manuscripts": 15000,
               "power": 156000
             },
@@ -9900,7 +9900,7 @@
               "level": 20,
               "values": "+150,000 Rally Capacity (KvK Battle)",
               "requirement": null,
-              "learningXP": 23323800,
+              "learningXP": 2332800,
               "manuscripts": 15000,
               "power": 156000
             }
@@ -10641,7 +10641,7 @@
               "level": 3,
               "values": "+18% Trial Crystals",
               "requirement": null,
-              "learningXP": 518400,
+              "learningXP": 345600,
               "manuscripts": 2000,
               "power": null
             },
@@ -10649,7 +10649,7 @@
               "level": 4,
               "values": "+24% Trial Crystals",
               "requirement": null,
-              "learningXP": 1036800,
+              "learningXP": 518400,
               "manuscripts": 3000,
               "power": null
             },
@@ -10657,7 +10657,7 @@
               "level": 5,
               "values": "+30% Trial Crystals",
               "requirement": null,
-              "learningXP": 1728000,
+              "learningXP": 691200,
               "manuscripts": 4000,
               "power": null
             }
@@ -10689,7 +10689,7 @@
               "level": 3,
               "values": "25% double reward · +1 Pet Adventure",
               "requirement": null,
-              "learningXP": 518400,
+              "learningXP": 345600,
               "manuscripts": 2000,
               "power": null
             },
@@ -10697,7 +10697,7 @@
               "level": 4,
               "values": "30% double reward · +1 Pet Adventure",
               "requirement": null,
-              "learningXP": 1036800,
+              "learningXP": 518400,
               "manuscripts": 3000,
               "power": null
             },
@@ -10705,7 +10705,7 @@
               "level": 5,
               "values": "35% double reward · +2 Pet Adventures",
               "requirement": null,
-              "learningXP": 1728000,
+              "learningXP": 691200,
               "manuscripts": 4000,
               "power": null
             }
@@ -10737,7 +10737,7 @@
               "level": 3,
               "values": "3 Countess Chests / Terror · cap 6",
               "requirement": null,
-              "learningXP": 518400,
+              "learningXP": 345600,
               "manuscripts": 2000,
               "power": null
             },
@@ -10745,7 +10745,7 @@
               "level": 4,
               "values": "4 Countess Chests / Terror · cap 8",
               "requirement": null,
-              "learningXP": 1036800,
+              "learningXP": 518400,
               "manuscripts": 3000,
               "power": null
             },
@@ -10753,7 +10753,7 @@
               "level": 5,
               "values": "5 Countess Chests / Terror · cap 10",
               "requirement": null,
-              "learningXP": 1728000,
+              "learningXP": 691200,
               "manuscripts": 4000,
               "power": null
             }
@@ -10785,7 +10785,7 @@
               "level": 3,
               "values": "1 chest / 8 Journey · cap 5",
               "requirement": null,
-              "learningXP": 388800,
+              "learningXP": 259200,
               "manuscripts": 1200,
               "power": null
             },
@@ -10793,7 +10793,7 @@
               "level": 4,
               "values": "2 chests / 8 Journey · cap 6",
               "requirement": null,
-              "learningXP": 777600,
+              "learningXP": 388800,
               "manuscripts": 1800,
               "power": null
             },
@@ -10801,7 +10801,7 @@
               "level": 5,
               "values": "2 chests / 6 Journey · cap 8",
               "requirement": null,
-              "learningXP": 1296000,
+              "learningXP": 518400,
               "manuscripts": 2400,
               "power": null
             },
@@ -10809,7 +10809,7 @@
               "level": 6,
               "values": "2 chests / 5 Journey · cap 10",
               "requirement": null,
-              "learningXP": 1944000,
+              "learningXP": 648000,
               "manuscripts": 3000,
               "power": null
             },
@@ -10817,7 +10817,7 @@
               "level": 7,
               "values": "3 chests / 5 Journey · cap 12",
               "requirement": null,
-              "learningXP": 2721600,
+              "learningXP": 777600,
               "manuscripts": 3600,
               "power": null
             },
@@ -10825,7 +10825,7 @@
               "level": 8,
               "values": "3 chests / 5 Journey · cap 15",
               "requirement": null,
-              "learningXP": 3628800,
+              "learningXP": 907200,
               "manuscripts": 4200,
               "power": null
             },
@@ -10833,7 +10833,7 @@
               "level": 9,
               "values": "3 chests / 4 Journey · cap 18",
               "requirement": null,
-              "learningXP": 4665600,
+              "learningXP": 1036800,
               "manuscripts": 4800,
               "power": null
             },
@@ -10841,7 +10841,7 @@
               "level": 10,
               "values": "4 chests / 4 Journey · cap 20",
               "requirement": null,
-              "learningXP": 5832000,
+              "learningXP": 1166400,
               "manuscripts": 5400,
               "power": null
             }
