@@ -448,6 +448,9 @@ function skillLevelAffinityReq(skill, targetLv) {
   const unlock = skill?.unlock || '';
   const um = String(unlock).match(/Affinity\s*(\d+)/i);
   if (um) req = Math.max(req, parseInt(um[1], 10));
+  if (Number(skill?.unlockAffinity) > 0) {
+    req = Math.max(req, Number(skill.unlockAffinity));
+  }
   for (const row of skill?.levels || []) {
     const rowLv = Number(row.level) || 0;
     if (rowLv > 0 && rowLv <= lv && row.requirement) {
@@ -458,7 +461,6 @@ function skillLevelAffinityReq(skill, targetLv) {
   return req;
 }
 
-/** State key must match skill.id when present (e.g. skill70011), not skill1/skill2 */
 function skillStateKey(skill, idx) {
   return `skill${skill?.id != null && skill.id !== '' ? skill.id : idx + 1}`;
 }
@@ -1202,7 +1204,9 @@ export default function MastersPage() {
           const ss = ms[key] || {};
           const levels = skillLevels(skill);
           // Unlock affinity gate (status step at milestone, e.g. Affinity 40 → Casual 1)
-          const unlockAff = parseAffinityReqNumber(skill.unlock);
+          const unlockAff =
+            parseAffinityReqNumber(skill.unlock) ||
+            (Number(skill.unlockAffinity) > 0 ? Number(skill.unlockAffinity) : 0);
           const unlockLabel =
             unlockAff > 0 ? affinityReqLabel(master, unlockAff) : skill.unlock || '';
           const unlockUnmet =
